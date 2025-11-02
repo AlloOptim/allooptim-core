@@ -61,9 +61,9 @@ MIT License - see [LICENSE](LICENSE) file
 
 - Website: [allooptim.com](https://allooptim.com)
 - Email: jonas.tenhaaf@mail.de
-- LinkedIn: [Jonas ten Haaf]([https://de.linkedin.com/in/jonas-ten-haaf-geb-weigand-9854b0198/en])
+- LinkedIn: [Jonas ten Haaf](https://de.linkedin.com/in/jonas-ten-haaf-geb-weigand-9854b0198/en)
 
 ---
 
 **Built with ❤️ in Cologne, Germany**
-```
+
