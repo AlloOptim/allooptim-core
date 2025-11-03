@@ -119,16 +119,17 @@ def get_all_optimizers() -> list[AbstractOptimizer]:
 
 def get_optimizer_by_names(names: list[str]) -> list[AbstractOptimizer]:
     """Retrieve optimizer instances by their names."""
-    
-    available_names = get_all_optimizer_names()
-    
+
+    all_optimizers = get_all_optimizers()
+    name_to_optimizer = {optimizer.name: optimizer for optimizer in all_optimizers}
+
     for name in names:
-        if name not in available_names:
-            logger.warning(f"Optimizer '{name}' is not recognized. Available optimizers: {available_names}")
-            
-    optimizers = [optimizer() for optimizer in OPTIMIZER_LIST if optimizer().name in names]
-    
-    if len(optimizers) == 0:
+        if name not in name_to_optimizer:
+            logger.warning(f"Optimizer '{name}' is not recognized. Available optimizers: {list(name_to_optimizer.keys())}")
+
+    selected_optimizers = [optimizer for name, optimizer in name_to_optimizer.items() if name in names]
+
+    if len(selected_optimizers) == 0:
         logger.error("No valid optimizers found for the provided names.")
 
-    return optimizers
+    return selected_optimizers

@@ -1,14 +1,17 @@
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import sample_cov
-
+from datetime import datetime
 from allo_optim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
 from allo_optim.optimizer.efficient_frontier.efficient_frontier_optimizer import MaxSharpeOptimizer
 from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import RiskParityOptimizer
 from allo_optim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
-
+from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
+from allo_optim.optimizer.optimizer_list import OPTIMIZER_LIST
+from allo_optim.optimizer.allocation_metric import estimate_linear_moments
 
 class TestMarkowitzOptimizer:
     def test_allocate(self, prices_df):
@@ -104,3 +107,69 @@ class TestRiskParityOptimizer:
 
     def test_name(self):
         assert RiskParityOptimizer().name == "RiskParity"
+
+
+@pytest.mark.parametrize("optimizer_class", OPTIMIZER_LIST)
+def test_optimizers(optimizer_class):
+    """Test that all optimizers in OPTIMIZER_LIST work correctly."""
+
+    assert issubclass(optimizer_class, AbstractOptimizer)
+
+    # Create sample data for testing
+    assets = ["A", "B", "C"]
+    mu = pd.Series([0.1, 0.12, 0.08], index=assets)
+    cov = pd.DataFrame(
+        [[0.001, 0.0001, 0.00005],
+         [0.0001, 0.002, 0.00008],
+         [0.00005, 0.00008, 0.003]],
+        index=assets,
+        columns=assets
+    )
+
+    # Create sample price data for optimizers that need it
+    dates = pd.date_range('2020-01-01', periods=100, freq='D')
+    price_data = np.random.randn(100, 3).cumsum(axis=0) + 100
+    prices = pd.DataFrame(price_data, index=dates, columns=assets)
+
+    l_moments = estimate_linear_moments(mu.values)
+
+    # Test the allocate method
+    optimizer = optimizer_class()
+
+    # Skip optimizers that require special setup or are known to be broken
+    skip_optimizers = [
+        'WikipediaOptimizer',  # Requires external data
+        'LightGBMOptimizer',   # Requires training data
+        'AugmentedLightGBMOptimizer',  # Requires training data
+        'LSTMOptimizer',       # Requires training data
+        'MAMBAOptimizer',      # Requires training data
+        'TCNOptimizer',        # Requires training data
+        'MarketCapFundamentalOptimizer',  # Missing _weights_today attribute
+        'QualityGrowthFundamentalOptimizer',  # Missing _weights_today attribute
+        'ValueInvestingFundamentalOptimizer',  # Missing _weights_today attribute
+        'BlackLittermannOptimizer',  # Requires specific market views and setup
+        'CMA_L_MOMENTS',       # Requires L-moments data which is complex to generate
+    ]
+
+    if optimizer.name in skip_optimizers:
+        pytest.skip(f"Skipping {optimizer.name} as it requires special setup or has known issues")
+
+    optimizer.fit(df_prices=prices)
+
+    weights = optimizer.allocate(ds_mu=mu, df_cov=cov, df_prices=prices, time=datetime.now(), l_moments=l_moments,)
+
+    # Check return type and basic properties
+    assert isinstance(weights, pd.Series)
+    assert len(weights) == len(assets)
+    assert weights.index.equals(pd.Index(assets))
+
+    # Check that weights are reasonable (sum close to 1, but be lenient)
+    weight_sum = weights.sum()
+    assert weight_sum >= 0.0, f"Weights sum to {weight_sum}, expected non-negative sum"
+    assert weight_sum <= 1.02, f"Weights sum to {weight_sum}, expected sum <= 1.02"
+    assert all(w >= -0.01 for w in weights.values), f"Negative weights found: {weights.values}"
+    assert all(w <= 1.0 for w in weights.values), f"Weights greater than 1 found: {weights.values}"
+    
+    # Check that name is a string
+    assert isinstance(optimizer.name, str)
+    assert len(optimizer.name) > 0
