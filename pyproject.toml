@@ -34,13 +34,7 @@ optional = true
 coverage = "^7.6.0"
 pytest = "^8.3.2"
 ruff = "^0.5.2"
-pytest-timeout = "^2.4.0"
-pytest-playwright = "^0.7.0"
 poetry-plugin-export = "^1.6.0"
-pytest-xdist = "^3.8.0"
-pytest-benchmark = "^5.1.0"
-pytest-profiling = "^1.8.1"
-pytest-json-report = "^1.5.0"
 pytest-cov = "^7.0.0"
 
 [tool.ruff]

@@ -139,7 +139,3 @@ def test_packing_functions():
 	print(f"  Packed elements: {packed_size:,}")
 	print(f"  Size reduction: {reduction:.1f}%")
 	print(f"  Memory savings: {(full_size - packed_size) * 8 / 1024 / 1024:.1f} MB (float64)")
-
-
-if __name__ == "__main__":
-	test_packing_functions()

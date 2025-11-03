@@ -462,7 +462,3 @@ def main():
 		print(f"    Trace: {np.trace(matrix):.4f}")
 
 	return training_data
-
-
-if __name__ == "__main__":
-	training_data = main()

@@ -197,12 +197,3 @@ def load_training_dataset(save_path: str = None):
 	print(f"  Validation passed: {metadata['validation_passed']}")
 
 	return X_train, dataset
-
-
-if __name__ == "__main__":
-	# Generate the full training dataset
-	X_train, dataset = generate_full_training_dataset()
-
-	print("\nTo load this dataset later:")
-	print("from generate_30k_dataset import load_training_dataset")
-	print("X_train, dataset = load_training_dataset()")

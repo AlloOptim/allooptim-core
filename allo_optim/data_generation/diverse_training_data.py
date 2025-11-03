@@ -11,7 +11,7 @@ import numpy as np
 from scipy.linalg import block_diag
 
 # Import existing generator
-from training_data import CovarianceMatrixGenerator, SpectrumGenerator
+from .training_data import CovarianceMatrixGenerator, SpectrumGenerator
 
 # Constants for diverse training data generation
 DEFAULT_N_SAMPLES = 50000
@@ -740,35 +740,3 @@ def validate_training_data(training_data: list[np.ndarray], sample_size: int = V
 		}
 
 	return stats
-
-
-# Example usage and testing
-if __name__ == "__main__":
-	# Configuration for testing
-	test_config = DiverseTrainingConfig(
-		n_samples=1000,  # Small test set
-		n_assets=50,  # Smaller matrices for testing
-		random_seed=DEFAULT_RANDOM_SEED,
-	)
-
-	# Generate diverse training data
-	generator = DiverseCorrelationGenerator(test_config)
-	training_data = generator.generate_diverse_training_set()
-
-	# Validate the data
-	validation_stats = validate_training_data(training_data)
-
-	print("\n" + "=" * 60)
-	print("VALIDATION RESULTS")
-	print("=" * 60)
-
-	for key, value in validation_stats.items():
-		if isinstance(value, dict):
-			print(f"\n{key.upper()}:")
-			for subkey, subvalue in value.items():
-				if isinstance(subvalue, float):
-					print(f"  {subkey}: {subvalue:.4f}")
-				else:
-					print(f"  {subkey}: {subvalue}")
-		else:
-			print(f"{key}: {value}")

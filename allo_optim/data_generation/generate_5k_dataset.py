@@ -96,7 +96,3 @@ def main():
 	print("Ready for autoencoder training!")
 
 	return X_train, dataset
-
-
-if __name__ == "__main__":
-	X_train, dataset = main()

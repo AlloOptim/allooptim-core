@@ -6,6 +6,7 @@ Generates synthetic correlation matrices for training denoising autoencoders
 import multiprocessing as mp
 from dataclasses import dataclass
 from typing import Optional
+import os
 
 import h5py
 import numpy as np
@@ -603,56 +604,3 @@ def load_training_data(filename: str) -> dict[str, np.ndarray]:
 		}
 
 	return data, metadata
-
-
-# Example usage and demonstration
-if __name__ == "__main__":
-	import os
-
-	# Configuration
-	config = TrainingConfig(
-		n_assets=500,
-		n_samples=50000,
-		min_observations=100,
-		max_observations=2000,
-		n_processes=None,  # Use all CPU cores
-		output_file="covariance_training_data.h5",
-		random_seed=42,
-	)
-
-	# Create generator
-	generator = TrainingDataGenerator(config)
-
-	# Test single sample generation
-	print("Testing single sample generation...")
-	test_sample = generator.generate_single_sample(0)
-	print(f"Sample shape: {test_sample['sample_eigenvalues'].shape}")
-	print(f"q value: {test_sample['q']:.4f}")
-	print(
-		f"Min/Max sample eigenvalue: {test_sample['sample_eigenvalues'].min():.4f} / "
-		f"{test_sample['sample_eigenvalues'].max():.4f}"
-	)
-	print(
-		f"Min/Max true eigenvalue: {test_sample['true_eigenvalues'].min():.4f} / "
-		f"{test_sample['true_eigenvalues'].max():.4f}"
-	)
-
-	# Generate full dataset
-	print("\nGenerating full training dataset...")
-	samples = generator.generate_parallel(verbose=True)
-
-	# Save to disk
-	print("\nSaving data...")
-	generator.save_to_hdf5(samples)
-
-	# Load and verify
-	print("\nVerifying saved data...")
-	data, metadata = load_training_data(config.output_file)
-	print(f"Loaded {data['sample_eigenvalues'].shape[0]} samples")
-	print(f"Metadata: {metadata}")
-
-	# Statistics
-	print("\nDataset statistics:")
-	print(f"Q value range: [{data['q_values'].min():.4f}, {data['q_values'].max():.4f}]")
-	print(f"Mean q: {data['q_values'].mean():.4f}")
-	print(f"Observations range: [{data['n_observations'].min()}, {data['n_observations'].max()}]")

@@ -25,3 +25,5 @@ if sys.version_info >= (3, 10):
 	for abc_name in abcs_to_patch:
 		if not hasattr(collections, abc_name) and hasattr(collections.abc, abc_name):
 			setattr(collections, abc_name, getattr(collections.abc, abc_name))
+
+import pageviewapi  # noqa: F401

@@ -458,14 +458,3 @@ def allocate_wikipedia(
 		statistics=wiki_statistics,
 	)
 
-
-if __name__ == "__main__":
-	stocks = list_of_dax_stocks()
-	time_today = datetime(2024, 6, 1)
-
-	result = allocate_wikipedia(stocks, time_today)
-	print(f"Allocation result: {result}")
-
-	# Log performance report
-	print("Logging performance report...")
-	print("Done.")
