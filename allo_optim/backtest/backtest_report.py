@@ -7,14 +7,14 @@ logger = logging.getLogger(__name__)
 
 
 def generate_report(results: dict, clustering_results: dict) -> str:
-    """Generate comprehensive markdown report."""
+	"""Generate comprehensive markdown report."""
 
-    logger.info("Generating comprehensive report")
+	logger.info("Generating comprehensive report")
 
-    # Get date range for report
-    start_date, end_date = BacktestConfig.get_report_date_range()
+	# Get date range for report
+	start_date, end_date = BacktestConfig.get_report_date_range()
 
-    report = f"""# Comprehensive Allocation Algorithm Backtest Report
+	report = f"""# Comprehensive Allocation Algorithm Backtest Report
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
 **Period:** {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}  
@@ -33,19 +33,19 @@ This report presents a comprehensive backtest of {len(results)} allocation algor
 
 """
 
-    # Find best performers
-    if results:
-        best_sharpe = max(results.items(), key=lambda x: x[1]["metrics"].get("sharpe_ratio", -999))
-        best_return = max(results.items(), key=lambda x: x[1]["metrics"].get("cagr", -999))
-        lowest_drawdown = min(results.items(), key=lambda x: x[1]["metrics"].get("max_drawdown", 999))
+	# Find best performers
+	if results:
+		best_sharpe = max(results.items(), key=lambda x: x[1]["metrics"].get("sharpe_ratio", -999))
+		best_return = max(results.items(), key=lambda x: x[1]["metrics"].get("cagr", -999))
+		lowest_drawdown = min(results.items(), key=lambda x: x[1]["metrics"].get("max_drawdown", 999))
 
-        report += f"""
+		report += f"""
 **Best Sharpe Ratio:** {best_sharpe[0]} ({best_sharpe[1]['metrics'].get('sharpe_ratio', 0):.3f})  
 **Best CAGR:** {best_return[0]} ({best_return[1]['metrics'].get('cagr', 0)*100:.2f}%)  
 **Lowest Max Drawdown:** {lowest_drawdown[0]} ({lowest_drawdown[1]['metrics'].get('max_drawdown', 0)*100:.2f}%)  
 """
 
-    report += """
+	report += """
 ## Performance Metrics
 
 ### Summary Statistics
@@ -54,12 +54,12 @@ This report presents a comprehensive backtest of {len(results)} allocation algor
 |-----------|--------------|------|--------------|------------|-----------------|--------------|
 """
 
-    # Add performance table
-    for name, data in results.items():
-        metrics = data["metrics"]
-        report += f"| {name} | {metrics.get('sharpe_ratio', 0):.3f} | {metrics.get('cagr', 0)*100:.2f}% | {metrics.get('max_drawdown', 0)*100:.2f}% | {metrics.get('annual_volatility', 0)*100:.2f}% | {metrics.get('risk_adjusted_return', 0)*100:.2f}% | {metrics.get('total_return', 0)*100:.2f}% |\n"
+	# Add performance table
+	for name, data in results.items():
+		metrics = data["metrics"]
+		report += f"| {name} | {metrics.get('sharpe_ratio', 0):.3f} | {metrics.get('cagr', 0)*100:.2f}% | {metrics.get('max_drawdown', 0)*100:.2f}% | {metrics.get('annual_volatility', 0)*100:.2f}% | {metrics.get('risk_adjusted_return', 0)*100:.2f}% | {metrics.get('total_return', 0)*100:.2f}% |\n"
 
-    report += """
+	report += """
 ### Detailed Performance Analysis
 
 #### Returns Distribution Statistics
@@ -68,33 +68,33 @@ This report presents a comprehensive backtest of {len(results)} allocation algor
 |-----------|-------------------|------------|----------|----------|------------|------------|
 """
 
-    for name, data in results.items():
-        metrics = data["metrics"]
-        report += f"| {name} | {metrics.get('returns_mean', 0)*100:.4f}% | {metrics.get('returns_std', 0)*100:.4f}% | {metrics.get('returns_skew', 0):.3f} | {metrics.get('returns_kurtosis', 0):.3f} | {metrics.get('returns_min', 0)*100:.3f}% | {metrics.get('returns_max', 0)*100:.3f}% |\n"
+	for name, data in results.items():
+		metrics = data["metrics"]
+		report += f"| {name} | {metrics.get('returns_mean', 0)*100:.4f}% | {metrics.get('returns_std', 0)*100:.4f}% | {metrics.get('returns_skew', 0):.3f} | {metrics.get('returns_kurtosis', 0):.3f} | {metrics.get('returns_min', 0)*100:.3f}% | {metrics.get('returns_max', 0)*100:.3f}% |\n"
 
-    report += """
+	report += """
 #### Portfolio Turnover Analysis
 
 | Optimizer | Mean Turnover | Turnover Std | Min Turnover | Max Turnover | Median Turnover |
 |-----------|---------------|--------------|--------------|--------------|-----------------|
 """
 
-    for name, data in results.items():
-        metrics = data["metrics"]
-        report += f"| {name} | {metrics.get('turnover_mean', 0)*100:.2f}% | {metrics.get('turnover_std', 0)*100:.2f}% | {metrics.get('turnover_min', 0)*100:.2f}% | {metrics.get('turnover_max', 0)*100:.2f}% | {metrics.get('turnover_q50', 0)*100:.2f}% |\n"
+	for name, data in results.items():
+		metrics = data["metrics"]
+		report += f"| {name} | {metrics.get('turnover_mean', 0)*100:.2f}% | {metrics.get('turnover_std', 0)*100:.2f}% | {metrics.get('turnover_min', 0)*100:.2f}% | {metrics.get('turnover_max', 0)*100:.2f}% | {metrics.get('turnover_q50', 0)*100:.2f}% |\n"
 
-    report += """
+	report += """
 #### Portfolio Change Rate Analysis
 
 | Optimizer | Mean Change Rate | Change Rate Std | Min Change Rate | Max Change Rate | Median Change Rate |
 |-----------|------------------|-----------------|-----------------|-----------------|-------------------|
 """
 
-    for name, data in results.items():
-        metrics = data["metrics"]
-        report += f"| {name} | {metrics.get('change_rate_mean', 0)*100:.2f}% | {metrics.get('change_rate_std', 0)*100:.2f}% | {metrics.get('change_rate_min', 0)*100:.2f}% | {metrics.get('change_rate_max', 0)*100:.2f}% | {metrics.get('change_rate_q50', 0)*100:.2f}% |\n"
+	for name, data in results.items():
+		metrics = data["metrics"]
+		report += f"| {name} | {metrics.get('change_rate_mean', 0)*100:.2f}% | {metrics.get('change_rate_std', 0)*100:.2f}% | {metrics.get('change_rate_min', 0)*100:.2f}% | {metrics.get('change_rate_max', 0)*100:.2f}% | {metrics.get('change_rate_q50', 0)*100:.2f}% |\n"
 
-    report += """
+	report += """
 #### Portfolio Diversification Metrics
 
 ##### Assets Above Threshold (Mean Count)
@@ -103,90 +103,90 @@ This report presents a comprehensive backtest of {len(results)} allocation algor
 |-----------|----------------------|------------------------|------------------------|-------------------------|
 """
 
-    for name, data in results.items():
-        metrics = data["metrics"]
-        report += f"| {name} | {metrics.get('invested_5_abs_mean', 0):.1f} ({metrics.get('invested_5_pct_mean', 0)*100:.1f}%) | {metrics.get('invested_10_abs_mean', 0):.1f} ({metrics.get('invested_10_pct_mean', 0)*100:.1f}%) | {metrics.get('invested_50_abs_mean', 0):.1f} ({metrics.get('invested_50_pct_mean', 0)*100:.1f}%) | {metrics.get('invested_100_abs_mean', 0):.1f} ({metrics.get('invested_100_pct_mean', 0)*100:.1f}%) |\n"
+	for name, data in results.items():
+		metrics = data["metrics"]
+		report += f"| {name} | {metrics.get('invested_5_abs_mean', 0):.1f} ({metrics.get('invested_5_pct_mean', 0)*100:.1f}%) | {metrics.get('invested_10_abs_mean', 0):.1f} ({metrics.get('invested_10_pct_mean', 0)*100:.1f}%) | {metrics.get('invested_50_abs_mean', 0):.1f} ({metrics.get('invested_50_pct_mean', 0)*100:.1f}%) | {metrics.get('invested_100_abs_mean', 0):.1f} ({metrics.get('invested_100_pct_mean', 0)*100:.1f}%) |\n"
 
-    report += """
+	report += """
 ##### Top N Assets Weight Concentration
 
 | Optimizer | Top 5 Assets Weight | Top 10 Assets Weight | Top 50 Assets Weight |
 |-----------|--------------------|--------------------|---------------------|
 """
 
-    for name, data in results.items():
-        metrics = data["metrics"]
-        report += f"| {name} | {metrics.get('invested_top_5_mean', 0)*100:.1f}% | {metrics.get('invested_top_10_mean', 0)*100:.1f}% | {metrics.get('invested_top_50_mean', 0)*100:.1f}% |\n"
+	for name, data in results.items():
+		metrics = data["metrics"]
+		report += f"| {name} | {metrics.get('invested_top_5_mean', 0)*100:.1f}% | {metrics.get('invested_top_10_mean', 0)*100:.1f}% | {metrics.get('invested_top_50_mean', 0)*100:.1f}% |\n"
 
-    report += """
+	report += """
 #### Computational Performance
 
 | Optimizer | Avg Computation Time (s) | Max Computation Time (s) | Avg Memory Usage (MB) | Max Memory Usage (MB) |
 |-----------|---------------------------|---------------------------|------------------------|------------------------|
 """
 
-    for name, data in results.items():
-        metrics = data["metrics"]
-        report += f"| {name} | {metrics.get('avg_computation_time', 0):.4f} | {metrics.get('max_computation_time', 0):.4f} | {metrics.get('avg_memory_usage_mb', 0):.2f} | {metrics.get('max_memory_usage_mb', 0):.2f} |\n"
+	for name, data in results.items():
+		metrics = data["metrics"]
+		report += f"| {name} | {metrics.get('avg_computation_time', 0):.4f} | {metrics.get('max_computation_time', 0):.4f} | {metrics.get('avg_memory_usage_mb', 0):.2f} | {metrics.get('max_memory_usage_mb', 0):.2f} |\n"
 
-    report += """
+	report += """
 ## Optimizer Clustering Analysis
 
 The clustering analysis groups optimizers based on their performance characteristics, portfolio similarities, and return patterns to identify which algorithms behave similarly.
 
 """
 
-    # Add clustering results
-    for cluster_type, cluster_data in clustering_results.items():
-        if isinstance(cluster_data, dict) and "clusters" in cluster_data:
-            report += f"""
+	# Add clustering results
+	for cluster_type, cluster_data in clustering_results.items():
+		if isinstance(cluster_data, dict) and "clusters" in cluster_data:
+			report += f"""
 ### {cluster_type.replace('_', ' ').title()} Clustering
 
 **Method:** {cluster_data.get('method', 'Unknown')}  
 **Number of Clusters:** {cluster_data.get('n_clusters', 0)}  
 
 """
-            for cluster_id, optimizers in cluster_data["clusters"].items():
-                report += f"**Cluster {cluster_id}:** {', '.join(optimizers)}\n\n"
+			for cluster_id, optimizers in cluster_data["clusters"].items():
+				report += f"**Cluster {cluster_id}:** {', '.join(optimizers)}\n\n"
 
-    # Add Euclidean distance analysis
-    if "euclidean_distance" in clustering_results:
-        euclidean_data = clustering_results["euclidean_distance"]
+	# Add Euclidean distance analysis
+	if "euclidean_distance" in clustering_results:
+		euclidean_data = clustering_results["euclidean_distance"]
 
-        report += """
+		report += """
 ### Euclidean Distance Analysis
 
 This analysis computes the mean Euclidean distance between optimizer portfolio weights across all timesteps, revealing which optimizers make the most similar allocation decisions.
 
 """
 
-        # Add closest pairs table
-        if "closest_pairs" in euclidean_data and euclidean_data["closest_pairs"]:
-            report += """
+		# Add closest pairs table
+		if "closest_pairs" in euclidean_data and euclidean_data["closest_pairs"]:
+			report += """
 #### Most Similar Optimizer Pairs (Shortest Distances)
 
 | Rank | Optimizer A | Optimizer B | Mean Euclidean Distance |
 |------|-------------|-------------|-------------------------|
 """
 
-            for i, pair in enumerate(euclidean_data["closest_pairs"][:10], 1):
-                report += (
-                    f"| {i} | {pair['optimizer_a']} | {pair['optimizer_b']} | {pair['mean_euclidean_distance']:.4f} |\n"
-                )
+			for i, pair in enumerate(euclidean_data["closest_pairs"][:10], 1):
+				report += (
+					f"| {i} | {pair['optimizer_a']} | {pair['optimizer_b']} | {pair['mean_euclidean_distance']:.4f} |\n"
+				)
 
-        # Add clustering results based on distances
-        if "clustering" in euclidean_data and "clusters" in euclidean_data["clustering"]:
-            report += f"""
+		# Add clustering results based on distances
+		if "clustering" in euclidean_data and "clusters" in euclidean_data["clustering"]:
+			report += f"""
 
 #### Distance-Based Groupings
 
 Using hierarchical clustering on Euclidean distances, optimizers are grouped into {euclidean_data['clustering'].get('n_clusters', 0)} clusters:
 
 """
-            for cluster_id, optimizers in euclidean_data["clustering"]["clusters"].items():
-                report += f"**Distance Cluster {cluster_id}:** {', '.join(optimizers)}\n\n"
+			for cluster_id, optimizers in euclidean_data["clustering"]["clusters"].items():
+				report += f"**Distance Cluster {cluster_id}:** {', '.join(optimizers)}\n\n"
 
-        report += """
+		report += """
 **Key Insights:**
 - Optimizers with small Euclidean distances make very similar allocation decisions
 - Distance-based clusters reveal functional similarity beyond theoretical groupings
@@ -195,7 +195,7 @@ Using hierarchical clustering on Euclidean distances, optimizers are grouped int
 
 """
 
-    report += """
+	report += """
 ## Theoretical Optimizer Groupings
 
 Based on the underlying optimization approaches, we can group the algorithms theoretically:
@@ -232,27 +232,27 @@ Based on the underlying optimization approaches, we can group the algorithms the
 ### Performance Insights
 """
 
-    if results:
-        # Calculate some insights
-        spy_performance = results.get("SPY_Benchmark", {}).get("metrics", {})
-        a2a_performance = results.get("A2A_Ensemble", {}).get("metrics", {})
+	if results:
+		# Calculate some insights
+		spy_performance = results.get("SPY_Benchmark", {}).get("metrics", {})
+		a2a_performance = results.get("A2A_Ensemble", {}).get("metrics", {})
 
-        if spy_performance and a2a_performance:
-            report += f"""
+		if spy_performance and a2a_performance:
+			report += f"""
 1. **Benchmark Comparison**: The S&P 500 benchmark achieved a Sharpe ratio of {spy_performance.get('sharpe_ratio', 0):.3f} vs A2A ensemble of {a2a_performance.get('sharpe_ratio', 0):.3f}
 2. **Ensemble Effect**: The A2A ensemble {'outperformed' if a2a_performance.get('sharpe_ratio', 0) > spy_performance.get('sharpe_ratio', 0) else 'underperformed'} the S&P 500 benchmark
 """
 
-        # Add diversification insights
-        most_concentrated = min(results.items(), key=lambda x: x[1]["metrics"].get("invested_top_5_mean", 1))
-        most_diversified = max(results.items(), key=lambda x: x[1]["metrics"].get("invested_5_abs_mean", 0))
+		# Add diversification insights
+		most_concentrated = min(results.items(), key=lambda x: x[1]["metrics"].get("invested_top_5_mean", 1))
+		most_diversified = max(results.items(), key=lambda x: x[1]["metrics"].get("invested_5_abs_mean", 0))
 
-        report += f"""
+		report += f"""
 3. **Concentration Analysis**: {most_concentrated[0]} is most concentrated (top 5 assets: {most_concentrated[1]['metrics'].get('invested_top_5_mean', 0)*100:.1f}%)
 4. **Diversification Leader**: {most_diversified[0]} uses most assets above 5% threshold (avg: {most_diversified[1]['metrics'].get('invested_5_abs_mean', 0):.1f} assets)
 """
 
-    report += f"""
+	report += f"""
 ### Algorithm Clustering Insights
 
 1. **Performance Clustering**: Identifies optimizers with similar risk-return profiles
@@ -307,4 +307,4 @@ Based on the underlying optimization approaches, we can group the algorithms the
 *This report was generated automatically by the comprehensive backtest framework.*
 """
 
-    return report
+	return report

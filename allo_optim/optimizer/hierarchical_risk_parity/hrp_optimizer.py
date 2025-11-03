@@ -16,40 +16,40 @@ logger = logging.getLogger(__name__)
 
 
 class HRPOptimizerConfig(BaseModel):
-    model_config = DEFAULT_PYDANTIC_CONFIG
+	model_config = DEFAULT_PYDANTIC_CONFIG
 
-    # HRP typically doesn't need many parameters, but adding for consistency
-    # Could add linkage method, distance metric parameters here if needed
-    pass
+	# HRP typically doesn't need many parameters, but adding for consistency
+	# Could add linkage method, distance metric parameters here if needed
+	pass
 
 
 class HRPOptimizer(AbstractOptimizer):
-    def __init__(self) -> None:
-        self.config = HRPOptimizerConfig()
+	def __init__(self) -> None:
+		self.config = HRPOptimizerConfig()
 
-    def allocate(
-        self,
-        ds_mu: pd.Series,
-        df_cov: pd.DataFrame,
-        df_prices: Optional[pd.DataFrame] = None,
-        time: Optional[datetime] = None,
-        l_moments: Optional[LMoments] = None,
-    ) -> pd.Series:
-        # Validate asset names consistency
-        validate_asset_names(ds_mu, df_cov)
-        asset_names = ds_mu.index.tolist()
+	def allocate(
+		self,
+		ds_mu: pd.Series,
+		df_cov: pd.DataFrame,
+		df_prices: Optional[pd.DataFrame] = None,
+		time: Optional[datetime] = None,
+		l_moments: Optional[LMoments] = None,
+	) -> pd.Series:
+		# Validate asset names consistency
+		validate_asset_names(ds_mu, df_cov)
+		asset_names = ds_mu.index.tolist()
 
-        hrp = HRPOpt(cov_matrix=df_cov)
+		hrp = HRPOpt(cov_matrix=df_cov)
 
-        weights_dict = hrp.optimize()
-        weights_array = np.array([weights_dict[key] for key in asset_names])
+		weights_dict = hrp.optimize()
+		weights_array = np.array([weights_dict[key] for key in asset_names])
 
-        if weights_array.sum() > 1.001 or weights_array.sum() < 0.999:
-            logger.error("Portfolio allocations don't sum to 1.")
-            return create_weights_series(np.zeros(len(asset_names)), asset_names)
+		if weights_array.sum() > 1.001 or weights_array.sum() < 0.999:
+			logger.error("Portfolio allocations don't sum to 1.")
+			return create_weights_series(np.zeros(len(asset_names)), asset_names)
 
-        return create_weights_series(weights_array, asset_names)
+		return create_weights_series(weights_array, asset_names)
 
-    @property
-    def name(self) -> str:
-        return "HRP"
+	@property
+	def name(self) -> str:
+		return "HRP"

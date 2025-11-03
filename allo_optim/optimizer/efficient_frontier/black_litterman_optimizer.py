@@ -19,59 +19,59 @@ logger = logging.getLogger(__name__)
 
 
 class BLOptimizerConfig(BaseModel):
-    model_config = DEFAULT_PYDANTIC_CONFIG
+	model_config = DEFAULT_PYDANTIC_CONFIG
 
-    view_dict: Optional[dict] = None
-    use_implied_market: bool = False
+	view_dict: Optional[dict] = None
+	use_implied_market: bool = False
 
 
 class BlackLittermanOptimizer(AbstractOptimizer):
-    def __init__(self) -> None:
-        self.config = BLOptimizerConfig()
+	def __init__(self) -> None:
+		self.config = BLOptimizerConfig()
 
-    def allocate(
-        self,
-        ds_mu: pd.Series,
-        df_cov: pd.DataFrame,
-        df_prices: Optional[pd.DataFrame] = None,
-        time: Optional[datetime] = None,
-        l_moments: Optional[LMoments] = None,
-    ) -> pd.Series:
-        # Validate asset names consistency
-        validate_asset_names(ds_mu, df_cov)
-        asset_names = ds_mu.index.tolist()
+	def allocate(
+		self,
+		ds_mu: pd.Series,
+		df_cov: pd.DataFrame,
+		df_prices: Optional[pd.DataFrame] = None,
+		time: Optional[datetime] = None,
+		l_moments: Optional[LMoments] = None,
+	) -> pd.Series:
+		# Validate asset names consistency
+		validate_asset_names(ds_mu, df_cov)
+		asset_names = ds_mu.index.tolist()
 
-        if self.config.view_dict is None:
-            logger.debug("No views provided, using HRP without Black-Litterman adjustment")
-            view_dict = {name: 0.0 for name in asset_names}
-        else:
-            assert len(self.config.view_dict) == len(asset_names), "View dictionary length must match number of assets"
-            assert all(
-                name in asset_names for name in self.config.view_dict.keys()
-            ), "All view keys must match asset names"
+		if self.config.view_dict is None:
+			logger.debug("No views provided, using HRP without Black-Litterman adjustment")
+			view_dict = {name: 0.0 for name in asset_names}
+		else:
+			assert len(self.config.view_dict) == len(asset_names), "View dictionary length must match number of assets"
+			assert all(
+				name in asset_names for name in self.config.view_dict.keys()
+			), "All view keys must match asset names"
 
-            view_dict = self.config.view_dict
+			view_dict = self.config.view_dict
 
-        cov_matrix = df_cov  # Keep as DataFrame
+		cov_matrix = df_cov  # Keep as DataFrame
 
-        bl = BlackLittermanModel(cov_matrix, absolute_views=view_dict)
+		bl = BlackLittermanModel(cov_matrix, absolute_views=view_dict)
 
-        if self.config.use_implied_market:
-            assert df_prices is not None, "Price data must be fitted before allocation"
+		if self.config.use_implied_market:
+			assert df_prices is not None, "Price data must be fitted before allocation"
 
-            delta = black_litterman.market_implied_risk_aversion(df_prices)
-            bl.bl_weights(delta)
-            weights_dict = bl.clean_weights()
-        else:
-            rets = bl.bl_returns()
-            ef = EfficientFrontier(rets, cov_matrix)
-            ef.min_volatility()
-            weights_dict = ef.clean_weights()
+			delta = black_litterman.market_implied_risk_aversion(df_prices)
+			bl.bl_weights(delta)
+			weights_dict = bl.clean_weights()
+		else:
+			rets = bl.bl_returns()
+			ef = EfficientFrontier(rets, cov_matrix)
+			ef.min_volatility()
+			weights_dict = ef.clean_weights()
 
-        weights_array = np.array(list(weights_dict.values()))
+		weights_array = np.array(list(weights_dict.values()))
 
-        return create_weights_series(weights_array, asset_names)
+		return create_weights_series(weights_array, asset_names)
 
-    @property
-    def name(self) -> str:
-        return "BlackLittermannOptimizer"
+	@property
+	def name(self) -> str:
+		return "BlackLittermannOptimizer"

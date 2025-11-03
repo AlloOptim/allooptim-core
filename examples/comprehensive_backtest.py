@@ -24,7 +24,9 @@ Performance Metrics:
 import logging
 import traceback
 import warnings
+
 import pandas as pd
+
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.backtest_engine import BacktestEngine
 from allo_optim.backtest.backtest_report import generate_report
@@ -40,71 +42,71 @@ logger = logging.getLogger(__name__)
 
 
 def main():
-    """Main execution function."""
+	"""Main execution function."""
 
-    logger.info("Starting comprehensive allocation algorithm backtest")
+	logger.info("Starting comprehensive allocation algorithm backtest")
 
-    try:
-        # Initialize backtest engine
-        backtest_engine = BacktestEngine()
+	try:
+		# Initialize backtest engine
+		backtest_engine = BacktestEngine()
 
-        # Run backtest
-        results = backtest_engine.run_backtest()
+		# Run backtest
+		results = backtest_engine.run_backtest()
 
-        if not results:
-            logger.error("No results generated from backtest")
-            return
+		if not results:
+			logger.error("No results generated from backtest")
+			return
 
-        # Perform clustering analysis
-        cluster_analyzer = ClusterAnalyzer(results)
-        clustering_results = cluster_analyzer.analyze_clusters()
+		# Perform clustering analysis
+		cluster_analyzer = ClusterAnalyzer(results)
+		clustering_results = cluster_analyzer.analyze_clusters()
 
-        # Create visualizations
-        create_visualizations(results, clustering_results)
+		# Create visualizations
+		create_visualizations(results, clustering_results)
 
-        # Generate report
-        report = generate_report(results, clustering_results)
+		# Generate report
+		report = generate_report(results, clustering_results)
 
-        # Save report
-        report_path = BacktestConfig.RESULTS_DIR / "comprehensive_backtest_report.md"
-        with open(report_path, "w") as f:
-            f.write(report)
+		# Save report
+		report_path = BacktestConfig.RESULTS_DIR / "comprehensive_backtest_report.md"
+		with open(report_path, "w") as f:
+			f.write(report)
 
-        # Save detailed results to CSV
-        csv_data = []
-        for name, data in results.items():
-            row = {"optimizer": name}
-            row.update(data["metrics"])
-            csv_data.append(row)
+		# Save detailed results to CSV
+		csv_data = []
+		for name, data in results.items():
+			row = {"optimizer": name}
+			row.update(data["metrics"])
+			csv_data.append(row)
 
-        results_df = pd.DataFrame(csv_data)
-        results_df.to_csv(BacktestConfig.RESULTS_DIR / "backtest_results.csv", index=False)
+		results_df = pd.DataFrame(csv_data)
+		results_df.to_csv(BacktestConfig.RESULTS_DIR / "backtest_results.csv", index=False)
 
-        # Save Euclidean distance analysis to CSV
-        if "euclidean_distance" in clustering_results and "closest_pairs" in clustering_results["euclidean_distance"]:
-            distance_data = clustering_results["euclidean_distance"]["closest_pairs"]
-            if distance_data:
-                distance_df = pd.DataFrame(distance_data)
-                distance_df.to_csv(BacktestConfig.RESULTS_DIR / "optimizer_distances.csv", index=False)
-                logger.info("Optimizer distance analysis saved to optimizer_distances.csv")
+		# Save Euclidean distance analysis to CSV
+		if "euclidean_distance" in clustering_results and "closest_pairs" in clustering_results["euclidean_distance"]:
+			distance_data = clustering_results["euclidean_distance"]["closest_pairs"]
+			if distance_data:
+				distance_df = pd.DataFrame(distance_data)
+				distance_df.to_csv(BacktestConfig.RESULTS_DIR / "optimizer_distances.csv", index=False)
+				logger.info("Optimizer distance analysis saved to optimizer_distances.csv")
 
-        logger.info(f"Backtest completed successfully. Results saved to {BacktestConfig.RESULTS_DIR}")
-        logger.info(f"Report available at: {report_path}")
+		logger.info(f"Backtest completed successfully. Results saved to {BacktestConfig.RESULTS_DIR}")
+		logger.info(f"Report available at: {report_path}")
 
-        # Print summary
-        print(f"\n{'='*80}")
-        print("BACKTEST COMPLETED SUCCESSFULLY")
-        print(f"{'='*80}")
-        print(f"Period: {BacktestConfig.get_report_date_range()[0]} to {BacktestConfig.get_report_date_range()[1]}")
-        print(f"Optimizers tested: {len(results)}")
-        print(f"Results directory: {BacktestConfig.RESULTS_DIR}")
-        print(f"{'='*80}\n")
+		# Print summary
+		print(f"\n{'='*80}")
+		print("BACKTEST COMPLETED SUCCESSFULLY")
+		print(f"{'='*80}")
+		print(f"Period: {BacktestConfig.get_report_date_range()[0]} to {BacktestConfig.get_report_date_range()[1]}")
+		print(f"Optimizers tested: {len(results)}")
+		print(f"Results directory: {BacktestConfig.RESULTS_DIR}")
+		print(f"{'='*80}\n")
 
-    except Exception as e:
-        logger.error(f"Backtest failed: {e}")
-        logger.error(traceback.format_exc())
-        raise
+	except Exception as e:
+		logger.error(f"Backtest failed: {e}")
+		logger.error(traceback.format_exc())
+		raise
 
 
 if __name__ == "__main__":
-    main()
+	main()
