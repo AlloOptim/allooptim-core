@@ -383,7 +383,8 @@ class CovarianceMatrixGenerator:
 		Using multiple generation methods for maximum diversity
 		"""
 		print(
-			f"Generating {self.config.n_samples} diverse covariance matrices ({self.config.n_assets}×{self.config.n_assets})..."
+			f"Generating {self.config.n_samples} diverse covariance matrices "
+			f"({self.config.n_assets}×{self.config.n_assets})..."
 		)
 
 		training_data = []

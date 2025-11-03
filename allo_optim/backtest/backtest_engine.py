@@ -21,6 +21,16 @@ from allo_optim.optimizer.wikipedia.sql_database import download_data
 logger = logging.getLogger(__name__)
 
 
+# Constants for backtest engine
+MIN_LOOKBACK_OBSERVATIONS = 5
+TRAINING_WINDOW_DAYS = 730  # 2 years
+MIN_VALID_ASSETS = 2
+COVARIANCE_NAN_DIAGONAL_FILL = 0.01  # 1% variance for NaN diagonal elements
+COVARIANCE_NAN_OFF_DIAGONAL_FILL = 0.0  # Zero correlation for NaN off-diagonal elements
+MIN_WEIGHT_THRESHOLD = 0.0001  # Filter very small weights
+INITIAL_PORTFOLIO_VALUE = 100000  # Start with $100k
+
+
 class BacktestEngine:
 	"""Main backtesting engine with efficient optimizer execution."""
 
@@ -101,12 +111,12 @@ class BacktestEngine:
 			lookback_start = rebalance_date - timedelta(days=BacktestConfig.LOOKBACK_DAYS)
 			lookback_data = price_data[(price_data.index >= lookback_start) & (price_data.index <= rebalance_date)]
 
-			if len(lookback_data) < 5:  # Need minimum data (very reduced for 3-month backtest)
+			if len(lookback_data) < MIN_LOOKBACK_OBSERVATIONS:  # Need minimum data (very reduced for 3-month backtest)
 				logger.warning(f"Insufficient data for {rebalance_date}, skipping")
 				continue
 
 			# Get 2-year training window for optimizer.fit()
-			training_start = rebalance_date - timedelta(days=730)  # 2 years
+			training_start = rebalance_date - timedelta(days=TRAINING_WINDOW_DAYS)  # 2 years
 			training_data = price_data[(price_data.index >= training_start) & (price_data.index <= rebalance_date)]
 
 			# If not enough training data, use all available data
@@ -122,7 +132,7 @@ class BacktestEngine:
 				if len(asset_data) >= min_observations:
 					valid_assets.append(asset)
 
-			if len(valid_assets) < 2:
+			if len(valid_assets) < MIN_VALID_ASSETS:
 				logger.warning(f"Insufficient valid assets ({len(valid_assets)}) for {rebalance_date}, skipping")
 				continue
 
@@ -147,14 +157,13 @@ class BacktestEngine:
 					f"NaN values detected in covariance matrix for {rebalance_date}, filling with robust estimates"
 				)
 				# Fill NaN with small diagonal values and zero off-diagonal
-				for i in range(len(cov)):
-					for j in range(len(cov.columns)):
-						if pd.isna(cov.iloc[i, j]):
-							if i == j:  # Diagonal - use small positive variance
-								cov.iloc[i, j] = 0.01  # 1% variance
+				for row_idx in range(len(cov)):
+					for col_idx in range(len(cov.columns)):
+						if pd.isna(cov.iloc[row_idx, col_idx]):
+							if row_idx == col_idx:  # Diagonal - use small positive variance
+								cov.iloc[row_idx, col_idx] = COVARIANCE_NAN_DIAGONAL_FILL  # 1% variance
 							else:  # Off-diagonal - use zero correlation
-								cov.iloc[i, j] = 0.0
-
+								cov.iloc[row_idx, col_idx] = COVARIANCE_NAN_OFF_DIAGONAL_FILL
 			# 3. cov = Transformer(cov)
 			for transformer in self.transformers:
 				cov = transformer.transform(cov, n_observations=len(clean_data))
@@ -238,7 +247,8 @@ class BacktestEngine:
 			if df_allocations_data:
 				df_allocations = pd.DataFrame(df_allocations_data).T  # Transpose so optimizers are rows
 				logger.info(
-					f"Created allocation matrix with {len(df_allocations)} optimizers and {len(df_allocations.columns)} assets"
+					f"Created allocation matrix with {len(df_allocations)} optimizers and "
+					f"{len(df_allocations.columns)} assets"
 				)
 			else:
 				# No individual optimizers succeeded
@@ -357,7 +367,7 @@ class BacktestEngine:
 			summary_rows = []
 			for timestamp in a2a_allocations.index:
 				weights = a2a_allocations.loc[timestamp]
-				non_zero_weights = weights[weights > 0.0001]  # Filter very small weights
+				non_zero_weights = weights[weights > MIN_WEIGHT_THRESHOLD]  # Filter very small weights
 
 				if len(non_zero_weights) > 0:
 					summary_rows.append(
@@ -546,7 +556,7 @@ class BacktestEngine:
 		# Initialize portfolio value
 		portfolio_values = []
 		current_weights = None
-		portfolio_value = 100000  # Start with $100k
+		portfolio_value = INITIAL_PORTFOLIO_VALUE  # Start with $100k
 
 		for date in price_data.index:
 			# Check if we need to rebalance

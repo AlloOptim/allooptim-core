@@ -42,16 +42,21 @@ def generate_full_training_dataset(save_path: str = None):
 	print(f"  Total samples: {config.n_samples:,}")
 	print(f"  Method distribution:")
 	print(
-		f"    - Synthetic eigenvalue: {config.pct_synthetic:.0%} ({int(config.pct_synthetic * config.n_samples):,} matrices)"
+		f"    - Synthetic eigenvalue: {config.pct_synthetic:.0%} "
+		f"({int(config.pct_synthetic * config.n_samples):,} matrices)"
 	)
 	print(
-		f"    - GAN-style diverse:    {config.pct_gan_style:.0%} ({int(config.pct_gan_style * config.n_samples):,} matrices)"
+		f"    - GAN-style diverse:    {config.pct_gan_style:.0%} "
+		f"({int(config.pct_gan_style * config.n_samples):,} matrices)"
 	)
 	print(
-		f"    - Real data bootstrap:  {config.pct_real_based:.0%} ({int(config.pct_real_based * config.n_samples):,} matrices)"
+		f"    - Real data bootstrap:  {config.pct_real_based:.0%} "
+		f"({int(config.pct_real_based * config.n_samples):,} matrices)"
 	)
+	n_block_struct = (config.n_samples - int(config.pct_synthetic * config.n_samples) - 
+		int(config.pct_gan_style * config.n_samples) - int(config.pct_real_based * config.n_samples))
 	print(
-		f"    - Block-structured:     {config.pct_block_struct:.0%} ({config.n_samples - int(config.pct_synthetic * config.n_samples) - int(config.pct_gan_style * config.n_samples) - int(config.pct_real_based * config.n_samples):,} matrices)"
+		f"    - Block-structured:     {config.pct_block_struct:.0%} ({n_block_struct:,} matrices)"
 	)
 
 	# Start generation

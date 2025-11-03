@@ -628,10 +628,12 @@ if __name__ == "__main__":
 	print(f"Sample shape: {test_sample['sample_eigenvalues'].shape}")
 	print(f"q value: {test_sample['q']:.4f}")
 	print(
-		f"Min/Max sample eigenvalue: {test_sample['sample_eigenvalues'].min():.4f} / {test_sample['sample_eigenvalues'].max():.4f}"
+		f"Min/Max sample eigenvalue: {test_sample['sample_eigenvalues'].min():.4f} / "
+		f"{test_sample['sample_eigenvalues'].max():.4f}"
 	)
 	print(
-		f"Min/Max true eigenvalue: {test_sample['true_eigenvalues'].min():.4f} / {test_sample['true_eigenvalues'].max():.4f}"
+		f"Min/Max true eigenvalue: {test_sample['true_eigenvalues'].min():.4f} / "
+		f"{test_sample['true_eigenvalues'].max():.4f}"
 	)
 
 	# Generate full dataset

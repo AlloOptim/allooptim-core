@@ -425,7 +425,8 @@ if __name__ == "__main__":
 		robust_rank = np.where(robust_ranks == i)[0][0] + 1
 
 		print(
-			f"    {i+1:1d}     |    {mv_rank:1d}     |    {sortino_rank:1d}    |  {cvar_rank:1d}   |   {mdd_rank:1d}   |   {robust_rank:1d}"
+			f"    {i+1:1d}     |    {mv_rank:1d}     |    {sortino_rank:1d}    |  {cvar_rank:1d}   | "
+			f"  {mdd_rank:1d}   |   {robust_rank:1d}"
 		)
 
 	print("\nDistribution-free metrics often give different rankings than mean-variance,")

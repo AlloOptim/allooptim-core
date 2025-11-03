@@ -101,7 +101,8 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
 				self._cov = make_positive_definite(returns.cov().values)
 			elif np.any(np.abs(self._mu) > 1.0):  # Returns > 100% are suspicious
 				logger.warning(
-					f"EMA produced extreme returns (max abs: {np.max(np.abs(self._mu)):.2e}), using simple historical moments"
+					f"EMA produced extreme returns (max abs: {np.max(np.abs(self._mu)):.2e}), "
+					f"using simple historical moments"
 				)
 				self._mu = returns.mean().values
 				self._cov = make_positive_definite(returns.cov().values)

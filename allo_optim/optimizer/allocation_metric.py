@@ -12,10 +12,18 @@ from scipy import stats
 
 logger = logging.getLogger(__name__)
 
+# Constants for numerical stability and defaults
+EPSILON_REGULARIZATION = 1e-6
+EPSILON_DIVISION = 1e-10
+EPSILON_MIN_STD = 1e-8
+DEFAULT_RISK_AVERSION = 4.0
+DEFAULT_TRIM = 0.02
+MIN_OBSERVATIONS = 10
+
 
 def make_positive_definite(
 	cov: np.ndarray,
-	epsilon: float = 1e-6,
+	epsilon: float = EPSILON_REGULARIZATION,
 ) -> np.ndarray:
 	"""Make a covariance matrix positive definite by adding regularization if needed."""
 	try:
@@ -55,7 +63,7 @@ def validate_no_nan(data: np.ndarray, name: str) -> None:
 def expected_return_moments(
 	weights: np.ndarray,
 	l_moments: LMoments,
-	risk_aversion: float = 4.0,
+	risk_aversion: float = DEFAULT_RISK_AVERSION,
 	normalize_weights: bool = False,
 ) -> np.ndarray:
 	if normalize_weights:
@@ -84,8 +92,8 @@ def expected_return_moments(
 
 	# Compute ratios for portfolio using the appropriate L-comoment scale
 	# Handle division by zero element-wise
-	port_lt_coskew = np.where(np.abs(port_lt_comom_2) > 1e-10, port_lt_comom_3 / port_lt_comom_2, 0.0)
-	port_lt_cokurt = np.where(np.abs(port_lt_comom_2) > 1e-10, port_lt_comom_4 / port_lt_comom_2, 0.0)
+	port_lt_coskew = np.where(np.abs(port_lt_comom_2) > EPSILON_DIVISION, port_lt_comom_3 / port_lt_comom_2, 0.0)
+	port_lt_cokurt = np.where(np.abs(port_lt_comom_2) > EPSILON_DIVISION, port_lt_comom_4 / port_lt_comom_2, 0.0)
 
 	# Expected returns using L-comoments
 	expected_return_lt_co_mv = port_lt_comom_1 - 0.5 * risk_aversion * port_lt_comom_2**2
@@ -106,7 +114,7 @@ def expected_return_classical(
 	cov: np.ndarray,
 	skew: Optional[np.ndarray] = None,
 	kurt: Optional[np.ndarray] = None,
-	risk_aversion: float = 4.0,
+	risk_aversion: float = DEFAULT_RISK_AVERSION,
 	normalize_weights: bool = False,
 ) -> np.ndarray:
 	"""
@@ -156,7 +164,7 @@ def expected_return_classical(
 
 def estimate_linear_moments(
 	returns: np.ndarray,
-	trim: Optional[float] = 0.02,
+	trim: Optional[float] = DEFAULT_TRIM,
 ) -> LMoments:
 	"""
 	Estimate L-comoments from return samples.
@@ -182,7 +190,7 @@ def estimate_classical_moments(
 	returns: np.ndarray,
 	trim: Optional[int] = None,
 	estimate_vectors: bool = True,
-	min_points: int = 10,
+	min_points: int = MIN_OBSERVATIONS,
 ) -> tuple[np.ndarray, np.ndarray]:
 	"""
 	Estimate co-skewness and co-kurtosis tensors or vectors from return samples using classical moments.
@@ -214,7 +222,7 @@ def estimate_classical_moments(
 		std_returns = np.std(returns, axis=0, ddof=1)
 
 		# Avoid division by zero
-		std_returns = np.maximum(std_returns, 1e-8)
+		std_returns = np.maximum(std_returns, EPSILON_MIN_STD)
 		standardized = (returns - mean_returns) / std_returns
 
 		if estimate_vectors:

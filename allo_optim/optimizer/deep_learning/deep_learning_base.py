@@ -1097,7 +1097,8 @@ class DeepLearningOptimizer:
 					elapsed = time.time() - start_time
 					avg_loss = epoch_loss / n_batches
 					logger.debug(
-						f"  Epoch {epoch+1}/{n_epochs}, Batch {n_batches}, Loss: {batch_loss:.6f}, Avg Loss: {avg_loss:.6f}, Time: {elapsed:.1f}s"
+						f"  Epoch {epoch+1}/{n_epochs}, Batch {n_batches}, Loss: {batch_loss:.6f}, "
+						f"Avg Loss: {avg_loss:.6f}, Time: {elapsed:.1f}s"
 					)
 
 			avg_loss = epoch_loss / n_batches

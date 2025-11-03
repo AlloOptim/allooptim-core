@@ -26,6 +26,12 @@ from allo_optim.optimizer.particle_swarm.pso_objective import (
 logger = logging.getLogger(__name__)
 
 
+# Constants for numerical stability and thresholds
+EPSILON_WEIGHTS_SUM = 1e-10
+PENALTY_INVALID_FITNESS = 1e10
+MIN_OBSERVATIONS_RISK_METRICS = 30
+
+
 class RiskMetric(Enum):
 	MEAN_VARIANCE = "mean_variance"
 	SORTINO = "sortino"
@@ -109,7 +115,8 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 
 		if self._n_assets is not None and self._n_assets != len(mu_array):
 			logger.warning(
-				f"Asset count changed from {self._n_assets} to {len(mu_array)}; resetting previous solution and CMA state"
+				f"Asset count changed from {self._n_assets} to {len(mu_array)}; "
+				f"resetting previous solution and CMA state"
 			)
 			self._previous_solution = None
 			self._previous_cma_state = None
@@ -136,7 +143,7 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 		optimal_scale = optimal_solution[0]
 		optimal_raw_weights = optimal_solution[1:]
 
-		if np.sum(optimal_raw_weights) > 1e-10:
+		if np.sum(optimal_raw_weights) > EPSILON_WEIGHTS_SUM:
 			normalized_weights = optimal_raw_weights / np.sum(optimal_raw_weights)
 			final_weights = optimal_scale * normalized_weights
 		else:
@@ -144,7 +151,8 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 			final_weights = np.ones(self._n_assets) / self._n_assets
 
 		logger.debug(
-			f"CMA-ES optimal scale: {optimal_scale:.4f}, total exposure: {np.sum(final_weights):.4f} using {self.risk_metric} metric"
+			f"CMA-ES optimal scale: {optimal_scale:.4f}, total exposure: {np.sum(final_weights):.4f} "
+			f"using {self.risk_metric} metric"
 		)
 
 		return create_weights_series(final_weights, asset_names)
@@ -198,7 +206,7 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 			if not np.all(np.isfinite(fitness_values)):
 				logger.warning(f"Invalid fitness values detected: {fitness_values}")
 				# Replace invalid values with a large penalty
-				fitness_values = np.where(np.isfinite(fitness_values), fitness_values, 1e10)
+				fitness_values = np.where(np.isfinite(fitness_values), fitness_values, PENALTY_INVALID_FITNESS)
 				# If all values are invalid, skip this iteration
 				if not np.any(np.isfinite(fitness_values)):
 					logger.error("All fitness values are invalid, skipping iteration")
@@ -266,7 +274,8 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 			if self._df_prices is None:
 				logger.warning(f"No price data available for {self.risk_metric} metric")
 
-			if self._df_prices.shape[0] < 30:  # Minimum 30 observations for meaningful risk metrics
+			if self._df_prices.shape[0] < MIN_OBSERVATIONS_RISK_METRICS:
+				# Minimum 30 observations for meaningful risk metrics
 				logger.warning(
 					f"Insufficient price data ({self._df_prices.shape[0]} observations) for {self.risk_metric} metric"
 				)
@@ -277,7 +286,7 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 		scales = self._adjust_scaling_matrix(scales)
 
 		raw_weight_sums = np.sum(raw_weights, axis=1, keepdims=True)
-		raw_weight_sums = np.maximum(raw_weight_sums, 1e-10)
+		raw_weight_sums = np.maximum(raw_weight_sums, EPSILON_WEIGHTS_SUM)
 		normalized_weights = raw_weights / raw_weight_sums
 		final_weights = scales * normalized_weights
 

@@ -327,7 +327,8 @@ def _process_and_filter_data_combined(
 	df_merged = _remove_outliers_iqr(df_merged, ["wiki_views", "stock_price"], iqr_factor)
 
 	logger.debug(
-		f"After processing and outlier removal: {len(df_merged)} data points, {len(df_merged['symbol'].unique())} unique stocks"
+		f"After processing and outlier removal: {len(df_merged)} data points, "
+		f"{len(df_merged['symbol'].unique())} unique stocks"
 	)
 	return True, df_merged, valid_symbols
 
@@ -384,7 +385,8 @@ def allocate_wikipedia(
 				start_date, end_date, all_stocks, use_sql_database
 			)
 			logger.debug(
-				f"Loaded {len(df_wiki_views)} wiki view records, {len(df_stock_prices)} price records, {len(df_stock_volumes)} volume records"
+				f"Loaded {len(df_wiki_views)} wiki view records, {len(df_stock_prices)} price records, "
+				f"{len(df_stock_volumes)} volume records"
 			)
 
 		except Exception as error:

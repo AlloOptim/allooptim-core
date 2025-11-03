@@ -315,7 +315,8 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 
 		logger.debug(f"Clusters updated: {max_feasible_clusters - 1 - not_updated_count}/{max_feasible_clusters - 1}")
 		logger.debug(
-			f"Average score deterioration for non-updated clusters: {average_score_deteriation / max(not_updated_count, 1):.6f}"
+			f"Average score deterioration for non-updated clusters: "
+			f"{average_score_deteriation / max(not_updated_count, 1):.6f}"
 		)
 
 	def _find_best_cluster(self) -> Optional[KMeans]:
@@ -444,10 +445,12 @@ if __name__ == "__main__":
 	variance_ratio = variance_return / np.sqrt(variance_variance)
 
 	print(
-		f"\nSharpe optimizer: Return={sharpe_return:.4f}, Risk={np.sqrt(sharpe_variance):.4f}, Sharpe={sharpe_ratio:.4f}"
+		f"\nSharpe optimizer: Return={sharpe_return:.4f}, Risk={np.sqrt(sharpe_variance):.4f}, "
+		f"Sharpe={sharpe_ratio:.4f}"
 	)
 	print(
-		f"Variance optimizer: Return={variance_return:.4f}, Risk={np.sqrt(variance_variance):.4f}, Sharpe={variance_ratio:.4f}"
+		f"Variance optimizer: Return={variance_return:.4f}, Risk={np.sqrt(variance_variance):.4f}, "
+		f"Sharpe={variance_ratio:.4f}"
 	)
 	print(f"Difference in allocation: {np.linalg.norm(weights_sharpe - weights_variance):.4f}")
 
