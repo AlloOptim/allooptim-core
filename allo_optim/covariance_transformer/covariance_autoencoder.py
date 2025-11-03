@@ -6,7 +6,7 @@ Educational implementation using synthetic training data generation.
 
 import logging
 import os
-from typing import Dict, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -177,7 +177,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
     def _generate_synthetic_training_data(
         self, n_samples: int = 50000, use_cached: bool = True, cache_file: str = "covariance_training_data.h5"
-    ) -> Tuple[Tensor, Tensor]:
+    ) -> tuple[Tensor, Tensor]:
         """
         Generate synthetic training data using the training_data module.
 
@@ -187,7 +187,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
             cache_file: Cache file path
 
         Returns:
-            Tuple of (noisy_data, clean_data) tensors
+            tuple of (noisy_data, clean_data) tensors
         """
         # Check for cached data
         if use_cached and os.path.exists(cache_file):
@@ -491,7 +491,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         logger.debug(f"   Final val loss: {val_losses[-1]:.6f}")
         logger.debug(f"   Epochs trained: {len(train_losses)}")
 
-    def _calculate_reconstruction_metrics(self, original: np.array, reconstructed: np.array) -> Dict:
+    def _calculate_reconstruction_metrics(self, original: np.array, reconstructed: np.array) -> dict:
         """Calculate comprehensive reconstruction error metrics."""
         # Ensure same shape
         if original.shape != reconstructed.shape:
@@ -571,7 +571,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
         return denoised_cov
 
-    def get_reconstruction_metrics(self) -> Dict:
+    def get_reconstruction_metrics(self) -> dict:
         """Get the latest reconstruction error metrics."""
         return self.reconstruction_metrics.copy() if self.reconstruction_metrics else {}
 

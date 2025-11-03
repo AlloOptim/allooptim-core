@@ -1,10 +1,9 @@
-"""Trading Allocation Package"""
+"""Portfolio Allocation Optimization Package"""
 
 import logging
 
-from common.config.logger import setup_service_logger
+# Set up basic logging
+logging.basicConfig(level=logging.INFO)
 
-setup_service_logger("allocation")
-
-test_logger = logging.getLogger(__name__)
-test_logger.info("Allocation package initialized successfully")
+logger = logging.getLogger(__name__)
+logger.info("AlloOptim package initialized successfully")

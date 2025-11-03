@@ -6,7 +6,7 @@ Generates synthetic correlation matrices for training denoising autoencoders
 import multiprocessing as mp
 from dataclasses import dataclass
 from functools import partial
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 import h5py
 import numpy as np
@@ -67,7 +67,7 @@ class SpectrumGenerator:
         return eigenvalues / np.sum(eigenvalues) * n
 
     @staticmethod
-    def spiked_model(n: int, n_factors: int = None, factor_strength: Tuple[float, float] = (5.0, 20.0)) -> np.ndarray:
+    def spiked_model(n: int, n_factors: int = None, factor_strength: tuple[float, float] = (5.0, 20.0)) -> np.ndarray:
         """
         Spiked model: few large factors + noise
         Models market with strong factors (market, sector, etc.)
@@ -400,7 +400,7 @@ class NoisyObservationGenerator:
     """Generates noisy sample covariance matrices from true covariance"""
 
     @staticmethod
-    def add_estimation_noise(true_cov: np.ndarray, n_observations: int, return_eigvals: bool = True) -> Dict:
+    def add_estimation_noise(true_cov: np.ndarray, n_observations: int, return_eigvals: bool = True) -> dict:
         """
         Generate noisy sample covariance matrix by simulating data
 
@@ -454,7 +454,7 @@ class TrainingDataGenerator:
         self.cov_gen = CovarianceMatrixGenerator()
         self.noise_gen = NoisyObservationGenerator()
 
-    def generate_single_sample(self, sample_idx: int) -> Dict:
+    def generate_single_sample(self, sample_idx: int) -> dict:
         """
         Generate a single training sample
 
@@ -519,7 +519,7 @@ class TrainingDataGenerator:
         else:
             raise ValueError(f"Unknown spectrum type: {spectrum_type}")
 
-    def generate_parallel(self, verbose: bool = True) -> List[Dict]:
+    def generate_parallel(self, verbose: bool = True) -> list[dict]:
         """
         Generate training data in parallel
 
@@ -527,7 +527,7 @@ class TrainingDataGenerator:
             verbose: Print progress
 
         Returns:
-            List of training samples
+            list of training samples
         """
         n_processes = self.config.n_processes or mp.cpu_count()
 
@@ -542,12 +542,12 @@ class TrainingDataGenerator:
 
         return samples
 
-    def save_to_hdf5(self, samples: List[Dict], filename: Optional[str] = None):
+    def save_to_hdf5(self, samples: list[dict], filename: Optional[str] = None):
         """
         Save training data to HDF5 file
 
         Args:
-            samples: List of training samples
+            samples: list of training samples
             filename: Output filename (uses config if None)
         """
         if filename is None:
@@ -576,7 +576,7 @@ class TrainingDataGenerator:
         print(f"File size: {os.path.getsize(filename) / 1024 / 1024:.2f} MB")
 
 
-def load_training_data(filename: str) -> Dict[str, np.ndarray]:
+def load_training_data(filename: str) -> dict[str, np.ndarray]:
     """
     Load training data from HDF5 file
 

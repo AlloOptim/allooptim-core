@@ -7,7 +7,7 @@ No price data, returns, or covariance analysis
 import logging
 import time
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 import yfinance as yf
@@ -132,16 +132,16 @@ class OnlyMarketCapFundamentalConfig(BalancedFundamentalConfig):
     current_ratio_weight: float = 0.0
 
 
-def get_fundamental_data(today: datetime, tickers: List[str], batch_size: int = 1000) -> List[FundamentalData]:
+def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 1000) -> list[FundamentalData]:
     """
     Download fundamental data for multiple stocks using batch processing
 
     Args:
-        tickers: List of ticker symbols to fetch data for
+        tickers: list of ticker symbols to fetch data for
         batch_size: Maximum number of tickers to process in one batch
 
     Returns:
-        List of FundamentalData objects, one for each ticker
+        list of FundamentalData objects, one for each ticker
     """
     all_results = []
 
@@ -258,12 +258,12 @@ def normalize_metric(values: np.ndarray, inverse: bool = False) -> np.ndarray:
     return normalized
 
 
-def calculate_fundamental_scores(fundamentals: List[FundamentalData], config: BalancedFundamentalConfig) -> np.ndarray:
+def calculate_fundamental_scores(fundamentals: list[FundamentalData], config: BalancedFundamentalConfig) -> np.ndarray:
     """
     Calculate composite fundamental scores for each stock
 
     Args:
-        fundamentals: List of FundamentalData objects
+        fundamentals: list of FundamentalData objects
         config: Configuration for scoring
 
     Returns:
@@ -298,7 +298,7 @@ def calculate_fundamental_scores(fundamentals: List[FundamentalData], config: Ba
 
 
 def allocate(
-    asset_names: List[str],
+    asset_names: list[str],
     today: datetime,
     config: BalancedFundamentalConfig,
 ) -> np.ndarray:
@@ -313,7 +313,7 @@ def allocate(
     5. Current Ratio - Short-term liquidity
 
     Args:
-        stock_names: List of stock ticker symbols
+        stock_names: list of stock ticker symbols
         today: Current date (for logging purposes)
         config: Configuration for fundamental scoring (optional)
 

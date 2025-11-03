@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Optional
 
 import numpy as np
 import pandas as pd

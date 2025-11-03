@@ -4,17 +4,13 @@ Generates 50,000 diverse synthetic correlation matrices using multiple methods
 for enhanced autoencoder training
 """
 
-import multiprocessing as mp
+
 import random
-import warnings
+
 from dataclasses import dataclass
-from functools import partial
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
-from scipy.linalg import block_diag, sqrtm
-from scipy.stats import ortho_group, wishart
-
+from scipy.linalg import block_diag
 # Import existing generator
 from training_data import CovarianceMatrixGenerator, SpectrumGenerator
 
@@ -461,7 +457,7 @@ class DiverseCorrelationGenerator:
 
         return noisy_matrix
 
-    def generate_diverse_training_set(self, n_samples: int = None) -> List[np.ndarray]:
+    def generate_diverse_training_set(self, n_samples: int = None) -> list[np.ndarray]:
         """
         Kombiniert mehrere Methoden für Diversität
         Generates diverse training set with multiple methods
@@ -470,7 +466,7 @@ class DiverseCorrelationGenerator:
             n_samples: Number of samples to generate (uses config default if None)
 
         Returns:
-            List of correlation matrices
+            list of correlation matrices
         """
         if n_samples is None:
             n_samples = self.config.n_samples
@@ -539,12 +535,12 @@ class DiverseCorrelationGenerator:
         return training_data
 
 
-def validate_training_data(training_data: List[np.ndarray], sample_size: int = 100) -> Dict:
+def validate_training_data(training_data: list[np.ndarray], sample_size: int = 100) -> dict:
     """
     Validate the diversity and quality of generated training data
 
     Args:
-        training_data: List of correlation matrices
+        training_data: list of correlation matrices
         sample_size: Number of matrices to analyze in detail
 
     Returns:

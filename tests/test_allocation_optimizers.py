@@ -6,7 +6,7 @@ All optimizers must ensure 0 <= sum(weights) <= 1.02
 """
 
 from datetime import datetime
-from typing import List, Type
+from typing import Type
 
 import numpy as np
 import pandas as pd
@@ -49,7 +49,7 @@ from allo_optim.optimizer.particle_swarm.pso_optimizer import (
 )
 
 
-def get_all_optimizers() -> List[Type]:
+def get_all_optimizers() -> list[Type]:
     """Get all optimizer classes for testing"""
     return [
         NaiveOptimizer,

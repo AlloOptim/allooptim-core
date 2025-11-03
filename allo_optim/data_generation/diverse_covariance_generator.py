@@ -3,16 +3,15 @@ Diverse Covariance Matrix Training Data Generation Module
 Generates 30,000 artificial covariance matrices using multiple methods for autoencoder training
 """
 
-import os
+
 import random
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Union
+
 
 import numpy as np
 import pandas as pd
-from scipy.linalg import cholesky, sqrtm
-from scipy.stats import ortho_group, wishart
+from scipy.stats import ortho_group
 
 
 @dataclass
@@ -30,7 +29,7 @@ class CovarianceConfig:
     pct_block_struct: float = 0.10  # 10% block-structured (sectors)
 
     # Scaling parameters
-    volatility_scale: Tuple[float, float] = (0.01, 0.05)  # Annual volatility range
+    volatility_scale: tuple[float, float] = (0.01, 0.05)  # Annual volatility range
     noise_level: float = 0.02  # Sampling noise level
 
 
@@ -206,7 +205,7 @@ class CovarianceMatrixGenerator:
 
         return self._ensure_positive_definite(corr)
 
-    def _random_block_sizes(self, n_assets: int, n_blocks: int) -> List[int]:
+    def _random_block_sizes(self, n_assets: int, n_blocks: int) -> list[int]:
         """Generate random block sizes that sum to n_assets"""
         # Generate random splits
         splits = sorted(np.random.choice(n_assets - 1, n_blocks - 1, replace=False))
@@ -216,7 +215,7 @@ class CovarianceMatrixGenerator:
         block_sizes = [splits[i + 1] - splits[i] for i in range(n_blocks)]
         return [max(1, size) for size in block_sizes if size > 0]  # Ensure positive sizes
 
-    def _generate_sector_volatilities(self, block_sizes: List[int]) -> np.ndarray:
+    def _generate_sector_volatilities(self, block_sizes: list[int]) -> np.ndarray:
         """Generate realistic sector-based volatilities"""
         volatilities = []
 
@@ -228,7 +227,7 @@ class CovarianceMatrixGenerator:
 
         return np.array(volatilities)
 
-    def _find_market_data_files(self) -> List[str]:
+    def _find_market_data_files(self) -> list[str]:
         """Find CSV files that might contain market data"""
         base_path = Path(__file__).parent.parent.parent
         csv_files = []
@@ -380,7 +379,7 @@ class CovarianceMatrixGenerator:
 
         return self._ensure_positive_definite(noisy_matrix)
 
-    def generate_diverse_training_set(self) -> List[np.ndarray]:
+    def generate_diverse_training_set(self) -> list[np.ndarray]:
         """
         Generate diverse training set of 30,000 covariance matrices
         Using multiple generation methods for maximum diversity

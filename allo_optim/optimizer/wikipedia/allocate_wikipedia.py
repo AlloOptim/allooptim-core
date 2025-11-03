@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -59,7 +59,7 @@ def _exponential_decay_weights(
 
 def _get_failed_result(
     end_date: datetime,
-    all_stocks: List[StockUniverse],
+    all_stocks: list[StockUniverse],
 ) -> AllocationResult:
     statistics = WikipediaStatistics(
         end_date=end_date.strftime("%Y-%m-%d"),
@@ -366,7 +366,7 @@ def allocate_wikipedia(
     to allocate weights to stocks with significant positive correlations.
 
     Parameters:
-    - all_stocks: List of stocks to consider for allocation
+    - all_stocks: list of stocks to consider for allocation
     - time_today: The current date for analysis
     - n_historical_days: Number of historical days to analyze (walking backwards from time_today)
     - n_lag_days: Days lag between Wikipedia views and stock prices

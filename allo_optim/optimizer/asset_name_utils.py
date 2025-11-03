@@ -6,7 +6,7 @@ between mu (pd.Series) and cov (pd.DataFrame) inputs in the optimizer interface.
 """
 
 import warnings
-from typing import List, Tuple, Union
+from typing import Union
 
 import numpy as np
 import pandas as pd
@@ -61,7 +61,7 @@ def validate_asset_names(mu: pd.Series, cov: pd.DataFrame) -> None:
         raise ValueError(f"cov.index has duplicate asset names: {cov.index.duplicated().sum()} duplicates")
 
 
-def get_asset_names(mu: pd.Series = None, cov: pd.DataFrame = None) -> List[str]:
+def get_asset_names(mu: pd.Series = None, cov: pd.DataFrame = None) -> list[str]:
     """
     Extract asset names from mu or cov.
 
@@ -70,7 +70,7 @@ def get_asset_names(mu: pd.Series = None, cov: pd.DataFrame = None) -> List[str]
         cov: Covariance matrix DataFrame (optional)
 
     Returns:
-        List of asset names
+        list of asset names
 
     Raises:
         ValueError: If neither mu nor cov is provided
@@ -85,7 +85,7 @@ def get_asset_names(mu: pd.Series = None, cov: pd.DataFrame = None) -> List[str]
 
 def align_assets(
     mu: pd.Series, cov: pd.DataFrame, reorder: bool = True, fill_missing: bool = False
-) -> Tuple[pd.Series, pd.DataFrame]:
+) -> tuple[pd.Series, pd.DataFrame]:
     """
     Align asset names between mu and cov, optionally reordering or filling missing assets.
 
@@ -96,7 +96,7 @@ def align_assets(
         fill_missing: If True, fill missing assets with default values (mu=0, cov=diagonal with small variance)
 
     Returns:
-        Tuple of (aligned_mu, aligned_cov) with consistent asset ordering
+        tuple of (aligned_mu, aligned_cov) with consistent asset ordering
 
     Raises:
         ValueError: If assets cannot be aligned and fill_missing=False
@@ -154,18 +154,18 @@ def align_assets(
 
 
 def convert_numpy_to_pandas(
-    mu: Union[np.ndarray, pd.Series], cov: Union[np.ndarray, pd.DataFrame], asset_names: List[str] = None
-) -> Tuple[pd.Series, pd.DataFrame]:
+    mu: Union[np.ndarray, pd.Series], cov: Union[np.ndarray, pd.DataFrame], asset_names: list[str] = None
+) -> tuple[pd.Series, pd.DataFrame]:
     """
     Convert numpy arrays to pandas Series/DataFrame with asset names.
 
     Args:
         mu: Expected returns as numpy array or pandas Series
         cov: Covariance matrix as numpy array or pandas DataFrame
-        asset_names: List of asset names (required if inputs are numpy arrays)
+        asset_names: list of asset names (required if inputs are numpy arrays)
 
     Returns:
-        Tuple of (pd.Series, pd.DataFrame) with asset names
+        tuple of (pd.Series, pd.DataFrame) with asset names
 
     Raises:
         ValueError: If asset_names is required but not provided
@@ -201,7 +201,7 @@ def convert_numpy_to_pandas(
     return mu_series, cov_df
 
 
-def convert_pandas_to_numpy(mu: pd.Series, cov: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def convert_pandas_to_numpy(mu: pd.Series, cov: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, list[str]]:
     """
     Convert pandas Series/DataFrame to numpy arrays while preserving asset name order.
 
@@ -210,7 +210,7 @@ def convert_pandas_to_numpy(mu: pd.Series, cov: pd.DataFrame) -> Tuple[np.ndarra
         cov: Covariance matrix as pandas DataFrame
 
     Returns:
-        Tuple of (mu_array, cov_array, asset_names)
+        tuple of (mu_array, cov_array, asset_names)
     """
     validate_asset_names(mu, cov)
 
@@ -221,13 +221,13 @@ def convert_pandas_to_numpy(mu: pd.Series, cov: pd.DataFrame) -> Tuple[np.ndarra
     return mu_array, cov_array, asset_names
 
 
-def create_weights_series(weights: np.ndarray, asset_names: List[str]) -> pd.Series:
+def create_weights_series(weights: np.ndarray, asset_names: list[str]) -> pd.Series:
     """
     Convert weight array to pandas Series with asset names.
 
     Args:
         weights: Portfolio weights as numpy array
-        asset_names: List of asset names corresponding to weights
+        asset_names: list of asset names corresponding to weights
 
     Returns:
         Portfolio weights as pandas Series with asset names as index

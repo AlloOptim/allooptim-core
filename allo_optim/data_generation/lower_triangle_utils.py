@@ -1,13 +1,10 @@
-#!/usr/bin/env python3
 """
 Lower Triangle Matrix Utilities for Symmetric Covariance Matrices
 Optimizes autoencoder input/output by using only lower triangle elements.
 """
 
-from typing import Tuple
-
 import numpy as np
-import pandas as pd
+
 
 
 def pack_lower_triangle(matrix: np.array) -> np.array:

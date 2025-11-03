@@ -1,5 +1,4 @@
 import logging
-from typing import List
 
 import lightgbm as lgb
 import numpy as np
@@ -55,7 +54,7 @@ class FastPortfolioOptimizer:
         self.target_buffer = []
         self.max_buffer_size = 1000
 
-    def _engineer_features(self, prices: np.ndarray) -> List[np.ndarray]:
+    def _engineer_features(self, prices: np.ndarray) -> list[np.ndarray]:
         """Create features from price data"""
         features = []
 

@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
@@ -12,7 +12,7 @@ from allo_optim.covariance_transformer.transformer_interface import (
 )
 
 
-def _extract_cov_info(cov: Union[np.ndarray, pd.DataFrame]) -> Tuple[np.ndarray, list]:
+def _extract_cov_info(cov: Union[np.ndarray, pd.DataFrame]) -> tuple[np.ndarray, list]:
     """
     Extract numpy array and asset names from covariance matrix
     :param cov: covariance matrix (numpy array or pandas DataFrame)
@@ -445,7 +445,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         # Return as pandas DataFrame with preserved asset names
         return _create_cov_dataframe(transformed_cov, asset_names)
 
-    def _get_PCA(self, matrix: np.array) -> Tuple[np.array, np.array]:
+    def _get_PCA(self, matrix: np.array) -> tuple[np.array, np.array]:
         """
         Gets eigenvalues and eigenvectors from a Hermitian matrix
         :param matrix: a Hermitian matrix

@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -52,7 +52,7 @@ class RiskParityOptimizer(AbstractOptimizer):
         Gets position weights according to the risk parity method
         :param cov: covariance matrix
         :param mu: vector of expected returns
-        :return: List of position weights.
+        :return: list of position weights.
         """
         # Validate asset names consistency
         validate_asset_names(ds_mu, df_cov)

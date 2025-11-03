@@ -9,7 +9,7 @@ import logging
 import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
@@ -56,7 +56,7 @@ def _legacy_initialize_database():
         conn.commit()
 
 
-def _get_date_range(table_name: str) -> Tuple[Optional[datetime], Optional[datetime]]:
+def _get_date_range(table_name: str) -> tuple[Optional[datetime], Optional[datetime]]:
     """Get the min and max dates from a table."""
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
@@ -73,7 +73,7 @@ def _get_date_range(table_name: str) -> Tuple[Optional[datetime], Optional[datet
         return None, None
 
 
-def _get_existing_symbols(table_name: str) -> List[str]:
+def _get_existing_symbols(table_name: str) -> list[str]:
     """Get existing symbol columns from a table."""
     with sqlite3.connect(DATABASE_PATH) as conn:
         cursor = conn.execute(f"PRAGMA table_info({table_name})")
@@ -82,7 +82,7 @@ def _get_existing_symbols(table_name: str) -> List[str]:
         return [col for col in columns if col != "date"]
 
 
-def _add_symbol_columns(table_name: str, new_symbols: List[str]):
+def _add_symbol_columns(table_name: str, new_symbols: list[str]):
     """Add new symbol columns to a table."""
     existing_symbols = set(_get_existing_symbols(table_name))
     symbols_to_add = [s for s in new_symbols if s not in existing_symbols]
@@ -95,7 +95,7 @@ def _add_symbol_columns(table_name: str, new_symbols: List[str]):
         logger.info(f"Added {len(symbols_to_add)} new symbol columns to {table_name}")
 
 
-def _get_table_report(table_name: str) -> Dict[str, Any]:
+def _get_table_report(table_name: str) -> dict[str, Any]:
     """Get statistics for a table."""
     try:
         with sqlite3.connect(DATABASE_PATH) as conn:
@@ -133,7 +133,7 @@ def _get_table_report(table_name: str) -> Dict[str, Any]:
 
 
 def _fetch_wikipedia_data(
-    stocks: List[StockUniverse],
+    stocks: list[StockUniverse],
     start_date: datetime,
     end_date: datetime,
 ) -> pd.DataFrame:
@@ -191,10 +191,10 @@ def _fetch_wikipedia_data(
 
 
 def _fetch_stock_data(
-    stocks: List[StockUniverse],
+    stocks: list[StockUniverse],
     start_date: datetime,
     end_date: datetime,
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Fetch stock price and volume data for stocks in date range."""
     symbols = [stock.symbol for stock in stocks]
 
@@ -308,7 +308,7 @@ def _save_to_database(
 
 def _load_from_database(
     table_name: str,
-    symbols: List[str],
+    symbols: list[str],
     start_date: datetime,
     end_date: datetime,
 ) -> pd.DataFrame:
@@ -356,7 +356,7 @@ def _load_from_database(
         raise ValueError(f"Error loading from {table_name}: {str(error)}")
 
 
-def status_report_databases() -> Dict[str, Any]:
+def status_report_databases() -> dict[str, Any]:
     """
     Read-only status report of all three databases.
 
@@ -384,14 +384,14 @@ def status_report_databases() -> Dict[str, Any]:
     return report
 
 
-def download_data(start_date: datetime, end_date: datetime, stocks: List[StockUniverse]) -> None:
+def download_data(start_date: datetime, end_date: datetime, stocks: list[StockUniverse]) -> None:
     """
     B) Manual data download/update function (incremental).
 
     Args:
         start_date: Start date for data download
         end_date: End date for data download
-        stocks: List of StockUniverse objects to download
+        stocks: list of StockUniverse objects to download
     """
     logger.info(f"Incremental download for {len(stocks)} stocks from {start_date.date()} to {end_date.date()}")
 
@@ -427,20 +427,20 @@ def download_data(start_date: datetime, end_date: datetime, stocks: List[StockUn
 def load_data(
     start_date: datetime,
     end_date: datetime,
-    stocks: List[StockUniverse],
+    stocks: list[StockUniverse],
     use_sql_database: bool,
-) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load data from SQL database or fetch fresh from APIs.
 
     Args:
         start_date: Start date for data
         end_date: End date for data
-        stocks: List of StockUniverse objects
+        stocks: list of StockUniverse objects
         use_sql_database: If True, load from SQL database. If False, fetch fresh data.
 
     Returns:
-        Tuple of (wiki_views_df, stock_prices_df, stock_volumes_df)
+        tuple of (wiki_views_df, stock_prices_df, stock_volumes_df)
     """
     symbols = [stock.symbol for stock in stocks]
 
@@ -518,7 +518,7 @@ def load_data(
 # def load_specific_data(
 #     start_date: datetime,
 #     end_date: datetime,
-#     stocks: List[StockUniverse],
+#     stocks: list[StockUniverse],
 #     use_sql_database: bool,
 #     download_mode: DownloadMode,
 # ) -> pd.DataFrame:

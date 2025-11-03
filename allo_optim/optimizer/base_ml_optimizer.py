@@ -189,7 +189,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
             current_prices: Price data array (T, n_assets)
             
         Returns:
-            Tuple of (augmented_prices, augmented_returns)
+            tuple of (augmented_prices, augmented_returns)
         """
         # Calculate returns from prices
         returns_array = np.diff(np.log(current_prices), axis=0)
