@@ -210,7 +210,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 		noisy_matrices = []
 		clean_matrices = []
 
-		logger.debug(f"   Converting eigenvalue pairs to covariance matrices...")
+		logger.debug("   Converting eigenvalue pairs to covariance matrices...")
 
 		for i, sample in enumerate(samples):
 			# Generate random orthogonal matrix for each sample
@@ -274,8 +274,8 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 		logger.debug(f"   Samples/parameter: {samples_per_param:.6f}")
 
 		if samples_per_param < EXTREMELY_LOW_SAMPLES_PER_PARAM_THRESHOLD:
-			logger.debug(f"   ⚠️ WARNING: Extremely low samples/parameter ratio!")
-			logger.debug(f"   ⚠️ Expected severe overfitting and poor generalization!")
+			logger.debug("   ⚠️ WARNING: Extremely low samples/parameter ratio!")
+			logger.debug("   ⚠️ Expected severe overfitting and poor generalization!")
 
 		return Tensor(np.array(cov_matrices), dtype=dtypes.float32)
 
@@ -362,7 +362,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 		# Calculate total parameters
 		self.total_params = self._count_parameters()
 
-		logger.debug(f"📊 Model statistics:")
+		logger.debug("📊 Model statistics:")
 		logger.debug(f"   Total parameters: {self.total_params:,}")
 		logger.debug(f"   Minimum samples needed (1:100): {self.total_params // 100:,}")
 		logger.debug(f"   Conservative samples needed (1:10): {self.total_params // 10:,}")
@@ -422,7 +422,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 			Y_train = X_train
 			Y_val = X_val
 
-		logger.debug(f"\n📚 Training setup:")
+		logger.debug("\n📚 Training setup:")
 		logger.debug(f"   Training samples: {len(X_train)}")
 		logger.debug(f"   Validation samples: {len(X_val)}")
 		logger.debug(f"   Task type: {'Denoising' if denoising_task else 'Autoencoder'}")
@@ -505,7 +505,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 		}
 
 		self.is_fitted = True
-		logger.debug(f"✅ Training completed!")
+		logger.debug("✅ Training completed!")
 		logger.debug(f"   Final train loss: {train_losses[-1]:.6f}")
 		logger.debug(f"   Final val loss: {val_losses[-1]:.6f}")
 		logger.debug(f"   Epochs trained: {len(train_losses)}")
@@ -600,7 +600,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 		logger.debug("AUTOENCODER ANALYSIS SUMMARY")
 		logger.debug("=" * 70)
 
-		logger.debug(f"🏗️ Architecture:")
+		logger.debug("🏗️ Architecture:")
 		logger.debug(f"   Input dimension: {self.input_size:,}")
 		logger.debug(f"   Hidden layers: {self.hidden_dims}")
 		logger.debug(f"   Total parameters: {self.total_params:,}")
@@ -610,7 +610,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 			samples = len(self.training_history.get("train_losses", [0]))
 			if samples > 0:
 				samples_per_param = samples / self.total_params
-				logger.debug(f"\n📊 Training Data:")
+				logger.debug("\n📊 Training Data:")
 				logger.debug(f"   Training samples: {samples}")
 				logger.debug(f"   Samples/parameter: {samples_per_param:.6f}")
 				logger.debug(f"   Minimum needed (1:100): {self.total_params // 100:,}")
@@ -621,19 +621,19 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 				elif samples_per_param < CONSERVATIVE_SAMPLES_PER_PARAM_THRESHOLD:
 					logger.debug(f"   ⚠️ WARNING: {(0.1 / samples_per_param):.0f}x below conservative threshold")
 				else:
-					logger.debug(f"   ✅ Adequate sample ratio")
+					logger.debug("   ✅ Adequate sample ratio")
 
 		if self.reconstruction_metrics:
-			logger.debug(f"\n🎯 Reconstruction Quality:")
+			logger.debug("\n🎯 Reconstruction Quality:")
 			metrics = self.reconstruction_metrics
 			logger.debug(f"   Correlation: {metrics.get('correlation', 0):.4f}")
 			logger.debug(f"   Relative error: {metrics.get('relative_error', 0):.4f}")
 			logger.debug(f"   Frobenius error: {metrics.get('relative_frobenius_error', 0):.4f}")
 
-		logger.debug(f"\n💡 Recommendation:")
-		logger.debug(f"   For production: Use OracleCovarianceTransformer or SimpleShrinkage")
-		logger.debug(f"   For research: This autoencoder demonstrates concepts but lacks viable data")
-		logger.debug(f"   Mathematical reality: Need 1,000x-10,000x more training samples")
+		logger.debug("\n💡 Recommendation:")
+		logger.debug("   For production: Use OracleCovarianceTransformer or SimpleShrinkage")
+		logger.debug("   For research: This autoencoder demonstrates concepts but lacks viable data")
+		logger.debug("   Mathematical reality: Need 1,000x-10,000x more training samples")
 
 
 if __name__ == "__main__":
@@ -648,7 +648,7 @@ if __name__ == "__main__":
 	n_assets = 20  # Small but realistic example
 	n_samples = 1000  # Manageable for demo
 
-	logger.debug(f"🧪 Demo configuration:")
+	logger.debug("🧪 Demo configuration:")
 	logger.debug(f"   Assets: {n_assets}")
 	logger.debug(f"   Synthetic samples: {n_samples}")
 	logger.debug()
@@ -687,7 +687,7 @@ if __name__ == "__main__":
 	# Print comprehensive analysis
 	autoencoder.print_analysis_summary()
 
-	logger.debug(f"\n💡 Next steps:")
-	logger.debug(f"   - Run 'python demo_synthetic_autoencoder.py' for full demo")
-	logger.debug(f"   - Explore training_data.py for covariance generation methods")
-	logger.debug(f"   - For production: Use OracleCovarianceTransformer or shrinkage methods")
+	logger.debug("\n💡 Next steps:")
+	logger.debug("   - Run 'python demo_synthetic_autoencoder.py' for full demo")
+	logger.debug("   - Explore training_data.py for covariance generation methods")
+	logger.debug("   - For production: Use OracleCovarianceTransformer or shrinkage methods")

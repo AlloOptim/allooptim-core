@@ -386,7 +386,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 			score = self._estimate_score(kmeans.labels_, dist)
 			cluster_result = ClusterResult(age=0, score=score, kmeans=kmeans, success=True)
 
-		except (ValueError, np.linalg.LinAlgError) as e:
+		except (ValueError, np.linalg.LinAlgError):
 			logger.error(f"Clustering failed for {n_clusters}")
 			cluster_result = ClusterResult(age=0, score=-np.inf, kmeans=None, success=False)
 
@@ -549,7 +549,7 @@ if __name__ == "__main__":
 			print(f"{n_assets:<8} {'ERROR':<12} {'ERROR':<12} {'N/A':<10} {str(e)[:20]}")
 
 	# Summary analysis
-	print(f"\n=== Summary Analysis ===")
+	print("\n=== Summary Analysis ===")
 	if results:
 		avg_speedup = np.mean([r["speedup"] for r in results if r["speedup"] != float("inf")])
 		max_speedup = np.max([r["speedup"] for r in results if r["speedup"] != float("inf")])

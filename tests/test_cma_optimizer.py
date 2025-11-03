@@ -3,9 +3,6 @@
 Test script for the new CMA-ES optimizer integration
 """
 
-import sys
-from datetime import datetime
-
 import numpy as np
 import pandas as pd
 
@@ -48,7 +45,7 @@ def test_cma_optimizer():
 		weights = cma_optimizer.allocate(mu, cov, price_data)
 
 		print("CMA-ES Optimization Results:")
-		print(f"Portfolio weights:")
+		print("Portfolio weights:")
 		for asset, weight in weights.items():
 			print(f"  {asset}: {weight:.4f} ({weight*100:.2f}%)")
 

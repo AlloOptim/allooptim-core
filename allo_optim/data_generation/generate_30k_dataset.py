@@ -3,7 +3,6 @@ Generate Full 30K Covariance Training Dataset
 Creates 30,000 diverse covariance matrices and saves them for autoencoder training
 """
 
-import os
 import pickle
 import sys
 import time
@@ -40,10 +39,10 @@ def generate_full_training_dataset(save_path: str = None):
 		pct_block_struct=0.10,  # 10% block-structured
 	)
 
-	print(f"Configuration:")
+	print("Configuration:")
 	print(f"  Matrix size: {config.n_assets}×{config.n_assets}")
 	print(f"  Total samples: {config.n_samples:,}")
-	print(f"  Method distribution:")
+	print("  Method distribution:")
 	print(
 		f"    - Synthetic eigenvalue: {config.pct_synthetic:.0%} "
 		f"({int(config.pct_synthetic * config.n_samples):,} matrices)"
@@ -65,7 +64,7 @@ def generate_full_training_dataset(save_path: str = None):
 	print(f"    - Block-structured:     {config.pct_block_struct:.0%} ({n_block_struct:,} matrices)")
 
 	# Start generation
-	print(f"\nStarting generation...")
+	print("\nStarting generation...")
 	start_time = time.time()
 
 	generator = CovarianceMatrixGenerator(config)
@@ -76,7 +75,7 @@ def generate_full_training_dataset(save_path: str = None):
 	print(f"Generation rate: {len(covariance_matrices) / generation_time:.1f} matrices/second")
 
 	# Convert to lower triangle format
-	print(f"\nConverting to lower triangle format...")
+	print("\nConverting to lower triangle format...")
 	conversion_start = time.time()
 
 	packed_matrices = []
@@ -93,7 +92,7 @@ def generate_full_training_dataset(save_path: str = None):
 	# Convert to numpy array
 	X_train = np.array(packed_matrices)
 
-	print(f"\nDataset statistics:")
+	print("\nDataset statistics:")
 	print(f"  Shape: {X_train.shape}")
 	print(f"  Original matrix size: {config.n_assets}×{config.n_assets} = {config.n_assets**2:,} elements")
 	print(f"  Packed size: {X_train.shape[1]:,} elements")
@@ -104,7 +103,7 @@ def generate_full_training_dataset(save_path: str = None):
 	print(f"  Std: {np.std(X_train):.6f}")
 
 	# Validate a few matrices
-	print(f"\nValidating random samples...")
+	print("\nValidating random samples...")
 	test_indices = np.random.choice(len(covariance_matrices), 5, replace=False)
 	all_valid = True
 
@@ -156,19 +155,19 @@ def generate_full_training_dataset(save_path: str = None):
 	with open(save_path, "wb") as f:
 		pickle.dump(dataset, f, protocol=pickle.HIGHEST_PROTOCOL)
 
-	print(f"Dataset saved successfully!")
+	print("Dataset saved successfully!")
 	print(f"File size: {Path(save_path).stat().st_size / (1024**3):.2f} GB")
 
 	# Summary
 	total_time = generation_time + conversion_time
-	print(f"\n" + "=" * 60)
-	print(f"GENERATION COMPLETE")
-	print(f"=" * 60)
+	print("\n" + "=" * 60)
+	print("GENERATION COMPLETE")
+	print("=" * 60)
 	print(f"Total time: {total_time:.1f} seconds ({total_time/60:.1f} minutes)")
 	print(f"Dataset: {len(covariance_matrices):,} matrices of {config.n_assets}×{config.n_assets}")
 	print(f"Training data: {X_train.shape}")
 	print(f"Saved to: {save_path}")
-	print(f"Ready for autoencoder training!")
+	print("Ready for autoencoder training!")
 
 	return X_train, dataset
 
@@ -191,7 +190,7 @@ def load_training_dataset(save_path: str = None):
 	config = dataset["config"]
 	metadata = dataset["metadata"]
 
-	print(f"Loaded dataset:")
+	print("Loaded dataset:")
 	print(f"  Shape: {X_train.shape}")
 	print(f"  Matrix size: {metadata['matrix_size']}×{metadata['matrix_size']}")
 	print(f"  Generation time: {dataset['generation_time']:.1f}s")
@@ -205,6 +204,6 @@ if __name__ == "__main__":
 	# Generate the full training dataset
 	X_train, dataset = generate_full_training_dataset()
 
-	print(f"\nTo load this dataset later:")
-	print(f"from generate_30k_dataset import load_training_dataset")
-	print(f"X_train, dataset = load_training_dataset()")
+	print("\nTo load this dataset later:")
+	print("from generate_30k_dataset import load_training_dataset")
+	print("X_train, dataset = load_training_dataset()")

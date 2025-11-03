@@ -407,8 +407,6 @@ def allocate(
 if __name__ == "__main__":
 	logging.basicConfig(level=logging.INFO)
 
-	from allo_optim.config.stock_universe import everything_in_alpaca
-
 	# Example stocks
 	stocks = ["AAPL", "MSFT", "GOOGL", "AMZN", "JPM", "JNJ", "WMT"]
 	# stock_universe = everything_in_alpaca()

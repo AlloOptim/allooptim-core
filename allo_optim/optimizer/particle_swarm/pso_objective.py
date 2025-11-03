@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 # Constants for simulation parameters
 SKEW_EVENT_PROBABILITY = 0.05  # 5% chance of skew events
 TAIL_EVENT_PROBABILITY = 0.03  # 3% chance of tail events
-SKEW_EVENT_MAGNITUDE = 0.05    # Magnitude of skew events
+SKEW_EVENT_MAGNITUDE = 0.05  # Magnitude of skew events
 
 
 def price_based_objective_function(

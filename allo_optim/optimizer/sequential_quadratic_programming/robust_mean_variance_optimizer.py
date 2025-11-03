@@ -178,7 +178,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
 		    - 'bootstrap': Bootstrap resampling to estimate parameter variability
 		    - 'historical_std': Use rolling window standard deviation of estimates
 		"""
-		if df_prices is None or len(df_prices) < 30:
+		if df_prices is None or len(df_prices) < MIN_OBSERVATIONS_FOR_UNCERTAINTY_ESTIMATION:
 			logger.warning("Not enough price history for uncertainty estimation, using fixed levels")
 			self.estimated_mu_uncertainty = self.config.mu_uncertainty_level
 			self.estimated_cov_uncertainty = self.config.cov_uncertainty_level

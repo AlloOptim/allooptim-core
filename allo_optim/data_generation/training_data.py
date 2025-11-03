@@ -5,12 +5,10 @@ Generates synthetic correlation matrices for training denoising autoencoders
 
 import multiprocessing as mp
 from dataclasses import dataclass
-from functools import partial
 from typing import Optional
 
 import h5py
 import numpy as np
-from scipy.linalg import sqrtm
 from scipy.stats import ortho_group
 
 # Constants for numerical tolerances

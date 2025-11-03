@@ -13,7 +13,6 @@ from allo_optim.optimizer.allocation_metric import (
 	LMoments,
 )
 from allo_optim.optimizer.asset_name_utils import (
-	convert_pandas_to_numpy,
 	create_weights_series,
 	get_asset_names,
 	validate_asset_names,

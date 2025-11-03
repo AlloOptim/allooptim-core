@@ -774,7 +774,7 @@ class DeepLearningOptimizer:
 				num_heads=2,
 				dropout=0.15,
 			)
-			logger.debug(f"✓ Using LSTM + Transformer architecture")
+			logger.debug("✓ Using LSTM + Transformer architecture")
 		elif self.model_type.lower() == "mamba":
 			self.net = MambaPortfolioNet(
 				n_assets=self.config.n_assets,
@@ -784,7 +784,7 @@ class DeepLearningOptimizer:
 				d_state=16,
 				dropout=0.15,
 			)
-			logger.debug(f"✓ Using MAMBA (Selective State Space) architecture")
+			logger.debug("✓ Using MAMBA (Selective State Space) architecture")
 		elif self.model_type.lower() == "tcn":
 			self.net = TCNPortfolioNet(
 				n_assets=self.config.n_assets,
@@ -794,7 +794,7 @@ class DeepLearningOptimizer:
 				kernel_size=3,
 				dropout=0.15,
 			)
-			logger.debug(f"✓ Using TCN (Temporal Convolutional Network) architecture")
+			logger.debug("✓ Using TCN (Temporal Convolutional Network) architecture")
 		else:
 			raise ValueError(f"Unknown model_type: {self.model_type}. Choose from ['lstm', 'mamba', 'tcn']")
 
@@ -834,7 +834,12 @@ class DeepLearningOptimizer:
 				ret_20 = (log_prices[20:] - log_prices[:-20]) / 20
 
 				# Volatility (rolling std of returns)
-				vol_10 = np.array([ret_1[max(0, j - VOLATILITY_WINDOW_DAYS) : j].std() if j >= VOLATILITY_WINDOW_DAYS else 0 for j in range(1, len(ret_1) + 1)])
+				vol_10 = np.array(
+					[
+						ret_1[max(0, j - VOLATILITY_WINDOW_DAYS) : j].std() if j >= VOLATILITY_WINDOW_DAYS else 0
+						for j in range(1, len(ret_1) + 1)
+					]
+				)
 
 				# Momentum indicators
 				mom_10 = asset_prices[10:] / asset_prices[:-10] - 1
@@ -844,10 +849,16 @@ class DeepLearningOptimizer:
 				gains = np.maximum(ret_1, 0)
 				losses = np.maximum(-ret_1, 0)
 				avg_gain = np.array(
-					[gains[max(0, j - RSI_WINDOW_DAYS) : j].mean() if j >= RSI_WINDOW_DAYS else 0 for j in range(1, len(gains) + 1)]
+					[
+						gains[max(0, j - RSI_WINDOW_DAYS) : j].mean() if j >= RSI_WINDOW_DAYS else 0
+						for j in range(1, len(gains) + 1)
+					]
 				)
 				avg_loss = np.array(
-					[losses[max(0, j - RSI_WINDOW_DAYS) : j].mean() if j >= RSI_WINDOW_DAYS else 0 for j in range(1, len(losses) + 1)]
+					[
+						losses[max(0, j - RSI_WINDOW_DAYS) : j].mean() if j >= RSI_WINDOW_DAYS else 0
+						for j in range(1, len(losses) + 1)
+					]
 				)
 				rsi = 100 - (100 / (1 + avg_gain / (avg_loss + 1e-8)))
 

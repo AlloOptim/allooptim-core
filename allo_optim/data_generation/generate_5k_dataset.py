@@ -4,7 +4,6 @@ Creates 5,000 diverse covariance matrices as a starting point
 """
 
 import pickle
-import sys
 import time
 from pathlib import Path
 
@@ -28,14 +27,14 @@ def main():
 		random_seed=42,
 	)
 
-	print(f"Configuration:")
+	print("Configuration:")
 	print(f"  Matrix size: {config.n_assets}×{config.n_assets}")
 	print(f"  Total samples: {config.n_samples:,}")
 	expected_memory_gb = (config.n_samples * config.n_assets * (config.n_assets + 1) // 2 * 8) / (1024**3)
 	print(f"  Expected memory: ~{expected_memory_gb:.2f} GB")
 
 	# Generate dataset
-	print(f"\nStarting generation...")
+	print("\nStarting generation...")
 	start_time = time.time()
 
 	generator = CovarianceMatrixGenerator(config)
@@ -45,7 +44,7 @@ def main():
 	print(f"\nGeneration completed in {generation_time:.1f} seconds ({generation_time/60:.1f} minutes)")
 
 	# Convert to lower triangle format
-	print(f"\nConverting to lower triangle format...")
+	print("\nConverting to lower triangle format...")
 	conversion_start = time.time()
 
 	packed_matrices = []
@@ -62,7 +61,7 @@ def main():
 	print(f"Conversion completed in {conversion_time:.1f} seconds")
 
 	# Statistics
-	print(f"\nDataset statistics:")
+	print("\nDataset statistics:")
 	print(f"  Shape: {X_train.shape}")
 	print(f"  Size reduction: {(1 - X_train.shape[1] / (config.n_assets**2)) * 100:.1f}%")
 	print(f"  Memory usage: {X_train.nbytes / (1024**3):.2f} GB")
@@ -94,7 +93,7 @@ def main():
 
 	total_time = generation_time + conversion_time
 	print(f"\nTotal time: {total_time:.1f} seconds ({total_time/60:.1f} minutes)")
-	print(f"Ready for autoencoder training!")
+	print("Ready for autoencoder training!")
 
 	return X_train, dataset
 

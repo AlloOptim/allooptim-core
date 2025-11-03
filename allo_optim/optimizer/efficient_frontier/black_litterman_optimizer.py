@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from pypfopt import black_litterman
 from pypfopt.black_litterman import BlackLittermanModel
 from pypfopt.efficient_frontier import EfficientFrontier
-from pypfopt.hierarchical_portfolio import HRPOpt
 
 from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allo_optim.optimizer.allocation_metric import LMoments

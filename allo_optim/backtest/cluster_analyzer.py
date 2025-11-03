@@ -1,5 +1,4 @@
 import logging
-import warnings
 
 import numpy as np
 from scipy.cluster.hierarchy import fcluster, linkage
@@ -347,7 +346,11 @@ class ClusterAnalyzer:
 			linkage_matrix = linkage(condensed_distances, method="average")
 
 			# Get clusters
-			n_clusters = min(MAX_CLUSTERS_DEFAULT, len(optimizer_names) // 2) if len(optimizer_names) > MIN_DATA_POINTS_FOR_CLUSTERING else FALLBACK_N_CLUSTERS
+			n_clusters = (
+				min(MAX_CLUSTERS_DEFAULT, len(optimizer_names) // 2)
+				if len(optimizer_names) > MIN_DATA_POINTS_FOR_CLUSTERING
+				else FALLBACK_N_CLUSTERS
+			)
 			cluster_labels = fcluster(linkage_matrix, n_clusters, criterion="maxclust")
 
 			clusters = {}

@@ -449,7 +449,7 @@ def main():
 	training_data = generator.generate_diverse_training_set()
 
 	# Validate the data
-	print(f"\nDataset validation:")
+	print("\nDataset validation:")
 	print(f"  Total matrices: {len(training_data)}")
 	print(f"  Matrix shape: {training_data[0].shape}")
 

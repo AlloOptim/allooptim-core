@@ -116,14 +116,14 @@ def test_packing_functions():
 	print(packed)
 
 	reconstructed = unpack_lower_triangle(packed, 3)
-	print(f"\nReconstructed matrix:")
+	print("\nReconstructed matrix:")
 	print(reconstructed)
 
 	# Check symmetry and accuracy
 	is_symmetric = validate_symmetric(reconstructed)
 	is_accurate = np.allclose(test_matrix, reconstructed)
 
-	print(f"\nValidation:")
+	print("\nValidation:")
 	print(f"  Symmetric: {is_symmetric}")
 	print(f"  Accurate reconstruction: {is_accurate}")
 	print(f"  Max error: {np.max(np.abs(test_matrix - reconstructed)):.2e}")
@@ -134,7 +134,7 @@ def test_packing_functions():
 	packed_size = get_packed_size(n_500)
 	reduction = (1 - packed_size / full_size) * 100
 
-	print(f"\n500x500 Matrix Optimization:")
+	print("\n500x500 Matrix Optimization:")
 	print(f"  Full matrix elements: {full_size:,}")
 	print(f"  Packed elements: {packed_size:,}")
 	print(f"  Size reduction: {reduction:.1f}%")

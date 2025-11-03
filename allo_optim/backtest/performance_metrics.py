@@ -72,7 +72,9 @@ class PerformanceMetrics:
 
 			# Calculate turnover as sum of absolute weight changes
 			weight_changes = abs(curr_weights - prev_weights)
-			turnover.append(weight_changes.sum() / DOUBLE_COUNTING_AVOIDANCE_FACTOR)  # Divide by 2 to avoid double counting
+			turnover.append(
+				weight_changes.sum() / DOUBLE_COUNTING_AVOIDANCE_FACTOR
+			)  # Divide by 2 to avoid double counting
 
 		return pd.Series(turnover, index=weights_history.index[1:])
 

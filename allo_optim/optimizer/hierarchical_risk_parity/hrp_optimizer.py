@@ -48,7 +48,10 @@ class HRPOptimizer(AbstractOptimizer):
 		weights_dict = hrp.optimize()
 		weights_array = np.array([weights_dict[key] for key in asset_names])
 
-		if weights_array.sum() > PORTFOLIO_WEIGHT_SUM_UPPER_TOLERANCE or weights_array.sum() < PORTFOLIO_WEIGHT_SUM_LOWER_TOLERANCE:
+		if (
+			weights_array.sum() > PORTFOLIO_WEIGHT_SUM_UPPER_TOLERANCE
+			or weights_array.sum() < PORTFOLIO_WEIGHT_SUM_LOWER_TOLERANCE
+		):
 			logger.error("Portfolio allocations don't sum to 1.")
 			return create_weights_series(np.zeros(len(asset_names)), asset_names)
 

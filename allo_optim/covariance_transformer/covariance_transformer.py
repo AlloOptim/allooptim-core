@@ -178,7 +178,9 @@ class EmpiricalCovarianceTransformer(AbstractCovarianceTransformer):
 			cond_num = np.linalg.cond(empirical_cov)
 
 			# Apply regularization if needed
-			if cond_num > NEAR_SINGULARITY_CONDITION_THRESHOLD or n_observations < n_assets:  # Singular or near-singular
+			if (
+				cond_num > NEAR_SINGULARITY_CONDITION_THRESHOLD or n_observations < n_assets
+			):  # Singular or near-singular
 				if self.regularization_method == "diagonal_loading":
 					# Add small value to diagonal
 					regularized_cov = empirical_cov + np.eye(n_assets) * self.reg_param

@@ -190,7 +190,7 @@ class FastPortfolioOptimizer:
 		self.ewm_cov = self._update_covariance(returns[-min(len(returns), 252) :])
 
 		self.trained = True
-		logger.debug(f"Training complete! Models ready for daily updates.")
+		logger.debug("Training complete! Models ready for daily updates.")
 
 	def incremental_update(self, new_prices: np.ndarray, new_returns: np.ndarray = None) -> None:
 		"""

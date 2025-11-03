@@ -337,7 +337,7 @@ class BacktestEngine:
 		"""
 		# Check if A2A_Ensemble exists in weights_history
 		a2a_key = None
-		for key in weights_history.keys():
+		for key in weights_history:
 			if "A2A" in key or "a2a" in key.lower():
 				a2a_key = key
 				break
@@ -402,7 +402,7 @@ class BacktestEngine:
 
 		results = {}
 
-		for optimizer_name in weights_history.keys():
+		for optimizer_name in weights_history:
 			if not weights_history[optimizer_name]:
 				continue
 
