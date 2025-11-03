@@ -19,7 +19,7 @@ from pydantic import BaseModel
 
 from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allo_optim.optimizer.allocation_metric import LMoments
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
+from allo_optim.optimizer.optimizer_interface import AbstractEnsembleOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class EnsembleOptimizerConfig(BaseModel):
     # Ensemble optimizers don't need specific parameters currently
 
 
-class A2AEnsembleOptimizer(AbstractOptimizer):
+class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
     def __init__(self) -> None:
         self.config = EnsembleOptimizerConfig()
 
@@ -142,7 +142,7 @@ class A2AEnsembleOptimizer(AbstractOptimizer):
             return pd.Series(np.ones(n_assets) / n_assets, index=asset_names)
 
 
-class SPY500Benchmark(AbstractOptimizer):
+class SPY500Benchmark(AbstractEnsembleOptimizer):
     def __init__(self) -> None:
         self.config = EnsembleOptimizerConfig()
 

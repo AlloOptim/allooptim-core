@@ -29,7 +29,6 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
     def __init__(
         self,
-        n_assets: int,
         hidden_dims: Optional[list] = None,
         learning_rate: float = 0.001,
         epochs: int = 100,  # Reduced from 200 due to overfitting risk
@@ -50,33 +49,12 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         Initialize improved autoencoder with aggressive regularization.
 
         Args:
-            n_assets: Number of assets (determines matrix dimensions)
             hidden_dims: Architecture layers (None for auto-sizing)
             use_lower_triangle: Use symmetric matrix optimization (recommended)
             Other params: Regularization and training settings
         """
-        self.n_assets = n_assets
+
         self.use_lower_triangle = use_lower_triangle
-
-        # Calculate input/output dimensions
-        if use_lower_triangle:
-            self.input_size = get_packed_size(n_assets)  # n(n+1)/2
-            logger.debug(
-                f"🔧 Lower triangle optimization: {n_assets}x{n_assets} → {self.input_size} ({50.1:.1f}% reduction)"
-            )
-        else:
-            self.input_size = n_assets * n_assets
-            logger.debug(f"⚠️ Using full matrix: {self.input_size} elements")
-
-        # Default architecture - extremely conservative for limited data
-        if hidden_dims is None:
-            if use_lower_triangle:
-                # Ultra-minimal architecture for 125K input
-                hidden_dims = [64, 32, 16]  # Extreme compression
-                logger.debug(f"🏗️ Ultra-minimal architecture: {self.input_size} → {hidden_dims} → {self.input_size}")
-            else:
-                hidden_dims = [128, 64, 32]  # Slightly larger for full matrix
-
         self.hidden_dims = hidden_dims
         self.learning_rate = learning_rate
         self.epochs = epochs
@@ -92,40 +70,10 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         self.use_synthetic = use_synthetic
         self.n_synthetic_samples = n_synthetic_samples
 
-        # Build model
-        self.model = self._build_autoencoder()
-
-        # Collect parameters
-        all_params = []
-        for layer in self.model:
-            if hasattr(layer, "weight"):
-                all_params.append(layer.weight)
-            if hasattr(layer, "bias") and layer.bias is not None:
-                all_params.append(layer.bias)
-            # BatchNorm parameters
-            if hasattr(layer, "running_mean"):
-                all_params.append(layer.running_mean)
-            if hasattr(layer, "running_var"):
-                all_params.append(layer.running_var)
-
-        self.optimizer = optim.AdamW(
-            all_params,
-            lr=learning_rate,
-            weight_decay=l2_lambda,
-        )
-
-        # Calculate total parameters
-        self.total_params = self._count_parameters()
-
         # Training state
         self.is_fitted = False
         self.reconstruction_metrics = {}
         self.training_history = {}
-
-        logger.debug(f"📊 Model statistics:")
-        logger.debug(f"   Total parameters: {self.total_params:,}")
-        logger.debug(f"   Minimum samples needed (1:100): {self.total_params // 100:,}")
-        logger.debug(f"   Conservative samples needed (1:10): {self.total_params // 10:,}")
 
     def _build_autoencoder(self):
         """Build ultra-minimal autoencoder with aggressive regularization."""
@@ -357,6 +305,64 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
                     x = x.dropout(self.dropout_rate)
         return x
 
+    def _initial_fit(self, n_assets: int) -> None:
+        """Initial setup before training."""
+
+        self.n_assets = n_assets
+
+        # Calculate input/output dimensions
+        if self.use_lower_triangle:
+            self.input_size = get_packed_size(n_assets)  # n(n+1)/2
+            logger.debug(
+                f"🔧 Lower triangle optimization: {n_assets}x{n_assets} → {self.input_size} ({50.1:.1f}% reduction)"
+            )
+        else:
+            self.input_size = n_assets * n_assets
+            logger.debug(f"⚠️ Using full matrix: {self.input_size} elements")
+
+        # Default architecture - extremely conservative for limited data
+        if self.hidden_dims is None:
+            if self.use_lower_triangle:
+                # Ultra-minimal architecture for 125K input
+                self.hidden_dims = [64, 32, 16]  # Extreme compression
+                logger.debug(
+                    f"🏗️ Ultra-minimal architecture: {self.input_size} → {hidden_dims} → {self.input_size}"
+                )
+            else:
+                self.hidden_dims = [128, 64, 32]  # Slightly larger for full matrix
+
+        # Build model
+        self.model = self._build_autoencoder()
+
+        # Collect parameters
+        all_params = []
+        for layer in self.model:
+            if hasattr(layer, "weight"):
+                all_params.append(layer.weight)
+            if hasattr(layer, "bias") and layer.bias is not None:
+                all_params.append(layer.bias)
+            # BatchNorm parameters
+            if hasattr(layer, "running_mean"):
+                all_params.append(layer.running_mean)
+            if hasattr(layer, "running_var"):
+                all_params.append(layer.running_var)
+
+        self.optimizer = optim.AdamW(
+            all_params,
+            lr=self.learning_rate,
+            weight_decay=self.l2_lambda,
+        )
+
+        # Calculate total parameters
+        self.total_params = self._count_parameters()
+
+        logger.debug(f"📊 Model statistics:")
+        logger.debug(f"   Total parameters: {self.total_params:,}")
+        logger.debug(f"   Minimum samples needed (1:100): {self.total_params // 100:,}")
+        logger.debug(
+            f"   Conservative samples needed (1:10): {self.total_params // 10:,}"
+        )
+
     def fit(
         self,
         df_prices: Optional[pd.DataFrame] = None,
@@ -370,6 +376,10 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
             n_synthetic_samples: Number of synthetic samples to generate
         """
         logger.debug("\n🚀 Training improved autoencoder with enhanced data generation...")
+
+        if not self.is_fitted:
+            n_assets = df_prices.shape[1]
+            self._initial_fit(n_assets)
 
         if self.use_synthetic:
             logger.debug("🎲 Using synthetic covariance matrix training data")

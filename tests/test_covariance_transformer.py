@@ -68,7 +68,7 @@ class TestDetoneCovarianceTransformer:
 
 
 class TestDeNoiserCovarianceTransformer:
-    def test_transform(self, prices_df, de_noised_covariance_matrix_results):
+    def test_transform(self, prices_df):
         covariance_matrix = sample_cov(prices_df)  # This returns a pandas DataFrame
         n_observations = prices_df.size
         results = DeNoiserCovarianceTransformer().transform(covariance_matrix, n_observations)
@@ -107,7 +107,14 @@ def test_transformers(transformer_class):
     assert issubclass(transformer_class, AbstractCovarianceTransformer)
 
     # Test the transform method
-    transformer = transformer_class()
+    try:
+        transformer = transformer_class()
+    except TypeError:
+        # Some transformers like AutoencoderCovarianceTransformer require arguments
+        if transformer_class.__name__ == 'AutoencoderCovarianceTransformer':
+            transformer = transformer_class(n_assets=3)
+        else:
+            raise
     
     transformer.fit(
         pd.DataFrame(

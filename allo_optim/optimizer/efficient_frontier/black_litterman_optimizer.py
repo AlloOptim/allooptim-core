@@ -33,10 +33,9 @@ class BlackLittermanOptimizer(AbstractOptimizer):
         self,
         ds_mu: pd.Series,
         df_cov: pd.DataFrame,
-        df_prices: pd.DataFrame,
+        df_prices: Optional[pd.DataFrame] = None,
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
-        df_allocations: Optional[pd.DataFrame] = None,
     ) -> pd.Series:
         # Validate asset names consistency
         validate_asset_names(ds_mu, df_cov)

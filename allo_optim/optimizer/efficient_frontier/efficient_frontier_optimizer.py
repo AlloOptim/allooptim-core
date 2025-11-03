@@ -88,7 +88,6 @@ class MaxSharpeOptimizer(AbstractOptimizer):
         ds_mu: pd.Series,
         df_cov: pd.DataFrame,
         df_prices: Optional[pd.DataFrame] = None,
-        df_allocations: Optional[pd.DataFrame] = None,
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
@@ -172,7 +171,6 @@ class EfficientRiskOptimizer(AbstractOptimizer):
         ds_mu: pd.Series,
         df_cov: pd.DataFrame,
         df_prices: Optional[pd.DataFrame] = None,
-        df_allocations: Optional[pd.DataFrame] = None,
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
@@ -226,7 +224,6 @@ class EfficientReturnOptimizer(AbstractOptimizer):
         ds_mu: pd.Series,
         df_cov: pd.DataFrame,
         df_prices: Optional[pd.DataFrame] = None,
-        df_allocations: Optional[pd.DataFrame] = None,
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:

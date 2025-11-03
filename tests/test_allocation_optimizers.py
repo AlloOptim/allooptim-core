@@ -163,7 +163,7 @@ def test_optimizer_weight_constraints(
             # If fit fails, some optimizers might not need it
             pass
 
-    weights = optimizer.allocate(sample_mu, sample_cov, sample_price_data, None, sample_time, sample_l_moments)
+    weights = optimizer.allocate(sample_mu, sample_cov, sample_price_data, sample_time, sample_l_moments)
 
     # Ensure weights is a pandas Series
     assert isinstance(weights, pd.Series)

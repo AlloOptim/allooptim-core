@@ -131,7 +131,9 @@ def test_optimizers(optimizer_class):
     price_data = np.random.randn(100, 3).cumsum(axis=0) + 100
     prices = pd.DataFrame(price_data, index=dates, columns=assets)
 
-    l_moments = estimate_linear_moments(mu.values)
+    # Calculate historical returns for L-moments estimation
+    returns = prices.pct_change().dropna().values  # Shape: (n_observations, n_assets)
+    l_moments = estimate_linear_moments(returns)
 
     # Test the allocate method
     optimizer = optimizer_class()
@@ -148,7 +150,6 @@ def test_optimizers(optimizer_class):
         'QualityGrowthFundamentalOptimizer',  # Missing _weights_today attribute
         'ValueInvestingFundamentalOptimizer',  # Missing _weights_today attribute
         'BlackLittermannOptimizer',  # Requires specific market views and setup
-        'CMA_L_MOMENTS',       # Requires L-moments data which is complex to generate
     ]
 
     if optimizer.name in skip_optimizers:

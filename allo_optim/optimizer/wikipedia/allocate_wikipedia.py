@@ -17,10 +17,6 @@ from allo_optim.config.allocation_dataclasses import (
 from allo_optim.config.stock_dataclasses import StockUniverse
 from allo_optim.config.stock_universe import list_of_dax_stocks
 from allo_optim.optimizer.wikipedia.sql_database import load_data
-from common.debug.performance_profiler import (
-    log_performance_report,
-    profile_function,
-)
 
 logger = logging.getLogger(__name__)
 
@@ -82,7 +78,6 @@ def _get_failed_result(
     )
 
 
-@profile_function()
 def _remove_outliers_iqr(
     df: pd.DataFrame,
     columns: list[str],
@@ -106,7 +101,6 @@ def _remove_outliers_iqr(
     return df
 
 
-@profile_function()
 def _filter_by_correlations(
     df_merged: pd.DataFrame,
     p_threshold_significance: float,
@@ -169,7 +163,6 @@ def _filter_by_correlations(
     return True, valid_symbols
 
 
-@profile_function()
 def _select_top_n_stocks(
     df_significant: pd.DataFrame,
     n_max_stocks: int,
@@ -191,7 +184,6 @@ def _select_top_n_stocks(
     return True, df_top
 
 
-@profile_function()
 def _create_asset_weights(
     df_top: pd.DataFrame,
     all_stocks: list[StockUniverse],
@@ -211,7 +203,6 @@ def _create_asset_weights(
         return False, None
 
 
-@profile_function()
 def _estimate_statistics(
     df_top: pd.DataFrame,
     end_date: datetime,
@@ -245,7 +236,6 @@ def _estimate_statistics(
         return False, None
 
 
-@profile_function()
 def _process_and_filter_data_combined(
     df_wiki_views: pd.DataFrame,
     df_stock_prices: pd.DataFrame,
@@ -471,5 +461,4 @@ if __name__ == "__main__":
 
     # Log performance report
     print("Logging performance report...")
-    log_performance_report()
     print("Done.")
