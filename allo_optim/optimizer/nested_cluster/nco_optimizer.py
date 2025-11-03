@@ -17,6 +17,15 @@ from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 
+# Constants for clustering and optimization thresholds
+MIN_ASSETS_FOR_CLUSTERING = 4
+MIN_FEASIBLE_CLUSTERS = 2
+CLUSTER_IMPROVEMENT_THRESHOLD = 0.5
+WEIGHT_DIFFERENCE_TOLERANCE = 0.1
+SPEEDUP_FACTOR_THRESHOLD = 2.0
+LARGE_ASSET_COUNT_THRESHOLD = 100
+SMALL_ASSET_COUNT_THRESHOLD = 20
+
 
 @dataclass
 class ClusterResult:
@@ -234,7 +243,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 		dist = np.nan_to_num(dist, nan=0.0)
 
 		# Ensure we have enough assets for clustering
-		if self._n_assets < 4:  # Need at least 4 assets for meaningful clustering
+		if self._n_assets < MIN_ASSETS_FOR_CLUSTERING:  # Need at least 4 assets for meaningful clustering
 			# Fall back to single cluster (no clustering)
 			self._clusters = {0: list(range(self._n_assets))}
 			self._n_clusters = 1
@@ -243,7 +252,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 
 		max_feasible_clusters = self._n_assets // 2
 
-		if max_feasible_clusters < 2:
+		if max_feasible_clusters < MIN_FEASIBLE_CLUSTERS:
 			# Not enough assets for clustering
 			self._clusters = {0: list(range(self._n_assets))}
 			self._n_clusters = 1
@@ -298,7 +307,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 				relative_new_score = new_score / self._previous_best_score
 				relative_previous_score = previous_score / self._previous_best_score
 				new_score_deteriated = relative_new_score < 0.95 * relative_previous_score
-				has_best_cluster_chance = relative_new_score > 0.5
+				has_best_cluster_chance = relative_new_score > CLUSTER_IMPROVEMENT_THRESHOLD
 
 				if new_score_deteriated and has_best_cluster_chance:
 					logger.debug(f"Cluster {index} score deteriorated significantly, updating")
@@ -520,8 +529,8 @@ if __name__ == "__main__":
 			# Check if weights are similar (quality check)
 			weight_diff = np.linalg.norm(weights_with_ig.values - weights_no_ig.values)
 
-			notes = "OK" if weight_diff < 0.1 else "DIFF"
-			if speedup > 2.0:
+			notes = "OK" if weight_diff < WEIGHT_DIFFERENCE_TOLERANCE else "DIFF"
+			if speedup > SPEEDUP_FACTOR_THRESHOLD:
 				notes += " FAST"
 
 			print(f"{n_assets:<8} {time_no_ig:<12.4f} {time_with_ig:<12.4f} {speedup:<10.2f} {notes}")
@@ -549,8 +558,8 @@ if __name__ == "__main__":
 		print(f"Maximum speedup observed: {max_speedup:.2f}x")
 
 		# Check scaling behavior
-		large_assets = [r for r in results if r["n_assets"] >= 100]
-		small_assets = [r for r in results if r["n_assets"] <= 20]
+		large_assets = [r for r in results if r["n_assets"] >= LARGE_ASSET_COUNT_THRESHOLD]
+		small_assets = [r for r in results if r["n_assets"] <= SMALL_ASSET_COUNT_THRESHOLD]
 
 		if large_assets and small_assets:
 			large_avg_speedup = np.mean([r["speedup"] for r in large_assets])

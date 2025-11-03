@@ -21,6 +21,12 @@ from allo_optim.data_generation.training_data import TrainingConfig, TrainingDat
 
 logger = logging.getLogger(__name__)
 
+# Constants for autoencoder thresholds
+EXTREMELY_LOW_SAMPLES_PER_PARAM_THRESHOLD = 0.001
+MATRIX_DIMENSION_CHECK = 2
+CRITICAL_SAMPLES_PER_PARAM_THRESHOLD = 0.01
+CONSERVATIVE_SAMPLES_PER_PARAM_THRESHOLD = 0.1
+
 
 class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 	"""
@@ -267,7 +273,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 		logger.debug(f"   Generated samples: {len(cov_matrices)}")
 		logger.debug(f"   Samples/parameter: {samples_per_param:.6f}")
 
-		if samples_per_param < 0.001:
+		if samples_per_param < EXTREMELY_LOW_SAMPLES_PER_PARAM_THRESHOLD:
 			logger.debug(f"   ⚠️ WARNING: Extremely low samples/parameter ratio!")
 			logger.debug(f"   ⚠️ Expected severe overfitting and poor generalization!")
 
@@ -522,7 +528,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 		correlation = np.corrcoef(original.flatten(), reconstructed.flatten())[0, 1]
 
 		# Matrix-specific metrics for covariance matrices
-		if len(original.shape) == 2 and original.shape[0] == original.shape[1]:
+		if len(original.shape) == MATRIX_DIMENSION_CHECK and original.shape[0] == original.shape[1]:
 			# Eigenvalue preservation
 			orig_eigs = np.linalg.eigvals(original)
 			recon_eigs = np.linalg.eigvals(reconstructed)
@@ -610,9 +616,9 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 				logger.debug(f"   Minimum needed (1:100): {self.total_params // 100:,}")
 				logger.debug(f"   Conservative needed (1:10): {self.total_params // 10:,}")
 
-				if samples_per_param < 0.01:
+				if samples_per_param < CRITICAL_SAMPLES_PER_PARAM_THRESHOLD:
 					logger.debug(f"   ❌ CRITICAL: {(0.01 / samples_per_param):.0f}x below minimum threshold!")
-				elif samples_per_param < 0.1:
+				elif samples_per_param < CONSERVATIVE_SAMPLES_PER_PARAM_THRESHOLD:
 					logger.debug(f"   ⚠️ WARNING: {(0.1 / samples_per_param):.0f}x below conservative threshold")
 				else:
 					logger.debug(f"   ✅ Adequate sample ratio")

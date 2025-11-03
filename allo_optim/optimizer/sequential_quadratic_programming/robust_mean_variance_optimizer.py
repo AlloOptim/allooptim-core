@@ -57,6 +57,12 @@ from allo_optim.optimizer.sequential_quadratic_programming.sqp_multistart import
 
 logger = logging.getLogger(__name__)
 
+# Constants for data requirements and numerical thresholds
+MIN_OBSERVATIONS_FOR_UNCERTAINTY_ESTIMATION = 30
+WEIGHT_CLIPPING_THRESHOLD = 1e-6
+WEIGHT_SUM_TOLERANCE = 1e-6
+CASH_POSITION_WARNING_THRESHOLD = 0.1
+
 
 class RobustMeanVarianceOptimizerConfig(BaseModel):
 	"""Configuration for Robust Mean-Variance optimizer."""
@@ -136,8 +142,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
 	    This results in a tractable quadratic program that can be solved efficiently.
 
 	Examples:
-	    >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2,
-	    ...                                           cov_uncertainty_level=0.1, allow_cash=True)
+	    >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2, cov_uncertainty_level=0.1, allow_cash=True)
 	    >>> optimizer = RobustMeanVarianceOptimizer(config)
 	    >>> optimizer.fit(df_prices)  # Estimate uncertainty from data
 	    >>> weights = optimizer.allocate(mu, cov)

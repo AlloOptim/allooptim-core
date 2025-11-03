@@ -32,9 +32,7 @@ def main():
 	print(f"  Matrix size: {config.n_assets}×{config.n_assets}")
 	print(f"  Total samples: {config.n_samples:,}")
 	expected_memory_gb = (config.n_samples * config.n_assets * (config.n_assets + 1) // 2 * 8) / (1024**3)
-	print(
-		f"  Expected memory: ~{expected_memory_gb:.2f} GB"
-	)
+	print(f"  Expected memory: ~{expected_memory_gb:.2f} GB")
 
 	# Generate dataset
 	print(f"\nStarting generation...")

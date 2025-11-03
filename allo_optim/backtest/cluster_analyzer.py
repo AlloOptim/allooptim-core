@@ -9,6 +9,13 @@ from sklearn.decomposition import PCA
 
 logger = logging.getLogger(__name__)
 
+# Constants for clustering analysis
+MIN_DATA_POINTS_FOR_CLUSTERING = 2
+PCA_COMPONENT_THRESHOLD = 6
+MAX_CLUSTERS_DEFAULT = 5
+DEFAULT_N_CLUSTERS = 4
+FALLBACK_N_CLUSTERS = 2
+
 
 class ClusterAnalyzer:
 	"""Analyze clustering of optimizers based on performance and portfolio similarity."""
@@ -62,7 +69,7 @@ class ClusterAnalyzer:
 			metrics_data.append(performance_vector)
 			optimizer_names.append(name)
 
-		if len(metrics_data) < 2:
+		if len(metrics_data) < MIN_DATA_POINTS_FOR_CLUSTERING:
 			return {"message": "Insufficient data for performance clustering"}
 
 		metrics_array = np.array(metrics_data)
@@ -108,7 +115,7 @@ class ClusterAnalyzer:
 				weights_flat = weights_df.values.flatten()
 				weights_series[name] = weights_flat
 
-		if len(weights_series) < 2:
+		if len(weights_series) < MIN_DATA_POINTS_FOR_CLUSTERING:
 			return {"message": "Insufficient data for portfolio correlation clustering"}
 
 		# Create correlation matrix
@@ -160,7 +167,7 @@ class ClusterAnalyzer:
 			if "returns" in data and not data["returns"].empty:
 				returns_series[name] = data["returns"].values
 
-		if len(returns_series) < 2:
+		if len(returns_series) < MIN_DATA_POINTS_FOR_CLUSTERING:
 			return {"message": "Insufficient data for returns correlation clustering"}
 
 		# Align series to same length (use shortest)
@@ -218,7 +225,7 @@ class ClusterAnalyzer:
 			combined_features.append(combined_vector)
 			optimizer_names.append(name)
 
-		if len(combined_features) < 2:
+		if len(combined_features) < MIN_DATA_POINTS_FOR_CLUSTERING:
 			return {"message": "Insufficient data for combined clustering"}
 
 		# Standardize features
@@ -228,7 +235,7 @@ class ClusterAnalyzer:
 		features_scaled = scaler.fit_transform(combined_features)
 
 		# Use PCA for dimensionality reduction if many features
-		if features_scaled.shape[1] > 6:
+		if features_scaled.shape[1] > PCA_COMPONENT_THRESHOLD:
 			# Use min of (desired components, available features, samples) - 1 for safety
 			n_components = min(6, features_scaled.shape[1] - 1, features_scaled.shape[0] - 1)
 			if n_components >= 1:
@@ -266,7 +273,7 @@ class ClusterAnalyzer:
 			if "weights_history" in data and not data["weights_history"].empty:
 				weights_data[name] = data["weights_history"]
 
-		if len(weights_data) < 2:
+		if len(weights_data) < MIN_DATA_POINTS_FOR_CLUSTERING:
 			return {"message": "Insufficient data for Euclidean distance analysis"}
 
 		optimizer_names = list(weights_data.keys())
@@ -340,7 +347,7 @@ class ClusterAnalyzer:
 			linkage_matrix = linkage(condensed_distances, method="average")
 
 			# Get clusters
-			n_clusters = min(5, len(optimizer_names) // 2) if len(optimizer_names) > 2 else 2
+			n_clusters = min(MAX_CLUSTERS_DEFAULT, len(optimizer_names) // 2) if len(optimizer_names) > MIN_DATA_POINTS_FOR_CLUSTERING else FALLBACK_N_CLUSTERS
 			cluster_labels = fcluster(linkage_matrix, n_clusters, criterion="maxclust")
 
 			clusters = {}

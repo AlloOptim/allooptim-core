@@ -20,6 +20,10 @@ DEFAULT_RISK_AVERSION = 4.0
 DEFAULT_TRIM = 0.02
 MIN_OBSERVATIONS = 10
 
+# Constants for tensor dimensions in higher moment calculations
+SKEWNESS_TENSOR_DIMENSION = 3
+KURTOSIS_TENSOR_DIMENSION = 4
+
 
 def make_positive_definite(
 	cov: np.ndarray,
@@ -135,7 +139,7 @@ def expected_return_classical(
 
 	portfolio_variance = 0.5 * np.sum((weights @ cov) * weights, axis=1)
 
-	if skew is not None and skew.ndim == 3:
+	if skew is not None and skew.ndim == SKEWNESS_TENSOR_DIMENSION:
 		skew_component = (1 / 6) * np.einsum("pi,pj,pk,ijk", weights, weights, weights, skew)
 
 	elif skew is not None and skew.ndim == 1:
@@ -144,7 +148,7 @@ def expected_return_classical(
 	else:
 		skew_component = 0.0
 
-	if kurt is not None and kurt.ndim == 4:
+	if kurt is not None and kurt.ndim == KURTOSIS_TENSOR_DIMENSION:
 		kurt_component = (1 / 24) * np.einsum("pi,pj,pk,pl,ijkl", weights, weights, weights, weights, kurt)
 	elif kurt is not None and kurt.ndim == 1:
 		kurt_component = (1 / 24) * np.sum(weights**4 * kurt, axis=1)

@@ -9,6 +9,9 @@ from sklearn.preprocessing import StandardScaler
 
 logger = logging.getLogger(__name__)
 
+# Constants for model training thresholds
+MIN_FEATURES_FOR_MODEL_TRAINING = 50
+
 
 class FastPortfolioOptimizer:
 	"""
@@ -224,7 +227,7 @@ class FastPortfolioOptimizer:
 			asset_features = [f for idx, f in self.feature_buffer if idx == i]
 			asset_targets = [self.target_buffer[j] for j, (idx, _) in enumerate(self.feature_buffer) if idx == i]
 
-			if len(asset_features) > 50:
+			if len(asset_features) > MIN_FEATURES_FOR_MODEL_TRAINING:
 				X = np.array(asset_features)
 				y = np.array(asset_targets)
 				X_scaled = self.scalers[i].transform(X)

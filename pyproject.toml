@@ -6,12 +6,8 @@ authors = ["Jonas ten Haaf <jonas.tenhaaf@mail.de>"]
 license = "MIT"
 readme = "README.md"
 
-
 [tool.poetry.dependencies]
 python = "^3.12.0"
-cma = "^4.4.0"
-
-[tool.poetry.group.allocation.dependencies]
 pandas = "^2.3.3"
 numpy = "^2.3.4"
 pyyaml = "^6.0.3"
@@ -52,7 +48,7 @@ line-length = 120
 indent-width = 4
 
 [tool.ruff.lint]
-select = ["E501", "I", "PL"]
+select = ["E", "F", "UP", "B", "SIM", "I", "PL"]
 
 [tool.ruff.format]
 quote-style = "double"

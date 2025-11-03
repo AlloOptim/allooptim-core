@@ -13,6 +13,10 @@ import numpy as np
 from scipy.linalg import sqrtm
 from scipy.stats import ortho_group
 
+# Constants for numerical tolerances
+MATRIX_CLOSE_TO_IDENTITY_TOLERANCE = 1e-10
+MINIMUM_EIGENVALUE_THRESHOLD = 1e-8
+
 
 @dataclass
 class TrainingConfig:
@@ -261,7 +265,7 @@ class CovarianceMatrixGenerator:
 		Mii, Mij, Mjj = M[i, i], M[i, j], M[j, j]
 
 		# Compute rotation parameters
-		if abs(Mjj - 1.0) < 1e-10:
+		if abs(Mjj - 1.0) < MATRIX_CLOSE_TO_IDENTITY_TOLERANCE:
 			return M
 
 		discriminant = Mij**2 - (Mii - 1) * (Mjj - 1)
@@ -348,7 +352,7 @@ class CovarianceMatrixGenerator:
 
 		# Make positive semi-definite
 		eigenvalues, eigenvectors = np.linalg.eigh(M)
-		eigenvalues = np.maximum(eigenvalues, 1e-8)
+		eigenvalues = np.maximum(eigenvalues, MINIMUM_EIGENVALUE_THRESHOLD)
 		M = eigenvectors @ np.diag(eigenvalues) @ eigenvectors.T
 
 		# Rescale to correlation matrix
@@ -422,7 +426,7 @@ class NoisyObservationGenerator:
 
 		# Ensure positive definite
 		min_eig = np.min(np.linalg.eigvalsh(sample_cov))
-		if min_eig < 1e-8:
+		if min_eig < MINIMUM_EIGENVALUE_THRESHOLD:
 			sample_cov += (1e-6 - min_eig) * np.eye(n)
 
 		if return_eigvals:

@@ -11,6 +11,9 @@ from allo_optim.covariance_transformer.transformer_interface import (
 	AbstractCovarianceTransformer,
 )
 
+# Constants for numerical thresholds
+NEAR_SINGULARITY_CONDITION_THRESHOLD = 1e12
+
 
 def _extract_cov_info(cov: Union[np.ndarray, pd.DataFrame]) -> tuple[np.ndarray, list]:
 	"""
@@ -175,7 +178,7 @@ class EmpiricalCovarianceTransformer(AbstractCovarianceTransformer):
 			cond_num = np.linalg.cond(empirical_cov)
 
 			# Apply regularization if needed
-			if cond_num > 1e12 or n_observations < n_assets:  # Singular or near-singular
+			if cond_num > NEAR_SINGULARITY_CONDITION_THRESHOLD or n_observations < n_assets:  # Singular or near-singular
 				if self.regularization_method == "diagonal_loading":
 					# Add small value to diagonal
 					regularized_cov = empirical_cov + np.eye(n_assets) * self.reg_param

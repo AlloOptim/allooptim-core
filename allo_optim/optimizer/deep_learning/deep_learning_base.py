@@ -10,6 +10,12 @@ from tinygrad.nn.state import get_parameters
 
 logger = logging.getLogger(__name__)
 
+# Constants for technical analysis and training parameters
+PRICE_DATA_DIMENSIONS_2D = 2  # (batch, features) format
+VOLATILITY_WINDOW_DAYS = 10
+RSI_WINDOW_DAYS = 14
+MIN_REPLAY_BUFFER_SIZE = 32
+
 
 class FractionalDifferentiator:
 	"""
@@ -810,7 +816,7 @@ class DeepLearningOptimizer:
 		Returns:
 		    features: (batch, n_assets, seq_len, n_features)
 		"""
-		if len(prices.shape) == 2:
+		if len(prices.shape) == PRICE_DATA_DIMENSIONS_2D:
 			prices = prices[None, ...]  # Add batch dimension
 
 		batch, n_assets, seq_len = prices.shape
@@ -828,7 +834,7 @@ class DeepLearningOptimizer:
 				ret_20 = (log_prices[20:] - log_prices[:-20]) / 20
 
 				# Volatility (rolling std of returns)
-				vol_10 = np.array([ret_1[max(0, j - 10) : j].std() if j >= 10 else 0 for j in range(1, len(ret_1) + 1)])
+				vol_10 = np.array([ret_1[max(0, j - VOLATILITY_WINDOW_DAYS) : j].std() if j >= VOLATILITY_WINDOW_DAYS else 0 for j in range(1, len(ret_1) + 1)])
 
 				# Momentum indicators
 				mom_10 = asset_prices[10:] / asset_prices[:-10] - 1
@@ -838,10 +844,10 @@ class DeepLearningOptimizer:
 				gains = np.maximum(ret_1, 0)
 				losses = np.maximum(-ret_1, 0)
 				avg_gain = np.array(
-					[gains[max(0, j - 14) : j].mean() if j >= 14 else 0 for j in range(1, len(gains) + 1)]
+					[gains[max(0, j - RSI_WINDOW_DAYS) : j].mean() if j >= RSI_WINDOW_DAYS else 0 for j in range(1, len(gains) + 1)]
 				)
 				avg_loss = np.array(
-					[losses[max(0, j - 14) : j].mean() if j >= 14 else 0 for j in range(1, len(losses) + 1)]
+					[losses[max(0, j - RSI_WINDOW_DAYS) : j].mean() if j >= RSI_WINDOW_DAYS else 0 for j in range(1, len(losses) + 1)]
 				)
 				rsi = 100 - (100 / (1 + avg_gain / (avg_loss + 1e-8)))
 
@@ -1129,7 +1135,7 @@ class DeepLearningOptimizer:
 				self.replay_buffer.pop(0)
 
 		# Train on buffer
-		if len(self.replay_buffer) >= 32:
+		if len(self.replay_buffer) >= MIN_REPLAY_BUFFER_SIZE:
 			buffer_X = np.stack([x for x, _ in self.replay_buffer[-64:]])
 			buffer_y = np.stack([y for _, y in self.replay_buffer[-64:]])
 

@@ -20,6 +20,9 @@ from allo_optim.optimizer.sequential_quadratic_programming.sqp_multistart import
 
 logger = logging.getLogger(__name__)
 
+# Constants for numerical stability
+DIVISION_BY_ZERO_TOLERANCE = 1e-10
+
 
 class HigherMomentsOptimizerConfig(BaseModel):
 	model_config = DEFAULT_PYDANTIC_CONFIG
@@ -145,7 +148,7 @@ class HigherMomentOptimizer(AbstractOptimizer):
 			# Calculate portfolio L-scale (λ2)
 			lambda_2 = x @ self._l_moments.lt_comoment_2 @ x
 
-			if np.abs(lambda_2) > 1e-10:  # Avoid division by zero
+			if np.abs(lambda_2) > DIVISION_BY_ZERO_TOLERANCE:  # Avoid division by zero
 				# Calculate portfolio L-skewness (τ3 = λ3 / λ2)
 				lambda_3 = x @ self._l_moments.lt_comoment_3 @ x
 				l_skewness = lambda_3 / lambda_2

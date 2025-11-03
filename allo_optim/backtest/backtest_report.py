@@ -286,7 +286,7 @@ Based on the underlying optimization approaches, we can group the algorithms the
 		a2a_performance = results.get("A2A_Ensemble", {}).get("metrics", {})
 
 		if spy_performance and a2a_performance:
-			outperformed = a2a_performance.get('sharpe_ratio', 0) > spy_performance.get('sharpe_ratio', 0)
+			outperformed = a2a_performance.get("sharpe_ratio", 0) > spy_performance.get("sharpe_ratio", 0)
 			report += f"""
 1. **Benchmark Comparison**: The S&P 500 benchmark achieved a Sharpe ratio of
 {spy_performance.get('sharpe_ratio', 0):.3f} vs A2A ensemble of {a2a_performance.get('sharpe_ratio', 0):.3f}
@@ -313,14 +313,17 @@ the S&P 500 benchmark
 				if isinstance(cluster_data, dict) and "n_clusters" in cluster_data:
 					cluster_analysis = cluster_data
 					break
-			
+
 			if cluster_analysis:
 				total_optimizers = sum(len(optimizers) for optimizers in cluster_analysis.get("clusters", {}).values())
-				avg_cluster_size = (total_optimizers / cluster_analysis.get("n_clusters", 1) 
-					if cluster_analysis.get("n_clusters", 0) > 0 else 0)
+				avg_cluster_size = (
+					total_optimizers / cluster_analysis.get("n_clusters", 1)
+					if cluster_analysis.get("n_clusters", 0) > 0
+					else 0
+				)
 				cluster_analysis["avg_cluster_size"] = avg_cluster_size
 
-		sharpe_ratio = best_sharpe[1]['metrics'].get('sharpe_ratio', 0)
+		sharpe_ratio = best_sharpe[1]["metrics"].get("sharpe_ratio", 0)
 
 		report += f"""
 5. **Clustering Analysis**: {cluster_analysis.get('n_clusters', 0)} clusters identified

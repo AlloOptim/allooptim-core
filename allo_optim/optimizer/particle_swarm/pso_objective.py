@@ -10,6 +10,11 @@ from allo_optim.optimizer.allocation_metric import (
 
 logger = logging.getLogger(__name__)
 
+# Constants for simulation parameters
+SKEW_EVENT_PROBABILITY = 0.05  # 5% chance of skew events
+TAIL_EVENT_PROBABILITY = 0.03  # 3% chance of tail events
+SKEW_EVENT_MAGNITUDE = 0.05    # Magnitude of skew events
+
 
 def price_based_objective_function(
 	weights: np.ndarray,
@@ -341,11 +346,11 @@ if __name__ == "__main__":
 	base_returns = np.random.normal(0, 0.02, (n_timesteps, n_assets))
 
 	# Add skewness: occasional large positive returns for asset 0
-	skew_events = np.random.random(n_timesteps) < 0.05  # 5% chance
-	base_returns[skew_events, 0] += np.random.exponential(0.05, np.sum(skew_events))
+	skew_events = np.random.random(n_timesteps) < SKEW_EVENT_PROBABILITY  # 5% chance
+	base_returns[skew_events, 0] += np.random.exponential(SKEW_EVENT_MAGNITUDE, np.sum(skew_events))
 
 	# Add fat tails: occasional large losses for asset 1
-	tail_events = np.random.random(n_timesteps) < 0.03  # 3% chance
+	tail_events = np.random.random(n_timesteps) < TAIL_EVENT_PROBABILITY  # 3% chance
 	base_returns[tail_events, 1] -= np.random.exponential(0.08, np.sum(tail_events))
 
 	# Convert returns to prices

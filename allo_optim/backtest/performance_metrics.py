@@ -1,6 +1,10 @@
 import numpy as np
 import pandas as pd
 
+# Constants for performance metrics
+MIN_DATA_POINTS = 2
+DOUBLE_COUNTING_AVOIDANCE_FACTOR = 2
+
 
 class PerformanceMetrics:
 	"""Calculate comprehensive performance metrics."""
@@ -38,7 +42,7 @@ class PerformanceMetrics:
 	@staticmethod
 	def cagr(prices: pd.Series) -> float:
 		"""Calculate Compound Annual Growth Rate."""
-		if len(prices) < 2:
+		if len(prices) < MIN_DATA_POINTS:
 			return 0.0
 
 		start_value = prices.iloc[0]
@@ -58,7 +62,7 @@ class PerformanceMetrics:
 	@staticmethod
 	def portfolio_turnover(weights_history: pd.DataFrame) -> pd.Series:
 		"""Calculate portfolio turnover for each period."""
-		if len(weights_history) < 2:
+		if len(weights_history) < MIN_DATA_POINTS:
 			return pd.Series([], dtype=float)
 
 		turnover = []
@@ -68,14 +72,14 @@ class PerformanceMetrics:
 
 			# Calculate turnover as sum of absolute weight changes
 			weight_changes = abs(curr_weights - prev_weights)
-			turnover.append(weight_changes.sum() / 2)  # Divide by 2 to avoid double counting
+			turnover.append(weight_changes.sum() / DOUBLE_COUNTING_AVOIDANCE_FACTOR)  # Divide by 2 to avoid double counting
 
 		return pd.Series(turnover, index=weights_history.index[1:])
 
 	@staticmethod
 	def portfolio_changerate(weights_history: pd.DataFrame) -> pd.Series:
 		"""Calculate portfolio change rate for each period."""
-		if len(weights_history) < 2:
+		if len(weights_history) < MIN_DATA_POINTS:
 			return pd.Series([], dtype=float)
 
 		change_rate = []
@@ -97,7 +101,7 @@ class PerformanceMetrics:
 		"""Calculate portfolio invested assets for each period.
 		Count all assets with more than 5% of equal weight portfolio weights.
 		"""
-		if len(weights_history) < 2:
+		if len(weights_history) < MIN_DATA_POINTS:
 			return pd.Series([], dtype=float)
 
 		n_all_assets = weights_history.shape[1]
@@ -119,7 +123,7 @@ class PerformanceMetrics:
 		"""Calculate portfolio invested assets for each period.
 		count the combined weight of the top n assets
 		"""
-		if len(weights_history) < 2:
+		if len(weights_history) < MIN_DATA_POINTS:
 			return pd.Series([], dtype=float)
 
 		invested_assets = []

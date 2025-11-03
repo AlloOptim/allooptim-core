@@ -17,6 +17,9 @@ sys.path.append(str(Path(__file__).parent))
 from diverse_covariance_generator import CovarianceConfig, CovarianceMatrixGenerator
 from lower_triangle_utils import pack_lower_triangle
 
+# Constants for numerical validation
+EIGENVALUE_POSITIVE_TOLERANCE = -1e-10
+
 
 def generate_full_training_dataset(save_path: str = None):
 	"""Generate full 30,000 covariance matrix training dataset"""
@@ -53,11 +56,13 @@ def generate_full_training_dataset(save_path: str = None):
 		f"    - Real data bootstrap:  {config.pct_real_based:.0%} "
 		f"({int(config.pct_real_based * config.n_samples):,} matrices)"
 	)
-	n_block_struct = (config.n_samples - int(config.pct_synthetic * config.n_samples) - 
-		int(config.pct_gan_style * config.n_samples) - int(config.pct_real_based * config.n_samples))
-	print(
-		f"    - Block-structured:     {config.pct_block_struct:.0%} ({n_block_struct:,} matrices)"
+	n_block_struct = (
+		config.n_samples
+		- int(config.pct_synthetic * config.n_samples)
+		- int(config.pct_gan_style * config.n_samples)
+		- int(config.pct_real_based * config.n_samples)
 	)
+	print(f"    - Block-structured:     {config.pct_block_struct:.0%} ({n_block_struct:,} matrices)")
 
 	# Start generation
 	print(f"\nStarting generation...")
@@ -108,7 +113,7 @@ def generate_full_training_dataset(save_path: str = None):
 		eigenvals = np.linalg.eigvals(matrix)
 
 		is_real = np.all(np.isreal(eigenvals))
-		is_positive = np.all(eigenvals > -1e-10)
+		is_positive = np.all(eigenvals > EIGENVALUE_POSITIVE_TOLERANCE)
 		is_symmetric = np.allclose(matrix, matrix.T)
 		is_valid = is_real and is_positive and is_symmetric
 

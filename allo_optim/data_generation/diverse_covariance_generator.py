@@ -11,6 +11,10 @@ import numpy as np
 import pandas as pd
 from scipy.stats import ortho_group
 
+# Constants for data generation thresholds
+MIN_ASSETS_FOR_BOOTSTRAP = 10
+OVERDETERMINED_EXTRA_COLUMNS = 10
+
 
 @dataclass
 class CovarianceConfig:
@@ -177,7 +181,7 @@ class CovarianceMatrixGenerator:
 			# Use real data as base
 			try:
 				data = pd.read_csv(csv_files[0], index_col=0)
-				if len(data.columns) >= 10:  # Need some assets
+				if len(data.columns) >= MIN_ASSETS_FOR_BOOTSTRAP:  # Need some assets
 					return self._bootstrap_from_real_data(data)
 			except Exception:
 				pass
@@ -189,7 +193,7 @@ class CovarianceMatrixGenerator:
 		"""Generate random correlation matrix"""
 		# Use Wishart distribution approach
 		n = self.config.n_assets
-		A = np.random.randn(n, n + 10)  # Overdetermined for stability
+		A = np.random.randn(n, n + OVERDETERMINED_EXTRA_COLUMNS)  # Overdetermined for stability
 		C = A @ A.T
 
 		# Convert to correlation

@@ -41,6 +41,9 @@ from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 
+# Constants for data validation
+MIN_PRICE_OBSERVATIONS_FOR_RETURNS = 2
+
 
 class BaseMLOptimizerConfig(BaseModel):
 	"""Configuration parameters for ML-based optimizers"""
@@ -99,7 +102,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
 		if df_prices is None or df_prices.empty:
 			raise ValueError("Price data cannot be None or empty")
 
-		if len(df_prices) < 2:
+		if len(df_prices) < MIN_PRICE_OBSERVATIONS_FOR_RETURNS:
 			raise ValueError("Need at least 2 price observations to calculate returns")
 
 		if any(df_prices.isnull().values.flatten()):

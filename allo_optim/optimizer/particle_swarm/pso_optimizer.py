@@ -19,6 +19,9 @@ from allo_optim.optimizer.particle_swarm.pso_objective import risk_adjusted_retu
 
 logger = logging.getLogger(__name__)
 
+# Constants for numerical thresholds
+WEIGHT_SUM_MINIMUM_THRESHOLD = 1e-10
+
 
 class PSOOptimizerConfig(BaseModel):
 	model_config = DEFAULT_PYDANTIC_CONFIG
@@ -125,7 +128,7 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 		optimal_raw_weights = optimal_solution[1:]
 
 		# Convert to final portfolio weights
-		if np.sum(optimal_raw_weights) > 1e-10:
+		if np.sum(optimal_raw_weights) > WEIGHT_SUM_MINIMUM_THRESHOLD:
 			normalized_weights = optimal_raw_weights / np.sum(optimal_raw_weights)
 			final_weights = optimal_scale * normalized_weights
 

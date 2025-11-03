@@ -17,6 +17,10 @@ from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 
 logger = logging.getLogger(__name__)
 
+# Constants for fundamental analysis thresholds
+DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD = 50  # Above this, likely expressed as percentage
+MINIMUM_WEIGHT_DISPLAY_THRESHOLD = 0.001  # 0.1% minimum weight to display
+
 
 class FundamentalData(BaseModel):
 	"""Fundamental data for a single ticker"""
@@ -176,7 +180,7 @@ def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 
 					current_ratio = info.get("currentRatio")
 
 					# Handle debt_to_equity format variations (some APIs return as percentage)
-					if debt_to_equity is not None and debt_to_equity > 50:
+					if debt_to_equity is not None and debt_to_equity > DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD:
 						debt_to_equity = debt_to_equity / 100.0
 
 					# Create FundamentalData object
@@ -383,12 +387,12 @@ def allocate(
 		weight = weights[idx]
 		score = scores[idx]
 
-		if weight > 0.001:
+		if weight > MINIMUM_WEIGHT_DISPLAY_THRESHOLD:
 			logger.debug(f"{ticker:8s}: {weight:6.2%}  (score: {score:.3f})")
 
 	logger.debug(f"\n{'-'*60}")
 	logger.debug(f"Total weight: {weights.sum():.6f}")
-	logger.debug(f"Number of positions: {np.sum(weights > 0.001)}")
+	logger.debug(f"Number of positions: {np.sum(weights > MINIMUM_WEIGHT_DISPLAY_THRESHOLD)}")
 	logger.debug(f"{'='*60}\n")
 
 	# Final validation

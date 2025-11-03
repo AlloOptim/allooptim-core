@@ -14,6 +14,10 @@ from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 
+# Constants for portfolio weight validation
+PORTFOLIO_WEIGHT_SUM_UPPER_TOLERANCE = 1.001
+PORTFOLIO_WEIGHT_SUM_LOWER_TOLERANCE = 0.999
+
 
 class HRPOptimizerConfig(BaseModel):
 	model_config = DEFAULT_PYDANTIC_CONFIG
@@ -44,7 +48,7 @@ class HRPOptimizer(AbstractOptimizer):
 		weights_dict = hrp.optimize()
 		weights_array = np.array([weights_dict[key] for key in asset_names])
 
-		if weights_array.sum() > 1.001 or weights_array.sum() < 0.999:
+		if weights_array.sum() > PORTFOLIO_WEIGHT_SUM_UPPER_TOLERANCE or weights_array.sum() < PORTFOLIO_WEIGHT_SUM_LOWER_TOLERANCE:
 			logger.error("Portfolio allocations don't sum to 1.")
 			return create_weights_series(np.zeros(len(asset_names)), asset_names)
 
