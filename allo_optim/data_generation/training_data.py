@@ -81,7 +81,7 @@ class SpectrumGenerator:
             Array of eigenvalues in descending order
         """
         if n_factors is None:
-            n_factors = np.random.randint(3, min(15, n // 10))
+            n_factors = np.random.randint(3, max(4, min(15, n // 10)))
 
         # Large eigenvalues (factors)
         large_eigs = np.random.uniform(factor_strength[0], factor_strength[1], n_factors)

@@ -52,7 +52,7 @@ class BlackLittermanOptimizer(AbstractOptimizer):
 
             view_dict = self.config.view_dict
 
-        cov_matrix = df_cov.values
+        cov_matrix = df_cov  # Keep as DataFrame
 
         bl = BlackLittermanModel(cov_matrix, absolute_views=view_dict)
 
@@ -65,6 +65,7 @@ class BlackLittermanOptimizer(AbstractOptimizer):
         else:
             rets = bl.bl_returns()
             ef = EfficientFrontier(rets, cov_matrix)
+            ef.min_volatility()
             weights_dict = ef.clean_weights()
 
         weights_array = np.array(list(weights_dict.values()))

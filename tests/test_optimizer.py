@@ -140,16 +140,16 @@ def test_optimizers(optimizer_class):
 
     # Skip optimizers that require special setup or are known to be broken
     skip_optimizers = [
-        'WikipediaOptimizer',  # Requires external data
-        'LightGBMOptimizer',   # Requires training data
-        'AugmentedLightGBMOptimizer',  # Requires training data
+        #'WikipediaOptimizer',  # Requires external data
+        #'LightGBMOptimizer',   # Requires training data
+        #'AugmentedLightGBMOptimizer',  # Requires training data
         'LSTMOptimizer',       # Requires training data
         'MAMBAOptimizer',      # Requires training data
         'TCNOptimizer',        # Requires training data
-        'MarketCapFundamentalOptimizer',  # Missing _weights_today attribute
-        'QualityGrowthFundamentalOptimizer',  # Missing _weights_today attribute
-        'ValueInvestingFundamentalOptimizer',  # Missing _weights_today attribute
-        'BlackLittermannOptimizer',  # Requires specific market views and setup
+        #'MarketCapFundamentalOptimizer',  # Missing _weights_today attribute
+        #'QualityGrowthFundamentalOptimizer',  # Missing _weights_today attribute
+        #'ValueInvestingFundamentalOptimizer',  # Missing _weights_today attribute
+        #'BlackLittermannOptimizer',  # Requires specific market views and setup
     ]
 
     if optimizer.name in skip_optimizers:

@@ -47,6 +47,10 @@ class BacktestConfig:
     "EfficientReturn",
     "EfficientRisk",
     ]
+    
+    TRANSFORMER_NAMES = [
+        "OracleCovarianceTransformer",
+    ]
 
     # Output
     RESULTS_DIR = Path("backtest_results") / datetime.now().strftime("%Y%m%d_%H%M%S")

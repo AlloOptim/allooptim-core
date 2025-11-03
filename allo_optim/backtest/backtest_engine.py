@@ -11,7 +11,7 @@ from pypfopt.risk_models import sample_cov
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
-from allo_optim.covariance_transformer.covariance_transformer import OracleCovarianceTransformer
+from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
 from allo_optim.optimizer.allocation_metric import estimate_linear_moments
 from allo_optim.optimizer.ensemble_optimizers import A2AEnsembleOptimizer, SPY500Benchmark
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
@@ -30,6 +30,8 @@ class BacktestEngine:
         # Combine for backward compatibility where needed
         self.optimizers = self.individual_optimizers + self.ensemble_optimizers
         self.results = {}
+
+        self.transformers = get_transformer_by_names(BacktestConfig.TRANSFORMER_NAMES)
 
         # Create results directory
         BacktestConfig.RESULTS_DIR.mkdir(exist_ok=True, parents=True)
@@ -154,8 +156,8 @@ class BacktestEngine:
                                 cov.iloc[i, j] = 0.0
 
             # 3. cov = Transformer(cov)
-            transformer = OracleCovarianceTransformer()
-            cov = transformer.transform(cov, n_observations=len(clean_data))
+            for transformer in self.transformers:
+                cov = transformer.transform(cov, n_observations=len(clean_data))
 
             # 5. l_moments = estimate_l_moments(df_prices_lookback_period)
             l_moments = estimate_linear_moments(clean_data)

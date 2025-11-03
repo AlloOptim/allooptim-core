@@ -79,6 +79,7 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
 
 class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
     def __init__(self) -> None:
+        super().__init__()
         self.config = QualityGrowthFundamentalConfig()
 
     @property
@@ -88,6 +89,7 @@ class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
 
 class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
     def __init__(self) -> None:
+        super().__init__()
         self.config = ValueInvestingFundamentalConfig()
 
     @property
@@ -97,6 +99,7 @@ class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
 
 class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
     def __init__(self) -> None:
+        super().__init__()
         self.config = OnlyMarketCapFundamentalConfig()
 
     @property

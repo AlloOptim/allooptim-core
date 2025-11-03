@@ -326,7 +326,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
                 # Ultra-minimal architecture for 125K input
                 self.hidden_dims = [64, 32, 16]  # Extreme compression
                 logger.debug(
-                    f"🏗️ Ultra-minimal architecture: {self.input_size} → {hidden_dims} → {self.input_size}"
+                    f"🏗️ Ultra-minimal architecture: {self.input_size} → {self.hidden_dims} → {self.input_size}"
                 )
             else:
                 self.hidden_dims = [128, 64, 32]  # Slightly larger for full matrix
@@ -371,14 +371,19 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         Train the autoencoder using synthetic or historical data.
 
         Args:
-            historical_prices: Historical price data (optional if use_synthetic=True)
-            use_synthetic: Whether to use synthetic training data (recommended)
-            n_synthetic_samples: Number of synthetic samples to generate
+            df_prices: Historical price data (optional if use_synthetic=True or n_assets provided)
         """
         logger.debug("\n🚀 Training improved autoencoder with enhanced data generation...")
 
         if not self.is_fitted:
-            n_assets = df_prices.shape[1]
+            if self.n_assets is None:
+                if df_prices is None:
+                    raise ValueError("n_assets must be provided if df_prices is None")
+                n_assets = df_prices.shape[1]
+            else:
+                n_assets = self.n_assets
+                if df_prices is not None and df_prices.shape[1] != n_assets:
+                    raise ValueError(f"n_assets {n_assets} does not match df_prices shape {df_prices.shape[1]}")
             self._initial_fit(n_assets)
 
         if self.use_synthetic:
