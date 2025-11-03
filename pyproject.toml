@@ -1,0 +1,150 @@
+[tool.poetry]
+name = "trading"
+version = "0.2.0"
+description = "Library for stock trading"
+authors = ["Jonas ten Haaf <jonas.tenhaaf@mail.de>"]
+license = "MIT"
+readme = "README.md"
+packages = [{ include = "common"},
+            { include = "scripts"},
+            { include = "allo_optim"},
+            { include = "trading_execution"},
+            { include = "UI"},
+            { include = "experimental"}
+            ]
+
+[tool.poetry.dependencies]
+python = "^3.12.0"
+
+[tool.poetry.group.common.dependencies]
+pandas = "^2.3.3"
+numpy = "^2.3.4"
+pyyaml = "^6.0.3"
+pydantic = "^2.12.3"
+
+[tool.poetry.group.lumibot.dependencies]
+lumibot = "^4.0.3"
+streamlit = "^1.50.0"
+pyswarms = "^1.3.0"
+skfolio = "^0.13.0"
+pyportfolioopt = "^1.5.6"
+scikit-learn = "^1.7.2"
+scipy = "^1.16.1"
+lmo = "^0.14.2"
+pageviewapi = "^0.4.0"
+tinygrad = "^0.11.0"
+
+[tool.poetry.group.dashboard.dependencies]
+streamlit = "^1.50.0"
+plotly = "^5.18.0"
+matplotlib = "^3.8.0"
+seaborn = "^0.13.0"
+sqlalchemy = "^2.0.0"
+python-dotenv = "^1.1.1"
+requests = "^2.32.5"
+yfinance = "^0.2.66"
+
+[tool.poetry.group.allocation-scheduler.dependencies]
+APScheduler = "^3.10.4"
+pandas-market-calendars = "^5.1.0"
+psutil = "^7.1.2"
+
+[tool.poetry.group.allocation.dependencies]
+scipy = "^1.16.1"
+lmo = "^0.14.2"
+pageviewapi = "^0.4.0"
+tinygrad = "^0.11.0"
+pyswarms = "^1.3.0"
+skfolio = "^0.13.0"
+pyportfolioopt = "^1.5.6"
+scikit-learn = "^1.7.2"
+python-dotenv = "^1.1.1"
+requests = "^2.32.5"
+yfinance = "^0.2.66"
+lightgbm = "^4.6.0"
+
+[tool.poetry.group.trading_allocation.dependencies]
+flask-sqlalchemy = "^3.1.1"
+supabase = "^2.22.2"
+psycopg2-binary = "^2.9.11"
+selenium = "^4.38.0"
+pdfplumber = "^0.11.7"
+aiohttp = "^3.13.1"
+beautifulsoup4 = "^4.14.2"
+matplotlib = "^3.10.7"
+seaborn = "^0.13.2"
+
+[tool.poetry.group.execution.dependencies]
+lumibot = "^4.0.3"
+sqlalchemy = "^2.0.0"
+python-dotenv = "^1.1.1"
+requests = "^2.32.5"
+schedule = "^1.2.0"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+coverage = "^7.6.0"
+pytest = "^8.3.2"
+ruff = "^0.5.2"
+pytest-timeout = "^2.4.0"
+pytest-playwright = "^0.7.0"
+poetry-plugin-export = "^1.6.0"
+pytest-xdist = "^3.8.0"
+pytest-benchmark = "^5.1.0"
+pytest-profiling = "^1.8.1"
+pytest-json-report = "^1.5.0"
+pytest-cov = "^7.0.0"
+
+# [tool.poetry.group.trading-experimental.dependencies]
+# alpaca-trade-api = "^3.2.0"  # Temporarily removed due to websockets conflict
+# wikipedia-api = "^0.8.1"
+# torch = "^2.8.0"
+# tqdm = "^4.67.1"
+# riskfolio-lib = "^7.0.1"
+# yfinance = "^0.2.66"
+# statsmodels = "^0.14.5"
+# alpaca-trade-api = "^3.2.0"
+# xgboost = "^3.0.5"
+# deap = "^1.4.3"
+# cvxpy = "^1.7.3"
+# simfin = "^1.0.1"
+# gymnasium = "^1.2.1"
+# python-dotenv = "^1.1.1"
+# jupyter = "^1.1.1"
+# quiverquant = "^0.2.2"
+# pandas-datareader = "^0.10.0"
+# seaborn = "^0.13.2"
+# playwright = "^1.55.0"
+# appdirs = "^1.4.4"
+# requests = "^2.32.5"
+# torch = "^2.4.0"
+# copulas = "^0.12.3"
+# optuna = "^4.5.0"
+# lmoments3 = "^1.0.8"
+# yfinance = "^0.2.54"
+# requests = "^2.32.5"
+
+[tool.poetry.scripts]
+start-lumibot = "scripts.start_lumibot:main"
+lumibot-dashboard = "UI.dashboard.app:main"
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+
+[tool.ruff.lint]
+select = ["E501", "I", "PL"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = true
+docstring-code-line-length = 100
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

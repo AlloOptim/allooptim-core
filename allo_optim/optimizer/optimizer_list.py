@@ -1,0 +1,134 @@
+"""
+Enhanced Allocation Workflow
+
+Clean orchestration of the complete allocation-to-allocators process.
+Integrates MCOS simulation with allocation optimization.
+"""
+
+import logging
+
+from allo_optim.optimizer.covariance_matrix_adaption.cma_optimizer import (
+    CVARCMAOptimizer,
+    LMomentsCMAOptimizer,
+    MaxDrawdownCMAOptimizer,
+    MeanVarianceCMAOptimizer,
+    RobustSharpeCMAOptimizer,
+    SortinoCMAOptimizer,
+)
+from allo_optim.optimizer.efficient_frontier.black_litterman_optimizer import (
+    BlackLittermanOptimizer,
+)
+from allo_optim.optimizer.efficient_frontier.efficient_frontier_optimizer import (
+    EfficientReturnOptimizer,
+    EfficientRiskOptimizer,
+    MaxSharpeOptimizer,
+)
+from allo_optim.optimizer.fundamental.fundamental_optimizer import (
+    BalancedFundamentalOptimizer,
+    MarketCapFundamentalOptimizer,
+    QualityGrowthFundamentalOptimizer,
+    ValueInvestingFundamentalOptimizer,
+)
+from allo_optim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
+from allo_optim.optimizer.kelly_criterion.kelly_criterion_optimizer import (
+    KellyCriterionOptimizer,
+)
+from allo_optim.optimizer.light_gbm.light_gbm_optimizer import AugmentedLightGBMOptimizer, LightGBMOptimizer
+from allo_optim.optimizer.naive.naive_optimizer import (
+    MomentumOptimizer,
+    NaiveOptimizer,
+)
+from allo_optim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
+from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
+from allo_optim.optimizer.particle_swarm.pso_optimizer import (
+    LMomentsParticleSwarmOptimizer,
+    MeanVarianceParticleSwarmOptimizer,
+)
+from allo_optim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer import (
+    EMAAdjustedReturnsOptimizer,
+    LMomentsAdjustedReturnsOptimizer,
+    MeanVarianceAdjustedReturnsOptimizer,
+    SemiVarianceAdjustedReturnsOptimizer,
+)
+from allo_optim.optimizer.sequential_quadratic_programming.higher_moments_optimizer import (
+    HigherMomentOptimizer,
+)
+from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import (
+    RiskParityOptimizer,
+)
+from allo_optim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
+    RobustMeanVarianceOptimizer,
+)
+from allo_optim.optimizer.wikipedia.wikipedia_optimizer import WikipediaOptimizer
+from allo_optim.optimizer.deep_learning.deep_learning_optimizer import (
+    MAMBAOptimizer,
+    LSTMOptimizer,
+    TCNOptimizer,
+)
+
+logger = logging.getLogger(__name__)
+
+
+OPTIMIZER_LIST: list[type[AbstractOptimizer]] = [
+    MeanVarianceCMAOptimizer,
+    LMomentsCMAOptimizer,
+    SortinoCMAOptimizer,
+    MaxDrawdownCMAOptimizer,
+    RobustSharpeCMAOptimizer,
+    CVARCMAOptimizer,
+    MeanVarianceParticleSwarmOptimizer,
+    LMomentsParticleSwarmOptimizer,
+    HRPOptimizer,
+    NCOSharpeOptimizer,
+    NaiveOptimizer,
+    MomentumOptimizer,
+    RiskParityOptimizer,
+    MeanVarianceAdjustedReturnsOptimizer,
+    EMAAdjustedReturnsOptimizer,
+    LMomentsAdjustedReturnsOptimizer,
+    SemiVarianceAdjustedReturnsOptimizer,
+    HigherMomentOptimizer,
+    MarketCapFundamentalOptimizer,
+    BalancedFundamentalOptimizer,
+    QualityGrowthFundamentalOptimizer,
+    ValueInvestingFundamentalOptimizer,
+    MaxSharpeOptimizer,
+    EfficientReturnOptimizer,
+    EfficientRiskOptimizer,
+    WikipediaOptimizer,
+    LightGBMOptimizer,
+    AugmentedLightGBMOptimizer,
+    KellyCriterionOptimizer,
+    RobustMeanVarianceOptimizer,
+    BlackLittermanOptimizer,
+    MAMBAOptimizer,
+    LSTMOptimizer,
+    TCNOptimizer,
+]
+
+
+def get_all_optimizer_names() -> list[str]:
+    """Get the list of all available optimizer names."""
+    return [optimizer().name for optimizer in OPTIMIZER_LIST]
+
+
+def get_all_optimizers() -> list[AbstractOptimizer]:
+    """Get instances of all available optimizers."""
+    return [optimizer() for optimizer in OPTIMIZER_LIST]
+
+
+def get_optimizer_by_names(names: list[str]) -> list[AbstractOptimizer]:
+    """Retrieve optimizer instances by their names."""
+    
+    available_names = get_all_optimizer_names()
+    
+    for name in names:
+        if name not in available_names:
+            logger.warning(f"Optimizer '{name}' is not recognized. Available optimizers: {available_names}")
+            
+    optimizers = [optimizer() for optimizer in OPTIMIZER_LIST if optimizer().name in names]
+    
+    if len(optimizers) == 0:
+        logger.error("No valid optimizers found for the provided names.")
+
+    return optimizers
