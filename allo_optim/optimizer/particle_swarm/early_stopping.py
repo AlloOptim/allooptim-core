@@ -28,10 +28,7 @@ class EarlyStopObjective:
 		val = self.objective_function(x)
 
 		# Handle array values by taking the mean
-		if isinstance(val, np.ndarray):
-			val_scalar = np.mean(val)
-		else:
-			val_scalar = val
+		val_scalar = np.mean(val) if isinstance(val, np.ndarray) else val
 
 		improvement = self.best_value - val_scalar
 

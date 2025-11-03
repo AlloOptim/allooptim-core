@@ -48,6 +48,9 @@ from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer
 	RiskParityOptimizer,
 )
 
+# Constants for test tolerances
+MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE = 1.02
+
 
 def get_all_optimizers() -> list[Type]:
 	"""Get all optimizer classes for testing"""
@@ -177,4 +180,4 @@ def test_optimizer_weight_constraints(
 
 	# Ensure sum of weights is between 0 and 1.02 (inclusive)
 	total_weight = weights.sum()
-	assert 0 <= total_weight <= 1.02
+	assert 0 <= total_weight <= MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE

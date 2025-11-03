@@ -69,10 +69,6 @@ class WikipediaOptimizer(AbstractOptimizer):
 				equal_weight = 1.0 / n_assets
 				weights = np.ones(n_assets) * equal_weight
 			else:
-				# Filter mu and cov to match available stocks
-				filtered_mu = ds_mu[filtered_asset_names]
-				filtered_cov = df_cov.loc[filtered_asset_names, filtered_asset_names]
-
 				allocation_result = allocate_wikipedia(
 					all_stocks=all_stocks,
 					time_today=time,

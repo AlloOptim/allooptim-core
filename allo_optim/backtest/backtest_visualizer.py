@@ -76,7 +76,7 @@ def create_visualizations(results: dict, clustering_results: dict) -> None:
 	volatilities = [data["metrics"].get("annual_volatility", 0) for data in results.values()]
 	names = list(results.keys())
 
-	scatter = plt.scatter(volatilities, returns, s=100, alpha=0.7)
+	plt.scatter(volatilities, returns, s=100, alpha=0.7)
 
 	for i, name in enumerate(names):
 		plt.annotate(name, (volatilities[i], returns[i]), xytext=(5, 5), textcoords="offset points", fontsize=8)

@@ -6,6 +6,9 @@ from scipy.optimize import minimize
 
 logger = logging.getLogger(__name__)
 
+# Constants for solver validation
+SOLVER_FAILURE_WEIGHT_SUM_THRESHOLD = 1.05
+
 
 def minimize_with_multistart(
 	objective_function: Callable,
@@ -74,8 +77,8 @@ def minimize_with_multistart(
 
 	weight_sum = np.sum(best_weights)
 	if weight_sum > 1.0:
-		if weight_sum > 1.05:
-			logger.error(f"Weight sum {weight_sum:.4f} > 1.05, likely the solver failed, normalizing weights")
+		if weight_sum > SOLVER_FAILURE_WEIGHT_SUM_THRESHOLD:
+			logger.error(f"Weight sum {weight_sum:.4f} > {SOLVER_FAILURE_WEIGHT_SUM_THRESHOLD}, likely the solver failed, normalizing weights")
 		else:
 			logger.debug(f"Weight sum {weight_sum:.4f} > 1.0, normalizing for safety")
 		best_weights = best_weights / weight_sum

@@ -259,10 +259,7 @@ class CovarianceMatrixGenerator:
 	def _bootstrap_from_real_data(self, data: pd.DataFrame) -> np.ndarray:
 		"""Bootstrap covariance matrix from real market data"""
 		# Calculate returns
-		if len(data) > 1:
-			returns = data.pct_change().dropna()
-		else:
-			returns = data
+		returns = data.pct_change().dropna() if len(data) > 1 else data
 
 		# Resample for bootstrap
 		n_samples = min(len(returns), np.random.randint(50, 200))

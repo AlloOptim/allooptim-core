@@ -344,14 +344,14 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
 		self._previous_best_weights = weights.copy()
 
 		# Clip very small weights to zero
-		weights[weights < 1e-6] = 0.0
+		weights[weights < WEIGHT_CLIPPING_THRESHOLD] = 0.0
 
 		# Only normalize if sum > 1.0 (constraint violation for safety)
 		total_weight = np.sum(weights)
 		if total_weight > 1.0:
 			logger.warning(f"Robust: Total weight {total_weight:.6f} > 1.0, renormalizing")
 			weights = weights / total_weight
-		elif not self.config.allow_cash and abs(total_weight - 1.0) > 1e-6:
+		elif not self.config.allow_cash and abs(total_weight - 1.0) > WEIGHT_SUM_TOLERANCE:
 			logger.warning(f"Robust: Total weight {total_weight:.6f} != 1.0 (fully invested mode), renormalizing")
 			weights = weights / total_weight
 
@@ -362,7 +362,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
 		# Log if holding significant cash
 		if self.config.allow_cash:
 			cash_position = 1.0 - np.sum(weights)
-			if cash_position > 0.1:  # More than 10% cash
+			if cash_position > CASH_POSITION_WARNING_THRESHOLD:  # More than 10% cash
 				logger.debug(
 					f"Robust optimizer holding {cash_position:.2%} cash due to uncertain conditions "
 					f"(ε_μ={eps_mu:.4f}, ε_Σ={eps_cov:.4f})"

@@ -8,6 +8,9 @@ import pandas as pd
 
 from allo_optim.optimizer.covariance_matrix_adaption.cma_optimizer import MeanVarianceCMAOptimizer
 
+# Constants for test tolerances
+WEIGHT_SUM_TEST_TOLERANCE = 0.01
+
 
 def create_test_data():
 	"""Create sample test data for optimization"""
@@ -63,7 +66,7 @@ def test_cma_optimizer():
 		# Validate results
 		assert isinstance(weights, pd.Series), "Weights should be a pandas Series"
 		assert len(weights) == len(mu), "Weight dimensions should match input"
-		assert abs(weights.sum() - 1.0) < 0.01, f"Weights should sum to ~1.0, got {weights.sum()}"
+		assert abs(weights.sum() - 1.0) < WEIGHT_SUM_TEST_TOLERANCE, f"Weights should sum to ~1.0, got {weights.sum()}"
 		assert (weights >= 0).all(), "All weights should be non-negative"
 
 		print("✓ All assertions passed!")

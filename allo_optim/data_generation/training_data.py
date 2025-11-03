@@ -213,11 +213,10 @@ class CovarianceMatrixGenerator:
 		Returns:
 		    Correlation matrix with 1's on diagonal
 		"""
-		n = M.shape[0]
 		corr = M.copy()
 		precision = 1e-6
 
-		for iteration in range(max_iter):
+		for _ in range(max_iter):
 			diag = np.diag(corr)
 
 			# Find elements not equal to 1

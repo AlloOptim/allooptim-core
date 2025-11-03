@@ -98,7 +98,7 @@ class BacktestEngine:
 		logger.info(f"Running backtest with {len(rebalance_dates)} rebalancing dates")
 
 		# Initialize tracking
-		portfolio_values = {opt.name: [] for opt in self.optimizers}
+		{opt.name: [] for opt in self.optimizers}
 		weights_history = {opt.name: [] for opt in self.optimizers}
 		computation_times = {opt.name: [] for opt in self.optimizers}
 		memory_usage = {opt.name: [] for opt in self.optimizers}

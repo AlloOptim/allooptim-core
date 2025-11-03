@@ -20,6 +20,11 @@ from allo_optim.optimizer.wikipedia.sql_database import load_data
 
 logger = logging.getLogger(__name__)
 
+# Constants for data validation and numerical stability
+MIN_DATA_POINTS_FOR_REGRESSION = 2
+NUMERICAL_STABILITY_THRESHOLD = 1e-10
+INVALID_DATA_THRESHOLD = 0.9  # 90% NaN threshold for invalidating symbols
+
 ONE_DAY = timedelta(days=1)
 ONE_WEEK = timedelta(days=7)
 
@@ -112,13 +117,13 @@ def _filter_by_correlations(
 		x = group["stock_price"].values.astype(np.float32)  # Use float32 for speed
 		y = group["wiki_views"].values.astype(np.float32)
 		n = len(x)
-		if n < 2:
+		if n < MIN_DATA_POINTS_FOR_REGRESSION:
 			return pd.Series({"slope": 0.0, "p_value": 1.0})
 
 		# Check for zero variance in x (independent variable)
 		# If all x values are the same, regression is undefined
 		x_variance = np.var(x, ddof=1)
-		if x_variance <= 1e-10:  # Very small threshold for numerical stability
+		if x_variance <= NUMERICAL_STABILITY_THRESHOLD:  # Very small threshold for numerical stability
 			return pd.Series({"slope": 0.0, "p_value": 1.0})
 
 		mean_x = np.mean(x)
@@ -137,16 +142,16 @@ def _filter_by_correlations(
 		df_res = max(n - 2, 1)  # Ensure at least 1 df
 
 		# Standard error of the slope
-		se_slope_squared = ss_res / (df_res * max(np.sum((x - mean_x) ** 2), 1e-10))
-		std_err = np.sqrt(max(se_slope_squared, 1e-10))  # Ensure positive std_err
+		se_slope_squared = ss_res / (df_res * max(np.sum((x - mean_x) ** 2), NUMERICAL_STABILITY_THRESHOLD))
+		std_err = np.sqrt(max(se_slope_squared, NUMERICAL_STABILITY_THRESHOLD))  # Ensure positive std_err
 
 		# t-statistic and p-value
-		if std_err > 1e-10:
+		if std_err > NUMERICAL_STABILITY_THRESHOLD:
 			t_stat = slope / std_err
 			p_value = 2 * (1 - stats.t.cdf(np.abs(t_stat), df=df_res))
 		else:
 			# If std_err is essentially zero, slope is infinitely significant
-			p_value = 0.0 if abs(slope) > 1e-10 else 1.0
+			p_value = 0.0 if abs(slope) > NUMERICAL_STABILITY_THRESHOLD else 1.0
 
 		return pd.Series({"slope": slope, "p_value": p_value})
 
@@ -255,12 +260,12 @@ def _process_and_filter_data_combined(
 
 	if df_stock_volumes is not None:
 		volume_nan_pct = df_stock_volumes.isna().mean()
-		valid_volume = volume_nan_pct > 0.9
+		valid_volume = volume_nan_pct > INVALID_DATA_THRESHOLD
 	else:
 		valid_volume = pd.Series(True, index=df_wiki_views.columns)
 
 	# Symbol is invalid if >90% NaN in any column of the DataFrame
-	invalid_symbols = (wiki_nan_pct > 0.9) | (price_nan_pct > 0.9) | (valid_volume)
+	invalid_symbols = (wiki_nan_pct > INVALID_DATA_THRESHOLD) | (price_nan_pct > INVALID_DATA_THRESHOLD) | (valid_volume)
 	valid_symbols = invalid_symbols[~invalid_symbols].index.tolist()
 
 	if len(valid_symbols) < 1:

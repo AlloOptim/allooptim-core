@@ -256,10 +256,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 				cov = window_returns.cov().values
 
 				# Apply lower triangle optimization if enabled
-				if self.use_lower_triangle:
-					cov_flat = pack_lower_triangle(cov)
-				else:
-					cov_flat = cov.flatten()
+				cov_flat = pack_lower_triangle(cov) if self.use_lower_triangle else cov.flatten()
 
 				cov_matrices.append(cov_flat)
 
@@ -562,10 +559,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 			raise ValueError("Autoencoder must be fitted before transforming")
 
 		# Prepare input
-		if self.use_lower_triangle:
-			cov_input = pack_lower_triangle(cov)
-		else:
-			cov_input = cov.flatten()
+		cov_input = pack_lower_triangle(cov) if self.use_lower_triangle else cov.flatten()
 
 		cov_tensor = Tensor(cov_input.astype(np.float32)).unsqueeze(0)
 

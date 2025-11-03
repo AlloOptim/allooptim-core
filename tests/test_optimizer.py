@@ -16,6 +16,12 @@ from allo_optim.optimizer.optimizer_list import OPTIMIZER_LIST
 from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import RiskParityOptimizer
 
 
+# Constants for test tolerances
+WEIGHT_SUM_TEST_TOLERANCE = 0.01
+MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE = 1.02
+MIN_WEIGHT_TOLERANCE = -0.01
+
+
 class TestMarkowitzOptimizer:
 	def test_allocate(self, prices_df):
 		mu = mean_historical_return(prices_df)  # Returns pandas Series
@@ -52,7 +58,7 @@ class TestNCOOptimizer:
 		weights = NCOSharpeOptimizer().allocate(ds_mu=mu, df_cov=cov)
 		# NCO min variance should give reasonable weights (not exactly [0, 0.5, 0, 0.5])
 		assert len(weights) == len(cov.index)
-		assert abs(weights.sum() - 1.0) < 0.01
+		assert abs(weights.sum() - 1.0) < WEIGHT_SUM_TEST_TOLERANCE
 
 	def test_name(self):
 		assert NCOSharpeOptimizer().name == "NCOSharpeOptimizer"
@@ -65,7 +71,7 @@ class TestHRPOptimizer:
 
 		weights = HRPOptimizer().allocate(mu, cov)
 		# Check that weights are reasonable (sum to 1, positive)
-		assert abs(weights.sum() - 1.0) < 0.01
+		assert abs(weights.sum() - 1.0) < WEIGHT_SUM_TEST_TOLERANCE
 		assert all(w >= 0 for w in weights.values)
 		assert len(weights) == len(mu)
 
@@ -172,8 +178,8 @@ def test_optimizers(optimizer_class):
 	# Check that weights are reasonable (sum close to 1, but be lenient)
 	weight_sum = weights.sum()
 	assert weight_sum >= 0.0, f"Weights sum to {weight_sum}, expected non-negative sum"
-	assert weight_sum <= 1.02, f"Weights sum to {weight_sum}, expected sum <= 1.02"
-	assert all(w >= -0.01 for w in weights.values), f"Negative weights found: {weights.values}"
+	assert weight_sum <= MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE, f"Weights sum to {weight_sum}, expected sum <= {MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE}"
+	assert all(w >= MIN_WEIGHT_TOLERANCE for w in weights.values), f"Negative weights found: {weights.values}"
 	assert all(w <= 1.0 for w in weights.values), f"Weights greater than 1 found: {weights.values}"
 
 	# Check that name is a string

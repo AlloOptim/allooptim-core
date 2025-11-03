@@ -360,10 +360,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 		if best_kmeans is not None:
 			# assign clusters using best cluster sizes
 			# Use numeric indices if _corr is a numpy array, otherwise use columns
-			if hasattr(self._corr, "columns"):
-				asset_names = self._corr.columns
-			else:
-				asset_names = list(range(self._corr.shape[1]))
+			asset_names = self._corr.columns if hasattr(self._corr, "columns") else list(range(self._corr.shape[1]))
 
 			self._clusters = {
 				i: [asset_names[j] for j in np.where(best_kmeans.labels_ == i)[0]]
@@ -491,7 +488,7 @@ if __name__ == "__main__":
 		"""Time NCO optimization with/without initial guess"""
 		times = []
 
-		for run in range(n_runs):
+		for _ in range(n_runs):
 			nco_test = NCOSharpeOptimizer(initial_guess_estimation=use_initial_guess)
 
 			start_time = time.time()

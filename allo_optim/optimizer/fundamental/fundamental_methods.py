@@ -273,7 +273,6 @@ def calculate_fundamental_scores(fundamentals: list[FundamentalData], config: Ba
 	Returns:
 	    Array of composite scores for each stock
 	"""
-	n = len(fundamentals)
 
 	# Extract metrics into arrays from FundamentalData objects
 	market_caps = np.array([f.market_cap if f.market_cap is not None else np.nan for f in fundamentals])

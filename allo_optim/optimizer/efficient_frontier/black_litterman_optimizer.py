@@ -46,7 +46,7 @@ class BlackLittermanOptimizer(AbstractOptimizer):
 		else:
 			assert len(self.config.view_dict) == len(asset_names), "View dictionary length must match number of assets"
 			assert all(
-				name in asset_names for name in self.config.view_dict.keys()
+				name in asset_names for name in self.config.view_dict
 			), "All view keys must match asset names"
 
 			view_dict = self.config.view_dict

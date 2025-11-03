@@ -36,7 +36,6 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -140,13 +139,13 @@ class KellyCriterionOptimizer(AbstractOptimizer):
 	    avg_losses: Average loss when return is negative (as fraction)
 	"""
 
-	def __init__(self, config: Optional[KellyCriterionOptimizerConfig] = None) -> None:
+	def __init__(self, config: KellyCriterionOptimizerConfig | None = None) -> None:
 		self.config = config or KellyCriterionOptimizerConfig()
-		self.win_rates: Optional[pd.Series] = None
-		self.avg_gains: Optional[pd.Series] = None
-		self.avg_losses: Optional[pd.Series] = None
+		self.win_rates: pd.Series | None = None
+		self.avg_gains: pd.Series | None = None
+		self.avg_losses: pd.Series | None = None
 
-	def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
+	def fit(self, df_prices: pd.DataFrame | None = None) -> None:
 		"""
 		Calculate historical win rates and average gains/losses from price data.
 
@@ -211,9 +210,9 @@ class KellyCriterionOptimizer(AbstractOptimizer):
 		self,
 		ds_mu: pd.Series,
 		df_cov: pd.DataFrame,
-		df_prices: Optional[pd.DataFrame] = None,
-		time: Optional[datetime] = None,
-		l_moments: Optional[LMoments] = None,
+		df_prices: pd.DataFrame | None = None,
+		time: datetime | None = None,
+		l_moments: LMoments | None = None,
 	) -> pd.Series:
 		"""
 		Calculate Kelly-optimal portfolio weights.

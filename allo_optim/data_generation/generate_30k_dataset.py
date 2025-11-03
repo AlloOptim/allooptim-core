@@ -187,7 +187,6 @@ def load_training_dataset(save_path: str = None):
 		dataset = pickle.load(f)
 
 	X_train = dataset["X_train"]
-	config = dataset["config"]
 	metadata = dataset["metadata"]
 
 	print("Loaded dataset:")

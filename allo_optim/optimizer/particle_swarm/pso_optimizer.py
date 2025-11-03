@@ -96,23 +96,14 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 			init_pos=self._previous_positions,
 		)
 
-		objective_function = lambda x: risk_adjusted_returns_objective(
-			x,
-			enable_l_moments=self.enable_l_moments,
-			l_moments=l_moments,
-			risk_aversion=self.config.risk_aversion,
-			mu=mu_array,
-			cov=cov_array,
-		)
+		def objective_function(x):
+			return risk_adjusted_returns_objective(x, enable_l_moments=self.enable_l_moments, l_moments=l_moments, risk_aversion=self.config.risk_aversion, mu=mu_array, cov=cov_array)
 
 		objective_with_early_stopping = EarlyStopObjective(
 			objective_function=objective_function,
 		)
 
-		if self._previous_positions is None:
-			n_iters = self.config.n_iters
-		else:
-			n_iters = self.config.n_iters_warm
+		n_iters = self.config.n_iters if self._previous_positions is None else self.config.n_iters_warm
 
 		_, optimal_solution = optimizer.optimize(
 			objective_with_early_stopping,

@@ -478,10 +478,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
 			args=(eigenvalues, q),
 			bounds=((1e-5, 1 - 1e-5),),
 		)
-		if out["success"]:
-			var = out["x"][0]
-		else:
-			var = 1
+		var = out["x"][0] if out["success"] else 1
 		max_eigenvalue = var * (1 + (1.0 / q) ** 0.5) ** 2
 		return max_eigenvalue
 
