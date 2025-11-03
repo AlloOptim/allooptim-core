@@ -6,21 +6,25 @@ from allo_optim.backtest.backtest_config import BacktestConfig
 logger = logging.getLogger(__name__)
 
 
-def generate_report(results: dict, clustering_results: dict) -> str:
+def generate_report(results: dict, clustering_results: dict, config: "BacktestConfig" = None) -> str:
 	"""Generate comprehensive markdown report."""
+
+	if config is None:
+		from allo_optim.backtest.backtest_config import config as default_config
+		config = default_config
 
 	logger.info("Generating comprehensive report")
 
 	# Get date range for report
-	start_date, end_date = BacktestConfig.get_report_date_range()
+	start_date, end_date = config.get_report_date_range()
 
 	report = f"""# Comprehensive Allocation Algorithm Backtest Report
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
 **Period:** {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}  
-**Rebalancing Frequency:** Every {BacktestConfig.REBALANCE_FREQUENCY} trading days  
-**Lookback Window:** {BacktestConfig.LOOKBACK_DAYS} days  
-**Fallback Strategy:** {'Equal Weights' if BacktestConfig.USE_EQUAL_WEIGHTS_FALLBACK else 'Zero Weights'}  
+**Rebalancing Frequency:** Every {config.rebalance_frequency} trading days  
+**Lookback Window:** {config.lookback_days} days  
+**Fallback Strategy:** {'Equal Weights' if config.use_equal_weights_fallback else 'Zero Weights'}  
 
 ## Executive Summary
 

@@ -1,16 +1,19 @@
 import logging
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram
 
-from allo_optim.backtest.backtest_config import BacktestConfig
-
 logger = logging.getLogger(__name__)
 
 
-def create_visualizations(results: dict, clustering_results: dict) -> None:
+def create_visualizations(results: dict, clustering_results: dict, results_dir: Path = None) -> None:
 	"""Create comprehensive visualizations of results."""
+
+	if results_dir is None:
+		from allo_optim.backtest.backtest_config import config
+		results_dir = config.results_dir
 
 	logger.info("Creating visualizations")
 
@@ -50,7 +53,7 @@ def create_visualizations(results: dict, clustering_results: dict) -> None:
 	axes[1, 1].set_xticklabels(list(risk_adj_returns.keys()), rotation=45, ha="right")
 
 	plt.tight_layout()
-	plt.savefig(BacktestConfig.RESULTS_DIR / "performance_comparison.png", dpi=300, bbox_inches="tight")
+	plt.savefig(results_dir / "performance_comparison.png", dpi=300, bbox_inches="tight")
 	plt.close()
 
 	# 2. Portfolio value evolution
@@ -67,7 +70,7 @@ def create_visualizations(results: dict, clustering_results: dict) -> None:
 	plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
 	plt.grid(True, alpha=0.3)
 	plt.tight_layout()
-	plt.savefig(BacktestConfig.RESULTS_DIR / "portfolio_evolution.png", dpi=300, bbox_inches="tight")
+	plt.savefig(results_dir / "portfolio_evolution.png", dpi=300, bbox_inches="tight")
 	plt.close()
 
 	# 3. Risk-return scatter plot
@@ -86,7 +89,7 @@ def create_visualizations(results: dict, clustering_results: dict) -> None:
 	plt.ylabel("Annual Return")
 	plt.grid(True, alpha=0.3)
 	plt.tight_layout()
-	plt.savefig(BacktestConfig.RESULTS_DIR / "risk_return_scatter.png", dpi=300, bbox_inches="tight")
+	plt.savefig(results_dir / "risk_return_scatter.png", dpi=300, bbox_inches="tight")
 	plt.close()
 
 	# 4. Clustering dendrogram (if hierarchical clustering available)
@@ -98,8 +101,8 @@ def create_visualizations(results: dict, clustering_results: dict) -> None:
 			leaf_rotation=45,
 		)
 		plt.title("Hierarchical Clustering of Optimizers (Performance-based)")
-		plt.tight_layout()
-		plt.savefig(BacktestConfig.RESULTS_DIR / "clustering_dendrogram.png", dpi=300, bbox_inches="tight")
-		plt.close()
+	plt.tight_layout()
+	plt.savefig(results_dir / "clustering_dendrogram.png", dpi=300, bbox_inches="tight")
+	plt.close()
 
 	logger.info("Visualizations saved to results directory")

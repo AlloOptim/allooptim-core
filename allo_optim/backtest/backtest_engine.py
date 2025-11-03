@@ -8,7 +8,7 @@ import pandas as pd
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import sample_cov
 
-from allo_optim.backtest.backtest_config import BacktestConfig
+from allo_optim.backtest.backtest_config import BacktestConfig, config
 from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
@@ -34,23 +34,27 @@ INITIAL_PORTFOLIO_VALUE = 100000  # Start with $100k
 class BacktestEngine:
 	"""Main backtesting engine with efficient optimizer execution."""
 
-	def __init__(self):
+	def __init__(self, config_instance: BacktestConfig = None):
+		if config_instance is None:
+			config_instance = config
+		self.config = config_instance
+
 		self.data_loader = DataLoader()
 		self.individual_optimizers, self.ensemble_optimizers = self._setup_optimizers()
 		# Combine for backward compatibility where needed
 		self.optimizers = self.individual_optimizers + self.ensemble_optimizers
 		self.results = {}
 
-		self.transformers = get_transformer_by_names(BacktestConfig.TRANSFORMER_NAMES)
+		self.transformers = get_transformer_by_names(self.config.transformer_names)
 
 		# Create results directory
-		BacktestConfig.RESULTS_DIR.mkdir(exist_ok=True, parents=True)
+		self.config.results_dir.mkdir(exist_ok=True, parents=True)
 
 	def _setup_optimizers(self) -> tuple[list[AbstractOptimizer], list[AbstractOptimizer]]:
 		"""Setup individual and ensemble optimizers separately for efficient execution."""
 
 		# Individual optimizers
-		optimizer_names = BacktestConfig.OPTIMIZER_NAMES
+		optimizer_names = self.config.optimizer_names
 		individual_optimizers = get_optimizer_by_names(optimizer_names)
 
 		# Ensemble optimizers (run after individual optimizers to use df_allocations)
@@ -75,7 +79,7 @@ class BacktestEngine:
 		logger.info("Starting comprehensive backtest")
 
 		# Get date range based on debug mode
-		start_data_date, end_data_date = BacktestConfig.get_data_date_range()
+		start_data_date, end_data_date = self.config.get_data_date_range()
 
 		# Check if Wikipedia optimizer is being used and download data if needed
 		wikipedia_optimizer_names = ["WikipediaOptimizer"]
@@ -108,7 +112,7 @@ class BacktestEngine:
 			logger.info(f"Processing rebalance {i+1}/{len(rebalance_dates)}: {rebalance_date}")
 
 			# Get lookback window for estimation
-			lookback_start = rebalance_date - timedelta(days=BacktestConfig.LOOKBACK_DAYS)
+			lookback_start = rebalance_date - timedelta(days=self.config.lookback_days)
 			lookback_data = price_data[(price_data.index >= lookback_start) & (price_data.index <= rebalance_date)]
 
 			if len(lookback_data) < MIN_LOOKBACK_OBSERVATIONS:  # Need minimum data (very reduced for 3-month backtest)
@@ -120,7 +124,7 @@ class BacktestEngine:
 			training_data = price_data[(price_data.index >= training_start) & (price_data.index <= rebalance_date)]
 
 			# If not enough training data, use all available data
-			if len(training_data) < BacktestConfig.LOOKBACK_DAYS:
+			if len(training_data) < self.config.lookback_days:
 				training_data = lookback_data
 
 			# Clean data for estimation - remove assets with insufficient data
@@ -146,10 +150,10 @@ class BacktestEngine:
 
 			# Follow the correct call sequence as specified by user:
 			# 1. mu = estimate_returns(prices_of_lookback_period)
-			mu = mean_historical_return(clean_data, log_returns=BacktestConfig.LOG_RETURNS)
+			mu = mean_historical_return(clean_data, log_returns=self.config.log_returns)
 
 			# 2. cov = estimate_covariance(prices_of_lookback_period)
-			cov = sample_cov(clean_data, log_returns=BacktestConfig.LOG_RETURNS)
+			cov = sample_cov(clean_data, log_returns=self.config.log_returns)
 
 			# Handle any remaining NaN values in covariance matrix
 			if cov.isna().any().any():
@@ -197,7 +201,7 @@ class BacktestEngine:
 
 					# Handle failed allocation
 					if weights is None or weights.sum() == 0:
-						if BacktestConfig.USE_EQUAL_WEIGHTS_FALLBACK:
+						if self.config.use_equal_weights_fallback:
 							weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
 						else:
 							weights = pd.Series(np.zeros(len(mu)), index=mu.index)
@@ -222,11 +226,11 @@ class BacktestEngine:
 					optimizer.reset()
 
 					logger.error(f"Error in {optimizer.name} at {rebalance_date}: {e}")
-					if BacktestConfig.RERAISE_ALLOCATOR_EXCEPTIONS:
+					if self.config.rerun_allocator_exceptions:
 						raise e
 
 					# Use fallback weights
-					if BacktestConfig.USE_EQUAL_WEIGHTS_FALLBACK:
+					if self.config.use_equal_weights_fallback:
 						fallback_weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
 					else:
 						fallback_weights = pd.Series(np.zeros(len(mu)), index=mu.index)
@@ -277,7 +281,7 @@ class BacktestEngine:
 
 					# Handle failed allocation
 					if weights is None or weights.sum() == 0:
-						if BacktestConfig.USE_EQUAL_WEIGHTS_FALLBACK:
+						if self.config.use_equal_weights_fallback:
 							weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
 						else:
 							weights = pd.Series(np.zeros(len(mu)), index=mu.index)
@@ -292,7 +296,7 @@ class BacktestEngine:
 					logger.error(f"Error in ensemble optimizer {optimizer.name} at {rebalance_date}: {e}")
 
 					# Use fallback weights for ensemble optimizers too
-					if BacktestConfig.USE_EQUAL_WEIGHTS_FALLBACK:
+					if self.config.use_equal_weights_fallback:
 						fallback_weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
 					else:
 						fallback_weights = pd.Series(np.zeros(len(mu)), index=mu.index)
@@ -322,7 +326,7 @@ class BacktestEngine:
 		"""Get rebalancing dates every N trading days."""
 
 		rebalance_dates = []
-		for i in range(BacktestConfig.LOOKBACK_DAYS, len(date_index), BacktestConfig.REBALANCE_FREQUENCY):
+		for i in range(self.config.lookback_days, len(date_index), self.config.rebalance_frequency):
 			rebalance_dates.append(date_index[i])
 
 		return rebalance_dates
@@ -354,14 +358,14 @@ class BacktestEngine:
 			a2a_allocations.index.name = "timestamp"
 
 			# Save to CSV in the results directory
-			csv_path = BacktestConfig.RESULTS_DIR / "a2a_allocations.csv"
+			csv_path = self.config.results_dir / "a2a_allocations.csv"
 			a2a_allocations.to_csv(csv_path, float_format="%.6f")
 
 			logger.info(f"✅ Saved A2A allocations to {csv_path}")
 			logger.info(f"   Shape: {a2a_allocations.shape[0]} timestamps × {a2a_allocations.shape[1]} assets")
 
 			# Also save a summary with non-zero positions only for readability
-			summary_path = BacktestConfig.RESULTS_DIR / "a2a_allocations_summary.csv"
+			summary_path = self.config.results_dir / "a2a_allocations_summary.csv"
 
 			# For each timestamp, keep only non-zero weights
 			summary_rows = []
