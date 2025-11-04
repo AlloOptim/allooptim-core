@@ -34,8 +34,8 @@ class RiskParityOptimizer(AbstractOptimizer):
     Risk Parity Optimizer
     """
 
-    def __init__(self) -> None:
-        self.config = RiskParityOptimizerConfig()
+    def __init__(self, config: Optional[RiskParityOptimizerConfig] = None) -> None:
+        self.config = config or RiskParityOptimizerConfig()
         self._previous_weights: Optional[np.ndarray] = None
         self._target_risk: Optional[np.ndarray] = None
 

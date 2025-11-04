@@ -69,7 +69,7 @@ def main():
             n_data_observations=20 if orch_type == OrchestrationType.OPTIMIZED else 50,
             n_particle_swarm_iterations=100,
             n_particles=50,
-            use_sql_database=False,
+            use_wiki_database=False,
             n_historical_days=30,
         )
 

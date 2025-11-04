@@ -71,7 +71,7 @@ class WikipediaOptimizer(AbstractOptimizer):
                 allocation_result = allocate_wikipedia(
                     all_stocks=all_stocks,
                     time_today=time,
-                    use_sql_database=True,
+                    use_wiki_database=True,
                 )
 
                 if allocation_result.success:

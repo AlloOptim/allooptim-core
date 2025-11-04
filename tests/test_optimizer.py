@@ -14,6 +14,8 @@ from allo_optim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 from allo_optim.optimizer.optimizer_list import OPTIMIZER_LIST
 from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import RiskParityOptimizer
+import allo_optim.optimizer.wikipedia.wiki_database as wiki_db
+from pathlib import Path
 
 # Constants for test tolerances
 WEIGHT_SUM_TEST_TOLERANCE = 0.01
@@ -118,7 +120,7 @@ class TestRiskParityOptimizer:
 
 
 @pytest.mark.parametrize("optimizer_class", OPTIMIZER_LIST)
-def test_optimizers(optimizer_class):
+def test_optimizers(optimizer_class, wikipedia_test_db_path):
     """Test that all optimizers in OPTIMIZER_LIST work correctly."""
 
     assert issubclass(optimizer_class, AbstractOptimizer)
@@ -142,18 +144,17 @@ def test_optimizers(optimizer_class):
     # all optimizers should be instantiable and take the default config if the passed one is None
     optimizer = optimizer_class(config=None)
 
+    # Special handling for WikipediaOptimizer - use test database
+    if optimizer.name == "WikipediaOptimizer":
+        original_db_path = wiki_db.DATABASE_PATH
+        wiki_db.DATABASE_PATH = wikipedia_test_db_path()
+        optimizer.config.use_wiki_database = True
+
     # Skip optimizers that require special setup or are known to be broken
     skip_optimizers = [
-        #'WikipediaOptimizer',  # Requires external data
-        #'LightGBMOptimizer',   # Requires training data
-        #'AugmentedLightGBMOptimizer',  # Requires training data
         "LSTMOptimizer",  # Requires training data
         "MAMBAOptimizer",  # Requires training data
         "TCNOptimizer",  # Requires training data
-        #'MarketCapFundamentalOptimizer',  # Missing _weights_today attribute
-        #'QualityGrowthFundamentalOptimizer',  # Missing _weights_today attribute
-        #'ValueInvestingFundamentalOptimizer',  # Missing _weights_today attribute
-        #'BlackLittermannOptimizer',  # Requires specific market views and setup
     ]
 
     if optimizer.name in skip_optimizers:
@@ -168,6 +169,10 @@ def test_optimizers(optimizer_class):
         time=datetime.now(),
         l_moments=l_moments,
     )
+
+    # Restore original database path for WikipediaOptimizer
+    if optimizer.name == "WikipediaOptimizer":
+        wiki_db.DATABASE_PATH = original_db_path
 
     # Check return type and basic properties
     assert isinstance(weights, pd.Series)

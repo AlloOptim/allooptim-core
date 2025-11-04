@@ -6,12 +6,18 @@ import pandas as pd
 from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
 from sklearn.preprocessing import StandardScaler
+from pydantic import BaseModel
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 # Constants for model training thresholds
 MIN_FEATURES_FOR_MODEL_TRAINING = 50
 
+class FastPortfolioOptimizerConfig(BaseModel):
+	decay: float = 0.94
+	risk_aversion: float = 2.0
+	transaction_cost: float = 0.001
 
 class FastPortfolioOptimizer:
     """
@@ -24,44 +30,38 @@ class FastPortfolioOptimizer:
     def __init__(
         self,
         n_assets: int,
-        lookback: int = 252,
-        decay: float = 0.94,
-        risk_aversion: float = 2.0,
-        transaction_cost: float = 0.001,
+        n_lookback: int,
+        config: Optional[FastPortfolioOptimizerConfig] = None,
     ) -> None:
         """
         Args:
             n_assets: Number of assets in portfolio
             lookback: Historical window for feature engineering
-            decay: Exponential decay for covariance (0.94 = ~20 day half-life)
-            risk_aversion: Risk aversion parameter (higher = more conservative)
         """
-        self.n_assets = n_assets
-        self.lookback = lookback
-        self.decay = decay
-        self.risk_aversion = risk_aversion
-        self.transaction_cost = transaction_cost
+        self._n_assets = n_assets
+        self._n_lookback = n_lookback
+        self.config = config or FastPortfolioOptimizerConfig()
 
         # Model for each asset's returns
-        self.models = []
-        self.scalers = []
-        self.cov_estimator = LedoitWolf()
-        self.trained = False  # Track if models have been successfully trained
+        self._models = []
+        self._scalers = []
+        self._cov_estimator = LedoitWolf()
+        self._trained = False  # Track if models have been successfully trained
 
         # Online statistics
-        self.ewm_cov = None
-        self.last_weights = np.ones(n_assets) / n_assets
+        self._ewm_cov = None
+        self._last_weights = np.ones(n_assets) / n_assets
 
         # Training data buffers for incremental learning
-        self.feature_buffer = []
-        self.target_buffer = []
-        self.max_buffer_size = 1000
+        self._feature_buffer = []
+        self._target_buffer = []
+        self._max_buffer_size = 1000
 
     def _engineer_features(self, prices: np.ndarray) -> list[np.ndarray]:
         """Create features from price data"""
         features = []
 
-        for i in range(self.n_assets):
+        for i in range(self._n_assets):
             asset_prices = prices[:, i]
 
             # Returns at multiple horizons
@@ -110,16 +110,16 @@ class FastPortfolioOptimizer:
 
     def _update_covariance(self, returns: np.ndarray) -> np.ndarray:
         """Update covariance matrix using exponential weighting"""
-        if self.ewm_cov is None:
-            self.ewm_cov = np.cov(returns.T)
+        if self._ewm_cov is None:
+            self._ewm_cov = np.cov(returns.T)
         else:
             new_cov = np.outer(returns[-1], returns[-1])
-            self.ewm_cov = self.decay * self.ewm_cov + (1 - self.decay) * new_cov
+            self._ewm_cov = self.decay * self._ewm_cov + (1 - self.decay) * new_cov
 
         # Shrinkage for stability
-        target = np.eye(self.n_assets) * np.trace(self.ewm_cov) / self.n_assets
+        target = np.eye(self._n_assets) * np.trace(self._ewm_cov) / self._n_assets
         shrinkage = 0.1
-        return (1 - shrinkage) * self.ewm_cov + shrinkage * target
+        return (1 - shrinkage) * self._ewm_cov + shrinkage * target
 
     def train(self, prices: np.ndarray, returns: np.ndarray = None) -> None:
         """
@@ -137,7 +137,7 @@ class FastPortfolioOptimizer:
                 f"need at least {min_required_periods}. Using equal weights fallback."
             )
             # Initialize with equal weights fallback
-            self.trained = False
+            self._trained = False
             return
 
         # Estimate returns from prices
@@ -148,7 +148,7 @@ class FastPortfolioOptimizer:
         features = self._engineer_features(prices)
 
         logger.debug("Training models...")
-        for i in range(self.n_assets):
+        for i in range(self._n_assets):
             X = features[i][:-1]  # All but last
             y = returns[-len(X) :, i]  # Corresponding future returns
 
@@ -159,7 +159,7 @@ class FastPortfolioOptimizer:
                     f"Price data shape: {prices.shape}, Features shape: {features[i].shape}"
                 )
                 # Initialize with equal weights fallback
-                self.trained = False
+                self._trained = False
                 return
 
             # Standardize features
@@ -183,13 +183,13 @@ class FastPortfolioOptimizer:
             X_df = pd.DataFrame(X_scaled, columns=feature_names)
             model.fit(X_df, y)
 
-            self.models.append(model)
-            self.scalers.append(scaler)
+            self._models.append(model)
+            self._scalers.append(scaler)
 
         # Update covariance
-        self.ewm_cov = self._update_covariance(returns[-min(len(returns), 252) :])
+        self._ewm_cov = self._update_covariance(returns[-min(len(returns), 252) :])
 
-        self.trained = True
+        self._trained = True
         logger.debug("Training complete! Models ready for daily updates.")
 
     def incremental_update(self, new_prices: np.ndarray, new_returns: np.ndarray = None) -> None:
@@ -208,35 +208,35 @@ class FastPortfolioOptimizer:
             returns_window = np.diff(np.log(new_prices), axis=0)
 
         # Update covariance (very fast)
-        self.ewm_cov = self._update_covariance(returns_window)
+        self._ewm_cov = self._update_covariance(returns_window)
 
         # Add to buffer for periodic retraining
         features = self._engineer_features(new_prices)
-        for i in range(self.n_assets):
+        for i in range(self._n_assets):
             if len(features[i]) > 0:
-                self.feature_buffer.append((i, features[i][-1]))
-                self.target_buffer.append(new_returns[0, i])
+                self._feature_buffer.append((i, features[i][-1]))
+                self._target_buffer.append(new_returns[0, i])
 
         # Periodic full retrain (e.g., every 20 days)
-        if len(self.feature_buffer) > self.max_buffer_size:
+        if len(self._feature_buffer) > self._max_buffer_size:
             self._periodic_retrain()
 
     def _periodic_retrain(self) -> None:
         """Retrain models with buffered data"""
-        for i in range(self.n_assets):
-            asset_features = [f for idx, f in self.feature_buffer if idx == i]
-            asset_targets = [self.target_buffer[j] for j, (idx, _) in enumerate(self.feature_buffer) if idx == i]
+        for i in range(self._n_assets):
+            asset_features = [f for idx, f in self._feature_buffer if idx == i]
+            asset_targets = [self._target_buffer[j] for j, (idx, _) in enumerate(self._feature_buffer) if idx == i]
 
             if len(asset_features) > MIN_FEATURES_FOR_MODEL_TRAINING:
                 X = np.array(asset_features)
                 y = np.array(asset_targets)
-                X_scaled = self.scalers[i].transform(X)
+                X_scaled = self._scalers[i].transform(X)
 
                 # Warm start from existing model
-                self.models[i].fit(X_scaled, y)
+                self._models[i].fit(X_scaled, y)
 
-        self.feature_buffer = []
-        self.target_buffer = []
+        self._feature_buffer = []
+        self._target_buffer = []
 
     def predict(self, current_prices: np.ndarray) -> np.ndarray:
         """
@@ -249,29 +249,29 @@ class FastPortfolioOptimizer:
             optimal_weights: (n_assets,) portfolio weights
         """
         # If not trained, return equal weights
-        if not self.trained:
+        if not self._trained:
             logger.warning("Model not trained, returning equal weights")
-            return np.ones(self.n_assets) / self.n_assets
+            return np.ones(self._n_assets) / self._n_assets
 
         # Generate features for prediction
         features = self._engineer_features(current_prices)
 
         # Predict returns
-        predicted_returns = np.zeros(self.n_assets)
-        for i in range(self.n_assets):
+        predicted_returns = np.zeros(self._n_assets)
+        for i in range(self._n_assets):
             if len(features[i]) > 0:
                 X = features[i][-1].reshape(1, -1)
-                X_scaled = self.scalers[i].transform(X)
+                X_scaled = self._scalers[i].transform(X)
 
                 # Convert to DataFrame with same feature names used during training
                 import pandas as pd
 
                 feature_names = [f"feature_{j}" for j in range(X_scaled.shape[1])]
                 X_df = pd.DataFrame(X_scaled, columns=feature_names)
-                predicted_returns[i] = self.models[i].predict(X_df)[0]
+                predicted_returns[i] = self._models[i].predict(X_df)[0]
 
         # Optimize with transaction costs
-        optimal_weights = self._optimize_portfolio(predicted_returns, self.ewm_cov)
+        optimal_weights = self._optimize_portfolio(predicted_returns, self._ewm_cov)
 
         # expected_return = np.dot(optimal_weights, predicted_returns)
 
@@ -286,7 +286,7 @@ class FastPortfolioOptimizer:
         def objective(w):
             port_return = np.dot(w, mu)
             port_risk = np.sqrt(np.dot(w, np.dot(cov, w)))
-            turnover = np.sum(np.abs(w - self.last_weights))
+            turnover = np.sum(np.abs(w - self._last_weights))
             return -(port_return - self.risk_aversion * port_risk - self.transaction_cost * turnover)
 
         constraints = [
@@ -298,12 +298,12 @@ class FastPortfolioOptimizer:
         # Warm start from current weights
         result = minimize(
             objective,
-            x0=self.last_weights,
+            x0=self._last_weights,
             method="SLSQP",
             bounds=bounds,
             constraints=constraints,
             options={"maxiter": 100},
         )
 
-        self.last_weights = result.x
+        self._last_weights = result.x
         return result.x

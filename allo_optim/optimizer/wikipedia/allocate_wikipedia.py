@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Optional
 
 import numpy as np
@@ -15,7 +16,7 @@ from allo_optim.config.allocation_dataclasses import (
 
 # Old complex caching imports removed - now using simple_sql_cache
 from allo_optim.config.stock_dataclasses import StockUniverse
-from allo_optim.optimizer.wikipedia.sql_database import load_data
+from allo_optim.optimizer.wikipedia.wiki_database import load_data
 
 logger = logging.getLogger(__name__)
 
@@ -350,11 +351,12 @@ def allocate_wikipedia(  # noqa: PLR0913
     n_max_final_stocks: int = 200,
     iqr_factor: float = 1.5,
     decay_factor: float = 1.0,
-    use_sql_database: bool = True,
+    use_wiki_database: bool = True,
     use_volume_filter: bool = True,
     df_wiki_views: Optional[pd.DataFrame] = None,
     df_stock_prices: Optional[pd.DataFrame] = None,
     df_stock_volumes: Optional[pd.DataFrame] = None,
+    wiki_database_path: Optional[Path] = None,
 ) -> AllocationResult:
     """
     Production-ready Wikipedia-based stock allocation.
@@ -373,10 +375,11 @@ def allocate_wikipedia(  # noqa: PLR0913
     - n_max_final_stocks: Maximum number of stocks to select
     - iqr_factor: Interquartile range factor for outlier removal
     - decay_factor: Factor for exponential decay weighting (newest data gets this times higher weight than oldest)
-    - use_sql_database: If True, load from SQL database. If False, fetch fresh data from APIs.
+    - use_wiki_database: If True, load from SQL database. If False, fetch fresh data from APIs.
     - df_wiki_views: Optional pre-loaded Wikipedia views DataFrame (for testing)
     - df_stock_prices: Optional pre-loaded stock prices DataFrame (for testing)
     - df_stock_volumes: Optional pre-loaded stock volumes DataFrame (for testing)
+    - database_path: Optional path to SQL database file (for testing with custom database)
     """
 
     end_date = time_today.astimezone(pytz.UTC)
@@ -388,7 +391,7 @@ def allocate_wikipedia(  # noqa: PLR0913
     else:
         try:
             df_wiki_views, df_stock_prices, df_stock_volumes = load_data(
-                start_date, end_date, all_stocks, use_sql_database
+                start_date, end_date, all_stocks, use_wiki_database, wiki_database_path
             )
             logger.debug(
                 f"Loaded {len(df_wiki_views)} wiki view records, {len(df_stock_prices)} price records, "

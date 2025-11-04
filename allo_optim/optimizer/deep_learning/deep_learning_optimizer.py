@@ -9,7 +9,10 @@ Architectures: LSTM+Transformer, MAMBA (SSM), TCN
 import logging
 
 from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer
-from allo_optim.optimizer.deep_learning.deep_learning_base import DeepLearningOptimizer
+from allo_optim.optimizer.deep_learning.deep_learning_base import (
+    DeepLearningOptimizer,
+    ModelType,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -17,11 +20,11 @@ logger = logging.getLogger(__name__)
 class LSTMOptimizer(BaseMLOptimizer):
     """Deep learning optimizer using LSTM + Transformer architecture."""
 
-    model_type = "lstm"
+    model_type = ModelType.LSTM
 
-    def _create_engine(self, n_assets: int):
+    def _create_engine(self, n_assets: int, n_lookback: int) -> None:
         """Create the LSTM-based deep learning optimization engine."""
-        engine = DeepLearningOptimizer(n_assets=n_assets)
+        engine = DeepLearningOptimizer(n_assets=n_assets, n_lookback=n_lookback)
         engine.model_type = self.model_type
         return engine
 
@@ -34,7 +37,7 @@ class LSTMOptimizer(BaseMLOptimizer):
 class MAMBAOptimizer(LSTMOptimizer):
     """Deep learning optimizer using MAMBA (Selective State Space Model) architecture."""
 
-    model_type = "mamba"
+    model_type = ModelType.MAMBA
 
     @property
     def name(self) -> str:
@@ -45,7 +48,7 @@ class MAMBAOptimizer(LSTMOptimizer):
 class TCNOptimizer(LSTMOptimizer):
     """Deep learning optimizer using TCN (Temporal Convolutional Network) architecture."""
 
-    model_type = "tcn"
+    model_type = ModelType.TCN
 
     @property
     def name(self) -> str:

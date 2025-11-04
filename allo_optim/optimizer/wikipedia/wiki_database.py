@@ -25,10 +25,12 @@ DATABASE_DIR = Path("generated_output/databases")
 DATABASE_PATH = DATABASE_DIR / "market_data.db"
 
 
-def _get_date_range(table_name: str) -> tuple[Optional[datetime], Optional[datetime]]:
+def _get_date_range(table_name: str, database_path: Optional[Path] = None) -> tuple[Optional[datetime], Optional[datetime]]:
     """Get the min and max dates from a table."""
+    db_path = database_path or DATABASE_PATH
+    db_path_str = str(db_path)
     try:
-        with sqlite3.connect(DATABASE_PATH) as conn:
+        with sqlite3.connect(db_path_str) as conn:
             cursor = conn.execute(f"SELECT MIN(date), MAX(date) FROM {table_name}")
             result = cursor.fetchone()
 
@@ -42,42 +44,55 @@ def _get_date_range(table_name: str) -> tuple[Optional[datetime], Optional[datet
         return None, None
 
 
-def _get_existing_symbols(table_name: str) -> list[str]:
+def _get_existing_symbols(table_name: str, database_path: Optional[Path] = None) -> list[str]:
     """Get existing symbol columns from a table."""
-    with sqlite3.connect(DATABASE_PATH) as conn:
+    db_path = database_path or DATABASE_PATH
+    db_path_str = str(db_path)
+    with sqlite3.connect(db_path_str) as conn:
         cursor = conn.execute(f"PRAGMA table_info({table_name})")
         columns = [row[1] for row in cursor.fetchall()]
         # Remove 'date' column, keep only symbol columns
         return [col for col in columns if col != "date"]
 
 
-def _add_symbol_columns(table_name: str, new_symbols: list[str]):
-    """Add new symbol columns to a table."""
-    existing_symbols = set(_get_existing_symbols(table_name))
-    symbols_to_add = [s for s in new_symbols if s not in existing_symbols]
+def _add_symbol_columns(table_name: str, new_symbols: list[str], database_path: Optional[Path] = None):
+    """Add new symbol columns to a table. Creates table if it doesn't exist."""
+    db_path = database_path or DATABASE_PATH
+    db_path_str = str(db_path)
+    with sqlite3.connect(db_path_str) as conn:
+        # Create table if it doesn't exist
+        conn.execute(f"""
+            CREATE TABLE IF NOT EXISTS {table_name} (
+                date TEXT PRIMARY KEY
+            )
+        """)
+        
+        existing_symbols = set(_get_existing_symbols(table_name, db_path))
+        symbols_to_add = [s for s in new_symbols if s not in existing_symbols]
 
-    if symbols_to_add:
-        with sqlite3.connect(DATABASE_PATH) as conn:
+        if symbols_to_add:
             for symbol in symbols_to_add:
                 conn.execute(f"ALTER TABLE {table_name} ADD COLUMN `{symbol}` REAL")
             conn.commit()
         logger.info(f"Added {len(symbols_to_add)} new symbol columns to {table_name}")
 
 
-def _get_table_report(table_name: str) -> dict[str, Any]:
+def _get_table_report(table_name: str, database_path: Optional[Path] = None) -> dict[str, Any]:
     """Get statistics for a table."""
+    db_path = database_path or DATABASE_PATH
+    db_path_str = str(db_path)
     try:
-        with sqlite3.connect(DATABASE_PATH) as conn:
+        with sqlite3.connect(db_path_str) as conn:
             # Get row count
             cursor = conn.execute(f"SELECT COUNT(*) FROM {table_name}")
             row_count = cursor.fetchone()[0]
 
             # Get symbol count
-            symbols = _get_existing_symbols(table_name)
+            symbols = _get_existing_symbols(table_name, db_path)
             symbol_count = len(symbols)
 
             # Get date range
-            date_min, date_max = _get_date_range(table_name)
+            date_min, date_max = _get_date_range(table_name, db_path)
 
             return {
                 "table_name": table_name,
@@ -211,23 +226,43 @@ def _fetch_stock_data(
 def _save_to_database(
     table_name: str,
     df: pd.DataFrame,
+    database_path: Optional[Path] = None,
 ) -> None:
     """Save DataFrame to database table."""
+    db_path = database_path or DATABASE_PATH
+    db_path_str = str(db_path)
     if df.empty:
         logger.warning(f"No data to save to {table_name}")
         return
 
     # Ensure symbol columns exist in database
     symbols = [col for col in df.columns if col != "date"]
-    _add_symbol_columns(table_name, symbols)
+    _add_symbol_columns(table_name, symbols, db_path)
 
     # Prepare data for saving
-    if df.index.name == "date" or isinstance(df.index, pd.DatetimeIndex):
+    if isinstance(df.index, pd.DatetimeIndex):
         df_to_save = df.reset_index()
-        if "index" in df_to_save.columns:
-            df_to_save = df_to_save.rename(columns={"index": "date"})
+        # The reset index will create a column with the index name or default to 0
+        # Find the datetime column and rename it to 'date'
+        if df.index.name is not None:
+            # If index has a name, it will be used as column name
+            if df.index.name in df_to_save.columns:
+                df_to_save = df_to_save.rename(columns={df.index.name: "date"})
+        else:
+            # If index has no name, pandas uses 0, 1, 2... or the first available
+            # Find the datetime column
+            datetime_cols = df_to_save.select_dtypes(include=['datetime64']).columns
+            if len(datetime_cols) > 0:
+                df_to_save = df_to_save.rename(columns={datetime_cols[0]: "date"})
+            else:
+                # Assume the first column is the date
+                first_col = df_to_save.columns[0]
+                df_to_save = df_to_save.rename(columns={first_col: "date"})
     else:
         df_to_save = df.copy()
+        # If no datetime index, assume 'date' column already exists
+        if "date" not in df_to_save.columns:
+            raise ValueError(f"DataFrame must have a 'date' column or DatetimeIndex. Columns: {df_to_save.columns.tolist()}")
 
     # Ensure date column is properly formatted
     if "date" in df_to_save.columns:
@@ -243,7 +278,7 @@ def _save_to_database(
     logger.info(f"Saving {len(df_to_save)} rows with {num_columns} columns in chunks of {chunk_size}")
 
     # Save to database incrementally using INSERT OR REPLACE for each row
-    with sqlite3.connect(DATABASE_PATH) as conn:
+    with sqlite3.connect(db_path_str) as conn:
         # Create a list of all columns (date + symbols)
         all_columns = ["date"] + symbols
         placeholders = ", ".join(["?" for _ in all_columns])
@@ -280,11 +315,15 @@ def _load_from_database(
     symbols: list[str],
     start_date: datetime,
     end_date: datetime,
+    database_path: Optional[Path] = None,
 ) -> pd.DataFrame:
     """Load data from database table."""
+    db_path = database_path or DATABASE_PATH
+    db_path_str = str(db_path)
+    logger.info(f"Loading from database path: {db_path_str}")
     try:
         # Ensure symbols exist in database
-        _add_symbol_columns(table_name, symbols)
+        _add_symbol_columns(table_name, symbols, db_path)
 
         # Build query for requested symbols
         symbol_columns = ", ".join([f"`{sym}`" for sym in symbols])
@@ -295,7 +334,7 @@ def _load_from_database(
             ORDER BY date
         """
 
-        with sqlite3.connect(DATABASE_PATH) as conn:
+        with sqlite3.connect(db_path_str) as conn:
             df = pd.read_sql_query(
                 query,
                 conn,
@@ -321,6 +360,11 @@ def _load_from_database(
 
     except Exception as error:
         logger.error(f"Error loading from {table_name}: {error}")
+        logger.error(f"Database path: {db_path_str}")
+        import os
+        logger.error(f"Database file exists: {os.path.exists(db_path_str)}")
+        if os.path.exists(db_path_str):
+            logger.error(f"Database file size: {os.path.getsize(db_path_str)} bytes")
 
         raise ValueError(f"Error loading from {table_name}: {str(error)}")
 
@@ -397,7 +441,8 @@ def load_data(
     start_date: datetime,
     end_date: datetime,
     stocks: list[StockUniverse],
-    use_sql_database: bool,
+    use_wiki_database: bool,
+    database_path: Optional[Path] = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load data from SQL database or fetch fresh from APIs.
@@ -406,18 +451,18 @@ def load_data(
         start_date: Start date for data
         end_date: End date for data
         stocks: list of StockUniverse objects
-        use_sql_database: If True, load from SQL database. If False, fetch fresh data.
+        use_wiki_database: If True, load from SQL database. If False, fetch fresh data.
 
     Returns:
         tuple of (wiki_views_df, stock_prices_df, stock_volumes_df)
     """
     symbols = [stock.symbol for stock in stocks]
 
-    if use_sql_database:
+    if use_wiki_database:
         logger.debug(f"Loading data from SQL database for {len(stocks)} stocks")
-        wiki_df = _load_from_database("wiki_views", symbols, start_date, end_date)
-        prices_df = _load_from_database("stock_prices", symbols, start_date, end_date)
-        volumes_df = _load_from_database("stock_volumes", symbols, start_date, end_date)
+        wiki_df = _load_from_database("wiki_views", symbols, start_date, end_date, database_path)
+        prices_df = _load_from_database("stock_prices", symbols, start_date, end_date, database_path)
+        volumes_df = _load_from_database("stock_volumes", symbols, start_date, end_date, database_path)
 
         logger.debug(f"Loaded from SQL: wiki {wiki_df.shape}, prices {prices_df.shape}, volumes {volumes_df.shape}")
 

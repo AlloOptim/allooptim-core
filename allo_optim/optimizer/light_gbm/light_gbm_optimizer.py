@@ -6,6 +6,7 @@ Suitable for: Production, daily rebalancing, quick experiments
 """
 
 import logging
+from typing import Optional
 
 from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer, BaseMLOptimizerConfig
 from allo_optim.optimizer.light_gbm.light_gbm_base import FastPortfolioOptimizer
@@ -16,9 +17,13 @@ logger = logging.getLogger(__name__)
 class LightGBMOptimizer(BaseMLOptimizer):
     """Lightweight optimizer using LightGBM for portfolio optimization."""
 
-    def _create_engine(self, n_assets: int):
+    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+        super().__init__(config)
+        self.config.use_data_augmentation = False
+
+    def _create_engine(self, n_assets: int, n_lookback: int) -> None:
         """Create the LightGBM-based optimization engine."""
-        return FastPortfolioOptimizer(n_assets=n_assets)
+        return FastPortfolioOptimizer(n_assets=n_assets, n_lookback=n_lookback)
 
     @property
     def name(self) -> str:
@@ -29,11 +34,9 @@ class LightGBMOptimizer(BaseMLOptimizer):
 class AugmentedLightGBMOptimizer(LightGBMOptimizer):
     """LightGBM optimizer with data augmentation enabled."""
 
-    def __init__(self) -> None:
-        super().__init__()
-        # Replace config with augmented version
-
-        self.config = BaseMLOptimizerConfig(use_data_augmentation=True)
+    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+        super().__init__(config)
+        self.config.use_data_augmentation = True
 
     @property
     def name(self) -> str:

@@ -44,8 +44,8 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
     enable_ema: bool = False
     enable_semi_variance: bool = False
 
-    def __init__(self) -> None:
-        self.config = MeanVarianceAdjustedReturnsOptimizerConfig()
+    def __init__(self, config: Optional[MeanVarianceAdjustedReturnsOptimizerConfig] = None) -> None:
+        self.config = config or MeanVarianceAdjustedReturnsOptimizerConfig()
 
         self._mu: Optional[np.ndarray] = None
         self._cov: Optional[np.ndarray] = None

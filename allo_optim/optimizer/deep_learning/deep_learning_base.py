@@ -7,6 +7,8 @@ from pydantic import BaseModel
 from tinygrad import Tensor, nn
 from tinygrad.nn.optim import Adam
 from tinygrad.nn.state import get_parameters
+from enum import Enum
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -743,16 +745,23 @@ class TCNPortfolioNet(PortfolioNetInterface):
 # PORTFOLIO OPTIMIZER (Model-Agnostic)
 # ============================================================================
 
+class ModelType(str, Enum):
+	LSTM = "lstm"
+	MAMBA = "mamba"
+	TCN = "tcn"
 
 class LSTMOptimizerConfig(BaseModel):
-    n_assets: int
-    lookback: int = 30
     hidden_dim: int = 64
     num_layers: int = 1
     risk_aversion: float = 2.0
     lr: float = 0.001
     device: str = "CPU"
-
+    dropout: float = 0.15
+    transaction_cost: float = 0.001
+    n_heads_lstm: int = 2
+	n_heads_mamba: int = 2
+ 	n_kernel_tcn: int = 3
+ 	d_state_mamba: int = 16
 
 class DeepLearningOptimizer:
     """
@@ -760,11 +769,13 @@ class DeepLearningOptimizer:
     Supports multiple neural network architectures.
     """
 
-    model_type = "lstm"
+    model_type: = ModelType.LSTM
 
     def __init__(
         self,
         n_assets: int,
+        n_lookback: int,
+        config: Optional[LSTMOptimizerConfig] = None,
     ) -> None:
         """
         Args:
@@ -774,46 +785,48 @@ class DeepLearningOptimizer:
                 - 'mamba': Selective State Space Model (linear time, great for long sequences)
                 - 'tcn': Temporal Convolutional Network (fastest, parallelizable)
         """
-        self.config = LSTMOptimizerConfig(n_assets=n_assets)
+        self._n_assets = n_assets
+		self._n_lookback = n_lookback
+        self.config = config or LSTMOptimizerConfig()
 
         # Fractional differentiator
-        self.frac_diff = FractionalDifferentiator(d=0.5, threshold=1e-5)
+        self._frac_diff = FractionalDifferentiator(d=0.5, threshold=1e-5)
 
         # Feature engineering parameters
-        self.feature_dim = 15
+        self._feature_dim = 15
 
         # Track if models have been successfully trained
-        self.trained = False
+        self._trained = False
 
         # Initialize network based on type
-        if self.model_type.lower() == "lstm":
+        if self.model_type == ModelType.LSTM:
             self.net = LSTMAttentionPortfolioNet(
-                n_assets=self.config.n_assets,
-                n_features=self.feature_dim,
+                n_assets=self._n_assets,
+                n_features=self._feature_dim,
                 hidden_dim=self.config.hidden_dim,
                 num_layers=self.config.num_layers,
-                num_heads=2,
-                dropout=0.15,
+                num_heads=self.config.n_heads_lstm,
+                dropout=self.config.dropout,
             )
             logger.debug("✓ Using LSTM + Transformer architecture")
-        elif self.model_type.lower() == "mamba":
+        elif self.model_type == ModelType.MAMBA:
             self.net = MambaPortfolioNet(
-                n_assets=self.config.n_assets,
-                n_features=self.feature_dim,
+                n_assets=self._n_assets,
+                n_features=self._feature_dim,
                 hidden_dim=self.config.hidden_dim,
                 num_layers=self.config.num_layers,
-                d_state=16,
-                dropout=0.15,
+                d_state=self.config.d_state_mamba,
+                dropout=self.config.dropout,
             )
             logger.debug("✓ Using MAMBA (Selective State Space) architecture")
-        elif self.model_type.lower() == "tcn":
+        elif self.model_type == ModelType.TCN:
             self.net = TCNPortfolioNet(
-                n_assets=self.config.n_assets,
-                n_features=self.feature_dim,
+                n_assets=self._n_assets,
+                n_features=self._feature_dim,
                 hidden_dim=self.config.hidden_dim,
                 num_layers=self.config.num_layers,
-                kernel_size=3,
-                dropout=0.15,
+                kernel_size=self.config.n_kernel_tcn,
+                dropout=self.config.dropout,
             )
             logger.debug("✓ Using TCN (Temporal Convolutional Network) architecture")
         else:
@@ -897,7 +910,7 @@ class DeepLearningOptimizer:
 
                 # Fractional differentiation features (NEW)
                 # Apply to log prices for different d values
-                frac_diff_05 = self.frac_diff.transform(log_prices)  # d=0.5
+                frac_diff_05 = self._frac_diff.transform(log_prices)  # d=0.5
                 frac_diff_03 = FractionalDifferentiator(d=0.3).transform(log_prices)  # d=0.3 (more memory)
                 frac_diff_07 = FractionalDifferentiator(d=0.7).transform(log_prices)  # d=0.7 (less memory)
 
@@ -1001,7 +1014,6 @@ class DeepLearningOptimizer:
         vols,
         actual_returns,
         prev_weights,
-        transaction_cost=0.001,
     ):
         """
         Multi-objective loss for long-only with cash:
@@ -1036,7 +1048,7 @@ class DeepLearningOptimizer:
             + vol_loss
             - port_return
             + self.config.risk_aversion * port_vol
-            + transaction_cost * turnover
+            + self.config.transaction_cost * turnover
             + cash_penalty
         )
 
@@ -1058,7 +1070,7 @@ class DeepLearningOptimizer:
         # Handle case where returns has one less day than prices
         if n_returns == n_days - 1:
             # Pad returns with the last value or use the available returns
-            last_return = returns[-1] if n_returns > 0 else np.zeros(self.config.n_assets)
+            last_return = returns[-1] if n_returns > 0 else np.zeros(self._n_assets)
             returns = np.vstack([returns, last_return])
             n_returns = len(returns)
 
@@ -1066,9 +1078,9 @@ class DeepLearningOptimizer:
 
         # Create training sequences
         X_list, y_list = [], []
-        for i in range(self.config.lookback, n_days):
+        for i in range(self._n_lookback, n_days):
             if i < n_returns:
-                window_prices = prices[i - self.config.lookback : i]
+                window_prices = prices[i - self._n_lookback : i]
                 X_list.append(window_prices.T)  # (n_assets, lookback)
                 y_list.append(returns[i])  # (n_assets,)
 
@@ -1079,13 +1091,13 @@ class DeepLearningOptimizer:
         X_features = self._engineer_features(X)  # (n_samples, n_assets, lookback, n_features)
 
         n_samples = len(X_features)
-        prev_weights = np.ones((batch_size, self.config.n_assets)) / self.config.n_assets
+        prev_weights = np.ones((batch_size, self._n_assets)) / self._n_assets
 
         # Adjust batch size if we have fewer samples than batch_size
         effective_batch_size = min(batch_size, n_samples)
         if effective_batch_size != batch_size:
             logger.debug(f"Adjusting batch size from {batch_size} to {effective_batch_size} due to limited data")
-            prev_weights = np.ones((effective_batch_size, self.config.n_assets)) / self.config.n_assets
+            prev_weights = np.ones((effective_batch_size, self._n_assets)) / self._n_assets
 
         logger.debug(f"Starting training for {n_epochs} epochs...")
         logger.debug(f"Total batches per epoch: {max(1, n_samples // effective_batch_size)}")
@@ -1146,7 +1158,7 @@ class DeepLearningOptimizer:
         total_time = time.time() - start_time
         logger.debug(f"\nTraining complete in {total_time:.2f}s")
 
-        self.trained = True
+        self._trained = True
 
     def _online_update(self, new_prices, new_returns, n_steps=10):
         """
@@ -1159,8 +1171,8 @@ class DeepLearningOptimizer:
         Tensor.training = True
 
         # Add to replay buffer
-        if len(new_prices) >= self.config.lookback:
-            X = new_prices[-self.config.lookback :].T  # (n_assets, lookback)
+        if len(new_prices) >= self._n_lookback:
+            X = new_prices[-self._n_lookback :].T  # (n_assets, lookback)
             self.replay_buffer.append((X, new_returns[0]))
 
             if len(self.replay_buffer) > self.max_buffer_size:
@@ -1173,7 +1185,7 @@ class DeepLearningOptimizer:
 
             X_features = self._engineer_features(buffer_X)
 
-            prev_weights = np.ones((1, self.config.n_assets)) / self.config.n_assets
+            prev_weights = np.ones((1, self._n_assets)) / self._n_assets
 
             for _ in range(n_steps):
                 X_batch = Tensor(X_features, requires_grad=False)
@@ -1182,7 +1194,7 @@ class DeepLearningOptimizer:
 
                 weights, invested_ratio, pred_returns, pred_vols = self.net(X_batch, train=True)
                 loss = self._portfolio_loss(
-                    weights, invested_ratio, pred_returns, pred_vols, y_batch, prev_w, transaction_cost=0.001
+                    weights, invested_ratio, pred_returns, pred_vols, y_batch, prev_w
                 )
 
                 # Add small regularization to ensure all parameters get gradients

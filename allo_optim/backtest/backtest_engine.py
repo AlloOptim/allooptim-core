@@ -14,7 +14,7 @@ from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
 from allo_optim.config.allocation_dataclasses import AllocationResult
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
-from allo_optim.optimizer.wikipedia.sql_database import download_data
+from allo_optim.optimizer.wikipedia.wiki_database import download_data
 
 logger = logging.getLogger(__name__)
 

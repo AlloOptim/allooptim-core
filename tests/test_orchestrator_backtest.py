@@ -6,6 +6,7 @@ into the backtesting framework and that df_allocation is properly populated.
 """
 
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
@@ -16,7 +17,9 @@ from allo_optim.allocation_to_allocators.allocation_orchestrator import (
 )
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.backtest_engine import BacktestEngine
-
+import numpy as np
+import pandas as pd
+from unittest.mock import patch
 
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
 def test_orchestrator_in_backtest(orchestration_type):
@@ -27,7 +30,7 @@ def test_orchestrator_in_backtest(orchestration_type):
         start_date=datetime(2023, 1, 1),
         end_date=datetime(2023, 1, 10),
         rebalance_frequency=5,
-        lookback_days=10,
+        lookback_days=5,  # Minimal lookback
         orchestration_type=orchestration_type,
         optimizer_names=["Naive"],
         transformer_names=["OracleCovarianceTransformer"],
@@ -38,7 +41,14 @@ def test_orchestrator_in_backtest(orchestration_type):
         orchestration_type=orchestration_type,
         n_particles=2,
         n_particle_swarm_iterations=2,
+        n_data_observations=2,
+        use_wiki_database=True,
     )
+
+    # For Wikipedia pipeline in A2A tests, use test database
+    # But for backtests, disable SQL database to avoid needing a full database
+    if orchestration_type == OrchestrationType.WIKIPEDIA_PIPELINE:
+        fast_a2a_config.use_wiki_database = False
 
     # Create and run backtest
     engine = BacktestEngine(config_backtest=config, config_a2a=fast_a2a_config)
@@ -49,8 +59,17 @@ def test_orchestrator_in_backtest(orchestration_type):
     assert engine.orchestrator.config.n_particles == 2
     assert engine.orchestrator.config.n_particle_swarm_iterations == 2
 
-    # Run the backtest
-    results = engine.run_backtest()
+    # Create synthetic price data
+    dates = pd.date_range("2022-12-20", "2023-01-15", freq="D")  # Cover the backtest period
+    symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "SPY"]  # Include SPY for benchmark
+    np.random.seed(42)  # For reproducible results
+    price_data = np.random.randn(len(dates), len(symbols)).cumsum(axis=0) + 100
+    synthetic_prices = pd.DataFrame(price_data, index=dates, columns=symbols)
+
+    # Mock the data loader
+    with patch.object(engine.data_loader, 'load_price_data', return_value=synthetic_prices):
+        # Run the backtest
+        results = engine.run_backtest()
 
     # Verify results were generated
     assert results is not None

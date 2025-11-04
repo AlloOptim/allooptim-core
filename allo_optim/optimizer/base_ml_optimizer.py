@@ -51,6 +51,7 @@ class BaseMLOptimizerConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
     update_timedelta: timedelta = timedelta(days=1)
     use_data_augmentation: bool = False
+    n_lookback: int = 60
 
 
 class BaseMLOptimizer(AbstractOptimizer, ABC):
@@ -69,19 +70,20 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
     - name: Property returning the optimizer name
     """
 
-    def __init__(self) -> None:
-        self.config = BaseMLOptimizerConfig()
+    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+        self.config = config or BaseMLOptimizerConfig()
         self._optimizer = None
         self._df_prices: Optional[pd.DataFrame] = None
         self._last_update: Optional[datetime] = None
 
     @abstractmethod
-    def _create_engine(self, n_assets: int):
+    def _create_engine(self, n_assets: int, n_lookback: int) -> None:
         """
         Factory method to create the optimization engine.
 
         Args:
             n_assets: Number of assets in the portfolio
+            n_lookback: Number of lookback periods
 
         Returns:
             Optimizer instance (e.g., FastPortfolioOptimizer or DeepLearningOptimizer)
@@ -118,7 +120,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
 
         # Create optimizer engine
         n_assets = df_prices.shape[1]
-        self._optimizer = self._create_engine(n_assets)
+        self._optimizer = self._create_engine(n_assets, n_lookback=self.config.n_lookback,)
 
         # Prepare training data with optional augmentation
         historical_prices = df_prices.values
@@ -164,8 +166,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
             equal_weights = np.ones(n_assets) / n_assets
             return create_weights_series(equal_weights, asset_names)
 
-        # Use the most recent price data for prediction
-        current_prices = self._df_prices.values[-self._optimizer.config.lookback :]
+        current_prices = self._df_prices.values[-self.config.n_lookback:]
 
         # Incremental update if enough time has passed
         if self._last_update is None or (time is not None and time - self._last_update > self.config.update_timedelta):
