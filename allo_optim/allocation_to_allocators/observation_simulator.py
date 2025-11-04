@@ -31,6 +31,11 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
 
         assert not self.historical_prices_all.isna().any().any()
 
+    @property
+    def name(self) -> str:
+        """Name of this observation simulator."""
+        return "MuCovPartialObservationSimulator"
+
     def simulate(self) -> Tuple[pd.Series, pd.DataFrame]:
         x_all = np.zeros((self.n_observations, self.n_assets))
         mean_start = 0

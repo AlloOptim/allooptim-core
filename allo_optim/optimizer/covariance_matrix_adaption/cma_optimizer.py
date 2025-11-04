@@ -82,8 +82,9 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 
     def __init__(
         self,
+        config: Optional[CMAOptimizerConfig] = None,
     ) -> None:
-        self.config = CMAOptimizerConfig()
+        self.config = config or CMAOptimizerConfig()
 
         self._previous_solution: Optional[np.ndarray] = None
         self._previous_cma_state: Optional[CMAState] = None

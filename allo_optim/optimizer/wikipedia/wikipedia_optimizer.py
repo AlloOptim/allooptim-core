@@ -30,8 +30,8 @@ class WikipediaOptimizerConfig(BaseModel):
 
 
 class WikipediaOptimizer(AbstractOptimizer):
-    def __init__(self) -> None:
-        self.config = WikipediaOptimizerConfig()
+    def __init__(self, config: Optional[WikipediaOptimizerConfig] = None) -> None:
+        self.config = config or WikipediaOptimizerConfig()
 
     def allocate(
         self,

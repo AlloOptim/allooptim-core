@@ -28,8 +28,8 @@ class HRPOptimizerConfig(BaseModel):
 
 
 class HRPOptimizer(AbstractOptimizer):
-    def __init__(self) -> None:
-        self.config = HRPOptimizerConfig()
+    def __init__(self, config: Optional[HRPOptimizerConfig] = None) -> None:
+        self.config = config or HRPOptimizerConfig()
 
     def allocate(
         self,

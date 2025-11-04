@@ -42,8 +42,8 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 
     enable_l_moments: bool = False
 
-    def __init__(self) -> None:
-        self.config = PSOOptimizerConfig()
+    def __init__(self, config: Optional[PSOOptimizerConfig] = None) -> None:
+        self.config = config or PSOOptimizerConfig()
         self._previous_positions = None
 
     def allocate(

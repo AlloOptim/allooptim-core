@@ -80,8 +80,9 @@ class MaxSharpeOptimizer(AbstractOptimizer):
         >>> print(f"Optimized Sharpe Ratio: {sharpe_ratio:.4f}")
     """
 
-    def __init__(self) -> None:
-        self.config = MaxSharpeOptimizerConfig()
+    def __init__(self,
+                 config: Optional[MaxSharpeOptimizerConfig] = None,) -> None:
+        self.config = config or MaxSharpeOptimizerConfig()
 
     def allocate(
         self,
@@ -163,8 +164,8 @@ class EfficientRiskOptimizerConfig(BaseModel):
 class EfficientRiskOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'"""
 
-    def __init__(self) -> None:
-        self.config = EfficientRiskOptimizerConfig()
+    def __init__(self, config: Optional[EfficientRiskOptimizerConfig] = None) -> None:
+        self.config = config or EfficientRiskOptimizerConfig()
 
     def allocate(
         self,
@@ -216,8 +217,8 @@ class EfficientReturnOptimizerConfig(BaseModel):
 class EfficientReturnOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'"""
 
-    def __init__(self) -> None:
-        self.config = EfficientReturnOptimizerConfig()
+    def __init__(self, config: Optional[EfficientReturnOptimizerConfig] = None) -> None:
+        self.config = config or EfficientReturnOptimizerConfig()
 
     def allocate(
         self,

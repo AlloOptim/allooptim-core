@@ -14,7 +14,7 @@ def test_a2a(orchestration_type):
     all_stocks = list_of_dax_stocks()[:5]
     assets = [stock.symbol for stock in all_stocks]
     dates = pd.date_range("2020-01-01", periods=50, freq="D")
-    price_data = np.random.randn(50, 3).cumsum(axis=0) + 100
+    price_data = np.random.randn(50, len(assets)).cumsum(axis=0) + 100
     prices = pd.DataFrame(price_data, index=dates, columns=assets)
 
     config = AllocationOrchestratorConfig(
@@ -22,7 +22,7 @@ def test_a2a(orchestration_type):
     )
 
     orchestrator = AllocationOrchestrator(
-        optimizer_names = ["NaiveOptimizer", "CappedMomentum"],
+        optimizer_names = ["Naive", "CappedMomentum"],
         transformer_names = ["OracleCovarianceTransformer"],
         config=config,
         )
@@ -36,4 +36,4 @@ def test_a2a(orchestration_type):
     assert isinstance(result, AllocationResult)
     assert len(result.asset_weights) == len(assets)
     assert all(0 <= w <= 1.0 for w in result.asset_weights.values())
-    assert 0.0 <= sum(result.asset_weights.values()) <= 1.0 + config.weights_tolerance
+    assert 0.0 <= sum(result.asset_weights.values()) <= 1.0 + config.weights_tolterance

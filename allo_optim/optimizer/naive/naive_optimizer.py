@@ -29,8 +29,8 @@ class MomentumOptimizerConfig(BaseModel):
 class MomentumOptimizer(AbstractOptimizer):
     """Optimizer based on the naive momentum"""
 
-    def __init__(self) -> None:
-        self.config = MomentumOptimizerConfig()
+    def __init__(self, config: Optional[MomentumOptimizerConfig] = None) -> None:
+        self.config = config or MomentumOptimizerConfig()
 
     def allocate(
         self,
@@ -115,8 +115,8 @@ class NaiveOptimizer(AbstractOptimizer):
         >>> print(f"Portfolio contains {n_assets} assets: {asset_names}")
     """
 
-    def __init__(self) -> None:
-        self.config = NaiveOptimizerConfig()
+    def __init__(self, config: Optional[NaiveOptimizerConfig] = None) -> None:
+        self.config = config or NaiveOptimizerConfig()
 
     def allocate(
         self,

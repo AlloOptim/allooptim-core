@@ -36,9 +36,7 @@ def _simulate_optimization(
         else:
             mu_hat, cov_hat = obs_simulator.simulate()
 
-        # Ensure mu is 1D
-        mu_hat = np.array(mu_hat).flatten()
-
+        # mu_hat should be a pd.Series (don't convert to numpy array)
         validate_no_nan(mu_hat, "simulated mu")
         validate_no_nan(cov_hat, "simulated cov")
 

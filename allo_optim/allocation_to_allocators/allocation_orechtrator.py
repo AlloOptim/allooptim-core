@@ -51,7 +51,9 @@ class OrchestrationType(str, Enum):
 
 
 class AllocationOrchestratorConfig(BaseModel):
-    weights_tolterance = Field(0.01, ge=0.0, le=0.1)
+    model_config = {"arbitrary_types_allowed": True}
+
+    weights_tolterance: float = Field(0.01, ge=0.0, le=0.1)
 
     orchestration_type: OrchestrationType = OrchestrationType.EQUAL
 

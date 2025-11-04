@@ -25,8 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 class BalancedFundamentalOptimizer(AbstractOptimizer):
-    def __init__(self) -> None:
-        self.config = BalancedFundamentalConfig()
+    def __init__(self, config: Optional[BalancedFundamentalConfig] = None) -> None:
+        self.config = config or BalancedFundamentalConfig()
 
         self._weights_today: Optional[np.ndarray] = None
 
@@ -78,9 +78,9 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
 
 
 class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
-    def __init__(self) -> None:
+    def __init__(self, config: Optional[QualityGrowthFundamentalConfig] = None) -> None:
         super().__init__()
-        self.config = QualityGrowthFundamentalConfig()
+        self.config = config or QualityGrowthFundamentalConfig()
 
     @property
     def name(self) -> str:
@@ -88,9 +88,9 @@ class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
 
 
 class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
-    def __init__(self) -> None:
+    def __init__(self, config: Optional[ValueInvestingFundamentalConfig] = None) -> None:
         super().__init__()
-        self.config = ValueInvestingFundamentalConfig()
+        self.config = config or ValueInvestingFundamentalConfig()
 
     @property
     def name(self) -> str:
@@ -98,9 +98,9 @@ class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
 
 
 class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
-    def __init__(self) -> None:
+    def __init__(self, config: Optional[OnlyMarketCapFundamentalConfig] = None) -> None:
         super().__init__()
-        self.config = OnlyMarketCapFundamentalConfig()
+        self.config = config or OnlyMarketCapFundamentalConfig()
 
     @property
     def name(self) -> str:

@@ -103,8 +103,8 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 
     objective_type = ObjectiveType.SHARPE
 
-    def __init__(self) -> None:
-        self.config = NCOOptimizerConfig()
+    def __init__(self, config: Optional[NCOOptimizerConfig] = None) -> None:
+        self.config = config or NCOOptimizerConfig()
 
         self._previous_weights = None
         self._cluster_results: dict[int, ClusterResult] = {}
