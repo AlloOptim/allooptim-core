@@ -142,9 +142,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         This results in a tractable quadratic program that can be solved efficiently.
 
     Examples:
-        >>> config = RobustMeanVarianceOptimizerConfig(
-        ...     mu_uncertainty_level=0.2, cov_uncertainty_level=0.1, allow_cash=True
-        ... )
+        >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2, cov_uncertainty_level=0.1, allow_cash=True)
         >>> optimizer = RobustMeanVarianceOptimizer(config)
         >>> optimizer.fit(df_prices)  # Estimate uncertainty from data
         >>> weights = optimizer.allocate(mu, cov)
@@ -254,14 +252,14 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
             self.estimated_mu_uncertainty = self.config.mu_uncertainty_level
             self.estimated_cov_uncertainty = self.config.cov_uncertainty_level
 
-	def allocate(
-		self,
-		ds_mu: pd.Series,
-		df_cov: pd.DataFrame,
-		df_prices: Optional[pd.DataFrame] = None,
-		time: Optional[datetime] = None,
-		l_moments: Optional[LMoments] = None,
-	) -> pd.Series:
+    def allocate(
+        self,
+        ds_mu: pd.Series,
+        df_cov: pd.DataFrame,
+        df_prices: Optional[pd.DataFrame] = None,
+        time: Optional[datetime] = None,
+        l_moments: Optional[LMoments] = None,
+    ) -> pd.Series:
         """
         Calculate robust portfolio weights using worst-case optimization.
 

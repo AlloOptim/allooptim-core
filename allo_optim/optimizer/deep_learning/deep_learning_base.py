@@ -425,28 +425,49 @@ class MambaBlock:
         z = xz[:, :, self.d_inner :]
 
         # Apply selective SSM
-        # Simplified version - compute delta (time step) based on input
+        # Compute delta (time step) based on input - this makes it "selective"
         delta = self.dt_proj(x_inner).softplus()  # (batch, seq_len, d_inner)
 
-        # Get B and C matrices (input-dependent)
+        # Get B and C matrices (input-dependent - key to selective mechanism)
         BC = self.x_proj(x_inner)  # (batch, seq_len, d_state * 2)
         # Manual chunk
-        B = BC[:, :, : self.d_state]
-        C = BC[:, :, self.d_state :]
+        B = BC[:, :, : self.d_state]  # (batch, seq_len, d_state)
+        C = BC[:, :, self.d_state :]  # (batch, seq_len, d_state)
 
-        # Discretize A matrix
-        A = -self.A_log.exp()  # (d_state, d_inner)
+        # Discretize A matrix (continuous to discrete time)
+        A = -self.A_log.exp()  # (d_state, d_inner) - negative ensures stability
 
-        # Simplified SSM computation (avoiding full state computation for speed)
-        # In practice, this would use parallel scan, but we simplify here
-        # Use the learned A and D matrices
-        y = x_inner * self.D + x_inner  # Simplified state computation using D
+        # Simplified SSM state evolution (sequential scan)
+        # In a full implementation, this would use parallel scan for efficiency
+        # Initialize hidden state
+        h = Tensor.zeros(batch, self.d_state, self.d_inner)
 
-        # Apply selective gating with A matrix influence
-        A_expanded = self.A_log.exp().mean(axis=0, keepdim=True)  # (1, d_inner)
-        y = y * A_expanded
+        outputs = []
+        for t in range(seq_len):
+            # Get current timestep inputs
+            x_t = x_inner[:, t, :]  # (batch, d_inner)
+            B_t = B[:, t, :].unsqueeze(-1)  # (batch, d_state, 1)
+            C_t = C[:, t, :].unsqueeze(1)  # (batch, 1, d_state)
+            delta_t = delta[:, t, :].unsqueeze(1)  # (batch, 1, d_inner)
 
-        # Gating
+            # Discretize: h_new = (I + delta * A) @ h + delta * B @ x
+            # Simplified: h_new = exp(delta * A) * h + delta * B * x
+            dA = (delta_t * A.unsqueeze(0)).exp()  # (batch, d_state, d_inner)
+            dB = delta_t * B_t * x_t.unsqueeze(1)  # (batch, d_state, d_inner)
+
+            # Update state
+            h = h * dA + dB  # (batch, d_state, d_inner)
+
+            # Compute output: y = C @ h + D @ x
+            y_t = (C_t @ h).squeeze(1)  # (batch, d_inner)
+            y_t = y_t + self.D * x_t  # Add skip connection
+
+            outputs.append(y_t)
+
+        # Stack outputs
+        y = Tensor.stack(*outputs, dim=1)  # (batch, seq_len, d_inner)
+
+        # Gating with z (GLU-style gating)
         y = y * z.sigmoid()
 
         # Output projection

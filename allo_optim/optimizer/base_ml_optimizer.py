@@ -165,7 +165,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
             return create_weights_series(equal_weights, asset_names)
 
         # Use the most recent price data for prediction
-        current_prices = self._df_prices.values[-self._optimizer.lookback :]
+        current_prices = self._df_prices.values[-self._optimizer.config.lookback :]
 
         # Incremental update if enough time has passed
         if self._last_update is None or (time is not None and time - self._last_update > self.config.update_timedelta):
