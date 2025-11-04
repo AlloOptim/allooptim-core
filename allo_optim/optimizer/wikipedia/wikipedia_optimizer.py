@@ -10,12 +10,12 @@ from pydantic import BaseModel
 from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allo_optim.config.stock_universe import get_stocks_by_symbols
 from allo_optim.optimizer.allocation_metric import (
-	LMoments,
+    LMoments,
 )
 from allo_optim.optimizer.asset_name_utils import (
-	create_weights_series,
-	get_asset_names,
-	validate_asset_names,
+    create_weights_series,
+    get_asset_names,
+    validate_asset_names,
 )
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 from allo_optim.optimizer.wikipedia.allocate_wikipedia import allocate_wikipedia
@@ -24,9 +24,9 @@ logger = logging.getLogger(__name__)
 
 
 class WikipediaOptimizerConfig(BaseModel):
-	model_config = DEFAULT_PYDANTIC_CONFIG
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
-	# Wikipedia optimizer doesn't need specific parameters currently
+    # Wikipedia optimizer doesn't need specific parameters currently
 
 
 class WikipediaOptimizer(AbstractOptimizer):
@@ -69,10 +69,10 @@ class WikipediaOptimizer(AbstractOptimizer):
                 weights = np.ones(n_assets) * equal_weight
             else:
                 allocation_result = allocate_wikipedia(
-					all_stocks=all_stocks,
-					time_today=time,
-					use_sql_database=True,
-				)
+                    all_stocks=all_stocks,
+                    time_today=time,
+                    use_sql_database=True,
+                )
 
                 if allocation_result.success:
                     weights_dict = allocation_result.asset_weights

@@ -475,4 +475,3 @@ def load_data(
             volumes_df = df_cleaned
 
     return wiki_df, prices_df, volumes_df
-

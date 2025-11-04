@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 import yfinance as yf
 
-from allo_optim.config.stock_universe import everything_in_alpaca, extract_symbols_from_list
 from allo_optim.backtest.data_cleaning import clean_price_data
+from allo_optim.config.stock_universe import everything_in_alpaca, extract_symbols_from_list
 
 logger = logging.getLogger(__name__)
 
@@ -92,4 +92,3 @@ class DataLoader:
         logger.info(f"Loaded data for {len(combined_data.columns)} assets over {len(combined_data)} days")
 
         return combined_data
-

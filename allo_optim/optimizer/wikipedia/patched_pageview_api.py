@@ -12,18 +12,18 @@ import collections.abc
 import sys
 
 if sys.version_info >= (3, 10):
-	abcs_to_patch = [
-		"Mapping",
-		"MutableMapping",
-		"Iterable",
-		"Callable",
-		"Sequence",
-		"MutableSequence",
-		"Set",
-		"MutableSet",
-	]
-	for abc_name in abcs_to_patch:
-		if not hasattr(collections, abc_name) and hasattr(collections.abc, abc_name):
-			setattr(collections, abc_name, getattr(collections.abc, abc_name))
+    abcs_to_patch = [
+        "Mapping",
+        "MutableMapping",
+        "Iterable",
+        "Callable",
+        "Sequence",
+        "MutableSequence",
+        "Set",
+        "MutableSet",
+    ]
+    for abc_name in abcs_to_patch:
+        if not hasattr(collections, abc_name) and hasattr(collections.abc, abc_name):
+            setattr(collections, abc_name, getattr(collections.abc, abc_name))
 
 import pageviewapi  # noqa: F401

@@ -15,26 +15,18 @@ Usage:
     python examples/data_generation_examples.py
 """
 
-import numpy as np
 from pathlib import Path
 
-from allo_optim.data_generation.training_data import (
-    TrainingDataGenerator,
-    TrainingConfig,
-    load_training_data
-)
-from allo_optim.data_generation.diverse_covariance_generator import (
-    CovarianceMatrixGenerator,
-    CovarianceConfig
-)
+import numpy as np
+
+from allo_optim.data_generation.diverse_covariance_generator import CovarianceConfig, CovarianceMatrixGenerator
 from allo_optim.data_generation.diverse_training_data import (
     DiverseCorrelationGenerator,
     DiverseTrainingConfig,
-    validate_training_data
+    validate_training_data,
 )
-from allo_optim.data_generation.generate_30k_dataset import (
-    generate_full_training_dataset
-)
+from allo_optim.data_generation.generate_30k_dataset import generate_full_training_dataset
+from allo_optim.data_generation.training_data import TrainingConfig, TrainingDataGenerator, load_training_data
 
 
 def example_basic_covariance_generation():
@@ -45,11 +37,11 @@ def example_basic_covariance_generation():
 
     # Configuration for small test dataset
     config = TrainingConfig(
-        n_assets=50,      # 50 assets
-        n_samples=100,    # 100 samples for quick testing
+        n_assets=50,  # 50 assets
+        n_samples=100,  # 100 samples for quick testing
         min_observations=100,
         max_observations=500,
-        n_processes=2,    # Use 2 processes for parallel generation
+        n_processes=2,  # Use 2 processes for parallel generation
         output_file="example_basic_covariance.h5",
         random_seed=42,
     )
@@ -81,8 +73,8 @@ def example_diverse_covariance_generation():
 
     # Configuration for diverse matrices
     config = CovarianceConfig(
-        n_samples=50,     # Smaller for example
-        n_assets=30,      # Smaller matrices
+        n_samples=50,  # Smaller for example
+        n_assets=30,  # Smaller matrices
         random_seed=123,
     )
 
@@ -122,7 +114,7 @@ def example_large_dataset_generation():
         print(f"Dataset keys: {list(dataset.keys())}")
 
         # Show some statistics
-        if 'q_values' in dataset:
+        if "q_values" in dataset:
             print(".4f")
             print(".4f")
 
@@ -139,8 +131,8 @@ def example_correlation_matrix_generation():
 
     # Configuration for correlation matrices
     config = DiverseTrainingConfig(
-        n_samples=25,     # Small test set
-        n_assets=20,      # Smaller matrices for testing
+        n_samples=25,  # Small test set
+        n_assets=20,  # Smaller matrices for testing
         random_seed=456,
     )
 
@@ -208,6 +200,7 @@ def main():
     except Exception as e:
         print(f"Error running examples: {e}")
         import traceback
+
         traceback.print_exc()
 
 

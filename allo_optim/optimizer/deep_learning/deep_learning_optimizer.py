@@ -15,39 +15,39 @@ logger = logging.getLogger(__name__)
 
 
 class LSTMOptimizer(BaseMLOptimizer):
-	"""Deep learning optimizer using LSTM + Transformer architecture."""
+    """Deep learning optimizer using LSTM + Transformer architecture."""
 
-	model_type = "lstm"
+    model_type = "lstm"
 
-	def _create_engine(self, n_assets: int):
-		"""Create the LSTM-based deep learning optimization engine."""
-		engine = DeepLearningOptimizer(n_assets=n_assets)
-		engine.model_type = self.model_type
-		return engine
+    def _create_engine(self, n_assets: int):
+        """Create the LSTM-based deep learning optimization engine."""
+        engine = DeepLearningOptimizer(n_assets=n_assets)
+        engine.model_type = self.model_type
+        return engine
 
-	@property
-	def name(self) -> str:
-		"""Return the name of this optimizer."""
-		return "LSTMOptimizer"
+    @property
+    def name(self) -> str:
+        """Return the name of this optimizer."""
+        return "LSTMOptimizer"
 
 
 class MAMBAOptimizer(LSTMOptimizer):
-	"""Deep learning optimizer using MAMBA (Selective State Space Model) architecture."""
+    """Deep learning optimizer using MAMBA (Selective State Space Model) architecture."""
 
-	model_type = "mamba"
+    model_type = "mamba"
 
-	@property
-	def name(self) -> str:
-		"""Return the name of this optimizer."""
-		return "MAMBAOptimizer"
+    @property
+    def name(self) -> str:
+        """Return the name of this optimizer."""
+        return "MAMBAOptimizer"
 
 
 class TCNOptimizer(LSTMOptimizer):
-	"""Deep learning optimizer using TCN (Temporal Convolutional Network) architecture."""
+    """Deep learning optimizer using TCN (Temporal Convolutional Network) architecture."""
 
-	model_type = "tcn"
+    model_type = "tcn"
 
-	@property
-	def name(self) -> str:
-		"""Return the name of this optimizer."""
-		return "TCNOptimizer"
+    @property
+    def name(self) -> str:
+        """Return the name of this optimizer."""
+        return "TCNOptimizer"

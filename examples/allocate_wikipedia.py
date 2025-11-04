@@ -1,6 +1,7 @@
 from datetime import datetime
-from allo_optim.optimizer.wikipedia import allocate_wikipedia
+
 from allo_optim.config.stock_universe import list_of_dax_stocks
+from allo_optim.optimizer.wikipedia import allocate_wikipedia
 
 if __name__ == "__main__":
     stocks = list_of_dax_stocks()

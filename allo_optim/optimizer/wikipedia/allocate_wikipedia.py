@@ -265,9 +265,7 @@ def _process_and_filter_data_combined(  # noqa: PLR0913
 
     # Symbol is invalid if >90% NaN in any column of the DataFrame
     invalid_symbols = (
-        (wiki_nan_pct > INVALID_DATA_THRESHOLD) |
-        (price_nan_pct > INVALID_DATA_THRESHOLD) |
-        (valid_volume)
+        (wiki_nan_pct > INVALID_DATA_THRESHOLD) | (price_nan_pct > INVALID_DATA_THRESHOLD) | (valid_volume)
     )
     valid_symbols = invalid_symbols[~invalid_symbols].index.tolist()
 
@@ -448,4 +446,3 @@ def allocate_wikipedia(  # noqa: PLR0913
         success=True,
         statistics=wiki_statistics,
     )
-

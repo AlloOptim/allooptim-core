@@ -64,9 +64,7 @@ def clean_price_data(
 
         removed_days = initial_rows - len(df_prices)
         if removed_days > 0:
-            logger.info(
-                f"Removed {removed_days} market closure days (weekends/holidays)"
-            )
+            logger.info(f"Removed {removed_days} market closure days (weekends/holidays)")
 
         # Step 2: Remove stocks with insufficient trading data
         # After removing market closures, require stocks to have data for min_data_threshold of trading days
@@ -93,14 +91,10 @@ def clean_price_data(
             )  # max_individual_gaps_pct of trading days
 
             # Remove stocks with too many individual gaps
-            problematic_stocks = remaining_nans[
-                remaining_nans > max_individual_gaps
-            ].index.tolist()
+            problematic_stocks = remaining_nans[remaining_nans > max_individual_gaps].index.tolist()
 
             if problematic_stocks:
-                logger.warning(
-                    f"Removing {len(problematic_stocks)} stocks with excessive individual gaps"
-                )
+                logger.warning(f"Removing {len(problematic_stocks)} stocks with excessive individual gaps")
                 df_prices = df_prices.drop(columns=problematic_stocks)
 
             # For remaining small gaps (1-2 days), remove the rows to avoid data duplication
@@ -111,15 +105,11 @@ def clean_price_data(
 
                 removed_gap_days = (~clean_rows_mask).sum()
                 if removed_gap_days > 0:
-                    logger.info(
-                        f"Removed {removed_gap_days} days with individual stock gaps (halts/suspensions)"
-                    )
+                    logger.info(f"Removed {removed_gap_days} days with individual stock gaps (halts/suspensions)")
 
         # Final validation - ensure no NaN values remain
         if df_prices.isna().any().any():
-            logger.error(
-                "DataFrame still contains NaN values after cleaning - this should not happen"
-            )
+            logger.error("DataFrame still contains NaN values after cleaning - this should not happen")
             # Fallback: remove any columns still containing NaN
             df_prices = df_prices.dropna(axis=1, how="any")
 
@@ -134,9 +124,7 @@ def clean_price_data(
             )
 
         # Final validation
-        assert (
-            not df_prices.isna().any().any()
-        ), "DataFrame still contains NaN values after cleaning"
+        assert not df_prices.isna().any().any(), "DataFrame still contains NaN values after cleaning"
 
         logger.info(
             f"Clean price data shape: {df_prices.shape} (dropped {initial_shape[1] - df_prices.shape[1]} symbols)"

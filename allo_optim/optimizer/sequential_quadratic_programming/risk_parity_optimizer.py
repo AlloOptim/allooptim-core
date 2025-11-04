@@ -8,12 +8,12 @@ from pydantic import BaseModel
 
 from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allo_optim.optimizer.allocation_metric import (
-	LMoments,
+    LMoments,
 )
 from allo_optim.optimizer.asset_name_utils import (
-	convert_pandas_to_numpy,
-	create_weights_series,
-	validate_asset_names,
+    convert_pandas_to_numpy,
+    create_weights_series,
+    validate_asset_names,
 )
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 from allo_optim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
@@ -22,17 +22,17 @@ logger = logging.getLogger(__name__)
 
 
 class RiskParityOptimizerConfig(BaseModel):
-	model_config = DEFAULT_PYDANTIC_CONFIG
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
-	# Risk parity uses equal risk contribution by default, but can be customized
-	# target_risk will be None by default and set to equal weights in __init__
-	pass
+    # Risk parity uses equal risk contribution by default, but can be customized
+    # target_risk will be None by default and set to equal weights in __init__
+    pass
 
 
 class RiskParityOptimizer(AbstractOptimizer):
     """
-	Risk Parity Optimizer
-	"""
+    Risk Parity Optimizer
+    """
 
     def __init__(self) -> None:
         self.config = RiskParityOptimizerConfig()
@@ -110,11 +110,11 @@ class RiskParityOptimizer(AbstractOptimizer):
 
         # Run optimization with multi-start to avoid local minima
         weights = minimize_with_multistart(
-			objective_function=self._risk_budget_objective,
-			n_assets=n_assets,
-			allow_cash=True,
-			previous_best_weights=self._previous_weights,
-		)
+            objective_function=self._risk_budget_objective,
+            n_assets=n_assets,
+            allow_cash=True,
+            previous_best_weights=self._previous_weights,
+        )
 
         # Store best weights for next optimization warm start
         self._previous_weights = weights.copy()

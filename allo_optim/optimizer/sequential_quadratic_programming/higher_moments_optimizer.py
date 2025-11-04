@@ -8,12 +8,12 @@ from pydantic import BaseModel, Field
 
 from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allo_optim.optimizer.allocation_metric import (
-	LMoments,
+    LMoments,
 )
 from allo_optim.optimizer.asset_name_utils import (
-	convert_pandas_to_numpy,
-	create_weights_series,
-	validate_asset_names,
+    convert_pandas_to_numpy,
+    create_weights_series,
+    validate_asset_names,
 )
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 from allo_optim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
@@ -25,33 +25,33 @@ DIVISION_BY_ZERO_TOLERANCE = 1e-10
 
 
 class HigherMomentsOptimizerConfig(BaseModel):
-	model_config = DEFAULT_PYDANTIC_CONFIG
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
-	alpha_skew: float = Field(default=1.0, ge=0.0, description="Weight for L-skewness (positive skew is good)")
-	beta_kurt: float = Field(
-		default=1.0, ge=0.0, description="Weight for L-kurtosis (high kurtosis is bad, penalize fat tails)"
-	)
-	risk_aversion: float = Field(default=1.0, ge=0.0, description="Risk aversion for mean-variance component")
-	use_l_moments: bool = Field(default=True, description="Use L-moments if available, else classical moments")
+    alpha_skew: float = Field(default=1.0, ge=0.0, description="Weight for L-skewness (positive skew is good)")
+    beta_kurt: float = Field(
+        default=1.0, ge=0.0, description="Weight for L-kurtosis (high kurtosis is bad, penalize fat tails)"
+    )
+    risk_aversion: float = Field(default=1.0, ge=0.0, description="Risk aversion for mean-variance component")
+    use_l_moments: bool = Field(default=True, description="Use L-moments if available, else classical moments")
 
 
 class HigherMomentOptimizer(AbstractOptimizer):
     """
-	Higher-Moment Portfolio Optimizer (Skewness-Kurtosis)
+    Higher-Moment Portfolio Optimizer (Skewness-Kurtosis)
 
-	Goes beyond mean-variance by incorporating third and fourth moments:
-	- L-skewness (τ3): Measures asymmetry - positive values indicate upside potential
-	- L-kurtosis (τ4): Measures tail risk - higher values indicate fat tails
+    Goes beyond mean-variance by incorporating third and fourth moments:
+    - L-skewness (τ3): Measures asymmetry - positive values indicate upside potential
+    - L-kurtosis (τ4): Measures tail risk - higher values indicate fat tails
 
-	Objective: maximize E[R] - λ*Var + α*L-Skew - β*L-Kurt
+    Objective: maximize E[R] - λ*Var + α*L-Skew - β*L-Kurt
 
-	L-moments are more robust than classical moments:
-	- Less sensitive to outliers
-	- Exist even for distributions with infinite variance
-	- Better for non-Gaussian distributions
+    L-moments are more robust than classical moments:
+    - Less sensitive to outliers
+    - Exist even for distributions with infinite variance
+    - Better for non-Gaussian distributions
 
-	Suitable for investors seeking asymmetric upside while managing tail risk.
-	"""
+    Suitable for investors seeking asymmetric upside while managing tail risk.
+    """
 
     def __init__(self) -> None:
         self.config = HigherMomentsOptimizerConfig()
@@ -115,11 +115,11 @@ class HigherMomentOptimizer(AbstractOptimizer):
 
         # Run optimization with multi-start to avoid local minima
         optimal_weights = minimize_with_multistart(
-			objective_function=self._objective,
-			n_assets=n_assets,
-			allow_cash=True,
-			previous_best_weights=self._previous_weights,
-		)
+            objective_function=self._objective,
+            n_assets=n_assets,
+            allow_cash=True,
+            previous_best_weights=self._previous_weights,
+        )
 
         # Store best weights for next optimization warm start
         self._previous_weights = optimal_weights.copy()
@@ -128,10 +128,10 @@ class HigherMomentOptimizer(AbstractOptimizer):
 
     def _objective(self, x: np.ndarray) -> float:
         """
-		Objective function: minimize -(E[R] - λ*Var + α*Skew - β*Kurt)
+        Objective function: minimize -(E[R] - λ*Var + α*Skew - β*Kurt)
 
-		We negate because scipy.optimize.minimize minimizes the objective.
-		"""
+        We negate because scipy.optimize.minimize minimizes the objective.
+        """
         x = np.array(x)
 
         # Mean-variance component

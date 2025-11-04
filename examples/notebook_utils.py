@@ -5,16 +5,15 @@ This module provides helper functions specifically designed for use in Jupyter n
 making it easier to work with AlloOptim results, visualizations, and data analysis.
 """
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Any, Dict, List
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 
-def display_optimizer_comparison(results: Dict[str, Any],
-                               metrics: List[str] = None,
-                               top_n: int = 10) -> pd.DataFrame:
+def display_optimizer_comparison(results: Dict[str, Any], metrics: List[str] = None, top_n: int = 10) -> pd.DataFrame:
     """
     Display a comparison table of optimizer performance metrics.
 
@@ -27,36 +26,36 @@ def display_optimizer_comparison(results: Dict[str, Any],
         DataFrame with comparison data
     """
     if metrics is None:
-        metrics = ['sharpe_ratio', 'cagr', 'max_drawdown', 'total_return', 'volatility']
+        metrics = ["sharpe_ratio", "cagr", "max_drawdown", "total_return", "volatility"]
 
     # Extract data
     data = []
     for name, result in results.items():
-        if 'metrics' in result:
-            row = {'optimizer': name}
-            row.update(result['metrics'])
+        if "metrics" in result:
+            row = {"optimizer": name}
+            row.update(result["metrics"])
             data.append(row)
 
     df = pd.DataFrame(data)
 
     # Sort by Sharpe ratio and show top N
-    df_sorted = df.sort_values('sharpe_ratio', ascending=False).head(top_n)
+    df_sorted = df.sort_values("sharpe_ratio", ascending=False).head(top_n)
 
     # Format percentages
-    for col in ['cagr', 'max_drawdown', 'total_return', 'volatility']:
+    for col in ["cagr", "max_drawdown", "total_return", "volatility"]:
         if col in df_sorted.columns:
-            df_sorted[col] = (df_sorted[col] * 100).round(2).astype(str) + '%'
+            df_sorted[col] = (df_sorted[col] * 100).round(2).astype(str) + "%"
 
     # Format Sharpe ratio
-    if 'sharpe_ratio' in df_sorted.columns:
-        df_sorted['sharpe_ratio'] = df_sorted['sharpe_ratio'].round(3)
+    if "sharpe_ratio" in df_sorted.columns:
+        df_sorted["sharpe_ratio"] = df_sorted["sharpe_ratio"].round(3)
 
     return df_sorted
 
 
-def plot_returns_distribution(results: Dict[str, Any],
-                            optimizers: List[str] = None,
-                            figsize: tuple = (12, 8)) -> plt.Figure:
+def plot_returns_distribution(
+    results: Dict[str, Any], optimizers: List[str] = None, figsize: tuple = (12, 8)
+) -> plt.Figure:
     """
     Plot the distribution of daily returns for selected optimizers.
 
@@ -72,22 +71,22 @@ def plot_returns_distribution(results: Dict[str, Any],
         # Get top 5 by Sharpe ratio
         perf_data = []
         for name, result in results.items():
-            if 'metrics' in result:
-                perf_data.append({'name': name, 'sharpe': result['metrics'].get('sharpe_ratio', 0)})
+            if "metrics" in result:
+                perf_data.append({"name": name, "sharpe": result["metrics"].get("sharpe_ratio", 0)})
 
-        df_perf = pd.DataFrame(perf_data).sort_values('sharpe', ascending=False)
-        optimizers = df_perf['name'].head(5).tolist()
+        df_perf = pd.DataFrame(perf_data).sort_values("sharpe", ascending=False)
+        optimizers = df_perf["name"].head(5).tolist()
 
     fig, axes = plt.subplots(2, 3, figsize=figsize)
     axes = axes.flatten()
 
     for i, opt_name in enumerate(optimizers[:6]):  # Max 6 plots
-        if opt_name in results and 'returns' in results[opt_name]:
-            returns = results[opt_name]['returns']
+        if opt_name in results and "returns" in results[opt_name]:
+            returns = results[opt_name]["returns"]
             axes[i].hist(returns, bins=50, alpha=0.7, density=True)
-            axes[i].set_title(f'{opt_name}\nDaily Returns Distribution')
-            axes[i].set_xlabel('Daily Return')
-            axes[i].set_ylabel('Density')
+            axes[i].set_title(f"{opt_name}\nDaily Returns Distribution")
+            axes[i].set_xlabel("Daily Return")
+            axes[i].set_ylabel("Density")
             axes[i].grid(True, alpha=0.3)
 
     # Hide unused subplots
@@ -110,28 +109,27 @@ def create_performance_summary(results: Dict[str, Any]) -> pd.DataFrame:
     """
     data = []
     for name, result in results.items():
-        if 'metrics' in result:
-            row = {'optimizer': name}
-            row.update(result['metrics'])
+        if "metrics" in result:
+            row = {"optimizer": name}
+            row.update(result["metrics"])
             data.append(row)
 
     df = pd.DataFrame(data)
 
     # Add ranking columns
-    df['sharpe_rank'] = df['sharpe_ratio'].rank(ascending=False).astype(int)
-    df['cagr_rank'] = df['cagr'].rank(ascending=False).astype(int)
-    df['drawdown_rank'] = df['max_drawdown'].rank(ascending=True).astype(int)  # Lower is better
+    df["sharpe_rank"] = df["sharpe_ratio"].rank(ascending=False).astype(int)
+    df["cagr_rank"] = df["cagr"].rank(ascending=False).astype(int)
+    df["drawdown_rank"] = df["max_drawdown"].rank(ascending=True).astype(int)  # Lower is better
 
     # Sort by Sharpe ratio
-    df = df.sort_values('sharpe_ratio', ascending=False)
+    df = df.sort_values("sharpe_ratio", ascending=False)
 
     return df
 
 
-def plot_cumulative_returns(results: Dict[str, Any],
-                          optimizers: List[str] = None,
-                          benchmark: str = 'S&P 500',
-                          figsize: tuple = (14, 8)) -> plt.Figure:
+def plot_cumulative_returns(
+    results: Dict[str, Any], optimizers: List[str] = None, benchmark: str = "S&P 500", figsize: tuple = (14, 8)
+) -> plt.Figure:
     """
     Plot cumulative returns for selected optimizers.
 
@@ -150,11 +148,11 @@ def plot_cumulative_returns(results: Dict[str, Any],
         # Get top 5 and benchmark
         perf_data = []
         for name, result in results.items():
-            if 'metrics' in result:
-                perf_data.append({'name': name, 'sharpe': result['metrics'].get('sharpe_ratio', 0)})
+            if "metrics" in result:
+                perf_data.append({"name": name, "sharpe": result["metrics"].get("sharpe_ratio", 0)})
 
-        df_perf = pd.DataFrame(perf_data).sort_values('sharpe', ascending=False)
-        optimizers = df_perf['name'].head(5).tolist()
+        df_perf = pd.DataFrame(perf_data).sort_values("sharpe", ascending=False)
+        optimizers = df_perf["name"].head(5).tolist()
 
         # Add benchmark if available
         if benchmark in results and benchmark not in optimizers:
@@ -163,25 +161,24 @@ def plot_cumulative_returns(results: Dict[str, Any],
     colors = plt.cm.tab10(np.linspace(0, 1, len(optimizers)))
 
     for i, opt_name in enumerate(optimizers):
-        if opt_name in results and 'cumulative_returns' in results[opt_name]:
-            cum_returns = results[opt_name]['cumulative_returns']
-            ax.plot(cum_returns.index, cum_returns.values,
-                   label=opt_name, color=colors[i], linewidth=2)
+        if opt_name in results and "cumulative_returns" in results[opt_name]:
+            cum_returns = results[opt_name]["cumulative_returns"]
+            ax.plot(cum_returns.index, cum_returns.values, label=opt_name, color=colors[i], linewidth=2)
 
-    ax.set_title('Cumulative Returns Comparison', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Date', fontsize=12)
-    ax.set_ylabel('Cumulative Return', fontsize=12)
-    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax.set_title("Cumulative Returns Comparison", fontsize=16, fontweight="bold")
+    ax.set_xlabel("Date", fontsize=12)
+    ax.set_ylabel("Cumulative Return", fontsize=12)
+    ax.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
     ax.grid(True, alpha=0.3)
-    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: '{:.0%}'.format(y)))
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: f"{y:.0%}"))
 
     plt.tight_layout()
     return fig
 
 
-def save_notebook_results(results: Dict[str, Any],
-                         clustering_results: Dict[str, Any] = None,
-                         output_dir: str = "notebook_results") -> Path:
+def save_notebook_results(
+    results: Dict[str, Any], clustering_results: Dict[str, Any] = None, output_dir: str = "notebook_results"
+) -> Path:
     """
     Save notebook results to CSV files for further analysis.
 
@@ -199,9 +196,9 @@ def save_notebook_results(results: Dict[str, Any],
     # Save performance metrics
     perf_data = []
     for name, result in results.items():
-        if 'metrics' in result:
-            row = {'optimizer': name}
-            row.update(result['metrics'])
+        if "metrics" in result:
+            row = {"optimizer": name}
+            row.update(result["metrics"])
             perf_data.append(row)
 
     if perf_data:
@@ -209,9 +206,9 @@ def save_notebook_results(results: Dict[str, Any],
         df_perf.to_csv(output_path / "performance_metrics.csv", index=False)
 
     # Save clustering results if available
-    if clustering_results and 'euclidean_distance' in clustering_results:
-        if 'closest_pairs' in clustering_results['euclidean_distance']:
-            distance_data = clustering_results['euclidean_distance']['closest_pairs']
+    if clustering_results and "euclidean_distance" in clustering_results:
+        if "closest_pairs" in clustering_results["euclidean_distance"]:
+            distance_data = clustering_results["euclidean_distance"]["closest_pairs"]
             if distance_data:
                 df_dist = pd.DataFrame(distance_data)
                 df_dist.to_csv(output_path / "optimizer_distances.csv", index=False)
@@ -234,8 +231,8 @@ def print_backtest_summary(results: Dict[str, Any]) -> None:
     # Extract metrics
     perf_data = []
     for name, result in results.items():
-        if 'metrics' in result:
-            perf_data.append({'name': name, **result['metrics']})
+        if "metrics" in result:
+            perf_data.append({"name": name, **result["metrics"]})
 
     if not perf_data:
         print("No performance data available")
@@ -245,14 +242,14 @@ def print_backtest_summary(results: Dict[str, Any]) -> None:
 
     # Overall statistics
     print(f"Total optimizers tested: {len(df)}")
-    print(f"Test period: 2014-12-31 to 2024-12-31 (10 years)")
-    print(f"Rebalancing: Every 5 trading days")
+    print("Test period: 2014-12-31 to 2024-12-31 (10 years)")
+    print("Rebalancing: Every 5 trading days")
     print()
 
     # Top performers
-    best_sharpe = df.loc[df['sharpe_ratio'].idxmax()]
-    best_cagr = df.loc[df['cagr'].idxmax()]
-    best_total_return = df.loc[df['total_return'].idxmax()]
+    best_sharpe = df.loc[df["sharpe_ratio"].idxmax()]
+    best_cagr = df.loc[df["cagr"].idxmax()]
+    best_total_return = df.loc[df["total_return"].idxmax()]
 
     print("TOP PERFORMERS:")
     print(f"  Best Sharpe Ratio: {best_sharpe['name']} ({best_sharpe['sharpe_ratio']:.3f})")

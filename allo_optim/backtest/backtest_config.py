@@ -6,8 +6,8 @@ from typing import List
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
-from allo_optim.optimizer.optimizer_list import get_all_optimizer_names
 from allo_optim.covariance_transformer.transformer_list import get_all_transformers
+from allo_optim.optimizer.optimizer_list import get_all_optimizer_names
 
 logger = logging.getLogger(__name__)
 
@@ -17,72 +17,44 @@ class BacktestConfig(BaseModel):
 
     # Exception handling
     rerun_allocator_exceptions: bool = Field(
-        default=False,
-        description="Whether to re-raise exceptions from allocators during backtesting"
+        default=False, description="Whether to re-raise exceptions from allocators during backtesting"
     )
 
     # Return calculation
-    log_returns: bool = Field(
-        default=True,
-        description="Whether to use log returns for calculations"
-    )
+    log_returns: bool = Field(default=True, description="Whether to use log returns for calculations")
 
     # Time periods
-    start_date: datetime = Field(
-        ...,
-        description="Start date for the backtest period"
-    )
-    end_date: datetime = Field(
-        ...,
-        description="End date for the backtest period"
-    )
-    debug_start_date: datetime = Field(
-        default=datetime(2022, 12, 31),
-        description="Start date for quick debug testing"
-    )
-    debug_end_date: datetime = Field(
-        default=datetime(2023, 2, 28),
-        description="End date for quick debug testing"
-    )
+    start_date: datetime = Field(..., description="Start date for the backtest period")
+    end_date: datetime = Field(..., description="End date for the backtest period")
+    debug_start_date: datetime = Field(default=datetime(2022, 12, 31), description="Start date for quick debug testing")
+    debug_end_date: datetime = Field(default=datetime(2023, 2, 28), description="End date for quick debug testing")
 
     # Test mode
-    quick_test: bool = Field(
-        default=True,
-        description="Whether to run in quick test mode with shorter time periods"
-    )
+    quick_test: bool = Field(default=True, description="Whether to run in quick test mode with shorter time periods")
 
     # Rebalancing parameters
     rebalance_frequency: int = Field(
         default=10,
         ge=1,
         le=252,  # Max trading days per year
-        description="Number of trading days between rebalancing"
+        description="Number of trading days between rebalancing",
     )
-    lookback_days: int = Field(
-        default=60,
-        ge=1,
-        description="Number of days to look back for historical data"
-    )
+    lookback_days: int = Field(default=60, ge=1, description="Number of days to look back for historical data")
 
     # Fallback behavior
     use_equal_weights_fallback: bool = Field(
-        default=True,
-        description="Whether to use equal weights as fallback when optimization fails"
+        default=True, description="Whether to use equal weights as fallback when optimization fails"
     )
 
     # Optimizer and transformer names
     optimizer_names: List[str] = Field(
-        ...,
-        min_length=1,
-        description="List of optimizer names to include in the backtest"
+        ..., min_length=1, description="List of optimizer names to include in the backtest"
     )
     transformer_names: List[str] = Field(
-        ...,
-        min_length=1,
-        description="List of covariance transformer names to include in the backtest"
+        ..., min_length=1, description="List of covariance transformer names to include in the backtest"
     )
 
-    @field_validator('optimizer_names')
+    @field_validator("optimizer_names")
     @classmethod
     def validate_optimizer_names(cls, v: List[str]) -> List[str]:
         """Validate that all optimizer names exist and at least one is present."""
@@ -94,13 +66,12 @@ class BacktestConfig(BaseModel):
 
         if invalid_names:
             raise ValueError(
-                f"Invalid optimizer names: {invalid_names}. "
-                f"Available optimizers: {available_optimizers}"
+                f"Invalid optimizer names: {invalid_names}. " f"Available optimizers: {available_optimizers}"
             )
 
         return v
 
-    @field_validator('transformer_names')
+    @field_validator("transformer_names")
     @classmethod
     def validate_transformer_names(cls, v: List[str]) -> List[str]:
         """Validate that all transformer names exist and at least one is present."""
@@ -112,8 +83,7 @@ class BacktestConfig(BaseModel):
 
         if invalid_names:
             raise ValueError(
-                f"Invalid transformer names: {invalid_names}. "
-                f"Available transformers: {available_transformers}"
+                f"Invalid transformer names: {invalid_names}. " f"Available transformers: {available_transformers}"
             )
 
         return v
@@ -125,18 +95,18 @@ class BacktestConfig(BaseModel):
         if not yaml_path.exists():
             raise FileNotFoundError(f"Configuration file not found: {yaml_path}")
 
-        with open(yaml_path, 'r') as f:
+        with open(yaml_path) as f:
             data = yaml.safe_load(f)
 
         # Convert string dates to datetime objects
-        if 'start_date' in data and isinstance(data['start_date'], str):
-            data['start_date'] = datetime.fromisoformat(data['start_date'])
-        if 'end_date' in data and isinstance(data['end_date'], str):
-            data['end_date'] = datetime.fromisoformat(data['end_date'])
-        if 'debug_start_date' in data and isinstance(data['debug_start_date'], str):
-            data['debug_start_date'] = datetime.fromisoformat(data['debug_start_date'])
-        if 'debug_end_date' in data and isinstance(data['debug_end_date'], str):
-            data['debug_end_date'] = datetime.fromisoformat(data['debug_end_date'])
+        if "start_date" in data and isinstance(data["start_date"], str):
+            data["start_date"] = datetime.fromisoformat(data["start_date"])
+        if "end_date" in data and isinstance(data["end_date"], str):
+            data["end_date"] = datetime.fromisoformat(data["end_date"])
+        if "debug_start_date" in data and isinstance(data["debug_start_date"], str):
+            data["debug_start_date"] = datetime.fromisoformat(data["debug_start_date"])
+        if "debug_end_date" in data and isinstance(data["debug_end_date"], str):
+            data["debug_end_date"] = datetime.fromisoformat(data["debug_end_date"])
 
         return cls(**data)
 
@@ -173,7 +143,7 @@ if config_path.exists():
             start_date=datetime(2014, 12, 31),
             end_date=datetime(2024, 12, 31),
             optimizer_names=["Naive"],
-            transformer_names=["OracleCovarianceTransformer"]
+            transformer_names=["OracleCovarianceTransformer"],
         )
 else:
     logger.warning(f"Configuration file not found: {config_path}. Using defaults.")
@@ -182,5 +152,5 @@ else:
         start_date=datetime(2014, 12, 31),
         end_date=datetime(2024, 12, 31),
         optimizer_names=["Naive"],
-        transformer_names=["OracleCovarianceTransformer"]
+        transformer_names=["OracleCovarianceTransformer"],
     )

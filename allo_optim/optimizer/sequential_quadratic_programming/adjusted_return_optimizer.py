@@ -53,15 +53,15 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
         self._df_prices: Optional[pd.DataFrame] = None
         self._previous_best_weights: Optional[np.ndarray] = None
 
-	def allocate(
-		self,
-		ds_mu: pd.Series,
-		df_cov: pd.DataFrame,
-		df_prices: Optional[pd.DataFrame] = None,
-		time: Optional[datetime] = None,
-		l_moments: Optional[LMoments] = None,
-	) -> pd.Series:
-		"
+    def allocate(
+        self,
+        ds_mu: pd.Series,
+        df_cov: pd.DataFrame,
+        df_prices: Optional[pd.DataFrame] = None,
+        time: Optional[datetime] = None,
+        l_moments: Optional[LMoments] = None,
+    ) -> pd.Series:
+        """
         Gets position weights according to the adjusted returns method
         :param cov: covariance matrix
         :param mu: vector of expected returns

@@ -9,7 +9,7 @@ from pydantic import BaseModel
 
 from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allo_optim.optimizer.allocation_metric import (
-	LMoments,
+    LMoments,
 )
 from allo_optim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
@@ -23,18 +23,18 @@ WEIGHT_SUM_MINIMUM_THRESHOLD = 1e-10
 
 
 class PSOOptimizerConfig(BaseModel):
-	model_config = DEFAULT_PYDANTIC_CONFIG
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
-	enable_warm_start: bool = True
-	c1: float = 1.7  # Cognitive parameter
-	c2: float = 1.7  # Social parameter
-	w: float = 0.7  # Inertia weight
-	n_particles: int = 2000
-	n_iters: int = 500
-	n_iters_warm: int = 100
-	risk_aversion: float = 4.0
-	ftol: float = 1e-5
-	ftol_iter: int = 20
+    enable_warm_start: bool = True
+    c1: float = 1.7  # Cognitive parameter
+    c2: float = 1.7  # Social parameter
+    w: float = 0.7  # Inertia weight
+    n_particles: int = 2000
+    n_iters: int = 500
+    n_iters_warm: int = 100
+    risk_aversion: float = 4.0
+    ftol: float = 1e-5
+    ftol_iter: int = 20
 
 
 class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
@@ -86,36 +86,36 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 
         options = {"c1": self.config.c1, "c2": self.config.c2, "w": self.config.w}
         optimizer = ps.single.GlobalBestPSO(
-			n_particles=self.config.n_particles,
-			dimensions=dimensions,
-			options=options,
-			bounds=(lower_bounds, upper_bounds),
-			ftol=self.config.ftol,
-			ftol_iter=self.config.ftol_iter,
-			init_pos=self._previous_positions,
-		)
+            n_particles=self.config.n_particles,
+            dimensions=dimensions,
+            options=options,
+            bounds=(lower_bounds, upper_bounds),
+            ftol=self.config.ftol,
+            ftol_iter=self.config.ftol_iter,
+            init_pos=self._previous_positions,
+        )
 
         def objective_function(x):
             return risk_adjusted_returns_objective(
-				x,
-				enable_l_moments=self.enable_l_moments,
-				l_moments=l_moments,
-				risk_aversion=self.config.risk_aversion,
-				mu=mu_array,
-				cov=cov_array
-			)
+                x,
+                enable_l_moments=self.enable_l_moments,
+                l_moments=l_moments,
+                risk_aversion=self.config.risk_aversion,
+                mu=mu_array,
+                cov=cov_array,
+            )
 
         objective_with_early_stopping = EarlyStopObjective(
-			objective_function=objective_function,
-		)
+            objective_function=objective_function,
+        )
 
         n_iters = self.config.n_iters if self._previous_positions is None else self.config.n_iters_warm
 
         _, optimal_solution = optimizer.optimize(
-			objective_with_early_stopping,
-			iters=n_iters,
-			verbose=False,
-		)
+            objective_with_early_stopping,
+            iters=n_iters,
+            verbose=False,
+        )
 
         if self.config.enable_warm_start:
             self._previous_positions = np.clip(optimizer.swarm.position, 0, 1)
@@ -143,10 +143,10 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 
 
 class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
-	"""Optimizer based on the naive momentum"""
+    """Optimizer based on the naive momentum"""
 
-	enable_l_moments: bool = True
+    enable_l_moments: bool = True
 
-	@property
-	def name(self) -> str:
-		return "PSO_LMoments"
+    @property
+    def name(self) -> str:
+        return "PSO_LMoments"
