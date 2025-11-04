@@ -139,8 +139,8 @@ def test_optimizers(optimizer_class):
     returns = prices.pct_change().dropna().values  # Shape: (n_observations, n_assets)
     l_moments = estimate_linear_moments(returns)
 
-    # Test the allocate method
-    optimizer = optimizer_class()
+    # all optimizers should be instantiable and take the default config if the passed one is None
+    optimizer = optimizer_class(config=None)
 
     # Skip optimizers that require special setup or are known to be broken
     skip_optimizers = [

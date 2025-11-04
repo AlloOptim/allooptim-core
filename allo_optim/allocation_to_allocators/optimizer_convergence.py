@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy as np
+import pandas as pd
 
 from allo_optim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
@@ -57,7 +58,10 @@ def _simulate_optimization(
             allocation[i, :] = weights
             validate_no_nan(allocation, f"{optimizer.name} allocation")
 
-        expected_returns = expected_return_classical(allocation, mu_hat, cov_hat)
+        # Convert mu_hat to numpy array for expected_return_classical
+        mu_hat_array = np.array(mu_hat).flatten() if isinstance(mu_hat, pd.Series) else mu_hat
+        cov_hat_array = cov_hat.values if isinstance(cov_hat, pd.DataFrame) else cov_hat
+        expected_returns = expected_return_classical(allocation, mu_hat_array, cov_hat_array)
 
         assert expected_returns.shape == (
             n_optimizers,

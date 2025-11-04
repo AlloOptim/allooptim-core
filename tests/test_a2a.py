@@ -8,7 +8,7 @@ from allo_optim.config.stock_universe import list_of_dax_stocks
 
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
 def test_a2a(orchestration_type):
-    """Test that all optimizers in OPTIMIZER_LIST work correctly."""
+    """Test that all A2A allocators work correctly."""
 
     # Create sample price data for optimizers that need it
     all_stocks = list_of_dax_stocks()[:5]

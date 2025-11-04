@@ -65,6 +65,9 @@ class AllocationOrchestratorConfig(BaseModel):
 
     use_sql_database: bool = False
     n_historical_days: int = Field(60, ge=1)
+    
+    # Timezone for timestamp localization (e.g., "UTC", "US/Eastern")
+    timezone: str = Field("UTC")
 
     @field_validator("orchestration_type")
     @classmethod
@@ -405,6 +408,10 @@ class AllocationOrchestrator:
         start_time = timer()
 
         try:
+            # Localize time_today if it's timezone-naive
+            if time_today.tzinfo is None:
+                time_today = time_today.tz_localize(self.config.timezone)
+            
             # Step 1: Get pre-selection from Wikipedia allocation
             wikipedia_result = allocate_wikipedia(
                 all_stocks=all_stocks,
@@ -458,11 +465,21 @@ class AllocationOrchestrator:
             # Step 4: Run portfolio optimization on filtered data
             optimization_result = self._run_equal_allocation_to_allocators(
                 df_prices=df_prices_filtered,
+                time_today=time_today,
             )
+
+            # Step 5: Pad weights with zeros for non-selected assets
+            # Create full weight dict with all original assets
+            all_assets = df_prices.columns.tolist()
+            full_asset_weights = {asset: 0.0 for asset in all_assets}
+            
+            # Update with actual weights from optimization
+            if optimization_result.asset_weights is not None:
+                full_asset_weights.update(optimization_result.asset_weights)
 
             end_time = timer()
             return AllocationResult(
-                asset_weights=optimization_result.asset_weights,
+                asset_weights=full_asset_weights,
                 success=optimization_result.success,
                 statistics=optimization_result.statistics,
                 computation_time=end_time - start_time,
