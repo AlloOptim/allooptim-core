@@ -10,19 +10,18 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import allo_optim.optimizer.wikipedia.wiki_database as sql_db
+from allo_optim.config.stock_universe import get_stocks_by_symbols
+from allo_optim.optimizer.wikipedia.wiki_database import download_data
+
 # Add the project root to the path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 # Override the database path for test resources
-import allo_optim.optimizer.wikipedia.wiki_database as sql_db
-from allo_optim.config.stock_universe import get_stocks_by_symbols
-
 test_db_path = Path(__file__).parent / "test_wikipedia.db"
 sql_db.DATABASE_PATH = test_db_path
 sql_db.DATABASE_DIR = test_db_path.parent
-
-from allo_optim.optimizer.wikipedia.wiki_database import download_data
 
 
 def main():

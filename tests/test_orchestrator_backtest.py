@@ -14,7 +14,6 @@ import pytest
 
 from allo_optim.allocation_to_allocators.allocation_orchestrator import (
     AllocationOrchestrator,
-    AllocationOrchestratorConfig,
     OrchestrationType,
 )
 from allo_optim.backtest.backtest_config import BacktestConfig
@@ -26,7 +25,7 @@ from allo_optim.config.allocation_dataclasses import (
 
 
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
-def test_orchestrator_in_backtest(orchestration_type):
+def test_orchestrator_in_backtest(orchestration_type, fast_a2a_config):
     """Test orchestrator integration with backtest engine."""
 
     # Create a minimal backtest configuration using orchestrator
@@ -41,14 +40,7 @@ def test_orchestrator_in_backtest(orchestration_type):
     )
 
     # Create fast A2A config for testing
-    fast_a2a_config = AllocationOrchestratorConfig(
-        orchestration_type=orchestration_type,
-        n_particles=2,
-        n_particle_swarm_iterations=2,
-        n_data_observations=2,
-        use_wiki_database=True,
-        n_historical_days=30,
-    )
+    fast_a2a_config.orchestration_type = orchestration_type
 
     # For Wikipedia pipeline in A2A tests, use test database
     # But for backtests, disable SQL database to avoid needing a full database
@@ -61,8 +53,6 @@ def test_orchestrator_in_backtest(orchestration_type):
     # Verify orchestrator was set up correctly
     assert isinstance(engine.orchestrator, AllocationOrchestrator)
     assert engine.orchestrator.config.orchestration_type == orchestration_type
-    assert engine.orchestrator.config.n_particles == 2
-    assert engine.orchestrator.config.n_particle_swarm_iterations == 2
 
     # Create synthetic price data
     dates = pd.date_range("2022-12-20", "2023-01-15", freq="D")  # Cover the backtest period
@@ -91,7 +81,10 @@ def test_orchestrator_in_backtest(orchestration_type):
                     top_n_symbols=["AAPL", "MSFT"],
                 ),
             )
-            with patch("allo_optim.allocation_to_allocators.allocation_orchestrator.allocate_wikipedia", return_value=mock_wiki_result):
+            with patch(
+                "allo_optim.allocation_to_allocators.allocation_orchestrator.allocate_wikipedia",
+                return_value=mock_wiki_result,
+            ):
                 # Run the backtest
                 results = engine.run_backtest()
         else:

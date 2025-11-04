@@ -226,3 +226,5 @@ report.*
 lumibot.db
 lumibot_trades.db
 market_data.db
+
+docs/*

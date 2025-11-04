@@ -21,7 +21,7 @@ class BLOptimizerConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     view_dict: Optional[dict] = None
-    use_implied_market: bool = True
+    use_implied_market: bool = False
 
 
 class BlackLittermanOptimizer(AbstractOptimizer):
@@ -52,9 +52,9 @@ class BlackLittermanOptimizer(AbstractOptimizer):
 
             view_dict = self.config.view_dict
 
-        cov_matrix = df_cov  # Keep as DataFrame
+        cov_matrix = df_cov  # Keep as DataFrame for pypfopt tickers
 
-        bl = BlackLittermanModel(cov_matrix, absolute_views=view_dict)
+        bl = BlackLittermanModel(cov_matrix, pi=ds_mu, absolute_views=view_dict)
 
         if self.config.use_implied_market:
             assert df_prices is not None, "Price data must be fitted before allocation"
@@ -64,7 +64,7 @@ class BlackLittermanOptimizer(AbstractOptimizer):
             weights_dict = bl.clean_weights()
         else:
             rets = bl.bl_returns()
-            ef = EfficientFrontier(rets, cov_matrix)
+            ef = EfficientFrontier(rets, df_cov)  # Use DataFrame for EfficientFrontier
             ef.min_volatility()
             weights_dict = ef.clean_weights()
 

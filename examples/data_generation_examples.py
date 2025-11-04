@@ -17,8 +17,6 @@ Usage:
 
 from pathlib import Path
 
-import numpy as np
-
 from allo_optim.data_generation.diverse_covariance_generator import CovarianceConfig, CovarianceMatrixGenerator
 from allo_optim.data_generation.diverse_training_data import (
     DiverseCorrelationGenerator,

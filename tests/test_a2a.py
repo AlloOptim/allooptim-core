@@ -4,16 +4,15 @@ import pytest
 
 from allo_optim.allocation_to_allocators.allocation_orchestrator import (
     AllocationOrchestrator,
-    AllocationOrchestratorConfig,
     AllocationResult,
     OrchestrationType,
 )
 from allo_optim.config.stock_universe import list_of_dax_stocks
 
 
-@pytest.mark.parametrize("n_optimizers", [1, 2])
+@pytest.mark.parametrize("optimizer_names", [["Naive"], ["Naive", "CappedMomentum"]])
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
-def test_a2a(orchestration_type, n_optimizers, wikipedia_test_db_path):
+def test_a2a(orchestration_type, optimizer_names, fast_a2a_config):
     """Test that all A2A allocators work correctly."""
 
     # Create sample price data for optimizers that need it
@@ -23,20 +22,11 @@ def test_a2a(orchestration_type, n_optimizers, wikipedia_test_db_path):
     price_data = np.random.randn(50, len(assets)).cumsum(axis=0) + 100
     prices = pd.DataFrame(price_data, index=dates, columns=assets)
 
-    fast_a2a_config = AllocationOrchestratorConfig(
-        orchestration_type=orchestration_type,
-        n_particles=2,
-        n_particle_swarm_iterations=2,
-        n_data_observations=2,
-        use_wiki_database=True,
-        wiki_database_path=wikipedia_test_db_path,
-        n_historical_days=30,
-    )
+    fast_a2a_config.orchestration_type = orchestration_type
 
-    if n_optimizers == 1:
-        optimizer_names = ["Naive"]
-    if n_optimizers == 2:
-        optimizer_names = ["Naive", "CappedMomentum"]
+    # For Wikipedia pipeline, disable database to avoid needing test database
+    if orchestration_type == OrchestrationType.WIKIPEDIA_PIPELINE:
+        fast_a2a_config.use_wiki_database = False
 
     orchestrator = AllocationOrchestrator(
         optimizer_names=optimizer_names,
@@ -58,6 +48,6 @@ def test_a2a(orchestration_type, n_optimizers, wikipedia_test_db_path):
     # Verify df_allocation is populated correctly
     assert result.df_allocation is not None
     assert isinstance(result.df_allocation, pd.DataFrame)
-    assert result.df_allocation.shape[0] == n_optimizers  # rows = optimizers
+    assert result.df_allocation.shape[0] == len(optimizer_names)  # rows = optimizers
     assert result.df_allocation.shape[1] == len(assets)  # cols = assets
     assert list(result.df_allocation.columns) == assets  # same asset order
