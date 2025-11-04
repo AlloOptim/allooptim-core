@@ -11,6 +11,8 @@ from typing import List, Optional
 
 import pandas as pd
 
+from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
+from allo_optim.allocation_to_allocators.a2a_result import A2AResult
 from allo_optim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
@@ -42,7 +44,7 @@ class A2AOrchestrator(ABC):
         data_provider: AbstractObservationSimulator,
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List["StockUniverse"]] = None,
-    ) -> "AllocationResult":
+    ) -> A2AResult:
         """
         Orchestrate allocation process for current time step.
 
@@ -52,7 +54,7 @@ class A2AOrchestrator(ABC):
             all_stocks: List of all available stocks (optional, used by some orchestrators)
 
         Returns:
-            AllocationResult with final allocation and all statistics
+            A2AResult with final allocation and all statistics
         """
         pass
 
@@ -78,6 +80,7 @@ class BaseOrchestrator(A2AOrchestrator):
         self,
         optimizers: List[AbstractOptimizer],
         covariance_transformers: List[AbstractCovarianceTransformer],
+        config: A2AConfig,
     ):
         """
         Initialize orchestrator.
@@ -85,9 +88,11 @@ class BaseOrchestrator(A2AOrchestrator):
         Args:
             optimizers: List of optimizer instances
             covariance_transformers: List of covariance transformers to apply
+            config: A2A configuration object
         """
         self.optimizers = optimizers
         self.covariance_transformers = covariance_transformers
+        self.config = config
 
     def _apply_covariance_transformers(self, cov: pd.DataFrame, n_observations: int) -> pd.DataFrame:
         """
@@ -111,7 +116,7 @@ class BaseOrchestrator(A2AOrchestrator):
         data_provider: AbstractObservationSimulator,
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List[StockUniverse]] = None,
-    ) -> AllocationResult:
+    ) -> A2AResult:
         """
         Orchestrate allocation process for current time step.
 
@@ -121,7 +126,7 @@ class BaseOrchestrator(A2AOrchestrator):
             all_stocks: List of all available stocks (optional, used by some orchestrators)
 
         Returns:
-            AllocationResult with final allocation and all statistics
+            A2AResult with final allocation and all statistics
 
         Implementation Guide:
         1. Call data_provider.get_sample() as needed (Monte Carlo, Bootstrap, etc.)
@@ -129,7 +134,7 @@ class BaseOrchestrator(A2AOrchestrator):
         3. Apply covariance transformers: cov_transformed = self._apply_covariance_transformers(cov, n_obs)
         4. Call optimizers: allocation = optimizer.allocate(mu, cov_transformed, prices, time, l_moments)
         5. Aggregate optimizer results (equal weight, PSO, meta-learning, etc.)
-        6. Return AllocationResult
+        6. Return A2AResult
         """
         pass
 

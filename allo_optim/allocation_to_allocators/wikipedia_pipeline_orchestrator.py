@@ -5,18 +5,28 @@ Orchestrator that combines Wikipedia-based stock pre-selection with portfolio op
 """
 
 import logging
+import time
 from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
+import pandas as pd
+
+from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
+from allo_optim.allocation_to_allocators.a2a_result import (
+    A2AResult,
+    OptimizerAllocation,
+    OptimizerWeight,
+    PerformanceMetrics,
+    OptimizerError,
+)
 from allo_optim.allocation_to_allocators.equal_weight_orchestrator import (
     EqualWeightOrchestrator,
 )
 from allo_optim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allo_optim.config.allocation_dataclasses import AllocationResult, NoStatistics
 from allo_optim.config.stock_dataclasses import StockUniverse
 from allo_optim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -44,11 +54,12 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
         self,
         optimizers: List[AbstractOptimizer],
         covariance_transformers: List[AbstractCovarianceTransformer],
+        config: A2AConfig,
         n_historical_days: int = 60,
         use_wiki_database: bool = False,
         wiki_database_path: Optional[Path] = None,
     ):
-        super().__init__(optimizers, covariance_transformers)
+        super().__init__(optimizers, covariance_transformers, config)
         self.n_historical_days = n_historical_days
         self.use_wiki_database = use_wiki_database
         self.wiki_database_path = wiki_database_path
@@ -58,7 +69,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
         data_provider: AbstractObservationSimulator,
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List[StockUniverse]] = None,
-    ) -> AllocationResult:
+    ) -> A2AResult:
         """
         Run Wikipedia pipeline allocation orchestration.
 
@@ -76,7 +87,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
         if all_stocks is None:
             raise ValueError("all_stocks is required for Wikipedia pipeline orchestration")
 
-        start_time = datetime.now()
+        start_time = time.time()
 
         try:
             # Localize time_today if it's timezone-naive
@@ -94,13 +105,25 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
 
             if not wikipedia_result.success:
                 # Return failed result if wikipedia allocation failed
-                end_time = datetime.now()
-                return AllocationResult(
-                    asset_weights=wikipedia_result.asset_weights,
-                    success=False,
-                    statistics=wikipedia_result.statistics or NoStatistics(),
-                    computation_time=(end_time - start_time).total_seconds(),
-                    error_message="Wikipedia allocation failed",
+                runtime_seconds = time.time() - start_time
+                # Create minimal A2AResult for failure case
+                empty_allocation = pd.Series(dtype=float)
+                return A2AResult(
+                    final_allocation=empty_allocation,
+                    optimizer_allocations=[],
+                    optimizer_weights=[],
+                    metrics=PerformanceMetrics(
+                        expected_return=0.0,
+                        volatility=0.0,
+                        sharpe_ratio=0.0,
+                        diversity_score=0.0
+                    ),
+                    runtime_seconds=runtime_seconds,
+                    n_simulations=0,
+                    optimizer_errors=[],
+                    orchestrator_name=self.name,
+                    timestamp=time_today,
+                    config=self.config
                 )
 
             # Step 2: Extract pre-selected stocks (those with non-zero weights)
@@ -110,13 +133,24 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
 
             if not preselected_stocks:
                 # Return failed result if no stocks were pre-selected
-                end_time = datetime.now()
-                return AllocationResult(
-                    asset_weights={},
-                    success=False,
-                    statistics=NoStatistics(),
-                    computation_time=(end_time - start_time).total_seconds(),
-                    error_message="No stocks pre-selected from Wikipedia",
+                runtime_seconds = time.time() - start_time
+                empty_allocation = pd.Series(dtype=float)
+                return A2AResult(
+                    final_allocation=empty_allocation,
+                    optimizer_allocations=[],
+                    optimizer_weights=[],
+                    metrics=PerformanceMetrics(
+                        expected_return=0.0,
+                        volatility=0.0,
+                        sharpe_ratio=0.0,
+                        diversity_score=0.0
+                    ),
+                    runtime_seconds=runtime_seconds,
+                    n_simulations=0,
+                    optimizer_errors=[],
+                    orchestrator_name=self.name,
+                    timestamp=time_today,
+                    config=self.config
                 )
 
             # Step 3: Filter data provider to only include pre-selected stocks
@@ -127,13 +161,24 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
             available_columns = [col for col in preselected_stocks if col in prices_full.columns]
             if not available_columns:
                 # Return failed result if none of the pre-selected stocks are in price data
-                end_time = datetime.now()
-                return AllocationResult(
-                    asset_weights={},
-                    success=False,
-                    statistics=NoStatistics(),
-                    computation_time=(end_time - start_time).total_seconds(),
-                    error_message="No pre-selected stocks available in price data",
+                runtime_seconds = time.time() - start_time
+                empty_allocation = pd.Series(dtype=float)
+                return A2AResult(
+                    final_allocation=empty_allocation,
+                    optimizer_allocations=[],
+                    optimizer_weights=[],
+                    metrics=PerformanceMetrics(
+                        expected_return=0.0,
+                        volatility=0.0,
+                        sharpe_ratio=0.0,
+                        diversity_score=0.0
+                    ),
+                    runtime_seconds=runtime_seconds,
+                    n_simulations=0,
+                    optimizer_errors=[],
+                    orchestrator_name=self.name,
+                    timestamp=time_today,
+                    config=self.config
                 )
 
             prices_filtered = prices_full[available_columns]
@@ -147,47 +192,57 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
             )
 
             # Step 4: Run equal weight optimization on filtered data
-            equal_orchestrator = EqualWeightOrchestrator(self.optimizers, self.covariance_transformers)
+            equal_orchestrator = EqualWeightOrchestrator(self.optimizers, self.covariance_transformers, self.config)
             optimization_result = equal_orchestrator.allocate(filtered_data_provider, time_today)
 
             # Step 5: Pad weights with zeros for non-selected assets
             # Create full weight dict with all original assets
             all_assets = prices_full.columns.tolist()
-            asset_weights_padded = {asset: 0.0 for asset in all_assets}
+            final_allocation = pd.Series(0.0, index=all_assets)
 
             # Update with actual weights from optimization
-            if optimization_result.asset_weights is not None:
-                asset_weights_padded.update(optimization_result.asset_weights)
+            if optimization_result.final_allocation is not None:
+                final_allocation.update(optimization_result.final_allocation)
 
-            # Pad df_allocation with zeros for non-selected assets
-            df_allocation_padded = None
-            if optimization_result.df_allocation is not None:
-                df_allocation_padded = optimization_result.df_allocation.copy()
-                # Add missing assets with zero weights
-                for asset in all_assets:
-                    if asset not in df_allocation_padded.columns:
-                        df_allocation_padded[asset] = 0.0
-                # Reorder to match original asset order
-                df_allocation_padded = df_allocation_padded[all_assets]
+            # Ensure weights sum to 1
+            final_allocation = final_allocation / final_allocation.sum()
 
-            end_time = datetime.now()
-            return AllocationResult(
-                asset_weights=asset_weights_padded,
-                success=optimization_result.success,
-                statistics=wikipedia_result.statistics,  # Use Wikipedia statistics from pre-selection
-                computation_time=(end_time - start_time).total_seconds(),
-                df_allocation=df_allocation_padded,
+            runtime_seconds = time.time() - start_time
+
+            # Return the A2AResult from optimization (with padded allocation)
+            return A2AResult(
+                final_allocation=final_allocation,
+                optimizer_allocations=optimization_result.optimizer_allocations,
+                optimizer_weights=optimization_result.optimizer_weights,
+                metrics=optimization_result.metrics,
+                runtime_seconds=runtime_seconds,
+                n_simulations=optimization_result.n_simulations,
+                optimizer_errors=optimization_result.optimizer_errors,
+                orchestrator_name=self.name,
+                timestamp=time_today,
+                config=self.config
             )
 
         except Exception as e:
-            end_time = datetime.now()
+            runtime_seconds = time.time() - start_time
             logger.error(f"Wikipedia pipeline allocation failed: {str(e)}")
-            return AllocationResult(
-                asset_weights={},
-                success=False,
-                statistics=NoStatistics(),
-                computation_time=(end_time - start_time).total_seconds(),
-                error_message=str(e),
+            empty_allocation = pd.Series(dtype=float)
+            return A2AResult(
+                final_allocation=empty_allocation,
+                optimizer_allocations=[],
+                optimizer_weights=[],
+                metrics=PerformanceMetrics(
+                    expected_return=0.0,
+                    volatility=0.0,
+                    sharpe_ratio=0.0,
+                    diversity_score=0.0
+                ),
+                runtime_seconds=runtime_seconds,
+                n_simulations=0,
+                optimizer_errors=[],
+                orchestrator_name=self.name,
+                timestamp=time_today or datetime.now(),
+                config=self.config
             )
 
     @property

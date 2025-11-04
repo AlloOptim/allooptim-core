@@ -6,6 +6,7 @@ Factory for creating allocation-to-allocators orchestrators based on configurati
 
 from typing import List
 
+from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allo_optim.allocation_to_allocators.equal_weight_orchestrator import (
     EqualWeightOrchestrator,
@@ -30,7 +31,7 @@ class OrchestratorType(str, Enum):
 
 
 def create_orchestrator(
-    orchestrator_type: str, optimizer_names: List[str], transformer_names: List[str], **kwargs
+    orchestrator_type: str, optimizer_names: List[str], transformer_names: List[str], config: A2AConfig, **kwargs
 ) -> BaseOrchestrator:
     """
     Factory function to create the appropriate orchestrator based on type.
@@ -39,6 +40,7 @@ def create_orchestrator(
         orchestrator_type: Type of orchestrator to create
         optimizer_names: List of optimizer names to use
         transformer_names: List of covariance transformer names to use
+        config: A2AConfig for orchestrator configuration
         **kwargs: Additional arguments specific to orchestrator type
 
     Returns:
@@ -55,19 +57,13 @@ def create_orchestrator(
         orchestrator_type = get_default_orchestrator_type()
 
     if orchestrator_type == OrchestratorType.EQUAL_WEIGHT:
-        return EqualWeightOrchestrator(optimizers, transformers)
+        return EqualWeightOrchestrator(optimizers, transformers, config)
 
     elif orchestrator_type == OrchestratorType.OPTIMIZED:
-        # Extract optimized orchestrator specific parameters
-        n_data_observations = kwargs.get("n_data_observations", 50)
-        n_particle_swarm_iterations = kwargs.get("n_particle_swarm_iterations", 1000)
-        n_particles = kwargs.get("n_particles", 1000)
         return OptimizedOrchestrator(
             optimizers=optimizers,
             covariance_transformers=transformers,
-            n_data_observations=n_data_observations,
-            n_particle_swarm_iterations=n_particle_swarm_iterations,
-            n_particles=n_particles,
+            config=config,
         )
 
     elif orchestrator_type == OrchestratorType.WIKIPEDIA_PIPELINE:
@@ -78,6 +74,7 @@ def create_orchestrator(
         return WikipediaPipelineOrchestrator(
             optimizers=optimizers,
             covariance_transformers=transformers,
+            config=config,
             n_historical_days=n_historical_days,
             use_wiki_database=use_wiki_database,
             wiki_database_path=wiki_database_path,

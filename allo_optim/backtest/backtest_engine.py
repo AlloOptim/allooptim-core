@@ -5,6 +5,8 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
+from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
+from allo_optim.allocation_to_allocators.a2a_result import A2AResult
 from allo_optim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
@@ -57,10 +59,12 @@ class BacktestEngine:
                 orchestrator_type = get_default_orchestrator_type()
 
         # Create orchestrator using factory
+        a2a_config = A2AConfig()  # Use defaults for now
         self.orchestrator = create_orchestrator(
             orchestrator_type=orchestrator_type,
             optimizer_names=self.config_backtest.optimizer_names,
             transformer_names=self.config_backtest.transformer_names,
+            config=a2a_config,
             **orchestrator_kwargs,
         )
 
@@ -157,6 +161,9 @@ class BacktestEngine:
             price_data, allocation_results, benchmark_weights_history, rebalance_dates
         )
 
+        # Save A2A allocations to CSV
+        self._save_a2a_allocations(allocation_results, rebalance_dates)
+
         logger.info("Backtest completed")
         return self.results
 
@@ -169,28 +176,35 @@ class BacktestEngine:
 
         return rebalance_dates
 
-    def _save_a2a_allocations(self, weights_history: dict[str, list[pd.Series]], rebalance_dates: list[datetime]):
+    def _save_a2a_allocations(self, allocation_results: list[A2AResult], rebalance_dates: list[datetime]):
         """
-        Save A2A ensemble allocations to CSV file.
+        Save A2A final allocations to CSV file.
 
         Args:
-            weights_history: Dictionary of optimizer name -> list of weight series
+            allocation_results: List of A2AResult objects
             rebalance_dates: list of rebalancing timestamps
         """
-        # Check if A2A_Ensemble exists in weights_history
-        a2a_key = None
-        for key in weights_history:
-            if "A2A" in key or "a2a" in key.lower():
-                a2a_key = key
-                break
-
-        if a2a_key is None or not weights_history[a2a_key]:
-            logger.warning("A2A allocations not found in weights_history, skipping CSV export")
+        if not allocation_results:
+            logger.warning("No A2A results to save")
             return
 
         try:
             # Create DataFrame with timestamps as index and asset symbols as columns
-            a2a_allocations = pd.DataFrame(weights_history[a2a_key], index=rebalance_dates)
+            final_allocations = []
+            valid_indices = []
+            
+            for i, result in enumerate(allocation_results):
+                if result.final_allocation is not None and not result.final_allocation.empty:
+                    final_allocations.append(result.final_allocation)
+                    valid_indices.append(rebalance_dates[i])
+                else:
+                    logger.warning(f"Skipping empty final allocation at index {i}")
+
+            if not final_allocations:
+                logger.warning("No valid A2A results to save")
+                return
+
+            a2a_allocations = pd.DataFrame(final_allocations, index=valid_indices)
 
             # Ensure index is datetime format with readable formatting
             a2a_allocations.index.name = "timestamp"
@@ -235,36 +249,27 @@ class BacktestEngine:
     def _calculate_portfolio_performance(
         self,
         price_data: pd.DataFrame,
-        allocation_results: list[AllocationResult],
+        allocation_results: list[A2AResult],
         benchmark_weights_history: list[pd.Series],
         rebalance_dates: list[datetime],
     ) -> dict:
         """Calculate comprehensive performance metrics for all portfolios."""
 
-        # Extract per-optimizer weights_history from df_allocation
+        # Extract per-optimizer weights_history from optimizer_allocations
         optimizer_names = set()
         for result in allocation_results:
-            if result.df_allocation is not None:
-                optimizer_names.update(result.df_allocation.index)
+            for opt_alloc in result.optimizer_allocations:
+                optimizer_names.add(opt_alloc.optimizer_name)
 
         # Build weights_history dict: {optimizer_name: list[pd.Series]}
         weights_history = {name: [] for name in optimizer_names}
         for result in allocation_results:
-            if result.df_allocation is not None:
-                for opt_name in optimizer_names:
-                    if opt_name in result.df_allocation.index:
-                        weights_history[opt_name].append(result.df_allocation.loc[opt_name])
+            for opt_alloc in result.optimizer_allocations:
+                weights_history[opt_alloc.optimizer_name].append(opt_alloc.weights)
 
-        # Accumulate memory/time per optimizer
+        # Memory/time tracking removed in new A2A architecture
         memory_stats = {name: [] for name in optimizer_names}
         time_stats = {name: [] for name in optimizer_names}
-        for result in allocation_results:
-            if result.optimizer_memory_usage:
-                for name, mem in result.optimizer_memory_usage.items():
-                    memory_stats[name].append(mem)
-            if result.optimizer_computation_time:
-                for name, time in result.optimizer_computation_time.items():
-                    time_stats[name].append(time)
 
         # Calculate performance for each optimizer
         results = {}
@@ -374,13 +379,13 @@ class BacktestEngine:
                         }
                     )
 
-            # Computation and memory statistics
+            # Computation and memory statistics (not available in new architecture)
             computation_stats = {
-                "avg_computation_time": np.mean(time_stats[optimizer_name]) if time_stats[optimizer_name] else 0,
-                "max_computation_time": np.max(time_stats[optimizer_name]) if time_stats[optimizer_name] else 0,
-                "min_computation_time": np.min(time_stats[optimizer_name]) if time_stats[optimizer_name] else 0,
-                "avg_memory_usage_mb": np.mean(memory_stats[optimizer_name]) if memory_stats[optimizer_name] else 0,
-                "max_memory_usage_mb": np.max(memory_stats[optimizer_name]) if memory_stats[optimizer_name] else 0,
+                "avg_computation_time": 0,  # Not tracked in new architecture
+                "max_computation_time": 0,
+                "min_computation_time": 0,
+                "avg_memory_usage_mb": 0,
+                "max_memory_usage_mb": 0,
             }
 
             # Combine all metrics
@@ -478,25 +483,22 @@ class BacktestEngine:
                     "turnover": spy_turnover,
                 }
 
-        # Calculate A2A Ensemble (average of all individual optimizers)
-        if optimizer_names:
+        # Calculate A2A Ensemble using final_allocation from each A2AResult
+        if allocation_results:
             logger.info("Calculating A2A ensemble performance")
 
-            # Collect all individual optimizer portfolio values and weights
-            individual_portfolio_values = []
-            individual_weights_history = []
+            # Use final_allocation from each A2AResult, filtering out empty ones
+            a2a_weights_history = []
+            valid_rebalance_dates = []
+            
+            for i, result in enumerate(allocation_results):
+                if result.final_allocation is not None and not result.final_allocation.empty:
+                    a2a_weights_history.append(result.final_allocation)
+                    valid_rebalance_dates.append(rebalance_dates[i])
 
-            for opt_name in optimizer_names:
-                if opt_name in results:
-                    individual_portfolio_values.append(results[opt_name]["portfolio_values"])
-                    individual_weights_history.append(results[opt_name]["weights_history"])
-
-            if individual_portfolio_values:
-                # Average portfolio values across all optimizers
-                a2a_portfolio_values = pd.concat(individual_portfolio_values, axis=1).mean(axis=1)
-
-                # Average weights across all optimizers
-                a2a_weights_df = pd.concat(individual_weights_history, axis=0).groupby(level=0).mean()
+            if a2a_weights_history:
+                # Simulate portfolio with A2A final allocations
+                a2a_portfolio_values = self._simulate_portfolio(price_data, a2a_weights_history, valid_rebalance_dates)
 
                 if not a2a_portfolio_values.empty:
                     a2a_returns = PerformanceMetrics.calculate_returns(a2a_portfolio_values)
@@ -524,6 +526,7 @@ class BacktestEngine:
                         "returns_kurtosis": a2a_returns.kurtosis(),
                     }
 
+                    a2a_weights_df = pd.DataFrame(a2a_weights_history, index=valid_rebalance_dates)
                     a2a_turnover = PerformanceMetrics.portfolio_turnover(a2a_weights_df)
 
                     a2a_turnover_stats = {}
@@ -695,10 +698,10 @@ class _PriceDataProvider(AbstractObservationSimulator):
 
     def get_ground_truth(self):
         # Return pandas objects with proper indices
-        time_index = self.price_data.index
+        time_end = self.price_data.index[-1]  # Last timestamp in the data
         # Simplified L-moments (just return zeros for now)
         l_moments = np.zeros((len(self.price_data.columns), 4))
-        return self._mu, self._cov, self.price_data, time_index, l_moments
+        return self._mu, self._cov, self.price_data, time_end, l_moments
 
     @property
     def name(self) -> str:

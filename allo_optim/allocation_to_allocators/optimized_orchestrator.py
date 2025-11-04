@@ -5,13 +5,22 @@ Monte Carlo Optimization Selection (MCOS) orchestrator with PSO optimization of 
 """
 
 import logging
+import time
 from datetime import datetime
 from typing import List, Optional
 
 import numpy as np
 import pandas as pd
 
+from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
+from allo_optim.allocation_to_allocators.a2a_result import (
+    A2AResult,
+    OptimizerAllocation,
+    OptimizerWeight,
+    PerformanceMetrics,
+    OptimizerError,
+)
 from allo_optim.allocation_to_allocators.allocation_optimizer import (
     optimize_allocator_weights,
 )
@@ -20,10 +29,6 @@ from allo_optim.allocation_to_allocators.optimizer_simulator import (
 )
 from allo_optim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
-)
-from allo_optim.config.allocation_dataclasses import (
-    A2AStatistics,
-    AllocationResult,
 )
 from allo_optim.config.stock_dataclasses import StockUniverse
 from allo_optim.covariance_transformer.transformer_interface import (
@@ -50,21 +55,16 @@ class OptimizedOrchestrator(BaseOrchestrator):
         self,
         optimizers: List[AbstractOptimizer],
         covariance_transformers: List[AbstractCovarianceTransformer],
-        n_data_observations: int = 50,
-        n_particle_swarm_iterations: int = 1000,
-        n_particles: int = 1000,
+        config: A2AConfig,
     ):
-        super().__init__(optimizers, covariance_transformers)
-        self.n_data_observations = n_data_observations
-        self.n_particle_swarm_iterations = n_particle_swarm_iterations
-        self.n_particles = n_particles
+        super().__init__(optimizers, covariance_transformers, config)
 
     def allocate(
         self,
         data_provider: AbstractObservationSimulator,
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List[StockUniverse]] = None,
-    ) -> AllocationResult:
+    ) -> A2AResult:
         """
         Run optimized allocation orchestration with MCOS + PSO.
 
@@ -73,13 +73,15 @@ class OptimizedOrchestrator(BaseOrchestrator):
             time_today: Current time step (optional)
 
         Returns:
-            AllocationResult with PSO-optimized optimizer combination
+            A2AResult with PSO-optimized optimizer combination
         """
+        start_time = time.time()
+
         # Step 1: Run enhanced MCOS simulation
         mcos_result = simulate_optimizers_with_allocation_statistics(
             df_assets=data_provider.historical_prices,
             optimizer_list=self.optimizers,
-            n_data_observations=self.n_data_observations,
+            n_data_observations=self.config.n_simulations,  # Use config instead of hardcoded
         )
 
         # Validate MCOS result
@@ -98,48 +100,45 @@ class OptimizedOrchestrator(BaseOrchestrator):
         # Step 2: Optimize allocator weights using PSO
         allocator_weights = optimize_allocator_weights(
             mcos_result=mcos_result,
-            n_particle_swarm_iterations=self.n_particle_swarm_iterations,
-            n_particles=self.n_particles,
+            n_particle_swarm_iterations=self.config.n_pso_iterations,  # Use config
+            n_particles=self.config.n_particles,  # Use config
         )
 
-        # Step 3: Compute final asset weights and statistics
-        asset_weights_dict, statistics_dict, df_allocation, memory_usage, computation_time = (
-            self._compute_final_asset_weights(
+        # Step 3: Compute final asset weights and structured results
+        final_allocation, optimizer_allocations_list, optimizer_weights_list, metrics, optimizer_errors = (
+            self._compute_final_asset_weights_and_metrics(
                 data_provider=data_provider,
                 time_today=time_today,
                 allocator_weights=allocator_weights,
             )
         )
 
-        # Build result
-        statistics = A2AStatistics(
-            asset_returns=statistics_dict["returns"],
-            asset_volatilities=statistics_dict["volatilities"],
-            algo_runtime=statistics_dict["runtime"],
-            algo_weights=statistics_dict["algo_weights"],
-            algo_memory_usage=memory_usage,
-            algo_computation_time=computation_time,
-        )
+        runtime_seconds = time.time() - start_time
 
-        result = AllocationResult(
-            asset_weights=asset_weights_dict,
-            success=True,
-            statistics=statistics,
-            df_allocation=df_allocation,
-            optimizer_memory_usage=memory_usage,
-            optimizer_computation_time=computation_time,
+        # Create A2AResult
+        result = A2AResult(
+            final_allocation=final_allocation,
+            optimizer_allocations=optimizer_allocations_list,
+            optimizer_weights=optimizer_weights_list,
+            metrics=metrics,
+            runtime_seconds=runtime_seconds,
+            n_simulations=self.config.n_simulations,
+            optimizer_errors=optimizer_errors,
+            orchestrator_name=self.name,
+            timestamp=time_today or datetime.now(),
+            config=self.config
         )
 
         return result
 
-    def _compute_final_asset_weights(
+    def _compute_final_asset_weights_and_metrics(
         self,
         data_provider: AbstractObservationSimulator,
         time_today: datetime,
         allocator_weights: np.ndarray,
     ) -> tuple:
         """
-        Compute final asset weights and performance statistics.
+        Compute final asset weights and performance metrics using structured models.
 
         Args:
             data_provider: Provides ground truth parameters
@@ -147,7 +146,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             allocator_weights: Optimal weights for each allocator
 
         Returns:
-            Tuple of (asset_weights_dict, statistics_dict, df_allocation, memory_usage, computation_time)
+            Tuple of (final_allocation, optimizer_allocations_list, optimizer_weights_list, metrics, optimizer_errors)
         """
         import tracemalloc
         from timeit import default_timer as timer
@@ -156,23 +155,16 @@ class OptimizedOrchestrator(BaseOrchestrator):
             raise ValueError(f"Optimizer count {len(self.optimizers)} != weight count {len(allocator_weights)}")
 
         # Get ground truth parameters
-        mu, cov, prices, time, l_moments = data_provider.get_ground_truth()
+        mu, cov, prices, current_time, l_moments = data_provider.get_ground_truth()
 
         # Apply covariance transformations
-        cov_transformed = self._apply_covariance_transformers(cov, len(prices))
+        cov_transformed = self._apply_covariance_transformers(cov, data_provider.n_observations)
 
         # Initialize tracking
         asset_weights = np.zeros(len(mu))
-        statistic_returns = {}
-        statistic_volatilities = {}
-        statistic_runtime = {"A2A": np.nan}
-
-        # Track individual optimizer allocations for df_allocation
-        optimizer_allocations = {}
-
-        # Track memory and computation time per optimizer
-        memory_usage = {}
-        computation_time = {}
+        optimizer_allocations_list = []
+        optimizer_weights_list = []
+        optimizer_errors = []
 
         # Compute weighted asset allocation
         for k, optimizer in enumerate(self.optimizers):
@@ -186,10 +178,27 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 optimizer.fit(prices)
 
                 weights = optimizer.allocate(mu, cov_transformed, prices, time, l_moments)
-                weights = np.array(weights).flatten()
+                if isinstance(weights, np.ndarray):
+                    weights = weights.flatten()
+                weights = np.array(weights)
                 weights = weights / np.sum(weights)  # Normalize
 
-                optimizer_allocations[optimizer.name] = pd.Series(weights, index=mu.index)
+                # Store optimizer allocation
+                weights_series = pd.Series(weights, index=mu.index)
+                optimizer_allocations_list.append(
+                    OptimizerAllocation(
+                        optimizer_name=optimizer.name,
+                        weights=weights_series
+                    )
+                )
+
+                # Store optimizer weight
+                optimizer_weights_list.append(
+                    OptimizerWeight(
+                        optimizer_name=optimizer.name,
+                        weight=float(allocator_weights[k])
+                    )
+                )
 
             except Exception as error:
                 optimizer.reset()
@@ -199,49 +208,48 @@ class OptimizedOrchestrator(BaseOrchestrator):
             current, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
 
-            # Store memory and computation time
-            memory_usage[optimizer.name] = peak / 1024 / 1024  # Convert to MB
-            computation_time[optimizer.name] = end - start
-
-            # Compute optimizer statistics
-            expected_return = (weights * mu).sum()
-            expected_volatility = np.sqrt((weights * (cov_transformed @ weights)).sum())
-
             # Accumulate weighted asset allocation
             asset_weights += allocator_weights[k] * weights
 
-            # Store statistics
-            statistic_returns[optimizer.name] = expected_return
-            statistic_volatilities[optimizer.name] = expected_volatility
-            statistic_runtime[optimizer.name] = end - start
+            # Create optimizer error (simplified - in future this should use error estimators)
+            optimizer_errors.append(
+                OptimizerError(
+                    optimizer_name=optimizer.name,
+                    error=0.0,  # Placeholder - should compute actual error
+                    error_components=[]
+                )
+            )
 
-        # Build df_allocation DataFrame (rows=optimizers, cols=assets)
-        df_allocation = pd.DataFrame(optimizer_allocations).T if optimizer_allocations else None
+        # Create final allocation
+        final_allocation = pd.Series(asset_weights, index=mu.index)
+        final_allocation = final_allocation / final_allocation.sum()
 
-        # Final validation of asset weights
-        asset_weights_dict = {asset: weight for asset, weight in zip(mu.index, asset_weights)}
+        # Compute performance metrics
+        portfolio_return = (final_allocation * mu).sum()
+        portfolio_variance = (final_allocation.values @ cov_transformed.values @ final_allocation.values)
+        portfolio_volatility = np.sqrt(portfolio_variance)
+        sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
 
-        # Compute A2A portfolio statistics
-        expected_return_a2a = np.dot(asset_weights, mu)
-        expected_volatility_a2a = np.sqrt(np.dot(asset_weights, np.dot(cov_transformed, asset_weights)))
+        # Compute diversity score (1 - mean correlation)
+        optimizer_alloc_df = pd.DataFrame({
+            alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list
+        })
+        corr_matrix = optimizer_alloc_df.corr()
+        n = len(corr_matrix)
+        if n <= 1:
+            diversity_score = 0.0
+        else:
+            avg_corr = (corr_matrix.sum().sum() - n) / (n * (n - 1))
+            diversity_score = 1 - avg_corr
 
-        statistic_returns["A2A"] = expected_return_a2a
-        statistic_volatilities["A2A"] = expected_volatility_a2a
+        metrics = PerformanceMetrics(
+            expected_return=float(portfolio_return),
+            volatility=float(portfolio_volatility),
+            sharpe_ratio=float(sharpe_ratio),
+            diversity_score=float(diversity_score)
+        )
 
-        # Build result dictionaries
-        statistic_algo_weights = {
-            optimizer.name: weight for optimizer, weight in zip(self.optimizers, allocator_weights)
-        }
-
-        statistics_dict = {
-            "returns": statistic_returns,
-            "volatilities": statistic_volatilities,
-            "runtime": statistic_runtime,
-            "algo_weights": statistic_algo_weights,
-            "asset_weights": asset_weights_dict,
-        }
-
-        return asset_weights_dict, statistics_dict, df_allocation, memory_usage, computation_time
+        return final_allocation, optimizer_allocations_list, optimizer_weights_list, metrics, optimizer_errors
 
     @property
     def name(self) -> str:
