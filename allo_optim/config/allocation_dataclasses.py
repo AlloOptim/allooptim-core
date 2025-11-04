@@ -1,6 +1,7 @@
 from enum import Enum
 from typing import Optional, Union
 
+import pandas as pd
 from pydantic import BaseModel, field_validator
 
 
@@ -37,11 +38,14 @@ class WikipediaStatistics(BaseModel):
 
 
 class AllocationResult(BaseModel):
+    model_config = {"arbitrary_types_allowed": True}
+    
     asset_weights: dict[str, float]
     success: bool
     statistics: Union[A2AStatistics, WikipediaStatistics, NoStatistics]
     computation_time: Optional[float] = None
     error_message: Optional[str] = None
+    df_allocation: Optional[pd.DataFrame] = None  # Optimizer allocations: rows=optimizers, cols=assets
 
     def __hash__(self):
         return hash((type(self),) + tuple(self.__dict__.values()))

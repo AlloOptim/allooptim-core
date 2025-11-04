@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from allo_optim.covariance_transformer.transformer_list import get_all_transformers
 from allo_optim.optimizer.optimizer_list import get_all_optimizer_names
+from allo_optim.allocation_to_allocators.allocation_orchestrator import OrchestrationType
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,14 @@ class BacktestConfig(BaseModel):
         ..., min_length=1, description="List of covariance transformer names to include in the backtest"
     )
 
+    # AllocationOrchestrator options
+    use_orchestrator: bool = Field(
+        default=True, description="Whether to use AllocationOrchestrator instead of individual optimizers"
+    )
+    orchestration_type: str = Field(
+        default="equal", description="Type of orchestration: 'equal', 'optimized', or 'wikipedia_pipeline'"
+    )
+
     @field_validator("optimizer_names")
     @classmethod
     def validate_optimizer_names(cls, v: List[str]) -> List[str]:
@@ -87,6 +96,12 @@ class BacktestConfig(BaseModel):
             )
 
         return v
+
+    @field_validator("orchestration_type")
+    @classmethod
+    def validate_orchestration_type(cls, v: str) -> OrchestrationType:
+        """Validate that orchestration type is one of the allowed values."""
+        return OrchestrationType(v)
 
     @classmethod
     def from_yaml(cls, yaml_path: str) -> "BacktestConfig":

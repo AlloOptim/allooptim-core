@@ -87,6 +87,13 @@ class AllocationOrchestrator:
 
         self.config = config or AllocationOrchestratorConfig()
 
+    def fit_optimizers(self, df_prices: pd.DataFrame) -> None:
+        """
+        Fit all optimizers with the provided price data.
+        """
+        for optimizer in self._optimizers:
+            optimizer.fit(df_prices)
+
     def run_allocation(
         self,
         all_stocks: List[StockUniverse],
@@ -155,7 +162,7 @@ class AllocationOrchestrator:
             allocator_weights: Optimal weights for each allocator
 
         Returns:
-            Tuple of (asset_weights_dict, statistics_dict)
+            Tuple of (asset_weights_dict, statistics_dict, df_allocation)
         """
 
         if len(self._optimizers) != len(allocator_weights):
@@ -181,6 +188,9 @@ class AllocationOrchestrator:
         statistic_returns = {}
         statistic_volatilities = {}
         statistic_runtime = {"A2A": np.nan}
+        
+        # Track individual optimizer allocations for df_allocation
+        optimizer_allocations = {}
 
         # Compute weighted asset allocation
         for k, optimizer in enumerate(self._optimizers):
@@ -220,6 +230,12 @@ class AllocationOrchestrator:
             statistic_returns[optimizer.name] = expected_return
             statistic_volatilities[optimizer.name] = expected_volatility
             statistic_runtime[optimizer.name] = end - start
+            
+            # Store optimizer allocation for df_allocation DataFrame
+            optimizer_allocations[optimizer.name] = weights
+
+        # Build df_allocation DataFrame (rows=optimizers, cols=assets)
+        df_allocation = pd.DataFrame(optimizer_allocations).T if optimizer_allocations else None
 
         # Final validation of asset weights
         validate_no_nan(asset_weights, "final asset weights")
@@ -251,7 +267,7 @@ class AllocationOrchestrator:
             "asset_weights": asset_weights_dict,
         }
 
-        return asset_weights_dict, statistics_dict
+        return asset_weights_dict, statistics_dict, df_allocation
 
     def _run_optimized_allocation_to_allocators(
         self,
@@ -316,7 +332,7 @@ class AllocationOrchestrator:
             )
 
             # Step 3: Compute final asset weights and statistics
-            asset_weights_dict, statistics_dict = self._compute_final_asset_weights(
+            asset_weights_dict, statistics_dict, df_allocation = self._compute_final_asset_weights(
                 df_prices=df_prices,
                 time_today=time_today,
                 allocator_weights=allocator_weights,
@@ -330,7 +346,12 @@ class AllocationOrchestrator:
                 algo_weights=statistics_dict["algo_weights"],
             )
 
-            result = AllocationResult(asset_weights=asset_weights_dict, success=True, statistics=statistics)
+            result = AllocationResult(
+                asset_weights=asset_weights_dict, 
+                success=True, 
+                statistics=statistics,
+                df_allocation=df_allocation
+            )
 
             return result
 
@@ -360,7 +381,7 @@ class AllocationOrchestrator:
             if not np.isclose(np.sum(allocator_weights), 1.0):
                 raise ValueError(f"Allocator weights must sum to 1.0, got {np.sum(allocator_weights)}")
 
-            asset_weights_dict, statistics_dict = self._compute_final_asset_weights(
+            asset_weights_dict, statistics_dict, df_allocation = self._compute_final_asset_weights(
                 df_prices=df_prices,
                 time_today=time_today,
                 allocator_weights=allocator_weights,
@@ -373,7 +394,12 @@ class AllocationOrchestrator:
                 algo_weights=statistics_dict["algo_weights"],
             )
 
-            result = AllocationResult(asset_weights=asset_weights_dict, success=True, statistics=statistics)
+            result = AllocationResult(
+                asset_weights=asset_weights_dict, 
+                success=True, 
+                statistics=statistics,
+                df_allocation=df_allocation
+            )
 
             return result
 
@@ -471,18 +497,30 @@ class AllocationOrchestrator:
             # Step 5: Pad weights with zeros for non-selected assets
             # Create full weight dict with all original assets
             all_assets = df_prices.columns.tolist()
-            full_asset_weights = {asset: 0.0 for asset in all_assets}
+            asset_weights_padded = {asset: 0.0 for asset in all_assets}
             
             # Update with actual weights from optimization
             if optimization_result.asset_weights is not None:
-                full_asset_weights.update(optimization_result.asset_weights)
+                asset_weights_padded.update(optimization_result.asset_weights)
+
+            # Pad df_allocation with zeros for non-selected assets
+            df_allocation_padded = None
+            if optimization_result.df_allocation is not None:
+                df_allocation_padded = optimization_result.df_allocation.copy()
+                # Add missing assets with zero weights
+                for asset in all_assets:
+                    if asset not in df_allocation_padded.columns:
+                        df_allocation_padded[asset] = 0.0
+                # Reorder to match original asset order
+                df_allocation_padded = df_allocation_padded[all_assets]
 
             end_time = timer()
             return AllocationResult(
-                asset_weights=full_asset_weights,
+                asset_weights=asset_weights_padded,
                 success=optimization_result.success,
                 statistics=optimization_result.statistics,
                 computation_time=end_time - start_time,
+                df_allocation=df_allocation_padded,
             )
 
         except Exception as e:

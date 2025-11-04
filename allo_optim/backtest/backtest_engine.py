@@ -8,6 +8,9 @@ import pandas as pd
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import sample_cov
 
+from allo_optim.allocation_to_allocators.orchestrator_adapter import (
+    AllocationOrchestratorAdapter,
+)
 from allo_optim.backtest.backtest_config import BacktestConfig, config
 from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
@@ -56,19 +59,36 @@ class BacktestEngine:
     def _setup_optimizers(self) -> tuple[list[AbstractOptimizer], list[AbstractEnsembleOptimizer]]:
         """Setup individual and ensemble optimizers separately for efficient execution."""
 
-        # Individual optimizers
-        optimizer_names = self.config.optimizer_names
-        individual_optimizers = get_optimizer_by_names(optimizer_names)
+        # Check if using orchestrator mode
+        if self.config.use_orchestrator:
+            # Use AllocationOrchestratorAdapter
+            orchestrator = AllocationOrchestratorAdapter(
+                optimizer_names=self.config.optimizer_names,
+                transformer_names=self.config.transformer_names,
+                orchestration_type=self.config.orchestration_type,
+            )
 
-        # Ensemble optimizers (run after individual optimizers to use df_allocations)
-        ensemble_optimizers = [A2AEnsembleOptimizer(), SPY500Benchmark()]
+            individual_optimizers = [orchestrator]
+            ensemble_optimizers = []  # Don't double-count with A2AEnsembleOptimizer
 
-        logger.info(
-            f"Setup {len(individual_optimizers)} individual optimizers: {[opt.name for opt in individual_optimizers]}"
-        )
-        logger.info(
-            f"Setup {len(ensemble_optimizers)} ensemble optimizers: {[opt.name for opt in ensemble_optimizers]}"
-        )
+            logger.info(
+                f"Using AllocationOrchestrator in {self.config.orchestration_type.value} mode"
+            )
+            logger.info(f"Orchestrator wraps: {self.config.optimizer_names}")
+        else:
+            # Traditional mode: Individual optimizers
+            optimizer_names = self.config.optimizer_names
+            individual_optimizers = get_optimizer_by_names(optimizer_names)
+
+            # Ensemble optimizers (run after individual optimizers to use df_allocations)
+            ensemble_optimizers = [A2AEnsembleOptimizer(), SPY500Benchmark()]
+
+            logger.info(
+                f"Setup {len(individual_optimizers)} individual optimizers: {[opt.name for opt in individual_optimizers]}"
+            )
+            logger.info(
+                f"Setup {len(ensemble_optimizers)} ensemble optimizers: {[opt.name for opt in ensemble_optimizers]}"
+            )
 
         return individual_optimizers, ensemble_optimizers
 
