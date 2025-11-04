@@ -78,7 +78,10 @@ def minimize_with_multistart(
 	weight_sum = np.sum(best_weights)
 	if weight_sum > 1.0:
 		if weight_sum > SOLVER_FAILURE_WEIGHT_SUM_THRESHOLD:
-			logger.error(f"Weight sum {weight_sum:.4f} > {SOLVER_FAILURE_WEIGHT_SUM_THRESHOLD}, likely the solver failed, normalizing weights")
+			logger.error(
+				f"Weight sum {weight_sum:.4f} > {SOLVER_FAILURE_WEIGHT_SUM_THRESHOLD}, "
+				"likely the solver failed, normalizing weights"
+			)
 		else:
 			logger.debug(f"Weight sum {weight_sum:.4f} > 1.0, normalizing for safety")
 		best_weights = best_weights / weight_sum

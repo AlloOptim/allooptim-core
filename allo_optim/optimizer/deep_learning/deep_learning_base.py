@@ -279,7 +279,7 @@ class LSTMAttentionPortfolioNet(PortfolioNetInterface):
 	- Uncertainty estimation via MC dropout
 	"""
 
-	def __init__(self, n_assets, n_features, hidden_dim=128, num_layers=2, num_heads=4, dropout=0.15):
+	def __init__(self, n_assets, n_features, hidden_dim=128, num_layers=2, num_heads=4, dropout=0.15):  # noqa: PLR0913
 		self.n_assets = n_assets
 		self.n_features = n_features
 		self.hidden_dim = hidden_dim
@@ -463,7 +463,7 @@ class MambaPortfolioNet(PortfolioNetInterface):
 	- Input-dependent dynamics (selective mechanism)
 	"""
 
-	def __init__(self, n_assets, n_features, hidden_dim=64, num_layers=2, d_state=16, dropout=0.15):
+	def __init__(self, n_assets, n_features, hidden_dim=64, num_layers=2, d_state=16, dropout=0.15):  # noqa: PLR0913
 		self.n_assets = n_assets
 		self.hidden_dim = hidden_dim
 		self.dropout = dropout
@@ -638,7 +638,7 @@ class TCNPortfolioNet(PortfolioNetInterface):
 	- Excellent for financial time series
 	"""
 
-	def __init__(self, n_assets, n_features, hidden_dim=64, num_layers=3, kernel_size=3, dropout=0.15):
+	def __init__(self, n_assets, n_features, hidden_dim=64, num_layers=3, kernel_size=3, dropout=0.15):  # noqa: PLR0913
 		self.n_assets = n_assets
 		self.hidden_dim = hidden_dim
 		self.dropout = dropout
@@ -972,7 +972,7 @@ class DeepLearningOptimizer:
 
 		return features
 
-	def _portfolio_loss(
+	def _portfolio_loss(  # noqa: PLR0913
 		self,
 		weights,
 		invested_ratio,

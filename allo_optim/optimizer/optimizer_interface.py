@@ -109,7 +109,7 @@ class AbstractEnsembleOptimizer(ABC):
 		self.__init__()
 
 	@abstractmethod
-	def allocate(
+	def allocate(  # noqa: PLR0913
 		self,
 		ds_mu: pd.Series,
 		df_cov: pd.DataFrame,

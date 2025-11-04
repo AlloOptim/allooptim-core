@@ -5,7 +5,6 @@ No price data, returns, or covariance analysis
 """
 
 import logging
-import time
 from datetime import datetime, timedelta
 from typing import Optional
 

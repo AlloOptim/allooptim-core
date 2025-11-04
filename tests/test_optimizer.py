@@ -178,7 +178,9 @@ def test_optimizers(optimizer_class):
 	# Check that weights are reasonable (sum close to 1, but be lenient)
 	weight_sum = weights.sum()
 	assert weight_sum >= 0.0, f"Weights sum to {weight_sum}, expected non-negative sum"
-	assert weight_sum <= MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE, f"Weights sum to {weight_sum}, expected sum <= {MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE}"
+	assert weight_sum <= MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE, (
+		f"Weights sum to {weight_sum}, expected sum <= {MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE}"
+	)
 	assert all(w >= MIN_WEIGHT_TOLERANCE for w in weights.values), f"Negative weights found: {weights.values}"
 	assert all(w <= 1.0 for w in weights.values), f"Weights greater than 1 found: {weights.values}"
 

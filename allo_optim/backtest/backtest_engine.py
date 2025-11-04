@@ -14,7 +14,10 @@ from allo_optim.backtest.performance_metrics import PerformanceMetrics
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
 from allo_optim.optimizer.allocation_metric import estimate_linear_moments
 from allo_optim.optimizer.ensemble_optimizers import A2AEnsembleOptimizer, SPY500Benchmark
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
+from allo_optim.optimizer.optimizer_interface import (
+    AbstractOptimizer,
+    AbstractEnsembleOptimizer,
+)
 from allo_optim.optimizer.optimizer_list import get_optimizer_by_names
 from allo_optim.optimizer.wikipedia.sql_database import download_data
 
@@ -50,7 +53,7 @@ class BacktestEngine:
 		# Create results directory
 		self.config.results_dir.mkdir(exist_ok=True, parents=True)
 
-	def _setup_optimizers(self) -> tuple[list[AbstractOptimizer], list[AbstractOptimizer]]:
+	def _setup_optimizers(self) -> tuple[list[AbstractOptimizer], list[AbstractEnsembleOptimizer]]:
 		"""Setup individual and ensemble optimizers separately for efficient execution."""
 
 		# Individual optimizers
@@ -194,7 +197,6 @@ class BacktestEngine:
 						ds_mu=mu,
 						df_cov=cov,
 						df_prices=clean_data,
-						df_allocations=None,
 						time=rebalance_date,
 						l_moments=l_moments,
 					)

@@ -6,74 +6,22 @@ All optimizers must ensure 0 <= sum(weights) <= 1.02
 """
 
 from datetime import datetime
-from typing import Type
 
 import numpy as np
 import pandas as pd
 import pytest
 
 from allo_optim.optimizer.allocation_metric import LMoments
-from allo_optim.optimizer.covariance_matrix_adaption.cma_optimizer import (
-	CVARCMAOptimizer,
-	LMomentsCMAOptimizer,
-	MaxDrawdownCMAOptimizer,
-	MeanVarianceCMAOptimizer,
-	RobustSharpeCMAOptimizer,
-	SortinoCMAOptimizer,
-)
-from allo_optim.optimizer.efficient_frontier.efficient_frontier_optimizer import (
-	EfficientReturnOptimizer,
-	EfficientRiskOptimizer,
-	MaxSharpeOptimizer,
-)
-from allo_optim.optimizer.hierarchical_risk_parity.hrp_optimizer import (
-	HRPOptimizer,
-)
-from allo_optim.optimizer.naive.naive_optimizer import (
-	MomentumOptimizer,
-	NaiveOptimizer,
-)
-from allo_optim.optimizer.nested_cluster.nco_optimizer import (
-	NCOSharpeOptimizer,
-)
-from allo_optim.optimizer.particle_swarm.pso_optimizer import (
-	LMomentsParticleSwarmOptimizer,
-	MeanVarianceParticleSwarmOptimizer,
-)
-from allo_optim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer import (
-	EMAAdjustedReturnsOptimizer,
-	MeanVarianceAdjustedReturnsOptimizer,
-)
-from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import (
-	RiskParityOptimizer,
-)
+from allo_optim.optimizer.optimizer_list import OPTIMIZER_LIST
+from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 
 # Constants for test tolerances
 MAX_PORTFOLIO_WEIGHT_SUM_TOLERANCE = 1.02
 
 
-def get_all_optimizers() -> list[Type]:
+def get_all_optimizers() -> list[type[AbstractOptimizer]]:
 	"""Get all optimizer classes for testing"""
-	return [
-		NaiveOptimizer,
-		MaxSharpeOptimizer,
-		RiskParityOptimizer,
-		MomentumOptimizer,
-		EfficientRiskOptimizer,
-		EfficientReturnOptimizer,
-		MeanVarianceAdjustedReturnsOptimizer,
-		EMAAdjustedReturnsOptimizer,
-		HRPOptimizer,
-		NCOSharpeOptimizer,
-		MeanVarianceParticleSwarmOptimizer,
-		LMomentsParticleSwarmOptimizer,
-		MeanVarianceCMAOptimizer,
-		LMomentsCMAOptimizer,
-		CVARCMAOptimizer,
-		RobustSharpeCMAOptimizer,
-		SortinoCMAOptimizer,
-		MaxDrawdownCMAOptimizer,
-	]
+	return OPTIMIZER_LIST
 
 
 @pytest.fixture
@@ -147,8 +95,8 @@ def sample_price_data() -> pd.DataFrame:
 
 
 @pytest.mark.parametrize("optimizer_class", get_all_optimizers())
-def test_optimizer_weight_constraints(
-	optimizer_class: Type,
+def test_optimizer_weight_constraints(  # noqa: PLR0913
+	optimizer_class: type[AbstractOptimizer],
 	sample_mu: pd.Series,
 	sample_cov: pd.DataFrame,
 	sample_l_moments: LMoments,

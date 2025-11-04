@@ -33,7 +33,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 	Autoencoder with symmetric matrix optimization and reconstruction metrics.
 	"""
 
-	def __init__(
+	def __init__(  # noqa: PLR0913
 		self,
 		hidden_dims: Optional[list] = None,
 		learning_rate: float = 0.001,

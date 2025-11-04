@@ -8,9 +8,8 @@ making it easier to work with AlloOptim results, visualizations, and data analys
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any
 
 
 def display_optimizer_comparison(results: Dict[str, Any],

@@ -112,7 +112,7 @@ def expected_return_moments(
 	return expected_return_lt_co_mvsk
 
 
-def expected_return_classical(
+def expected_return_classical(  # noqa: PLR0913
 	weights: np.ndarray,
 	mu: np.ndarray,
 	cov: np.ndarray,

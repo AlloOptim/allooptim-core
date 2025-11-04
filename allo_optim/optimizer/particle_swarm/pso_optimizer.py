@@ -10,7 +10,6 @@ from pydantic import BaseModel
 from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allo_optim.optimizer.allocation_metric import (
 	LMoments,
-	estimate_linear_moments,
 )
 from allo_optim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
@@ -39,54 +38,54 @@ class PSOOptimizerConfig(BaseModel):
 
 
 class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
-	"""Optimizer based on the naive momentum"""
+    """Optimizer based on the naive momentum"""
 
-	enable_l_moments: bool = False
+    enable_l_moments: bool = False
 
-	def __init__(self) -> None:
-		self.config = PSOOptimizerConfig()
-		self._previous_positions = None
+    def __init__(self) -> None:
+        self.config = PSOOptimizerConfig()
+        self._previous_positions = None
 
-	def allocate(
-		self,
-		ds_mu: pd.Series,
-		df_cov: pd.DataFrame,
-		df_prices: Optional[pd.DataFrame] = None,
-		time: Optional[datetime] = None,
-		l_moments: Optional[LMoments] = None,
-	) -> pd.Series:
-		# Validate asset names consistency
-		validate_asset_names(ds_mu, df_cov)
-		asset_names = ds_mu.index.tolist()
+    def allocate(
+        self,
+        ds_mu: pd.Series,
+        df_cov: pd.DataFrame,
+        df_prices: Optional[pd.DataFrame] = None,
+        time: Optional[datetime] = None,
+        l_moments: Optional[LMoments] = None,
+    ) -> pd.Series:
+        # Validate asset names consistency
+        validate_asset_names(ds_mu, df_cov)
+        asset_names = ds_mu.index.tolist()
 
-		# Ensure mu is 1D (handle both 1D and 2D cases from different simulators)
-		mu_array = np.asarray(ds_mu.values).flatten()
-		cov_array = np.asarray(df_cov.values)
+        # Ensure mu is 1D (handle both 1D and 2D cases from different simulators)
+        mu_array = np.asarray(ds_mu.values).flatten()
+        cov_array = np.asarray(df_cov.values)
 
-		n_assets = len(mu_array)
-		self.mu = mu_array
-		self.cov = cov_array
-		self.l_moments = l_moments
+        n_assets = len(mu_array)
+        self.mu = mu_array
+        self.cov = cov_array
+        self.l_moments = l_moments
 
-		if self.enable_l_moments and l_moments is None:
-			logger.error("L-moments must be provided when enable_l_moments is True")
-			weights_array = np.ones(n_assets) / n_assets
-			return pd.Series(weights_array, index=asset_names)
+        if self.enable_l_moments and l_moments is None:
+            logger.error("L-moments must be provided when enable_l_moments is True")
+            weights_array = np.ones(n_assets) / n_assets
+            return pd.Series(weights_array, index=asset_names)
 
-		# Dimensions: [scale] + [weight1, weight2, ..., weightn]
-		dimensions = n_assets + 1
+        # Dimensions: [scale] + [weight1, weight2, ..., weightn]
+        dimensions = n_assets + 1
 
-		# Bounds: scale ∈ [0,1], weights ∈ [0,1]
-		lower_bounds = np.zeros(dimensions)
-		upper_bounds = np.ones(dimensions)
+        # Bounds: scale ∈ [0,1], weights ∈ [0,1]
+        lower_bounds = np.zeros(dimensions)
+        upper_bounds = np.ones(dimensions)
 
-		if self._previous_positions is not None:
-			if self._previous_positions.shape != (self.config.n_particles, dimensions):
-				logger.warning("Previous positions shape does not match current dimensions, resetting warm start.")
-				self._previous_positions = None
+        if self._previous_positions is not None:
+            if self._previous_positions.shape != (self.config.n_particles, dimensions):
+                logger.warning("Previous positions shape does not match current dimensions, resetting warm start.")
+                self._previous_positions = None
 
-		options = {"c1": self.config.c1, "c2": self.config.c2, "w": self.config.w}
-		optimizer = ps.single.GlobalBestPSO(
+        options = {"c1": self.config.c1, "c2": self.config.c2, "w": self.config.w}
+        optimizer = ps.single.GlobalBestPSO(
 			n_particles=self.config.n_particles,
 			dimensions=dimensions,
 			options=options,
@@ -96,44 +95,51 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 			init_pos=self._previous_positions,
 		)
 
-		def objective_function(x):
-			return risk_adjusted_returns_objective(x, enable_l_moments=self.enable_l_moments, l_moments=l_moments, risk_aversion=self.config.risk_aversion, mu=mu_array, cov=cov_array)
+        def objective_function(x):
+            return risk_adjusted_returns_objective(
+				x,
+				enable_l_moments=self.enable_l_moments,
+				l_moments=l_moments,
+				risk_aversion=self.config.risk_aversion,
+				mu=mu_array,
+				cov=cov_array
+			)
 
-		objective_with_early_stopping = EarlyStopObjective(
+        objective_with_early_stopping = EarlyStopObjective(
 			objective_function=objective_function,
 		)
 
-		n_iters = self.config.n_iters if self._previous_positions is None else self.config.n_iters_warm
+        n_iters = self.config.n_iters if self._previous_positions is None else self.config.n_iters_warm
 
-		_, optimal_solution = optimizer.optimize(
+        _, optimal_solution = optimizer.optimize(
 			objective_with_early_stopping,
 			iters=n_iters,
 			verbose=False,
 		)
 
-		if self.config.enable_warm_start:
-			self._previous_positions = np.clip(optimizer.swarm.position, 0, 1)
+        if self.config.enable_warm_start:
+            self._previous_positions = np.clip(optimizer.swarm.position, 0, 1)
 
-		# Extract scale and raw weights from optimal solution
-		optimal_scale = optimal_solution[0]
-		optimal_raw_weights = optimal_solution[1:]
+        # Extract scale and raw weights from optimal solution
+        optimal_scale = optimal_solution[0]
+        optimal_raw_weights = optimal_solution[1:]
 
-		# Convert to final portfolio weights
-		if np.sum(optimal_raw_weights) > WEIGHT_SUM_MINIMUM_THRESHOLD:
-			normalized_weights = optimal_raw_weights / np.sum(optimal_raw_weights)
-			final_weights = optimal_scale * normalized_weights
+        # Convert to final portfolio weights
+        if np.sum(optimal_raw_weights) > WEIGHT_SUM_MINIMUM_THRESHOLD:
+            normalized_weights = optimal_raw_weights / np.sum(optimal_raw_weights)
+            final_weights = optimal_scale * normalized_weights
 
-		else:
-			logger.error("PSO returned degenerate weights, using equal portfolio")
-			final_weights = np.ones(n_assets) / n_assets
+        else:
+            logger.error("PSO returned degenerate weights, using equal portfolio")
+            final_weights = np.ones(n_assets) / n_assets
 
-		logger.debug(f"PSO optimal scale: {optimal_scale:.4f}, total exposure: {np.sum(final_weights):.4f}")
+        logger.debug(f"PSO optimal scale: {optimal_scale:.4f}, total exposure: {np.sum(final_weights):.4f}")
 
-		return create_weights_series(final_weights, asset_names)
+        return create_weights_series(final_weights, asset_names)
 
-	@property
-	def name(self) -> str:
-		return "PSO_MeanVariance"
+    @property
+    def name(self) -> str:
+        return "PSO_MeanVariance"
 
 
 class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
@@ -144,4 +150,3 @@ class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
 	@property
 	def name(self) -> str:
 		return "PSO_LMoments"
-

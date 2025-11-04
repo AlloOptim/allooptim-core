@@ -27,7 +27,7 @@ import warnings
 
 import pandas as pd
 
-from allo_optim.backtest.backtest_config import BacktestConfig, config
+from allo_optim.backtest.backtest_config import config
 from allo_optim.backtest.backtest_engine import BacktestEngine
 from allo_optim.backtest.backtest_report import generate_report
 from allo_optim.backtest.backtest_visualizer import create_visualizations

@@ -16,7 +16,6 @@ Usage:
 """
 
 import numpy as np
-import pandas as pd
 from pathlib import Path
 
 from allo_optim.data_generation.training_data import (
@@ -34,8 +33,7 @@ from allo_optim.data_generation.diverse_training_data import (
     validate_training_data
 )
 from allo_optim.data_generation.generate_30k_dataset import (
-    generate_full_training_dataset,
-    load_training_dataset
+    generate_full_training_dataset
 )
 
 

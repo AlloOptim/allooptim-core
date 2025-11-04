@@ -80,7 +80,7 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
 		"""No fitting needed for ensemble optimizer."""
 		pass
 
-	def allocate(
+	def allocate(  # noqa: PLR0913
 		self,
 		ds_mu: pd.Series,
 		df_cov: pd.DataFrame,
@@ -174,7 +174,7 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
 		"""No fitting needed for benchmark."""
 		pass
 
-	def allocate(
+	def allocate(  # noqa: PLR0913
 		self,
 		ds_mu: pd.Series,
 		df_cov: pd.DataFrame,
