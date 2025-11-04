@@ -32,10 +32,10 @@ def _simulate_optimization(
     try:
         # Generate observation
         if use_optimal_observation:
-            mu_hat, cov_hat = obs_simulator.mu, obs_simulator.cov
+            mu_hat, cov_hat, prices_hat, time_hat, l_moments_hat = obs_simulator.get_ground_truth()
 
         else:
-            mu_hat, cov_hat = obs_simulator.simulate()
+            mu_hat, cov_hat, prices_hat, time_hat, l_moments_hat = obs_simulator.get_sample()
 
         # mu_hat should be a pd.Series (don't convert to numpy array)
         validate_no_nan(mu_hat, "simulated mu")
@@ -50,7 +50,7 @@ def _simulate_optimization(
 
         # Generate allocation
         for i, optimizer in enumerate(optimizer_list):
-            alloc_result = optimizer.allocate(mu_hat, cov_hat)
+            alloc_result = optimizer.allocate(mu_hat, cov_hat, prices_hat, time_hat, l_moments_hat)
             # Ensure result is 1D array
             weights = np.array(alloc_result).flatten()
             weights = weights / np.sum(weights)
