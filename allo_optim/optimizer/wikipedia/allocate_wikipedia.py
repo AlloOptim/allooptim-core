@@ -352,7 +352,6 @@ def allocate_wikipedia(  # noqa: PLR0913
     iqr_factor: float = 1.5,
     decay_factor: float = 1.0,
     use_wiki_database: bool = True,
-    use_volume_filter: bool = True,
     df_wiki_views: Optional[pd.DataFrame] = None,
     df_stock_prices: Optional[pd.DataFrame] = None,
     df_stock_volumes: Optional[pd.DataFrame] = None,

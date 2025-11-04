@@ -9,7 +9,7 @@ import logging
 from typing import Optional
 
 from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer, BaseMLOptimizerConfig
-from allo_optim.optimizer.light_gbm.light_gbm_base import FastPortfolioOptimizer
+from allo_optim.optimizer.light_gbm.light_gbm_base import LightGBMOptimizerEngine
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class LightGBMOptimizer(BaseMLOptimizer):
 
     def _create_engine(self, n_assets: int, n_lookback: int) -> None:
         """Create the LightGBM-based optimization engine."""
-        return FastPortfolioOptimizer(n_assets=n_assets, n_lookback=n_lookback)
+        return LightGBMOptimizerEngine(n_assets=n_assets, n_lookback=n_lookback)
 
     @property
     def name(self) -> str:

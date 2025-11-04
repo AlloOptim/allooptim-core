@@ -766,7 +766,7 @@ class LSTMOptimizerConfig(BaseModel):
     d_state_mamba: int = 16
 
 
-class DeepLearningOptimizer:
+class DeepLearningOptimizerEngine:
     """
     State-of-the-art portfolio optimizer with online learning.
     Supports multiple neural network architectures.
@@ -799,7 +799,7 @@ class DeepLearningOptimizer:
         self._feature_dim = 15
 
         # Track if models have been successfully trained
-        self._trained = False
+        self.trained = False
 
         # Initialize network based on type
         if self.model_type == ModelType.LSTM:
@@ -1161,7 +1161,7 @@ class DeepLearningOptimizer:
         total_time = time.time() - start_time
         logger.debug(f"\nTraining complete in {total_time:.2f}s")
 
-        self._trained = True
+        self.trained = True
 
     def _online_update(self, new_prices, new_returns, n_steps=10):
         """

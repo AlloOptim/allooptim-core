@@ -146,8 +146,7 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
     # Special handling for WikipediaOptimizer - use test database
     if optimizer.name == "WikipediaOptimizer":
         original_db_path = wiki_db.DATABASE_PATH
-        wiki_db.DATABASE_PATH = wikipedia_test_db_path()
-        optimizer.config.use_wiki_database = True
+        wiki_db.DATABASE_PATH = wikipedia_test_db_path
 
     # Skip optimizers that require special setup or are known to be broken
     skip_optimizers = [

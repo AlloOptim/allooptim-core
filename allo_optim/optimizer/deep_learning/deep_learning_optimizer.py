@@ -10,7 +10,7 @@ import logging
 
 from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer
 from allo_optim.optimizer.deep_learning.deep_learning_base import (
-    DeepLearningOptimizer,
+    DeepLearningOptimizerEngine,
     ModelType,
 )
 
@@ -24,7 +24,7 @@ class LSTMOptimizer(BaseMLOptimizer):
 
     def _create_engine(self, n_assets: int, n_lookback: int) -> None:
         """Create the LSTM-based deep learning optimization engine."""
-        engine = DeepLearningOptimizer(n_assets=n_assets, n_lookback=n_lookback)
+        engine = DeepLearningOptimizerEngine(n_assets=n_assets, n_lookback=n_lookback)
         engine.model_type = self.model_type
         return engine
 

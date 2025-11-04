@@ -5,5 +5,5 @@ DEFAULT_PYDANTIC_CONFIG = ConfigDict(
     extra="forbid",
     arbitrary_types_allowed=True,
     use_enum_values=True,
-    frozen=True,
+    frozen=False,
 )

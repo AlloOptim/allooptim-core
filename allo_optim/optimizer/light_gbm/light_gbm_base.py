@@ -15,13 +15,13 @@ logger = logging.getLogger(__name__)
 MIN_FEATURES_FOR_MODEL_TRAINING = 50
 
 
-class FastPortfolioOptimizerConfig(BaseModel):
+class LightGBMOptimizerConfig(BaseModel):
     decay: float = 0.94
     risk_aversion: float = 2.0
     transaction_cost: float = 0.001
 
 
-class FastPortfolioOptimizer:
+class LightGBMOptimizerEngine:
     """
     State-of-the-art portfolio optimizer using:
     1. LightGBM for return prediction (fast training)
@@ -33,7 +33,7 @@ class FastPortfolioOptimizer:
         self,
         n_assets: int,
         n_lookback: int,
-        config: Optional[FastPortfolioOptimizerConfig] = None,
+        config: Optional[LightGBMOptimizerConfig] = None,
     ) -> None:
         """
         Args:
@@ -42,13 +42,13 @@ class FastPortfolioOptimizer:
         """
         self._n_assets = n_assets
         self._n_lookback = n_lookback
-        self.config = config or FastPortfolioOptimizerConfig()
+        self.config = config or LightGBMOptimizerConfig()
 
         # Model for each asset's returns
         self._models = []
         self._scalers = []
         self._cov_estimator = LedoitWolf()
-        self._trained = False  # Track if models have been successfully trained
+        self.trained = False  # Track if models have been successfully trained
 
         # Online statistics
         self._ewm_cov = None
@@ -116,7 +116,7 @@ class FastPortfolioOptimizer:
             self._ewm_cov = np.cov(returns.T)
         else:
             new_cov = np.outer(returns[-1], returns[-1])
-            self._ewm_cov = self.decay * self._ewm_cov + (1 - self.decay) * new_cov
+            self._ewm_cov = self.config.decay * self._ewm_cov + (1 - self.config.decay) * new_cov
 
         # Shrinkage for stability
         target = np.eye(self._n_assets) * np.trace(self._ewm_cov) / self._n_assets
@@ -139,7 +139,7 @@ class FastPortfolioOptimizer:
                 f"need at least {min_required_periods}. Using equal weights fallback."
             )
             # Initialize with equal weights fallback
-            self._trained = False
+            self.trained = False
             return
 
         # Estimate returns from prices
@@ -161,7 +161,7 @@ class FastPortfolioOptimizer:
                     f"Price data shape: {prices.shape}, Features shape: {features[i].shape}"
                 )
                 # Initialize with equal weights fallback
-                self._trained = False
+                self.trained = False
                 return
 
             # Standardize features
@@ -191,7 +191,7 @@ class FastPortfolioOptimizer:
         # Update covariance
         self._ewm_cov = self._update_covariance(returns[-min(len(returns), 252) :])
 
-        self._trained = True
+        self.trained = True
         logger.debug("Training complete! Models ready for daily updates.")
 
     def incremental_update(self, new_prices: np.ndarray, new_returns: np.ndarray = None) -> None:
@@ -251,7 +251,7 @@ class FastPortfolioOptimizer:
             optimal_weights: (n_assets,) portfolio weights
         """
         # If not trained, return equal weights
-        if not self._trained:
+        if not self.trained:
             logger.warning("Model not trained, returning equal weights")
             return np.ones(self._n_assets) / self._n_assets
 
@@ -289,7 +289,7 @@ class FastPortfolioOptimizer:
             port_return = np.dot(w, mu)
             port_risk = np.sqrt(np.dot(w, np.dot(cov, w)))
             turnover = np.sum(np.abs(w - self._last_weights))
-            return -(port_return - self.risk_aversion * port_risk - self.transaction_cost * turnover)
+            return -(port_return - self.config.risk_aversion * port_risk - self.config.transaction_cost * turnover)
 
         constraints = [
             {"type": "eq", "fun": lambda w: np.sum(w) - 1},  # Fully invested

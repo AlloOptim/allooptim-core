@@ -29,11 +29,9 @@ def test_a2a(orchestration_type, n_optimizers, wikipedia_test_db_path):
         n_particle_swarm_iterations=2,
         n_data_observations=2,
         use_wiki_database=True,
+        wiki_database_path=wikipedia_test_db_path,
+        n_historical_days=30,  # Reduce from default 60 to 30 for faster testing
     )
-
-    # For Wikipedia pipeline, use test database
-    if orchestration_type == OrchestrationType.WIKIPEDIA_PIPELINE:
-        fast_a2a_config.wiki_database_path = wikipedia_test_db_path()
 
     if n_optimizers == 1:
         optimizer_names = ["Naive"]
