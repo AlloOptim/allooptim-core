@@ -7,11 +7,13 @@ Integrates MCOS simulation with allocation optimization.
 
 import logging
 from datetime import datetime
+from enum import Enum
 from timeit import default_timer as timer
 from typing import List, Optional
 
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel, Field, field_validator
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import sample_cov
 
@@ -27,16 +29,14 @@ from allo_optim.config.allocation_dataclasses import (
     NoStatistics,
 )
 from allo_optim.config.stock_dataclasses import StockUniverse
-from allo_optim.covariance_transformer.covariance_transformer import (
-    OracleCovarianceTransformer,
+from allo_optim.covariance_transformer.transformer_list import (
+    get_transformer_by_names,
 )
 from allo_optim.optimizer.allocation_metric import (
     estimate_linear_moments,
     validate_no_nan,
 )
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 from allo_optim.optimizer.optimizer_list import (
-    get_all_optimizers,
     get_optimizer_by_names,
 )
 from allo_optim.optimizer.wikipedia.allocate_wikipedia import allocate_wikipedia
@@ -44,18 +44,75 @@ from allo_optim.optimizer.wikipedia.allocate_wikipedia import allocate_wikipedia
 logger = logging.getLogger(__name__)
 
 
+class OrchestrationType(str, Enum):
+    EQUAL = "equal"
+    OPTIMIZED = "optimized"
+    WIKIPEDIA_PIPELINE = "wikipedia_pipeline"
+
+
+class AllocationOrchestratorConfig(BaseModel):
+    weights_tolterance = Field(0.01, ge=0.0, le=0.1)
+
+    orchestration_type: OrchestrationType = OrchestrationType.EQUAL
+
+    allocator_weights: Optional[np.ndarray] = None
+
+    n_data_observations: int = Field(50, ge=1)
+    n_particle_swarm_iterations: int = Field(1000, ge=1)
+    n_particles: int = Field(1000, ge=1)
+
+    use_sql_database: bool = False
+    n_historical_days: int = Field(60, ge=1)
+
+    @field_validator("orchestration_type")
+    @classmethod
+    def validate_weights_tolerance(cls, v) -> OrchestrationType:
+        return OrchestrationType(v)
+
+
 class AllocationOrchestrator:
-    def __init__(self):
-        self._optimizer_names: Optional[list[str]] = None
-        self._optimizer_list: Optional[list[AbstractOptimizer]] = get_all_optimizers()
+    def __init__(
+        self,
+        optimizer_names: list[str] = None,
+        transformer_names: list[str] = None,
+        config: Optional[AllocationOrchestratorConfig] = None,
+    ) -> None:
+        self._optimizers = get_optimizer_by_names(optimizer_names)
+        self._transformers = get_transformer_by_names(transformer_names)
+
+        self.config = config or AllocationOrchestratorConfig()
+
+    def run_allocation(
+        self,
+        all_stocks: List[StockUniverse],
+        time_today: datetime,
+        df_prices: pd.DataFrame,
+    ) -> AllocationResult:
+        match self.config.orchestration_type:
+            case OrchestrationType.EQUAL:
+                return self._run_equal_allocation_to_allocators(
+                    df_prices=df_prices,
+                    time_today=time_today,
+                )
+
+            case OrchestrationType.OPTIMIZED:
+                return self._run_optimized_allocation_to_allocators(
+                    df_prices=df_prices,
+                    time_today=time_today,
+                )
+
+            case OrchestrationType.WIKIPEDIA_PIPELINE:
+                return self._run_wikipedia_and_equal_allocation(
+                    all_stocks=all_stocks,
+                    time_today=time_today,
+                    df_prices=df_prices,
+                )
 
     def _check_weights_bounds(self, weights: np.ndarray, name: str) -> np.ndarray:
-        weights_tolterance = 0.01
-
-        if np.sum(weights) < -weights_tolterance or np.sum(weights) > 1.0 + weights_tolterance:
+        if np.sum(weights) < -self.config.weights_tolterance or np.sum(weights) > 1.0 + self.config.weights_tolterance:
             raise ValueError(f"{name} must sum to 1.0, got {np.sum(weights)}")
 
-        if any(weights < -weights_tolterance) or any(weights > 1.0 + weights_tolterance):
+        if any(weights < -self.config.weights_tolterance) or any(weights > 1.0 + self.config.weights_tolterance):
             raise ValueError(f"{name} contains negative or leveraged values")
 
         if any(weights < 0.0) or any(weights > 1.0):
@@ -66,7 +123,10 @@ class AllocationOrchestrator:
             logger.warning(f"{name} sums to {np.sum(weights)} < 0.0, adjusting to 0.0")
             weights = np.zeros_like(weights)
 
-        if np.sum(weights) > 1.0 + weights_tolterance or np.sum(weights) < 1.0 - weights_tolterance:
+        if (
+            np.sum(weights) > 1.0 + self.config.weights_tolterance
+            or np.sum(weights) < 1.0 - self.config.weights_tolterance
+        ):
             logger.warning(f"{name} sums to {np.sum(weights)}, normalizing to 1.0")
             if np.sum(weights) > 0:
                 weights = weights / np.sum(weights)
@@ -79,6 +139,7 @@ class AllocationOrchestrator:
     def _compute_final_asset_weights(
         self,
         df_prices: pd.DataFrame,
+        time_today: datetime,
         allocator_weights: np.ndarray,
     ) -> tuple:
         """
@@ -92,16 +153,10 @@ class AllocationOrchestrator:
             Tuple of (asset_weights_dict, statistics_dict)
         """
 
-        # Input validation
-        if self._optimizer_list is None:
-            raise ValueError("optimizer_list is not initialized")
-
-        if len(self._optimizer_list) != len(allocator_weights):
-            raise ValueError(f"Optimizer count {len(self._optimizer_list)} != weight count {len(allocator_weights)}")
+        if len(self._optimizers) != len(allocator_weights):
+            raise ValueError(f"Optimizer count {len(self._optimizers)} != weight count {len(allocator_weights)}")
 
         validate_no_nan(allocator_weights, "allocator weights")
-
-        time = df_prices.index.max()
 
         # Compute asset statistics
         l_moments = estimate_linear_moments(df_prices)
@@ -110,8 +165,8 @@ class AllocationOrchestrator:
         mu = mean_historical_return(df_prices)  # Returns pandas Series
         cov = sample_cov(df_prices)  # Returns pandas DataFrame
 
-        transformer = OracleCovarianceTransformer()
-        cov = transformer.transform(cov, n_observations=len(df_prices))  # Returns pandas DataFrame
+        for transformer in self._transformers:
+            cov = transformer.transform(cov, n_observations=len(df_prices))  # Returns pandas DataFrame
 
         validate_no_nan(mu.values, "historical returns")
         validate_no_nan(cov.values, "sample covariance")
@@ -123,7 +178,7 @@ class AllocationOrchestrator:
         statistic_runtime = {"A2A": np.nan}
 
         # Compute weighted asset allocation
-        for k, optimizer in enumerate(self._optimizer_list):
+        for k, optimizer in enumerate(self._optimizers):
             start = timer()
 
             try:
@@ -131,7 +186,7 @@ class AllocationOrchestrator:
 
                 optimizer.fit(df_prices)
 
-                weights = optimizer.allocate(mu, cov, df_prices, None, time, l_moments)  # Returns pandas Series
+                weights = optimizer.allocate(mu, cov, df_prices, time_today, l_moments)  # Returns pandas Series
                 validate_no_nan(weights.values, f"{optimizer.name} weights")
 
                 # Validate allocation
@@ -178,7 +233,7 @@ class AllocationOrchestrator:
 
         # Build result dictionaries
         statistic_algo_weights = {
-            optimizer.name: weight for optimizer, weight in zip(self._optimizer_list, allocator_weights)
+            optimizer.name: weight for optimizer, weight in zip(self._optimizers, allocator_weights)
         }
 
         asset_weights_dict = {col: weight for col, weight in zip(df_prices.columns, asset_weights)}
@@ -193,12 +248,10 @@ class AllocationOrchestrator:
 
         return asset_weights_dict, statistics_dict
 
-    def run_optimized_allocation_to_allocators(
+    def _run_optimized_allocation_to_allocators(
         self,
         df_prices: pd.DataFrame,
-        n_data_observations: int = 50,
-        n_particle_swarm_iterations: int = 1000,
-        n_particles: int = 1000,
+        time_today: datetime,
     ) -> AllocationResult:
         """
         Enhanced allocation-to-allocators workflow.
@@ -226,24 +279,15 @@ class AllocationOrchestrator:
         if df_prices.isna().any().any():
             raise ValueError("df_assets contains NaN values")
 
-        if self._optimizer_list is None or len(self._optimizer_list) == 0:
+        if len(self._optimizers) == 0:
             raise ValueError("optimizer_list cannot be empty")
-
-        if n_data_observations < 1:
-            raise ValueError(f"n_data_observations must be >= 1, got {n_data_observations}")
-
-        if n_particle_swarm_iterations < 1:
-            raise ValueError(f"n_options_simulations must be >= 1, got {n_particle_swarm_iterations}")
-
-        if n_particles < 1:
-            raise ValueError(f"n_particles must be >= 1, got {n_particles}")
 
         try:
             # Step 1: Run enhanced MCOS simulation
             mcos_result = simulate_optimizers_with_allocation_statistics(
                 df_assets=df_prices,
-                optimizer_list=self._optimizer_list,
-                n_data_observations=n_data_observations,
+                optimizer_list=self._optimizers,
+                n_data_observations=self.config.n_data_observations,
             )
 
             # Validate MCOS result
@@ -253,22 +297,23 @@ class AllocationOrchestrator:
             if mcos_result.expected_returns_covariance is None:
                 raise ValueError("MCOS simulation failed to generate expected returns covariance")
 
-            if len(mcos_result.expected_return_means) != len(self._optimizer_list):
+            if len(mcos_result.expected_return_means) != len(self._optimizers):
                 raise ValueError(
                     f"MCOS generated {len(mcos_result.expected_return_means)} optimizer means "
-                    f"but expected {len(self._optimizer_list)}"
+                    f"but expected {len(self._optimizers)}"
                 )
 
             # Step 2: Optimize allocator weights
             allocator_weights = optimize_allocator_weights(
                 mcos_result=mcos_result,
-                n_particle_swarm_iterations=n_particle_swarm_iterations,
-                n_particles=n_particles,
+                n_particle_swarm_iterations=self.config.n_particle_swarm_iterations,
+                n_particles=self.config.n_particles,
             )
 
             # Step 3: Compute final asset weights and statistics
             asset_weights_dict, statistics_dict = self._compute_final_asset_weights(
                 df_prices=df_prices,
+                time_today=time_today,
                 allocator_weights=allocator_weights,
             )
 
@@ -287,31 +332,32 @@ class AllocationOrchestrator:
         except Exception as e:
             raise RuntimeError(f"Enhanced allocation workflow failed: {str(e)}") from e
 
-    def run_equal_allocation_to_allocators(
+    def _run_equal_allocation_to_allocators(
         self,
         df_prices: pd.DataFrame,
-        allocator_weights: Optional[np.ndarray] = None,
+        time_today: datetime,
     ) -> AllocationResult:
         try:
             if df_prices.isna().any().any():
                 raise ValueError("df_assets contains NaN values")
 
-            if self._optimizer_list is None or len(self._optimizer_list) == 0:
+            if self._optimizers is None or len(self._optimizers) == 0:
                 raise ValueError("optimizer_list cannot be empty")
 
-            if allocator_weights is None:
-                allocator_weights = 1.0 / len(self._optimizer_list) * np.ones(len(self._optimizer_list))
+            if self.config.allocator_weights is None:
+                allocator_weights = 1.0 / len(self._optimizers) * np.ones(len(self._optimizers))
+            else:
+                allocator_weights = self.config.allocator_weights
 
-            if len(self._optimizer_list) != len(allocator_weights):
-                raise ValueError(
-                    f"Optimizer count {len(self._optimizer_list)} != weight count {len(allocator_weights)}"
-                )
+            if len(self._optimizers) != len(allocator_weights):
+                raise ValueError(f"Optimizer count {len(self._optimizers)} != weight count {len(allocator_weights)}")
 
             if not np.isclose(np.sum(allocator_weights), 1.0):
                 raise ValueError(f"Allocator weights must sum to 1.0, got {np.sum(allocator_weights)}")
 
             asset_weights_dict, statistics_dict = self._compute_final_asset_weights(
                 df_prices=df_prices,
+                time_today=time_today,
                 allocator_weights=allocator_weights,
             )
 
@@ -329,15 +375,11 @@ class AllocationOrchestrator:
         except Exception as e:
             raise RuntimeError(f"Enhanced allocation workflow failed: {str(e)}") from e
 
-    def run_wikipedia_and_equal_allocation(
+    def _run_wikipedia_and_equal_allocation(
         self,
         all_stocks: List[StockUniverse],
-        optimizer_names: List[str],
         time_today: datetime,
         df_prices: pd.DataFrame,
-        use_wikipedia: bool,
-        use_sql_database: bool,
-        n_historical_days: int,
     ) -> AllocationResult:
         """
         Gateway function that combines Wikipedia-based stock pre-selection with portfolio optimization.
@@ -361,52 +403,40 @@ class AllocationOrchestrator:
         start_time = timer()
 
         try:
-            if self._optimizer_names is None or self._optimizer_names != optimizer_names:
-                self._optimizer_names = optimizer_names
-                self._optimizer_list = get_optimizer_by_names(optimizer_names)
+            # Step 1: Get pre-selection from Wikipedia allocation
+            wikipedia_result = allocate_wikipedia(
+                all_stocks=all_stocks,
+                time_today=time_today,
+                n_historical_days=self.config.n_historical_days,
+                use_sql_database=self.config.use_sql_database,
+            )
 
-            if use_wikipedia:
-                # Step 1: Get pre-selection from Wikipedia allocation
-                wikipedia_result = allocate_wikipedia(
-                    all_stocks=all_stocks,
-                    time_today=time_today,
-                    n_historical_days=n_historical_days,
-                    use_sql_database=use_sql_database,
+            if not wikipedia_result.success:
+                # Return failed result if wikipedia allocation failed
+                end_time = timer()
+                return AllocationResult(
+                    asset_weights=wikipedia_result.asset_weights,
+                    success=False,
+                    statistics=wikipedia_result.statistics,
+                    computation_time=end_time - start_time,
+                    error_message="Wikipedia allocation failed",
                 )
 
-                if not wikipedia_result.success:
-                    # Return failed result if wikipedia allocation failed
-                    end_time = timer()
-                    return AllocationResult(
-                        asset_weights=wikipedia_result.asset_weights,
-                        success=False,
-                        statistics=wikipedia_result.statistics,
-                        computation_time=end_time - start_time,
-                        error_message="Wikipedia allocation failed",
-                    )
+            # Step 2: Extract pre-selected stocks (those with non-zero weights)
+            preselected_stocks = [symbol for symbol, weight in wikipedia_result.asset_weights.items() if weight > 0.0]
 
-                # Step 2: Extract pre-selected stocks (those with non-zero weights)
-                preselected_stocks = [
-                    symbol for symbol, weight in wikipedia_result.asset_weights.items() if weight > 0.0
-                ]
+            logger.info(f"Pre-selected {len(preselected_stocks)} / {len(all_stocks)} stocks from Wikipedia allocation")
 
-                logger.info(
-                    f"Pre-selected {len(preselected_stocks)} / {len(all_stocks)} stocks from Wikipedia allocation"
+            if not preselected_stocks:
+                # Return failed result if no stocks were pre-selected
+                end_time = timer()
+                return AllocationResult(
+                    asset_weights={},
+                    success=False,
+                    statistics=NoStatistics(),
+                    computation_time=end_time - start_time,
+                    error_message="No stocks pre-selected from Wikipedia",
                 )
-
-                if not preselected_stocks:
-                    # Return failed result if no stocks were pre-selected
-                    end_time = timer()
-                    return AllocationResult(
-                        asset_weights={},
-                        success=False,
-                        statistics=NoStatistics(),
-                        computation_time=end_time - start_time,
-                        error_message="No stocks pre-selected from Wikipedia",
-                    )
-
-            else:
-                preselected_stocks = df_prices.columns.tolist()
 
             # Step 3: Filter df_prices to only include pre-selected stocks
             available_columns = [col for col in preselected_stocks if col in df_prices.columns]
@@ -424,7 +454,7 @@ class AllocationOrchestrator:
             df_prices_filtered = df_prices[available_columns]
 
             # Step 4: Run portfolio optimization on filtered data
-            optimization_result = self.run_equal_allocation_to_allocators(
+            optimization_result = self._run_equal_allocation_to_allocators(
                 df_prices=df_prices_filtered,
             )
 
@@ -446,33 +476,3 @@ class AllocationOrchestrator:
                 computation_time=end_time - start_time,
                 error_message=str(e),
             )
-
-
-if __name__ == "__main__":
-    # Generate proper test data: historical returns for moment estimation
-    np.random.seed(42)
-    n_observations = 100
-    returns_data = np.random.multivariate_normal(
-        mean=[0.1, 0.12, 0.08, 0.09, 0.11],
-        cov=[
-            [0.04, 0.01, 0.005, 0.002, 0.003],
-            [0.01, 0.05, 0.002, 0.001, 0.004],
-            [0.005, 0.002, 0.03, 0.001, 0.002],
-            [0.002, 0.001, 0.001, 0.02, 0.003],
-            [0.003, 0.004, 0.002, 0.003, 0.05],
-        ],
-        size=n_observations,
-    )
-
-    # Calculate expected returns and covariance from historical data
-    mu = np.mean(returns_data, axis=0)  # This should be 1D array of expected returns
-    cov = np.cov(returns_data, rowvar=False)
-
-    print(f"Expected returns: {mu}")
-    print(f"Expected returns shape: {mu.shape}")
-    print(f"Covariance matrix shape: {cov.shape}")
-
-    for optimizer in OPTIMIZER_LIST:
-        optimizer.fit(returns_data)
-        weights = optimizer.allocate(mu, cov, None, None)
-        print(f"Optimal weights for {optimizer.name}: {weights}")
