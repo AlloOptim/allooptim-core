@@ -15,6 +15,15 @@ logger = logging.getLogger(__name__)
 
 class BacktestConfig(BaseModel):
     """Pydantic configuration model for backtest parameters."""
+    
+    benchmark: str = Field(
+        default="SPY", description="Benchmark symbol for the backtest (e.g., SPY)"
+    )
+    
+    symbols: list[str] = Field(
+        default_factory=lambda: ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
+        description="List of asset symbols to include in the backtest",
+    )
 
     # Exception handling
     rerun_allocator_exceptions: bool = Field(

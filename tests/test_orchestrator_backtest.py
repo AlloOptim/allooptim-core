@@ -19,6 +19,10 @@ from allo_optim.allocation_to_allocators.allocation_orchestrator import (
 )
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.backtest_engine import BacktestEngine
+from allo_optim.config.allocation_dataclasses import (
+    AllocationResult,
+    WikipediaStatistics,
+)
 
 
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
@@ -43,6 +47,7 @@ def test_orchestrator_in_backtest(orchestration_type):
         n_particle_swarm_iterations=2,
         n_data_observations=2,
         use_wiki_database=True,
+        n_historical_days=30,
     )
 
     # For Wikipedia pipeline in A2A tests, use test database
@@ -66,10 +71,32 @@ def test_orchestrator_in_backtest(orchestration_type):
     price_data = np.random.randn(len(dates), len(symbols)).cumsum(axis=0) + 100
     synthetic_prices = pd.DataFrame(price_data, index=dates, columns=symbols)
 
-    # Mock the data loader
+    # Mock the data loader and Wikipedia allocation for speed
     with patch.object(engine.data_loader, "load_price_data", return_value=synthetic_prices):
-        # Run the backtest
-        results = engine.run_backtest()
+        if orchestration_type == OrchestrationType.WIKIPEDIA_PIPELINE:
+            # Mock allocate_wikipedia to return quick result for testing
+            mock_wiki_result = AllocationResult(
+                asset_weights={"AAPL": 0.5, "MSFT": 0.5, "GOOGL": 0.0, "AMZN": 0.0, "TSLA": 0.0},
+                success=True,
+                statistics=WikipediaStatistics(
+                    end_date="2023-01-01",
+                    r_squared=0.5,
+                    p_value=0.01,
+                    std_err=0.1,
+                    slope=0.2,
+                    intercept=0.0,
+                    all_symbols=symbols,
+                    valid_data_symbols=symbols,
+                    significant_positive_stocks=["AAPL", "MSFT"],
+                    top_n_symbols=["AAPL", "MSFT"],
+                ),
+            )
+            with patch("allo_optim.allocation_to_allocators.allocation_orchestrator.allocate_wikipedia", return_value=mock_wiki_result):
+                # Run the backtest
+                results = engine.run_backtest()
+        else:
+            # Run the backtest
+            results = engine.run_backtest()
 
     # Verify results were generated
     assert results is not None

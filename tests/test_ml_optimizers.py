@@ -12,6 +12,7 @@ from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer
 from allo_optim.optimizer.deep_learning.deep_learning_optimizer import (
     LSTMOptimizer,
     MAMBAOptimizer,
+    ModelType,
     TCNOptimizer,
 )
 from allo_optim.optimizer.light_gbm.light_gbm_optimizer import (
@@ -89,13 +90,13 @@ def test_augmented_lightgbm_optimizer(sample_prices, sample_mu, sample_cov):
 
 
 @pytest.mark.skip(reason="DL training is slow; enable for full testing")
-@pytest.mark.parametrize("optimizer_class", [LSTMOptimizer, MAMBAOptimizer, TCNOptimizer, MAMBAOptimizer])
-def test_lstm_optimizer_basic(optimizer_class, sample_prices, sample_mu, sample_cov):
+@pytest.mark.parametrize("optimizer_class", [LSTMOptimizer, MAMBAOptimizer, TCNOptimizer])
+def test_ml_optimizer_basic(optimizer_class, sample_prices, sample_mu, sample_cov):
     """Test that DL optimizers can fit and allocate."""
     optimizer = optimizer_class()
 
     # Verify model type
-    assert optimizer.model_type == "lstm"
+    assert isinstance(optimizer.model_type, ModelType)
 
     # Fit the optimizer (this will take some time)
     optimizer.fit(sample_prices)
@@ -113,21 +114,21 @@ def test_lstm_optimizer_basic(optimizer_class, sample_prices, sample_mu, sample_
 def test_mamba_optimizer_type(sample_prices):
     """Test that MAMBAOptimizer has correct model type."""
     optimizer = MAMBAOptimizer()
-    assert optimizer.model_type == "mamba"
+    assert optimizer.model_type == ModelType.MAMBA
     assert optimizer.name == "MAMBAOptimizer"
 
 
 def test_tcn_optimizer_type(sample_prices):
     """Test that TCNOptimizer has correct model type."""
     optimizer = TCNOptimizer()
-    assert optimizer.model_type == "tcn"
+    assert optimizer.model_type == ModelType.TCN
     assert optimizer.name == "TCNOptimizer"
 
 
 def test_lstm_optimizer_type(sample_prices):
     """Test that LSTMOptimizer has correct model type."""
     optimizer = LSTMOptimizer()
-    assert optimizer.model_type == "lstm"
+    assert optimizer.model_type == ModelType.LSTM
     assert optimizer.name == "LSTMOptimizer"
 
 

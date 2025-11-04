@@ -181,8 +181,7 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 
         cma_optimizer = cma.CMAEvolutionStrategy(initial_point, self.config.sigma, options)
 
-        if self._previous_cma_state is not None and self.config.enable_full_warm_start:
-            if len(initial_point) == len(self._previous_cma_state.mean):
+        if self._previous_cma_state is not None and self.config.enable_full_warm_start and len(initial_point) == len(self._previous_cma_state.mean):
                 cma_optimizer.sigma = self._previous_cma_state.sigma
                 cma_optimizer.mean = self._previous_cma_state.mean.copy()
                 if self._previous_cma_state.C is not None:

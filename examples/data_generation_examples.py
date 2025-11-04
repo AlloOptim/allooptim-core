@@ -86,12 +86,6 @@ def example_diverse_covariance_generation():
     print(f"Generated {len(training_data)} covariance matrices")
     print(f"Matrix shapes: {training_data[0].shape}")
 
-    # Show some statistics
-    eigenvalues = [np.linalg.eigvals(matrix) for matrix in training_data]
-    condition_numbers = [ev.max() / ev.min() for ev in eigenvalues]
-
-    print(".2f")
-    print(".2f")
 
     return training_data
 

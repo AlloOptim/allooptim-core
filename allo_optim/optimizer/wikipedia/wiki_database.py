@@ -42,7 +42,7 @@ def _get_date_range(
             min_date = datetime.strptime(result[0], "%Y-%m-%d")
             max_date = datetime.strptime(result[1], "%Y-%m-%d")
             return min_date, max_date
-    except:
+    except Exception:
         return None, None
 
 
@@ -371,7 +371,7 @@ def _load_from_database(
         if os.path.exists(db_path_str):
             logger.error(f"Database file size: {os.path.getsize(db_path_str)} bytes")
 
-        raise ValueError(f"Error loading from {table_name}: {str(error)}")
+        raise ValueError(f"Error loading from {table_name}: {str(error)}") from error
 
 
 def status_report_databases() -> dict[str, Any]:

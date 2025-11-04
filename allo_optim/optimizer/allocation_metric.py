@@ -251,11 +251,11 @@ def estimate_classical_moments(
             for i in range(n_assets):
                 for j in range(n_assets):
                     for k in range(n_assets):
-                        for l in range(n_assets):
+                        for l_idx in range(n_assets):
                             cokurt = np.mean(
-                                standardized[:, i] * standardized[:, j] * standardized[:, k] * standardized[:, l]
+                                standardized[:, i] * standardized[:, j] * standardized[:, k] * standardized[:, l_idx]
                             )
-                            kurt_tensor[i, j, k, l] = cokurt
+                            kurt_tensor[i, j, k, l_idx] = cokurt
 
             return skew_tensor, kurt_tensor
 

@@ -21,7 +21,7 @@ class BLOptimizerConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     view_dict: Optional[dict] = None
-    use_implied_market: bool = False
+    use_implied_market: bool = True
 
 
 class BlackLittermanOptimizer(AbstractOptimizer):

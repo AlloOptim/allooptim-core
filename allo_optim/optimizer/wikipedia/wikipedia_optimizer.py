@@ -46,11 +46,7 @@ class WikipediaOptimizer(AbstractOptimizer):
         assert time is not None, "Time parameter must be provided"
 
         # Ensure time is timezone-aware (required by allocate_wikipedia)
-        if time.tzinfo is None:
-            time = time.replace(tzinfo=pytz.UTC)
-        else:
-            # If already timezone-aware, convert to UTC
-            time = time.astimezone(pytz.UTC)
+        time = time.replace(tzinfo=pytz.UTC) if time.tzinfo is None else time.astimezone(pytz.UTC)
 
         # Get asset names
         asset_names = get_asset_names(mu=ds_mu)

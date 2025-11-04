@@ -206,8 +206,7 @@ def save_notebook_results(
         df_perf.to_csv(output_path / "performance_metrics.csv", index=False)
 
     # Save clustering results if available
-    if clustering_results and "euclidean_distance" in clustering_results:
-        if "closest_pairs" in clustering_results["euclidean_distance"]:
+    if clustering_results and "euclidean_distance" in clustering_results and "closest_pairs" in clustering_results["euclidean_distance"]:
             distance_data = clustering_results["euclidean_distance"]["closest_pairs"]
             if distance_data:
                 df_dist = pd.DataFrame(distance_data)

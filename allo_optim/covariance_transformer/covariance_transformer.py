@@ -601,12 +601,7 @@ class DetoneCovarianceTransformer(AbstractCovarianceTransformer):
         v = v[:, sort_index]
 
         # remove largest eigenvalue component
-        if self.n_remove is not None:
-            # Use explicit n_remove (backward compatibility)
-            n_remove = self.n_remove
-        else:
-            # Use fraction-based removal
-            n_remove = max(int(self.remove_fraction * len(w)), 1)
+        n_remove = self.n_remove if self.n_remove is not None else max(int(self.remove_fraction * len(w)), 1)
 
         # Handle special case: n_remove=0 means return original matrix
         if n_remove == 0:

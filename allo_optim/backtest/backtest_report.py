@@ -314,7 +314,7 @@ the S&P 500 benchmark
         cluster_analysis = {}
         if clustering_results:
             # Find the main clustering result (usually performance or correlation based)
-            for cluster_type, cluster_data in clustering_results.items():
+            for _, cluster_data in clustering_results.items():
                 if isinstance(cluster_data, dict) and "n_clusters" in cluster_data:
                     cluster_analysis = cluster_data
                     break

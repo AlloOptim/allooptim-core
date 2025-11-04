@@ -30,7 +30,7 @@ def test_a2a(orchestration_type, n_optimizers, wikipedia_test_db_path):
         n_data_observations=2,
         use_wiki_database=True,
         wiki_database_path=wikipedia_test_db_path,
-        n_historical_days=30,  # Reduce from default 60 to 30 for faster testing
+        n_historical_days=30,
     )
 
     if n_optimizers == 1:

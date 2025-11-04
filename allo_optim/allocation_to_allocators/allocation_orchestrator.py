@@ -143,11 +143,7 @@ class AllocationOrchestrator:
             or np.sum(weights) < 1.0 - self.config.weights_tolterance
         ):
             logger.warning(f"{name} sums to {np.sum(weights)}, normalizing to 1.0")
-            if np.sum(weights) > 0:
-                weights = weights / np.sum(weights)
-            else:
-                # If all weights are zero, set equal weights
-                weights = np.ones_like(weights) / len(weights)
+            weights = weights / np.sum(weights) if np.sum(weights) > 0 else np.ones_like(weights) / len(weights)
 
         return weights
 
@@ -221,7 +217,7 @@ class AllocationOrchestrator:
             except Exception as error:
                 optimizer.reset()
 
-                raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}")
+                raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}") from error
 
             end = timer()
             current, peak = tracemalloc.get_traced_memory()

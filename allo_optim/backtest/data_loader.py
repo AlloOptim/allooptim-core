@@ -5,7 +5,7 @@ import pandas as pd
 import yfinance as yf
 
 from allo_optim.backtest.data_cleaning import clean_price_data
-from allo_optim.config.stock_universe import everything_in_alpaca, extract_symbols_from_list
+from allo_optim.config.stock_universe import get_stocks_by_symbols
 
 logger = logging.getLogger(__name__)
 
@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 class DataLoader:
     """Handles loading and preprocessing of historical price data."""
 
-    def __init__(self, benchmark: str = "SPY") -> None:
-        self.stock_universe = everything_in_alpaca()
-        self.symbols = extract_symbols_from_list(self.stock_universe)
+    def __init__(self, benchmark: str, symbols: list[str],) -> None:
+        self.stock_universe = get_stocks_by_symbols(symbols)
+        self.symbols = symbols
 
         # Add SPY for benchmark
         if benchmark not in self.symbols:

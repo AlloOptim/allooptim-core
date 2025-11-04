@@ -9,7 +9,7 @@ from allo_optim.allocation_to_allocators.allocation_orchestrator import (
     AllocationOrchestrator,
     AllocationOrchestratorConfig,
 )
-from allo_optim.backtest.backtest_config import BacktestConfig, config
+from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
 from allo_optim.config.allocation_dataclasses import AllocationResult
@@ -36,12 +36,13 @@ class BacktestEngine:
         self,
         config_backtest: Optional[BacktestConfig] = None,
         config_a2a: Optional[AllocationOrchestratorConfig] = None,
-    ):
-        if config_backtest is None:
-            config_backtest = config
-        self.config_backtest = config_backtest
+    ) -> None:
+        self.config_backtest = config_backtest or BacktestConfig()
 
-        self.data_loader = DataLoader()
+        self.data_loader = DataLoader(
+			benchmark=self.config_backtest.benchmark,
+			symbols=self.config_backtest.symbols,
+		)
 
         # Create orchestrator directly
         self.orchestrator = AllocationOrchestrator(
@@ -130,10 +131,10 @@ class BacktestEngine:
             allocation_results.append(allocation_result)
 
             # SPY benchmark
-            spy_weights = pd.Series(0.0, index=clean_data.columns)
-            if "SPY" in spy_weights.index:
-                spy_weights["SPY"] = 1.0
-            benchmark_weights_history.append(spy_weights)
+            benchmark_weights = pd.Series(0.0, index=clean_data.columns)
+            if self.config_backtest.benchmark in benchmark_weights.index:
+                benchmark_weights[self.config_backtest.benchmark] = 1.0
+            benchmark_weights_history.append(benchmark_weights)
 
         # Calculate portfolio performance
         self.results = self._calculate_portfolio_performance(

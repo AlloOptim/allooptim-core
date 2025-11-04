@@ -124,7 +124,8 @@ def align_assets(
             missing_mu = mu_assets - common_assets
             missing_cov = cov_assets - common_assets
             warnings.warn(
-                f"Dropping assets - Missing in mu: {sorted(missing_mu)}, " f"Missing in cov: {sorted(missing_cov)}"
+                f"Dropping assets - Missing in mu: {sorted(missing_mu)}, " f"Missing in cov: {sorted(missing_cov)}",
+                stacklevel=2,
             )
 
         # Keep only common assets
@@ -174,7 +175,7 @@ def convert_numpy_to_pandas(
     if isinstance(mu, pd.Series):
         mu_series = mu
         if asset_names is not None and not mu.index.equals(pd.Index(asset_names)):
-            warnings.warn("Provided asset_names differ from mu.index, using mu.index")
+            warnings.warn("Provided asset_names differ from mu.index, using mu.index", stacklevel=2)
     else:
         if asset_names is None:
             raise ValueError("asset_names required when mu is numpy array")
@@ -189,7 +190,7 @@ def convert_numpy_to_pandas(
         if asset_names is not None:
             expected_index = pd.Index(asset_names)
             if not cov.index.equals(expected_index) or not cov.columns.equals(expected_index):
-                warnings.warn("Provided asset_names differ from cov.index/columns, using cov index/columns")
+                warnings.warn("Provided asset_names differ from cov.index/columns, using cov index/columns", stacklevel=2)
     else:
         if asset_names is None:
             asset_names = mu_series.index.tolist()

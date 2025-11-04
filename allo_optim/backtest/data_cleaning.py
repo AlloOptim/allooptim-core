@@ -33,7 +33,8 @@ def clean_price_data(
 
     Args:
         df_prices: DataFrame with dates as index and symbols as columns
-        trading_day_threshold: Minimum fraction of stocks that must have data for a day to be considered a trading day (default: 0.50)
+        trading_day_threshold: Minimum fraction of stocks that must have data for a day to be considered a trading day
+        (default: 0.50)
         min_data_threshold: Minimum fraction of trading days a stock must have data for (default: 0.80)
         max_individual_gaps_pct: Maximum fraction of trading days allowed for individual stock gaps (default: 0.05)
         min_symbols_required: Minimum number of symbols required after cleaning (default: 10)
@@ -77,7 +78,8 @@ def clean_price_data(
         if len(valid_columns) < len(df_prices.columns):
             dropped_stocks = len(df_prices.columns) - len(valid_columns)
             logger.info(
-                f"Dropped {dropped_stocks} stocks with insufficient data (< {min_required_days}/{actual_trading_days} trading days)"
+                f"Dropped {dropped_stocks} stocks with insufficient data "
+                f"(< {min_required_days}/{actual_trading_days} trading days)"
             )
 
         # Step 3: Handle remaining individual stock gaps (halts, suspensions)
