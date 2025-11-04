@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -31,26 +32,30 @@ INITIAL_PORTFOLIO_VALUE = 100000  # Start with $100k
 class BacktestEngine:
     """Main backtesting engine with efficient optimizer execution."""
 
-    def __init__(self, config_instance: BacktestConfig = None):
-        if config_instance is None:
-            config_instance = config
-        self.config = config_instance
+    def __init__(
+        self,
+        config_backtest: Optional[BacktestConfig] = None,
+        config_a2a: Optional[AllocationOrchestratorConfig] = None,
+    ):
+        if config_backtest is None:
+            config_backtest = config
+        self.config_backtest = config_backtest
 
         self.data_loader = DataLoader()
 
         # Create orchestrator directly
         self.orchestrator = AllocationOrchestrator(
-            optimizer_names=self.config.optimizer_names,
-            transformer_names=self.config.transformer_names,
-            config=AllocationOrchestratorConfig(orchestration_type=self.config.orchestration_type),
+            optimizer_names=self.config_backtest.optimizer_names,
+            transformer_names=self.config_backtest.transformer_names,
+            config=config_a2a,
         )
 
         self.results = {}
 
-        self.transformers = get_transformer_by_names(self.config.transformer_names)
+        self.transformers = get_transformer_by_names(self.config_backtest.transformer_names)
 
         # Create results directory
-        self.config.results_dir.mkdir(exist_ok=True, parents=True)
+        self.config_backtest.results_dir.mkdir(exist_ok=True, parents=True)
 
     def run_backtest(self) -> dict:
         """
@@ -62,11 +67,13 @@ class BacktestEngine:
         logger.info("Starting comprehensive backtest")
 
         # Get date range based on debug mode
-        start_data_date, end_data_date = self.config.get_data_date_range()
+        start_data_date, end_data_date = self.config_backtest.get_data_date_range()
 
         # Check if Wikipedia optimizer is being used and download data if needed
         wikipedia_optimizer_names = ["WikipediaOptimizer"]
-        has_wikipedia_optimizer = any(opt_name in wikipedia_optimizer_names for opt_name in self.config.optimizer_names)
+        has_wikipedia_optimizer = any(
+            opt_name in wikipedia_optimizer_names for opt_name in self.config_backtest.optimizer_names
+        )
 
         if has_wikipedia_optimizer:
             logger.info("Wikipedia optimizer detected, downloading Wikipedia data...")
@@ -93,7 +100,7 @@ class BacktestEngine:
             logger.info(f"Processing rebalance {i+1}/{len(rebalance_dates)}: {rebalance_date}")
 
             # Get lookback window for estimation
-            lookback_start = rebalance_date - timedelta(days=self.config.lookback_days)
+            lookback_start = rebalance_date - timedelta(days=self.config_backtest.lookback_days)
             lookback_data = price_data[(price_data.index >= lookback_start) & (price_data.index <= rebalance_date)]
 
             if len(lookback_data) < MIN_LOOKBACK_OBSERVATIONS:  # Need minimum data (very reduced for 3-month backtest)
@@ -140,7 +147,7 @@ class BacktestEngine:
         """Get rebalancing dates every N trading days."""
 
         rebalance_dates = []
-        for i in range(self.config.lookback_days, len(date_index), self.config.rebalance_frequency):
+        for i in range(self.config_backtest.lookback_days, len(date_index), self.config_backtest.rebalance_frequency):
             rebalance_dates.append(date_index[i])
 
         return rebalance_dates
@@ -172,14 +179,14 @@ class BacktestEngine:
             a2a_allocations.index.name = "timestamp"
 
             # Save to CSV in the results directory
-            csv_path = self.config.results_dir / "a2a_allocations.csv"
+            csv_path = self.config_backtest.results_dir / "a2a_allocations.csv"
             a2a_allocations.to_csv(csv_path, float_format="%.6f")
 
             logger.info(f"✅ Saved A2A allocations to {csv_path}")
             logger.info(f"   Shape: {a2a_allocations.shape[0]} timestamps × {a2a_allocations.shape[1]} assets")
 
             # Also save a summary with non-zero positions only for readability
-            summary_path = self.config.results_dir / "a2a_allocations_summary.csv"
+            summary_path = self.config_backtest.results_dir / "a2a_allocations_summary.csv"
 
             # For each timestamp, keep only non-zero weights
             summary_rows = []
