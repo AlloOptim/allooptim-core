@@ -80,8 +80,10 @@ class MaxSharpeOptimizer(AbstractOptimizer):
         >>> print(f"Optimized Sharpe Ratio: {sharpe_ratio:.4f}")
     """
 
-    def __init__(self,
-                 config: Optional[MaxSharpeOptimizerConfig] = None,) -> None:
+    def __init__(
+        self,
+        config: Optional[MaxSharpeOptimizerConfig] = None,
+    ) -> None:
         self.config = config or MaxSharpeOptimizerConfig()
 
     def allocate(

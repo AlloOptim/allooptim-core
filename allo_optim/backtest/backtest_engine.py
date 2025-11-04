@@ -1,27 +1,18 @@
 import logging
-import tracemalloc
 from datetime import datetime, timedelta
-from time import time
 
 import numpy as np
 import pandas as pd
-from pypfopt.expected_returns import mean_historical_return
-from pypfopt.risk_models import sample_cov
 
-from allo_optim.allocation_to_allocators.orchestrator_adapter import (
-    AllocationOrchestratorAdapter,
+from allo_optim.allocation_to_allocators.allocation_orchestrator import (
+    AllocationOrchestrator,
+    AllocationOrchestratorConfig,
 )
 from allo_optim.backtest.backtest_config import BacktestConfig, config
 from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
+from allo_optim.config.allocation_dataclasses import AllocationResult
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
-from allo_optim.optimizer.allocation_metric import estimate_linear_moments
-from allo_optim.optimizer.ensemble_optimizers import A2AEnsembleOptimizer, SPY500Benchmark
-from allo_optim.optimizer.optimizer_interface import (
-    AbstractEnsembleOptimizer,
-    AbstractOptimizer,
-)
-from allo_optim.optimizer.optimizer_list import get_optimizer_by_names
 from allo_optim.optimizer.wikipedia.sql_database import download_data
 
 logger = logging.getLogger(__name__)
@@ -46,51 +37,20 @@ class BacktestEngine:
         self.config = config_instance
 
         self.data_loader = DataLoader()
-        self.individual_optimizers, self.ensemble_optimizers = self._setup_optimizers()
-        # Combine for backward compatibility where needed
-        self.optimizers = self.individual_optimizers + self.ensemble_optimizers
+
+        # Create orchestrator directly
+        self.orchestrator = AllocationOrchestrator(
+            optimizer_names=self.config.optimizer_names,
+            transformer_names=self.config.transformer_names,
+            config=AllocationOrchestratorConfig(orchestration_type=self.config.orchestration_type),
+        )
+
         self.results = {}
 
         self.transformers = get_transformer_by_names(self.config.transformer_names)
 
         # Create results directory
         self.config.results_dir.mkdir(exist_ok=True, parents=True)
-
-    def _setup_optimizers(self) -> tuple[list[AbstractOptimizer], list[AbstractEnsembleOptimizer]]:
-        """Setup individual and ensemble optimizers separately for efficient execution."""
-
-        # Check if using orchestrator mode
-        if self.config.use_orchestrator:
-            # Use AllocationOrchestratorAdapter
-            orchestrator = AllocationOrchestratorAdapter(
-                optimizer_names=self.config.optimizer_names,
-                transformer_names=self.config.transformer_names,
-                orchestration_type=self.config.orchestration_type,
-            )
-
-            individual_optimizers = [orchestrator]
-            ensemble_optimizers = []  # Don't double-count with A2AEnsembleOptimizer
-
-            logger.info(
-                f"Using AllocationOrchestrator in {self.config.orchestration_type.value} mode"
-            )
-            logger.info(f"Orchestrator wraps: {self.config.optimizer_names}")
-        else:
-            # Traditional mode: Individual optimizers
-            optimizer_names = self.config.optimizer_names
-            individual_optimizers = get_optimizer_by_names(optimizer_names)
-
-            # Ensemble optimizers (run after individual optimizers to use df_allocations)
-            ensemble_optimizers = [A2AEnsembleOptimizer(), SPY500Benchmark()]
-
-            logger.info(
-                f"Setup {len(individual_optimizers)} individual optimizers: {[opt.name for opt in individual_optimizers]}"
-            )
-            logger.info(
-                f"Setup {len(ensemble_optimizers)} ensemble optimizers: {[opt.name for opt in ensemble_optimizers]}"
-            )
-
-        return individual_optimizers, ensemble_optimizers
 
     def run_backtest(self) -> dict:
         """
@@ -106,7 +66,7 @@ class BacktestEngine:
 
         # Check if Wikipedia optimizer is being used and download data if needed
         wikipedia_optimizer_names = ["WikipediaOptimizer"]
-        has_wikipedia_optimizer = any(opt.name in wikipedia_optimizer_names for opt in self.individual_optimizers)
+        has_wikipedia_optimizer = any(opt_name in wikipedia_optimizer_names for opt_name in self.config.optimizer_names)
 
         if has_wikipedia_optimizer:
             logger.info("Wikipedia optimizer detected, downloading Wikipedia data...")
@@ -125,10 +85,8 @@ class BacktestEngine:
         logger.info(f"Running backtest with {len(rebalance_dates)} rebalancing dates")
 
         # Initialize tracking
-        {opt.name: [] for opt in self.optimizers}
-        weights_history = {opt.name: [] for opt in self.optimizers}
-        computation_times = {opt.name: [] for opt in self.optimizers}
-        memory_usage = {opt.name: [] for opt in self.optimizers}
+        allocation_results = []  # Store AllocationResult per timestep
+        benchmark_weights_history = []  # SPY benchmark
 
         # Run backtest for each rebalancing date
         for i, rebalance_date in enumerate(rebalance_dates):
@@ -141,14 +99,6 @@ class BacktestEngine:
             if len(lookback_data) < MIN_LOOKBACK_OBSERVATIONS:  # Need minimum data (very reduced for 3-month backtest)
                 logger.warning(f"Insufficient data for {rebalance_date}, skipping")
                 continue
-
-            # Get 2-year training window for optimizer.fit()
-            training_start = rebalance_date - timedelta(days=TRAINING_WINDOW_DAYS)  # 2 years
-            training_data = price_data[(price_data.index >= training_start) & (price_data.index <= rebalance_date)]
-
-            # If not enough training data, use all available data
-            if len(training_data) < self.config.lookback_days:
-                training_data = lookback_data
 
             # Clean data for estimation - remove assets with insufficient data
             min_observations = max(5, len(lookback_data) // 4)  # Need at least 25% of observations
@@ -166,180 +116,22 @@ class BacktestEngine:
             # Use only valid assets for estimation - ensure consistency across all data
             clean_data = lookback_data[valid_assets]
 
-            # Also filter training data to match valid assets
-            clean_training_data = (
-                training_data[valid_assets] if len(training_data.columns) > len(valid_assets) else training_data
+            # Single orchestrator call
+            allocation_result = self.orchestrator.run_allocation(
+                all_stocks=self.data_loader.stock_universe, time_today=rebalance_date, df_prices=clean_data
             )
+            allocation_results.append(allocation_result)
 
-            # Follow the correct call sequence as specified by user:
-            # 1. mu = estimate_returns(prices_of_lookback_period)
-            mu = mean_historical_return(clean_data, log_returns=self.config.log_returns)
-
-            # 2. cov = estimate_covariance(prices_of_lookback_period)
-            cov = sample_cov(clean_data, log_returns=self.config.log_returns)
-
-            # Handle any remaining NaN values in covariance matrix
-            if cov.isna().any().any():
-                logger.warning(
-                    f"NaN values detected in covariance matrix for {rebalance_date}, filling with robust estimates"
-                )
-                # Fill NaN with small diagonal values and zero off-diagonal
-                for row_idx in range(len(cov)):
-                    for col_idx in range(len(cov.columns)):
-                        if pd.isna(cov.iloc[row_idx, col_idx]):
-                            if row_idx == col_idx:  # Diagonal - use small positive variance
-                                cov.iloc[row_idx, col_idx] = COVARIANCE_NAN_DIAGONAL_FILL  # 1% variance
-                            else:  # Off-diagonal - use zero correlation
-                                cov.iloc[row_idx, col_idx] = COVARIANCE_NAN_OFF_DIAGONAL_FILL
-            # 3. cov = Transformer(cov)
-            for transformer in self.transformers:
-                cov = transformer.transform(cov, n_observations=len(clean_data))
-
-            # 5. l_moments = estimate_l_moments(df_prices_lookback_period)
-            l_moments = estimate_linear_moments(clean_data)
-
-            # Step 1: Run individual optimizers first and collect allocations
-            df_allocations_data = {}
-
-            for optimizer in self.individual_optimizers:
-                logger.info(f"Running optimizer: {optimizer.name}")
-
-                # Track memory and time
-                tracemalloc.start()
-                start_time = time()
-
-                try:
-                    # 4. optimizer.fit(df_train_prices) - use 2-year training data with valid assets only
-                    optimizer.fit(clean_training_data)
-
-                    # 6. allocation_weights = optimizer.allocate(mu, cov, time, l_moments)
-                    weights = optimizer.allocate(
-                        ds_mu=mu,
-                        df_cov=cov,
-                        df_prices=clean_data,
-                        time=rebalance_date,
-                        l_moments=l_moments,
-                    )
-
-                    # Handle failed allocation
-                    if weights is None or weights.sum() == 0:
-                        if self.config.use_equal_weights_fallback:
-                            weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
-                        else:
-                            weights = pd.Series(np.zeros(len(mu)), index=mu.index)
-
-                    # Normalize weights
-                    if weights.sum() > 0:
-                        weights = weights / weights.sum()
-
-                    # Store in both tracking and allocations DataFrame
-                    weights_history[optimizer.name].append(weights)
-                    df_allocations_data[optimizer.name] = weights
-
-                    # Track performance metrics
-                    end_time = time()
-                    computation_times[optimizer.name].append(end_time - start_time)
-
-                    current, peak = tracemalloc.get_traced_memory()
-                    memory_usage[optimizer.name].append(current / 1024 / 1024)  # MB
-                    tracemalloc.stop()
-
-                except Exception as e:
-                    optimizer.reset()
-
-                    logger.error(f"Error in {optimizer.name} at {rebalance_date}: {e}")
-                    if self.config.rerun_allocator_exceptions:
-                        raise e
-
-                    # Use fallback weights
-                    if self.config.use_equal_weights_fallback:
-                        fallback_weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
-                    else:
-                        fallback_weights = pd.Series(np.zeros(len(mu)), index=mu.index)
-
-                    # Store fallback in both tracking and allocations DataFrame
-                    weights_history[optimizer.name].append(fallback_weights)
-                    df_allocations_data[optimizer.name] = fallback_weights
-
-                    # Record time and memory for failed optimizers too
-                    end_time = time()
-                    computation_times[optimizer.name].append(end_time - start_time)
-
-                    current, peak = tracemalloc.get_traced_memory()
-                    memory_usage[optimizer.name].append(peak / 1024 / 1024)  # Convert to MB
-                    tracemalloc.stop()
-
-            # Step 2: Create df_allocations DataFrame from individual optimizer results
-            if df_allocations_data:
-                df_allocations = pd.DataFrame(df_allocations_data).T  # Transpose so optimizers are rows
-                logger.info(
-                    f"Created allocation matrix with {len(df_allocations)} optimizers and "
-                    f"{len(df_allocations.columns)} assets"
-                )
-            else:
-                # No individual optimizers succeeded
-                df_allocations = None
-                logger.warning("No individual optimizers succeeded")
-
-            # Step 3: Run ensemble optimizers with df_allocations
-            for optimizer in self.ensemble_optimizers:
-                # Track memory and time
-                tracemalloc.start()
-                start_time = time()
-
-                try:
-                    # Ensemble optimizers don't need fitting typically
-                    optimizer.fit(clean_training_data)
-
-                    # Pass df_allocations to ensemble optimizers for efficient computation
-                    weights = optimizer.allocate(
-                        ds_mu=mu,
-                        df_cov=cov,
-                        df_prices=clean_data,
-                        df_allocations=df_allocations,
-                        time=rebalance_date,
-                        l_moments=l_moments,
-                    )
-
-                    # Handle failed allocation
-                    if weights is None or weights.sum() == 0:
-                        if self.config.use_equal_weights_fallback:
-                            weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
-                        else:
-                            weights = pd.Series(np.zeros(len(mu)), index=mu.index)
-
-                    # Normalize weights
-                    if weights.sum() > 0:
-                        weights = weights / weights.sum()
-
-                    weights_history[optimizer.name].append(weights)
-
-                except Exception as e:
-                    logger.error(f"Error in ensemble optimizer {optimizer.name} at {rebalance_date}: {e}")
-
-                    # Use fallback weights for ensemble optimizers too
-                    if self.config.use_equal_weights_fallback:
-                        fallback_weights = pd.Series(np.ones(len(mu)) / len(mu), index=mu.index)
-                    else:
-                        fallback_weights = pd.Series(np.zeros(len(mu)), index=mu.index)
-
-                    weights_history[optimizer.name].append(fallback_weights)
-
-                # Record time and memory for ensemble optimizers
-                end_time = time()
-                computation_times[optimizer.name].append(end_time - start_time)
-
-                current, peak = tracemalloc.get_traced_memory()
-                memory_usage[optimizer.name].append(peak / 1024 / 1024)  # Convert to MB
-                tracemalloc.stop()
+            # SPY benchmark
+            spy_weights = pd.Series(0.0, index=clean_data.columns)
+            if "SPY" in spy_weights.index:
+                spy_weights["SPY"] = 1.0
+            benchmark_weights_history.append(spy_weights)
 
         # Calculate portfolio performance
         self.results = self._calculate_portfolio_performance(
-            price_data, weights_history, rebalance_dates, computation_times, memory_usage
+            price_data, allocation_results, benchmark_weights_history, rebalance_dates
         )
-
-        # Save A2A allocations to CSV
-        self._save_a2a_allocations(weights_history, rebalance_dates)
 
         logger.info("Backtest completed")
         return self.results
@@ -419,16 +211,40 @@ class BacktestEngine:
     def _calculate_portfolio_performance(
         self,
         price_data: pd.DataFrame,
-        weights_history: dict[str, list[pd.Series]],
+        allocation_results: list[AllocationResult],
+        benchmark_weights_history: list[pd.Series],
         rebalance_dates: list[datetime],
-        computation_times: dict[str, list[float]],
-        memory_usage: dict[str, list[float]],
     ) -> dict:
         """Calculate comprehensive performance metrics for all portfolios."""
 
-        results = {}
+        # Extract per-optimizer weights_history from df_allocation
+        optimizer_names = set()
+        for result in allocation_results:
+            if result.df_allocation is not None:
+                optimizer_names.update(result.df_allocation.index)
 
-        for optimizer_name in weights_history:
+        # Build weights_history dict: {optimizer_name: list[pd.Series]}
+        weights_history = {name: [] for name in optimizer_names}
+        for result in allocation_results:
+            if result.df_allocation is not None:
+                for opt_name in optimizer_names:
+                    if opt_name in result.df_allocation.index:
+                        weights_history[opt_name].append(result.df_allocation.loc[opt_name])
+
+        # Accumulate memory/time per optimizer
+        memory_stats = {name: [] for name in optimizer_names}
+        time_stats = {name: [] for name in optimizer_names}
+        for result in allocation_results:
+            if result.optimizer_memory_usage:
+                for name, mem in result.optimizer_memory_usage.items():
+                    memory_stats[name].append(mem)
+            if result.optimizer_computation_time:
+                for name, time in result.optimizer_computation_time.items():
+                    time_stats[name].append(time)
+
+        # Calculate performance for each optimizer
+        results = {}
+        for optimizer_name in optimizer_names:
             if not weights_history[optimizer_name]:
                 continue
 
@@ -485,8 +301,7 @@ class BacktestEngine:
                     "turnover_q75": turnover.quantile(0.75),
                 }
 
-            # Portfolio turnover statistics
-            weights_df = pd.DataFrame(weights_history[optimizer_name], index=rebalance_dates)
+            # Portfolio change rate statistics
             change_rate = PerformanceMetrics.portfolio_changerate(weights_df)
 
             change_rate_stats = {}
@@ -501,7 +316,7 @@ class BacktestEngine:
                     "change_rate_q75": change_rate.quantile(0.75),
                 }
 
-            weights_df = pd.DataFrame(weights_history[optimizer_name], index=rebalance_dates)
+            # Invested assets statistics
             invested_assets_stats = {}
             for rel_threshold in [5, 10, 50, 100]:
                 invested_assets = PerformanceMetrics.portfolio_invested_assets(weights_df, rel_threshold / 100)
@@ -520,7 +335,7 @@ class BacktestEngine:
                         }
                     )
 
-            weights_df = pd.DataFrame(weights_history[optimizer_name], index=rebalance_dates)
+            # Top N invested assets statistics
             invested_top_n_stats = {}
             for top_n in [5, 10, 50]:
                 invested_assets = PerformanceMetrics.portfolio_invested_top_n(weights_df, top_n)
@@ -537,17 +352,11 @@ class BacktestEngine:
 
             # Computation and memory statistics
             computation_stats = {
-                "avg_computation_time": np.mean(computation_times[optimizer_name])
-                if computation_times[optimizer_name]
-                else 0,
-                "max_computation_time": np.max(computation_times[optimizer_name])
-                if computation_times[optimizer_name]
-                else 0,
-                "min_computation_time": np.min(computation_times[optimizer_name])
-                if computation_times[optimizer_name]
-                else 0,
-                "avg_memory_usage_mb": np.mean(memory_usage[optimizer_name]) if memory_usage[optimizer_name] else 0,
-                "max_memory_usage_mb": np.max(memory_usage[optimizer_name]) if memory_usage[optimizer_name] else 0,
+                "avg_computation_time": np.mean(time_stats[optimizer_name]) if time_stats[optimizer_name] else 0,
+                "max_computation_time": np.max(time_stats[optimizer_name]) if time_stats[optimizer_name] else 0,
+                "min_computation_time": np.min(time_stats[optimizer_name]) if time_stats[optimizer_name] else 0,
+                "avg_memory_usage_mb": np.mean(memory_stats[optimizer_name]) if memory_stats[optimizer_name] else 0,
+                "max_memory_usage_mb": np.max(memory_stats[optimizer_name]) if memory_stats[optimizer_name] else 0,
             }
 
             # Combine all metrics
@@ -568,6 +377,217 @@ class BacktestEngine:
                 "weights_history": weights_df,
                 "turnover": turnover,
             }
+
+        # Add SPY benchmark results
+        if benchmark_weights_history:
+            logger.info("Calculating performance for SPY benchmark")
+
+            spy_portfolio_values = self._simulate_portfolio(price_data, benchmark_weights_history, rebalance_dates)
+
+            if not spy_portfolio_values.empty:
+                spy_returns = PerformanceMetrics.calculate_returns(spy_portfolio_values)
+
+                spy_metrics = {
+                    "sharpe_ratio": PerformanceMetrics.sharpe_ratio(spy_returns),
+                    "max_drawdown": PerformanceMetrics.max_drawdown(spy_portfolio_values),
+                    "time_underwater": PerformanceMetrics.time_underwater(spy_portfolio_values),
+                    "cagr": PerformanceMetrics.cagr(spy_portfolio_values),
+                    "risk_adjusted_return": PerformanceMetrics.risk_adjusted_return(spy_returns),
+                    "annual_return": spy_returns.mean() * 252,
+                    "annual_volatility": spy_returns.std() * np.sqrt(252),
+                    "total_return": (spy_portfolio_values.iloc[-1] / spy_portfolio_values.iloc[0]) - 1,
+                }
+
+                spy_returns_stats = {
+                    "returns_mean": spy_returns.mean() * 252,
+                    "returns_std": spy_returns.std() * np.sqrt(252),
+                    "returns_min": spy_returns.min() * 252,
+                    "returns_max": spy_returns.max() * 252,
+                    "returns_q25": spy_returns.quantile(0.25) * 252,
+                    "returns_q50": spy_returns.quantile(0.50) * 252,
+                    "returns_q75": spy_returns.quantile(0.75) * 252,
+                    "returns_skew": spy_returns.skew(),
+                    "returns_kurtosis": spy_returns.kurtosis(),
+                }
+
+                spy_weights_df = pd.DataFrame(benchmark_weights_history, index=rebalance_dates)
+                spy_turnover = PerformanceMetrics.portfolio_turnover(spy_weights_df)
+
+                spy_turnover_stats = {}
+                if not spy_turnover.empty:
+                    spy_turnover_stats = {
+                        "turnover_mean": spy_turnover.mean(),
+                        "turnover_std": spy_turnover.std(),
+                        "turnover_min": spy_turnover.min(),
+                        "turnover_max": spy_turnover.max(),
+                        "turnover_q25": spy_turnover.quantile(0.25),
+                        "turnover_q50": spy_turnover.quantile(0.50),
+                        "turnover_q75": spy_turnover.quantile(0.75),
+                    }
+
+                spy_change_rate = PerformanceMetrics.portfolio_changerate(spy_weights_df)
+
+                spy_change_rate_stats = {}
+                if not spy_change_rate.empty:
+                    spy_change_rate_stats = {
+                        "change_rate_mean": spy_change_rate.mean(),
+                        "change_rate_std": spy_change_rate.std(),
+                        "change_rate_min": spy_change_rate.min(),
+                        "change_rate_max": spy_change_rate.max(),
+                        "change_rate_q25": spy_change_rate.quantile(0.25),
+                        "change_rate_q50": spy_change_rate.quantile(0.50),
+                        "change_rate_q75": spy_change_rate.quantile(0.75),
+                    }
+
+                spy_all_metrics = {
+                    **spy_metrics,
+                    **spy_returns_stats,
+                    **spy_turnover_stats,
+                    **spy_change_rate_stats,
+                }
+
+                results["SPY_Benchmark"] = {
+                    "metrics": spy_all_metrics,
+                    "portfolio_values": spy_portfolio_values,
+                    "returns": spy_returns,
+                    "weights_history": spy_weights_df,
+                    "turnover": spy_turnover,
+                }
+
+        # Calculate A2A Ensemble (average of all individual optimizers)
+        if optimizer_names:
+            logger.info("Calculating A2A ensemble performance")
+
+            # Collect all individual optimizer portfolio values and weights
+            individual_portfolio_values = []
+            individual_weights_history = []
+
+            for opt_name in optimizer_names:
+                if opt_name in results:
+                    individual_portfolio_values.append(results[opt_name]["portfolio_values"])
+                    individual_weights_history.append(results[opt_name]["weights_history"])
+
+            if individual_portfolio_values:
+                # Average portfolio values across all optimizers
+                a2a_portfolio_values = pd.concat(individual_portfolio_values, axis=1).mean(axis=1)
+
+                # Average weights across all optimizers
+                a2a_weights_df = pd.concat(individual_weights_history, axis=0).groupby(level=0).mean()
+
+                if not a2a_portfolio_values.empty:
+                    a2a_returns = PerformanceMetrics.calculate_returns(a2a_portfolio_values)
+
+                    a2a_metrics = {
+                        "sharpe_ratio": PerformanceMetrics.sharpe_ratio(a2a_returns),
+                        "max_drawdown": PerformanceMetrics.max_drawdown(a2a_portfolio_values),
+                        "time_underwater": PerformanceMetrics.time_underwater(a2a_portfolio_values),
+                        "cagr": PerformanceMetrics.cagr(a2a_portfolio_values),
+                        "risk_adjusted_return": PerformanceMetrics.risk_adjusted_return(a2a_returns),
+                        "annual_return": a2a_returns.mean() * 252,
+                        "annual_volatility": a2a_returns.std() * np.sqrt(252),
+                        "total_return": (a2a_portfolio_values.iloc[-1] / a2a_portfolio_values.iloc[0]) - 1,
+                    }
+
+                    a2a_returns_stats = {
+                        "returns_mean": a2a_returns.mean() * 252,
+                        "returns_std": a2a_returns.std() * np.sqrt(252),
+                        "returns_min": a2a_returns.min() * 252,
+                        "returns_max": a2a_returns.max() * 252,
+                        "returns_q25": a2a_returns.quantile(0.25) * 252,
+                        "returns_q50": a2a_returns.quantile(0.50) * 252,
+                        "returns_q75": a2a_returns.quantile(0.75) * 252,
+                        "returns_skew": a2a_returns.skew(),
+                        "returns_kurtosis": a2a_returns.kurtosis(),
+                    }
+
+                    a2a_turnover = PerformanceMetrics.portfolio_turnover(a2a_weights_df)
+
+                    a2a_turnover_stats = {}
+                    if not a2a_turnover.empty:
+                        a2a_turnover_stats = {
+                            "turnover_mean": a2a_turnover.mean(),
+                            "turnover_std": a2a_turnover.std(),
+                            "turnover_min": a2a_turnover.min(),
+                            "turnover_max": a2a_turnover.max(),
+                            "turnover_q25": a2a_turnover.quantile(0.25),
+                            "turnover_q50": a2a_turnover.quantile(0.50),
+                            "turnover_q75": a2a_turnover.quantile(0.75),
+                        }
+
+                    a2a_change_rate = PerformanceMetrics.portfolio_changerate(a2a_weights_df)
+
+                    a2a_change_rate_stats = {}
+                    if not a2a_change_rate.empty:
+                        a2a_change_rate_stats = {
+                            "change_rate_mean": a2a_change_rate.mean(),
+                            "change_rate_std": a2a_change_rate.std(),
+                            "change_rate_min": a2a_change_rate.min(),
+                            "change_rate_max": a2a_change_rate.max(),
+                            "change_rate_q25": a2a_change_rate.quantile(0.25),
+                            "change_rate_q50": a2a_change_rate.quantile(0.50),
+                            "change_rate_q75": a2a_change_rate.quantile(0.75),
+                        }
+
+                    # Invested assets statistics for A2A
+                    a2a_invested_assets_stats = {}
+                    for rel_threshold in [5, 10, 50, 100]:
+                        invested_assets = PerformanceMetrics.portfolio_invested_assets(
+                            a2a_weights_df, rel_threshold / 100
+                        )
+
+                        if not invested_assets.empty:
+                            a2a_invested_assets_stats.update(
+                                {
+                                    f"invested_{rel_threshold}_abs_mean": invested_assets.mean(),
+                                    f"invested_{rel_threshold}_abs_std": invested_assets.std(),
+                                    f"invested_{rel_threshold}_abs_min": invested_assets.min(),
+                                    f"invested_{rel_threshold}_abs_max": invested_assets.max(),
+                                    f"invested_{rel_threshold}_pct_mean": (
+                                        invested_assets / a2a_weights_df.shape[1]
+                                    ).mean(),
+                                    f"invested_{rel_threshold}_pct_std": (
+                                        invested_assets / a2a_weights_df.shape[1]
+                                    ).std(),
+                                    f"invested_{rel_threshold}_pct_min": (
+                                        invested_assets / a2a_weights_df.shape[1]
+                                    ).min(),
+                                    f"invested_{rel_threshold}_pct_max": (
+                                        invested_assets / a2a_weights_df.shape[1]
+                                    ).max(),
+                                }
+                            )
+
+                    # Top N invested assets statistics for A2A
+                    a2a_invested_top_n_stats = {}
+                    for top_n in [5, 10, 50]:
+                        invested_assets = PerformanceMetrics.portfolio_invested_top_n(a2a_weights_df, top_n)
+
+                        if not invested_assets.empty:
+                            a2a_invested_top_n_stats.update(
+                                {
+                                    f"invested_top_{top_n}_mean": invested_assets.mean(),
+                                    f"invested_top_{top_n}_std": invested_assets.std(),
+                                    f"invested_top_{top_n}_min": invested_assets.min(),
+                                    f"invested_top_{top_n}_max": invested_assets.max(),
+                                }
+                            )
+
+                    a2a_all_metrics = {
+                        **a2a_metrics,
+                        **a2a_returns_stats,
+                        **a2a_invested_assets_stats,
+                        **a2a_invested_top_n_stats,
+                        **a2a_turnover_stats,
+                        **a2a_change_rate_stats,
+                    }
+
+                    results["A2A_Ensemble"] = {
+                        "metrics": a2a_all_metrics,
+                        "portfolio_values": a2a_portfolio_values,
+                        "returns": a2a_returns,
+                        "weights_history": a2a_weights_df,
+                        "turnover": a2a_turnover,
+                    }
 
         return results
 

@@ -25,9 +25,10 @@ class BLOptimizerConfig(BaseModel):
 
 
 class BlackLittermanOptimizer(AbstractOptimizer):
-    def __init__(self,
-                 config: Optional[BLOptimizerConfig] = None,
-                 ) -> None:
+    def __init__(
+        self,
+        config: Optional[BLOptimizerConfig] = None,
+    ) -> None:
         self.config = config or BLOptimizerConfig()
 
     def allocate(

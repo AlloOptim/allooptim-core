@@ -6,6 +6,7 @@ Integrates MCOS simulation with allocation optimization.
 """
 
 import logging
+import tracemalloc
 from datetime import datetime
 from enum import Enum
 from timeit import default_timer as timer
@@ -65,7 +66,7 @@ class AllocationOrchestratorConfig(BaseModel):
 
     use_sql_database: bool = False
     n_historical_days: int = Field(60, ge=1)
-    
+
     # Timezone for timestamp localization (e.g., "UTC", "US/Eastern")
     timezone: str = Field("UTC")
 
@@ -162,7 +163,7 @@ class AllocationOrchestrator:
             allocator_weights: Optimal weights for each allocator
 
         Returns:
-            Tuple of (asset_weights_dict, statistics_dict, df_allocation)
+            Tuple of (asset_weights_dict, statistics_dict, df_allocation, memory_usage, computation_time)
         """
 
         if len(self._optimizers) != len(allocator_weights):
@@ -188,12 +189,18 @@ class AllocationOrchestrator:
         statistic_returns = {}
         statistic_volatilities = {}
         statistic_runtime = {"A2A": np.nan}
-        
+
         # Track individual optimizer allocations for df_allocation
         optimizer_allocations = {}
 
+        # Track memory and computation time per optimizer
+        memory_usage = {}
+        computation_time = {}
+
         # Compute weighted asset allocation
         for k, optimizer in enumerate(self._optimizers):
+            # Track memory and time
+            tracemalloc.start()
             start = timer()
 
             try:
@@ -215,6 +222,12 @@ class AllocationOrchestrator:
                 raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}")
 
             end = timer()
+            current, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+
+            # Store memory and computation time
+            memory_usage[optimizer.name] = peak / 1024 / 1024  # Convert to MB
+            computation_time[optimizer.name] = end - start
 
             # Compute optimizer statistics using pandas operations
             expected_return = (weights * mu).sum()  # Element-wise multiplication and sum
@@ -230,7 +243,7 @@ class AllocationOrchestrator:
             statistic_returns[optimizer.name] = expected_return
             statistic_volatilities[optimizer.name] = expected_volatility
             statistic_runtime[optimizer.name] = end - start
-            
+
             # Store optimizer allocation for df_allocation DataFrame
             optimizer_allocations[optimizer.name] = weights
 
@@ -267,7 +280,7 @@ class AllocationOrchestrator:
             "asset_weights": asset_weights_dict,
         }
 
-        return asset_weights_dict, statistics_dict, df_allocation
+        return asset_weights_dict, statistics_dict, df_allocation, memory_usage, computation_time
 
     def _run_optimized_allocation_to_allocators(
         self,
@@ -332,10 +345,12 @@ class AllocationOrchestrator:
             )
 
             # Step 3: Compute final asset weights and statistics
-            asset_weights_dict, statistics_dict, df_allocation = self._compute_final_asset_weights(
-                df_prices=df_prices,
-                time_today=time_today,
-                allocator_weights=allocator_weights,
+            asset_weights_dict, statistics_dict, df_allocation, memory_usage, computation_time = (
+                self._compute_final_asset_weights(
+                    df_prices=df_prices,
+                    time_today=time_today,
+                    allocator_weights=allocator_weights,
+                )
             )
 
             # Build result
@@ -344,13 +359,17 @@ class AllocationOrchestrator:
                 asset_volatilities=statistics_dict["volatilities"],
                 algo_runtime=statistics_dict["runtime"],
                 algo_weights=statistics_dict["algo_weights"],
+                algo_memory_usage=memory_usage,
+                algo_computation_time=computation_time,
             )
 
             result = AllocationResult(
-                asset_weights=asset_weights_dict, 
-                success=True, 
+                asset_weights=asset_weights_dict,
+                success=True,
                 statistics=statistics,
-                df_allocation=df_allocation
+                df_allocation=df_allocation,
+                optimizer_memory_usage=memory_usage,
+                optimizer_computation_time=computation_time,
             )
 
             return result
@@ -381,10 +400,12 @@ class AllocationOrchestrator:
             if not np.isclose(np.sum(allocator_weights), 1.0):
                 raise ValueError(f"Allocator weights must sum to 1.0, got {np.sum(allocator_weights)}")
 
-            asset_weights_dict, statistics_dict, df_allocation = self._compute_final_asset_weights(
-                df_prices=df_prices,
-                time_today=time_today,
-                allocator_weights=allocator_weights,
+            asset_weights_dict, statistics_dict, df_allocation, memory_usage, computation_time = (
+                self._compute_final_asset_weights(
+                    df_prices=df_prices,
+                    time_today=time_today,
+                    allocator_weights=allocator_weights,
+                )
             )
 
             statistics = A2AStatistics(
@@ -392,13 +413,17 @@ class AllocationOrchestrator:
                 asset_volatilities=statistics_dict["volatilities"],
                 algo_runtime=statistics_dict["runtime"],
                 algo_weights=statistics_dict["algo_weights"],
+                algo_memory_usage=memory_usage,
+                algo_computation_time=computation_time,
             )
 
             result = AllocationResult(
-                asset_weights=asset_weights_dict, 
-                success=True, 
+                asset_weights=asset_weights_dict,
+                success=True,
                 statistics=statistics,
-                df_allocation=df_allocation
+                df_allocation=df_allocation,
+                optimizer_memory_usage=memory_usage,
+                optimizer_computation_time=computation_time,
             )
 
             return result
@@ -437,7 +462,7 @@ class AllocationOrchestrator:
             # Localize time_today if it's timezone-naive
             if time_today.tzinfo is None:
                 time_today = time_today.tz_localize(self.config.timezone)
-            
+
             # Step 1: Get pre-selection from Wikipedia allocation
             wikipedia_result = allocate_wikipedia(
                 all_stocks=all_stocks,
@@ -498,7 +523,7 @@ class AllocationOrchestrator:
             # Create full weight dict with all original assets
             all_assets = df_prices.columns.tolist()
             asset_weights_padded = {asset: 0.0 for asset in all_assets}
-            
+
             # Update with actual weights from optimization
             if optimization_result.asset_weights is not None:
                 asset_weights_padded.update(optimization_result.asset_weights)
@@ -521,6 +546,8 @@ class AllocationOrchestrator:
                 statistics=optimization_result.statistics,
                 computation_time=end_time - start_time,
                 df_allocation=df_allocation_padded,
+                optimizer_memory_usage=optimization_result.optimizer_memory_usage,
+                optimizer_computation_time=optimization_result.optimizer_computation_time,
             )
 
         except Exception as e:

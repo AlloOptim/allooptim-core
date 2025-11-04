@@ -20,6 +20,8 @@ class A2AStatistics(BaseModel):
     asset_volatilities: dict[str, float]
     algo_runtime: dict[str, float]
     algo_weights: dict[str, float]
+    algo_memory_usage: dict[str, float]  # Memory usage per algorithm (MB)
+    algo_computation_time: dict[str, float]  # Computation time per algorithm (seconds)
     type: StatisticsType = StatisticsType.A2A
 
 
@@ -39,13 +41,15 @@ class WikipediaStatistics(BaseModel):
 
 class AllocationResult(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
-    
+
     asset_weights: dict[str, float]
     success: bool
     statistics: Union[A2AStatistics, WikipediaStatistics, NoStatistics]
     computation_time: Optional[float] = None
     error_message: Optional[str] = None
-    df_allocation: Optional[pd.DataFrame] = None  # Optimizer allocations: rows=optimizers, cols=assets
+    df_allocation: Optional[pd.DataFrame] = None
+    optimizer_memory_usage: Optional[dict[str, float]] = None
+    optimizer_computation_time: Optional[dict[str, float]] = None
 
     def __hash__(self):
         return hash((type(self),) + tuple(self.__dict__.values()))

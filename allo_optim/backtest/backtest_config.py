@@ -6,9 +6,9 @@ from typing import List
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
+from allo_optim.allocation_to_allocators.allocation_orchestrator import OrchestrationType
 from allo_optim.covariance_transformer.transformer_list import get_all_transformers
 from allo_optim.optimizer.optimizer_list import get_all_optimizer_names
-from allo_optim.allocation_to_allocators.allocation_orchestrator import OrchestrationType
 
 logger = logging.getLogger(__name__)
 
@@ -56,11 +56,8 @@ class BacktestConfig(BaseModel):
     )
 
     # AllocationOrchestrator options
-    use_orchestrator: bool = Field(
-        default=True, description="Whether to use AllocationOrchestrator instead of individual optimizers"
-    )
     orchestration_type: str = Field(
-        default="equal", description="Type of orchestration: 'equal', 'optimized', or 'wikipedia_pipeline'"
+        ..., description="Type of orchestration: 'equal', 'optimized', or 'wikipedia_pipeline'"
     )
 
     @field_validator("optimizer_names")
@@ -159,6 +156,7 @@ if config_path.exists():
             end_date=datetime(2024, 12, 31),
             optimizer_names=["Naive"],
             transformer_names=["OracleCovarianceTransformer"],
+            orchestration_type="equal",
         )
 else:
     logger.warning(f"Configuration file not found: {config_path}. Using defaults.")
@@ -168,4 +166,5 @@ else:
         end_date=datetime(2024, 12, 31),
         optimizer_names=["Naive"],
         transformer_names=["OracleCovarianceTransformer"],
+        orchestration_type="equal",
     )

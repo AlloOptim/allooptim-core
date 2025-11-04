@@ -2,12 +2,18 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from allo_optim.allocation_to_allocators.allocation_orchestrator import AllocationOrchestrator, OrchestrationType, AllocationOrchestratorConfig, AllocationResult
+from allo_optim.allocation_to_allocators.allocation_orchestrator import (
+    AllocationOrchestrator,
+    AllocationOrchestratorConfig,
+    AllocationResult,
+    OrchestrationType,
+)
 from allo_optim.config.stock_universe import list_of_dax_stocks
+
 
 @pytest.mark.parametrize("n_optimizers", [1, 2])
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
-def test_a2a(orchestration_type, n_optimizers   ):
+def test_a2a(orchestration_type, n_optimizers):
     """Test that all A2A allocators work correctly."""
 
     # Create sample price data for optimizers that need it
@@ -20,7 +26,7 @@ def test_a2a(orchestration_type, n_optimizers   ):
     config = AllocationOrchestratorConfig(
         orchestration_type=orchestration_type,
     )
-    
+
     if n_optimizers == 1:
         optimizer_names = ["Naive"]
     if n_optimizers == 2:
@@ -30,7 +36,7 @@ def test_a2a(orchestration_type, n_optimizers   ):
         optimizer_names=optimizer_names,
         transformer_names=["OracleCovarianceTransformer"],
         config=config,
-        )
+    )
 
     result = orchestrator.run_allocation(
         all_stocks=all_stocks,
@@ -42,7 +48,7 @@ def test_a2a(orchestration_type, n_optimizers   ):
     assert len(result.asset_weights) == len(assets)
     assert all(0 <= w <= 1.0 for w in result.asset_weights.values())
     assert 0.0 <= sum(result.asset_weights.values()) <= 1.0 + config.weights_tolterance
-    
+
     # Verify df_allocation is populated correctly
     assert result.df_allocation is not None
     assert isinstance(result.df_allocation, pd.DataFrame)
