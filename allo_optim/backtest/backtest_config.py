@@ -6,7 +6,7 @@ from typing import List
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
-from allo_optim.allocation_to_allocators.allocation_orchestrator import OrchestrationType
+from allo_optim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allo_optim.covariance_transformer.transformer_list import get_all_transformers
 from allo_optim.optimizer.optimizer_list import get_all_optimizer_names
 
@@ -15,11 +15,9 @@ logger = logging.getLogger(__name__)
 
 class BacktestConfig(BaseModel):
     """Pydantic configuration model for backtest parameters."""
-    
-    benchmark: str = Field(
-        default="SPY", description="Benchmark symbol for the backtest (e.g., SPY)"
-    )
-    
+
+    benchmark: str = Field(default="SPY", description="Benchmark symbol for the backtest (e.g., SPY)")
+
     symbols: list[str] = Field(
         default_factory=lambda: ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
         description="List of asset symbols to include in the backtest",
@@ -65,8 +63,9 @@ class BacktestConfig(BaseModel):
     )
 
     # AllocationOrchestrator options
-    orchestration_type: str = Field(
-        ..., description="Type of orchestration: 'equal', 'optimized', or 'wikipedia_pipeline'"
+    orchestration_type: OrchestratorType = Field(
+        default=OrchestratorType.AUTO,
+        description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or 'auto' for automatic selection",
     )
 
     @field_validator("optimizer_names")
@@ -105,9 +104,9 @@ class BacktestConfig(BaseModel):
 
     @field_validator("orchestration_type")
     @classmethod
-    def validate_orchestration_type(cls, v: str) -> OrchestrationType:
+    def validate_orchestration_type(cls, v: str) -> OrchestratorType:
         """Validate that orchestration type is one of the allowed values."""
-        return OrchestrationType(v)
+        return OrchestratorType(v)
 
     @classmethod
     def from_yaml(cls, yaml_path: str) -> "BacktestConfig":

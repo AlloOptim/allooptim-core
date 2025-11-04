@@ -190,7 +190,9 @@ def convert_numpy_to_pandas(
         if asset_names is not None:
             expected_index = pd.Index(asset_names)
             if not cov.index.equals(expected_index) or not cov.columns.equals(expected_index):
-                warnings.warn("Provided asset_names differ from cov.index/columns, using cov index/columns", stacklevel=2)
+                warnings.warn(
+                    "Provided asset_names differ from cov.index/columns, using cov index/columns", stacklevel=2
+                )
     else:
         if asset_names is None:
             asset_names = mu_series.index.tolist()

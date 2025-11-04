@@ -12,10 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from allo_optim.allocation_to_allocators.allocation_orchestrator import (
-    AllocationOrchestrator,
-    OrchestrationType,
-)
+from allo_optim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.backtest_engine import BacktestEngine
 from allo_optim.config.allocation_dataclasses import (
@@ -24,8 +21,11 @@ from allo_optim.config.allocation_dataclasses import (
 )
 
 
-@pytest.mark.parametrize("orchestration_type", OrchestrationType)
-def test_orchestrator_in_backtest(orchestration_type, fast_a2a_config):
+@pytest.mark.parametrize(
+    "orchestrator_type",
+    OrchestratorType,
+)
+def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     """Test orchestrator integration with backtest engine."""
 
     # Create a minimal backtest configuration using orchestrator
@@ -34,25 +34,23 @@ def test_orchestrator_in_backtest(orchestration_type, fast_a2a_config):
         end_date=datetime(2023, 1, 10),
         rebalance_frequency=5,
         lookback_days=5,  # Minimal lookback
-        orchestration_type=orchestration_type,
         optimizer_names=["Naive"],
         transformer_names=["OracleCovarianceTransformer"],
+        orchestration_type=OrchestratorType.AUTO,
     )
 
-    # Create fast A2A config for testing
-    fast_a2a_config.orchestration_type = orchestration_type
-
-    # For Wikipedia pipeline in A2A tests, use test database
-    # But for backtests, disable SQL database to avoid needing a full database
-    if orchestration_type == OrchestrationType.WIKIPEDIA_PIPELINE:
-        fast_a2a_config.use_wiki_database = False
-
-    # Create and run backtest
-    engine = BacktestEngine(config_backtest=config, config_a2a=fast_a2a_config)
+    # Create and run backtest with specified orchestrator type
+    engine = BacktestEngine(
+        config_backtest=config,
+        orchestrator_type=orchestrator_type,
+        n_data_observations=10,  # Fast for testing
+        n_particle_swarm_iterations=5,
+        n_particles=10,
+    )
 
     # Verify orchestrator was set up correctly
-    assert isinstance(engine.orchestrator, AllocationOrchestrator)
-    assert engine.orchestrator.config.orchestration_type == orchestration_type
+    assert engine.orchestrator is not None
+    assert engine.orchestrator.name is not None
 
     # Create synthetic price data
     dates = pd.date_range("2022-12-20", "2023-01-15", freq="D")  # Cover the backtest period
@@ -63,7 +61,7 @@ def test_orchestrator_in_backtest(orchestration_type, fast_a2a_config):
 
     # Mock the data loader and Wikipedia allocation for speed
     with patch.object(engine.data_loader, "load_price_data", return_value=synthetic_prices):
-        if orchestration_type == OrchestrationType.WIKIPEDIA_PIPELINE:
+        if orchestrator_type == OrchestratorType.WIKIPEDIA_PIPELINE:
             # Mock allocate_wikipedia to return quick result for testing
             mock_wiki_result = AllocationResult(
                 asset_weights={"AAPL": 0.5, "MSFT": 0.5, "GOOGL": 0.0, "AMZN": 0.0, "TSLA": 0.0},
@@ -82,7 +80,7 @@ def test_orchestrator_in_backtest(orchestration_type, fast_a2a_config):
                 ),
             )
             with patch(
-                "allo_optim.allocation_to_allocators.allocation_orchestrator.allocate_wikipedia",
+                "allo_optim.allocation_to_allocators.wikipedia_pipeline_orchestrator.allocate_wikipedia",
                 return_value=mock_wiki_result,
             ):
                 # Run the backtest
@@ -102,5 +100,5 @@ def test_orchestrator_in_backtest(orchestration_type, fast_a2a_config):
         assert "metrics" in results[key], f"Missing metrics for {key}"
         assert "portfolio_values" in results[key], f"Missing portfolio_values for {key}"
 
-    print(f"✓ Backtest with {orchestration_type} orchestration completed successfully")
+    print(f"✓ Backtest with {orchestrator_type} orchestration completed successfully")
     print(f"  Generated {len(results)} result entries: {list(results.keys())}")

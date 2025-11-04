@@ -34,6 +34,7 @@ FAST_TEST_OBSERVATIONS = 2
 USE_WIKI_DATABASE = True
 N_HISTORICAL_DAYS = 30
 
+
 @pytest.fixture
 def fast_a2a_config():
     """Create fast A2A config for testing."""
@@ -46,5 +47,5 @@ def fast_a2a_config():
         use_wiki_database=USE_WIKI_DATABASE,
         n_historical_days=N_HISTORICAL_DAYS,
     )
-    
+
     return fast_a2a_config

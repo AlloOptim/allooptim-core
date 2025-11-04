@@ -84,7 +84,6 @@ def example_diverse_covariance_generation():
     print(f"Generated {len(training_data)} covariance matrices")
     print(f"Matrix shapes: {training_data[0].shape}")
 
-
     return training_data
 
 

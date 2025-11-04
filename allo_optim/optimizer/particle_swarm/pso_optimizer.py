@@ -79,9 +79,12 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
         lower_bounds = np.zeros(dimensions)
         upper_bounds = np.ones(dimensions)
 
-        if self._previous_positions is not None and self._previous_positions.shape != (self.config.n_particles, dimensions):
-                logger.warning("Previous positions shape does not match current dimensions, resetting warm start.")
-                self._previous_positions = None
+        if self._previous_positions is not None and self._previous_positions.shape != (
+            self.config.n_particles,
+            dimensions,
+        ):
+            logger.warning("Previous positions shape does not match current dimensions, resetting warm start.")
+            self._previous_positions = None
 
         options = {"c1": self.config.c1, "c2": self.config.c2, "w": self.config.w}
         optimizer = ps.single.GlobalBestPSO(

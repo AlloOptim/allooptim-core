@@ -5,9 +5,13 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from allo_optim.allocation_to_allocators.allocation_orchestrator import (
-    AllocationOrchestrator,
-    AllocationOrchestratorConfig,
+from allo_optim.allocation_to_allocators.orchestrator_factory import (
+    OrchestratorType,
+    create_orchestrator,
+    get_default_orchestrator_type,
+)
+from allo_optim.allocation_to_allocators.simulator_interface import (
+    AbstractObservationSimulator,
 )
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.data_loader import DataLoader
@@ -35,20 +39,29 @@ class BacktestEngine:
     def __init__(
         self,
         config_backtest: Optional[BacktestConfig] = None,
-        config_a2a: Optional[AllocationOrchestratorConfig] = None,
+        orchestrator_type: Optional[OrchestratorType] = None,
+        **orchestrator_kwargs,
     ) -> None:
         self.config_backtest = config_backtest or BacktestConfig()
 
         self.data_loader = DataLoader(
-			benchmark=self.config_backtest.benchmark,
-			symbols=self.config_backtest.symbols,
-		)
+            benchmark=self.config_backtest.benchmark,
+            symbols=self.config_backtest.symbols,
+        )
 
-        # Create orchestrator directly
-        self.orchestrator = AllocationOrchestrator(
+        # Determine orchestrator type
+        if orchestrator_type is None:
+            if self.config_backtest.orchestration_type != OrchestratorType.AUTO:
+                orchestrator_type = self.config_backtest.orchestration_type
+            else:
+                orchestrator_type = get_default_orchestrator_type()
+
+        # Create orchestrator using factory
+        self.orchestrator = create_orchestrator(
+            orchestrator_type=orchestrator_type,
             optimizer_names=self.config_backtest.optimizer_names,
             transformer_names=self.config_backtest.transformer_names,
-            config=config_a2a,
+            **orchestrator_kwargs,
         )
 
         self.results = {}
@@ -125,8 +138,11 @@ class BacktestEngine:
             clean_data = lookback_data[valid_assets]
 
             # Single orchestrator call
-            allocation_result = self.orchestrator.run_allocation(
-                all_stocks=self.data_loader.stock_universe, time_today=rebalance_date, df_prices=clean_data
+            data_provider = _PriceDataProvider(clean_data)
+            allocation_result = self.orchestrator.allocate(
+                data_provider=data_provider,
+                time_today=rebalance_date,
+                all_stocks=self.data_loader.stock_universe,
             )
             allocation_results.append(allocation_result)
 
@@ -645,3 +661,45 @@ class BacktestEngine:
                 portfolio_values.append(portfolio_value)
 
         return pd.Series(portfolio_values, index=price_data.index)
+
+
+class _PriceDataProvider(AbstractObservationSimulator):
+    """Simple data provider that wraps price DataFrame for orchestrator compatibility."""
+
+    def __init__(self, price_data: pd.DataFrame):
+        self.price_data = price_data
+        # Calculate basic statistics (simplified) - return as pandas objects
+        returns = price_data.pct_change().dropna()
+        self._mu = returns.mean()
+        self._cov = returns.cov()
+
+    @property
+    def mu(self):
+        return self._mu
+
+    @property
+    def cov(self):
+        return self._cov
+
+    @property
+    def historical_prices(self):
+        return self.price_data
+
+    @property
+    def n_observations(self):
+        return len(self.price_data)
+
+    def get_sample(self):
+        # For backtest, sample and ground truth are the same
+        return self.get_ground_truth()
+
+    def get_ground_truth(self):
+        # Return pandas objects with proper indices
+        time_index = self.price_data.index
+        # Simplified L-moments (just return zeros for now)
+        l_moments = np.zeros((len(self.price_data.columns), 4))
+        return self._mu, self._cov, self.price_data, time_index, l_moments
+
+    @property
+    def name(self) -> str:
+        return "BacktestDataProvider"

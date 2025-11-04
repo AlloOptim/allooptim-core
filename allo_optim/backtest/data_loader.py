@@ -13,7 +13,11 @@ logger = logging.getLogger(__name__)
 class DataLoader:
     """Handles loading and preprocessing of historical price data."""
 
-    def __init__(self, benchmark: str, symbols: list[str],) -> None:
+    def __init__(
+        self,
+        benchmark: str,
+        symbols: list[str],
+    ) -> None:
         self.stock_universe = get_stocks_by_symbols(symbols)
         self.symbols = symbols
 

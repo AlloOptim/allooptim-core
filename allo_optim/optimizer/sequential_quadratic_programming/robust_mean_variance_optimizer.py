@@ -142,8 +142,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         This results in a tractable quadratic program that can be solved efficiently.
 
     Examples:
-        >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2, cov_uncertainty_level=0.1,
-        ...                                           allow_cash=True)
+        >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2, cov_uncertainty_level=0.1, allow_cash=True)
         >>> optimizer = RobustMeanVarianceOptimizer(config)
         >>> optimizer.fit(df_prices)  # Estimate uncertainty from data
         >>> weights = optimizer.allocate(mu, cov)
