@@ -4,6 +4,7 @@ Orchestrator Factory
 Factory for creating allocation-to-allocators orchestrators based on configuration.
 """
 
+from enum import Enum
 from typing import List
 
 from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
@@ -19,7 +20,7 @@ from allo_optim.allocation_to_allocators.wikipedia_pipeline_orchestrator import 
 )
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
 from allo_optim.optimizer.optimizer_list import get_optimizer_by_names
-from enum import Enum
+
 
 class OrchestratorType(str, Enum):
     """Enumeration of available orchestrator types."""
@@ -52,7 +53,7 @@ def create_orchestrator(
     # Get optimizers and transformers
     optimizers = get_optimizer_by_names(optimizer_names)
     transformers = get_transformer_by_names(transformer_names)
-    
+
     if orchestrator_type == OrchestratorType.AUTO:
         orchestrator_type = get_default_orchestrator_type()
 

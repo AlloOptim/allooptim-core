@@ -17,9 +17,9 @@ from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrato
 from allo_optim.allocation_to_allocators.a2a_result import (
     A2AResult,
     OptimizerAllocation,
+    OptimizerError,
     OptimizerWeight,
     PerformanceMetrics,
-    OptimizerError,
 )
 from allo_optim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
@@ -102,19 +102,11 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(
-                        optimizer_name=optimizer.name,
-                        weights=weights_series
-                    )
+                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
                 )
 
                 # Store optimizer weight
-                optimizer_weights_list.append(
-                    OptimizerWeight(
-                        optimizer_name=optimizer.name,
-                        weight=equal_weight
-                    )
-                )
+                optimizer_weights_list.append(OptimizerWeight(optimizer_name=optimizer.name, weight=equal_weight))
 
                 asset_weights += equal_weight * weights
 
@@ -125,18 +117,10 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 weights_series = pd.Series(equal_weights, index=mu.index)
 
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(
-                        optimizer_name=optimizer.name,
-                        weights=weights_series
-                    )
+                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
                 )
 
-                optimizer_weights_list.append(
-                    OptimizerWeight(
-                        optimizer_name=optimizer.name,
-                        weight=equal_weight
-                    )
-                )
+                optimizer_weights_list.append(OptimizerWeight(optimizer_name=optimizer.name, weight=equal_weight))
 
                 asset_weights += equal_weight * equal_weights
 
@@ -146,14 +130,12 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()
-        portfolio_variance = (final_allocation.values @ cov_transformed.values @ final_allocation.values)
+        portfolio_variance = final_allocation.values @ cov_transformed.values @ final_allocation.values
         portfolio_volatility = np.sqrt(portfolio_variance)
         sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
 
         # Compute diversity score (1 - mean correlation)
-        optimizer_alloc_df = pd.DataFrame({
-            alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list
-        })
+        optimizer_alloc_df = pd.DataFrame({alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list})
         corr_matrix = optimizer_alloc_df.corr()
         n = len(corr_matrix)
         if n <= 1:
@@ -166,7 +148,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             expected_return=float(portfolio_return),
             volatility=float(portfolio_volatility),
             sharpe_ratio=float(sharpe_ratio),
-            diversity_score=float(diversity_score)
+            diversity_score=float(diversity_score),
         )
 
         # Create optimizer errors (empty for equal weight)
@@ -174,7 +156,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             OptimizerError(
                 optimizer_name=opt.optimizer_name,
                 error=0.0,  # No error estimation for equal weight
-                error_components=[]
+                error_components=[],
             )
             for opt in optimizer_allocations_list
         ]
@@ -192,7 +174,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             optimizer_errors=optimizer_errors,
             orchestrator_name=self.name,
             timestamp=current_time or datetime.now(),
-            config=self.config
+            config=self.config,
         )
 
         return result

@@ -16,7 +16,6 @@ from allo_optim.allocation_to_allocators.a2a_result import A2AResult
 from allo_optim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allo_optim.config.allocation_dataclasses import AllocationResult
 from allo_optim.config.stock_dataclasses import StockUniverse
 from allo_optim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,

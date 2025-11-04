@@ -16,6 +16,7 @@ from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 
 class OptimizerAllocation(BaseModel):
     """Single optimizer's allocation result."""
+
     optimizer_name: str = Field(description="Name of the optimizer")
     weights: pd.Series = Field(description="Asset weights (asset_name -> weight)")
 
@@ -24,12 +25,14 @@ class OptimizerAllocation(BaseModel):
 
 class OptimizerWeight(BaseModel):
     """Weight assigned to an optimizer in ensemble."""
+
     optimizer_name: str = Field(description="Name of the optimizer")
     weight: float = Field(description="Contribution weight (all weights sum to 1)")
 
 
 class PerformanceMetrics(BaseModel):
     """Portfolio performance metrics."""
+
     expected_return: float = Field(description="Portfolio expected return")
     volatility: float = Field(description="Portfolio volatility")
     sharpe_ratio: float = Field(description="Portfolio Sharpe ratio")
@@ -42,12 +45,10 @@ class PerformanceMetrics(BaseModel):
 
 class OptimizerError(BaseModel):
     """Error metric for an optimizer."""
+
     optimizer_name: str = Field(description="Name of the optimizer")
     error: float = Field(description="Error metric value")
-    error_components: List[float] = Field(
-        default_factory=list,
-        description="Individual error estimator values"
-    )
+    error_components: List[float] = Field(default_factory=list, description="Individual error estimator values")
 
 
 class A2AResult(BaseModel):
@@ -60,37 +61,26 @@ class A2AResult(BaseModel):
     - Immutable after creation (frozen=True)
     - Pandas Series for final allocation (natural format for weights)
     """
+
     # Primary output
-    final_allocation: pd.Series = Field(
-        description="Final portfolio weights (asset_name -> weight, sum to 1)"
-    )
+    final_allocation: pd.Series = Field(description="Final portfolio weights (asset_name -> weight, sum to 1)")
 
     # Optimizer information
-    optimizer_allocations: List[OptimizerAllocation] = Field(
-        description="List of optimizer allocation results"
-    )
-    optimizer_weights: List[OptimizerWeight] = Field(
-        description="Weights assigned to each optimizer"
-    )
+    optimizer_allocations: List[OptimizerAllocation] = Field(description="List of optimizer allocation results")
+    optimizer_weights: List[OptimizerWeight] = Field(description="Weights assigned to each optimizer")
 
     # Performance metrics (structured model, not dict)
-    metrics: PerformanceMetrics = Field(
-        description="Portfolio performance metrics"
-    )
+    metrics: PerformanceMetrics = Field(description="Portfolio performance metrics")
 
     # Detailed statistics
     runtime_seconds: float = Field(description="Execution time in seconds")
     n_simulations: int = Field(description="Number of simulations performed")
-    optimizer_errors: List[OptimizerError] = Field(
-        description="Error metrics per optimizer"
-    )
+    optimizer_errors: List[OptimizerError] = Field(description="Error metrics per optimizer")
 
     # Metadata
     orchestrator_name: str = Field(description="Name of orchestrator used")
     timestamp: datetime = Field(description="Time step for this allocation")
-    config: A2AConfig = Field(
-        description="Configuration used (Pydantic model, not dict snapshot)"
-    )
+    config: A2AConfig = Field(description="Configuration used (Pydantic model, not dict snapshot)")
 
     model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True)  # Allow pandas Series, datetime
 
@@ -101,10 +91,7 @@ class A2AResult(BaseModel):
         Returns:
             DataFrame with optimizers as columns, assets as rows
         """
-        alloc_dict = {
-            alloc.optimizer_name: alloc.weights
-            for alloc in self.optimizer_allocations
-        }
+        alloc_dict = {alloc.optimizer_name: alloc.weights for alloc in self.optimizer_allocations}
         return pd.DataFrame(alloc_dict)
 
     def get_optimizer_weights_series(self) -> pd.Series:
@@ -114,10 +101,7 @@ class A2AResult(BaseModel):
         Returns:
             Series with optimizer names as index, weights as values
         """
-        return pd.Series({
-            w.optimizer_name: w.weight
-            for w in self.optimizer_weights
-        })
+        return pd.Series({w.optimizer_name: w.weight for w in self.optimizer_weights})
 
 
 # Rebuild model to resolve forward references

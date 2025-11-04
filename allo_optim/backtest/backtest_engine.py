@@ -18,7 +18,6 @@ from allo_optim.allocation_to_allocators.simulator_interface import (
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
-from allo_optim.config.allocation_dataclasses import AllocationResult
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
 from allo_optim.optimizer.wikipedia.wiki_database import download_data
 
@@ -195,7 +194,7 @@ class BacktestEngine:
             # Create DataFrame with timestamps as index and asset symbols as columns
             final_allocations = []
             valid_indices = []
-            
+
             for i, result in enumerate(allocation_results):
                 if result.final_allocation is not None and not result.final_allocation.empty:
                     final_allocations.append(result.final_allocation)
@@ -493,7 +492,7 @@ class BacktestEngine:
             # Use final_allocation from each A2AResult, filtering out empty ones
             a2a_weights_history = []
             valid_rebalance_dates = []
-            
+
             for i, result in enumerate(allocation_results):
                 if result.final_allocation is not None and not result.final_allocation.empty:
                     a2a_weights_history.append(result.final_allocation)

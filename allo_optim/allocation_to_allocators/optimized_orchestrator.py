@@ -17,9 +17,9 @@ from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrato
 from allo_optim.allocation_to_allocators.a2a_result import (
     A2AResult,
     OptimizerAllocation,
+    OptimizerError,
     OptimizerWeight,
     PerformanceMetrics,
-    OptimizerError,
 )
 from allo_optim.allocation_to_allocators.allocation_optimizer import (
     optimize_allocator_weights,
@@ -126,7 +126,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             optimizer_errors=optimizer_errors,
             orchestrator_name=self.name,
             timestamp=time_today or datetime.now(),
-            config=self.config
+            config=self.config,
         )
 
         return result
@@ -186,18 +186,12 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(
-                        optimizer_name=optimizer.name,
-                        weights=weights_series
-                    )
+                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
                 )
 
                 # Store optimizer weight
                 optimizer_weights_list.append(
-                    OptimizerWeight(
-                        optimizer_name=optimizer.name,
-                        weight=float(allocator_weights[k])
-                    )
+                    OptimizerWeight(optimizer_name=optimizer.name, weight=float(allocator_weights[k]))
                 )
 
             except Exception as error:
@@ -216,7 +210,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 OptimizerError(
                     optimizer_name=optimizer.name,
                     error=0.0,  # Placeholder - should compute actual error
-                    error_components=[]
+                    error_components=[],
                 )
             )
 
@@ -226,14 +220,12 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()
-        portfolio_variance = (final_allocation.values @ cov_transformed.values @ final_allocation.values)
+        portfolio_variance = final_allocation.values @ cov_transformed.values @ final_allocation.values
         portfolio_volatility = np.sqrt(portfolio_variance)
         sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
 
         # Compute diversity score (1 - mean correlation)
-        optimizer_alloc_df = pd.DataFrame({
-            alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list
-        })
+        optimizer_alloc_df = pd.DataFrame({alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list})
         corr_matrix = optimizer_alloc_df.corr()
         n = len(corr_matrix)
         if n <= 1:
@@ -246,7 +238,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             expected_return=float(portfolio_return),
             volatility=float(portfolio_volatility),
             sharpe_ratio=float(sharpe_ratio),
-            diversity_score=float(diversity_score)
+            diversity_score=float(diversity_score),
         )
 
         return final_allocation, optimizer_allocations_list, optimizer_weights_list, metrics, optimizer_errors

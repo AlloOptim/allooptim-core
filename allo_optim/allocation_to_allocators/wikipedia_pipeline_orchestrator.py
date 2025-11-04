@@ -16,10 +16,7 @@ from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allo_optim.allocation_to_allocators.a2a_result import (
     A2AResult,
-    OptimizerAllocation,
-    OptimizerWeight,
     PerformanceMetrics,
-    OptimizerError,
 )
 from allo_optim.allocation_to_allocators.equal_weight_orchestrator import (
     EqualWeightOrchestrator,
@@ -113,17 +110,14 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                     optimizer_allocations=[],
                     optimizer_weights=[],
                     metrics=PerformanceMetrics(
-                        expected_return=0.0,
-                        volatility=0.0,
-                        sharpe_ratio=0.0,
-                        diversity_score=0.0
+                        expected_return=0.0, volatility=0.0, sharpe_ratio=0.0, diversity_score=0.0
                     ),
                     runtime_seconds=runtime_seconds,
                     n_simulations=0,
                     optimizer_errors=[],
                     orchestrator_name=self.name,
                     timestamp=time_today,
-                    config=self.config
+                    config=self.config,
                 )
 
             # Step 2: Extract pre-selected stocks (those with non-zero weights)
@@ -140,17 +134,14 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                     optimizer_allocations=[],
                     optimizer_weights=[],
                     metrics=PerformanceMetrics(
-                        expected_return=0.0,
-                        volatility=0.0,
-                        sharpe_ratio=0.0,
-                        diversity_score=0.0
+                        expected_return=0.0, volatility=0.0, sharpe_ratio=0.0, diversity_score=0.0
                     ),
                     runtime_seconds=runtime_seconds,
                     n_simulations=0,
                     optimizer_errors=[],
                     orchestrator_name=self.name,
                     timestamp=time_today,
-                    config=self.config
+                    config=self.config,
                 )
 
             # Step 3: Filter data provider to only include pre-selected stocks
@@ -168,17 +159,14 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                     optimizer_allocations=[],
                     optimizer_weights=[],
                     metrics=PerformanceMetrics(
-                        expected_return=0.0,
-                        volatility=0.0,
-                        sharpe_ratio=0.0,
-                        diversity_score=0.0
+                        expected_return=0.0, volatility=0.0, sharpe_ratio=0.0, diversity_score=0.0
                     ),
                     runtime_seconds=runtime_seconds,
                     n_simulations=0,
                     optimizer_errors=[],
                     orchestrator_name=self.name,
                     timestamp=time_today,
-                    config=self.config
+                    config=self.config,
                 )
 
             prices_filtered = prices_full[available_columns]
@@ -220,7 +208,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                 optimizer_errors=optimization_result.optimizer_errors,
                 orchestrator_name=self.name,
                 timestamp=time_today,
-                config=self.config
+                config=self.config,
             )
 
         except Exception as e:
@@ -231,18 +219,13 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                 final_allocation=empty_allocation,
                 optimizer_allocations=[],
                 optimizer_weights=[],
-                metrics=PerformanceMetrics(
-                    expected_return=0.0,
-                    volatility=0.0,
-                    sharpe_ratio=0.0,
-                    diversity_score=0.0
-                ),
+                metrics=PerformanceMetrics(expected_return=0.0, volatility=0.0, sharpe_ratio=0.0, diversity_score=0.0),
                 runtime_seconds=runtime_seconds,
                 n_simulations=0,
                 optimizer_errors=[],
                 orchestrator_name=self.name,
                 timestamp=time_today or datetime.now(),
-                config=self.config
+                config=self.config,
             )
 
     @property
