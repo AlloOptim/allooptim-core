@@ -25,7 +25,9 @@ DATABASE_DIR = Path("generated_output/databases")
 DATABASE_PATH = DATABASE_DIR / "market_data.db"
 
 
-def _get_date_range(table_name: str, database_path: Optional[Path] = None) -> tuple[Optional[datetime], Optional[datetime]]:
+def _get_date_range(
+    table_name: str, database_path: Optional[Path] = None
+) -> tuple[Optional[datetime], Optional[datetime]]:
     """Get the min and max dates from a table."""
     db_path = database_path or DATABASE_PATH
     db_path_str = str(db_path)
@@ -66,7 +68,7 @@ def _add_symbol_columns(table_name: str, new_symbols: list[str], database_path: 
                 date TEXT PRIMARY KEY
             )
         """)
-        
+
         existing_symbols = set(_get_existing_symbols(table_name, db_path))
         symbols_to_add = [s for s in new_symbols if s not in existing_symbols]
 
@@ -251,7 +253,7 @@ def _save_to_database(
         else:
             # If index has no name, pandas uses 0, 1, 2... or the first available
             # Find the datetime column
-            datetime_cols = df_to_save.select_dtypes(include=['datetime64']).columns
+            datetime_cols = df_to_save.select_dtypes(include=["datetime64"]).columns
             if len(datetime_cols) > 0:
                 df_to_save = df_to_save.rename(columns={datetime_cols[0]: "date"})
             else:
@@ -262,7 +264,9 @@ def _save_to_database(
         df_to_save = df.copy()
         # If no datetime index, assume 'date' column already exists
         if "date" not in df_to_save.columns:
-            raise ValueError(f"DataFrame must have a 'date' column or DatetimeIndex. Columns: {df_to_save.columns.tolist()}")
+            raise ValueError(
+                f"DataFrame must have a 'date' column or DatetimeIndex. Columns: {df_to_save.columns.tolist()}"
+            )
 
     # Ensure date column is properly formatted
     if "date" in df_to_save.columns:
@@ -362,6 +366,7 @@ def _load_from_database(
         logger.error(f"Error loading from {table_name}: {error}")
         logger.error(f"Database path: {db_path_str}")
         import os
+
         logger.error(f"Database file exists: {os.path.exists(db_path_str)}")
         if os.path.exists(db_path_str):
             logger.error(f"Database file size: {os.path.getsize(db_path_str)} bytes")

@@ -2,17 +2,20 @@
 Test configuration for allooptim-core tests.
 """
 
-import pandas as pd
-import pytest
 from pathlib import Path
 
+import pandas as pd
+import pytest
+
 TESTS_DIRECTORY = Path(__file__).parent.resolve()
+
 
 @pytest.fixture
 def prices_df():
     """Load sample price data from CSV file."""
     df = pd.read_csv(TESTS_DIRECTORY / "resources" / "stock_prices.csv", index_col="date", parse_dates=True)
     return df
+
 
 @pytest.fixture
 def wikipedia_test_db_path() -> Path:

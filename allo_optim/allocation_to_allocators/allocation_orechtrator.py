@@ -65,7 +65,7 @@ class AllocationOrchestratorConfig(BaseModel):
 
     use_sql_database: bool = False
     n_historical_days: int = Field(60, ge=1)
-    
+
     # Timezone for timestamp localization (e.g., "UTC", "US/Eastern")
     timezone: str = Field("UTC")
 
@@ -188,7 +188,7 @@ class AllocationOrchestrator:
         statistic_returns = {}
         statistic_volatilities = {}
         statistic_runtime = {"A2A": np.nan}
-        
+
         # Track individual optimizer allocations for df_allocation
         optimizer_allocations = {}
 
@@ -230,7 +230,7 @@ class AllocationOrchestrator:
             statistic_returns[optimizer.name] = expected_return
             statistic_volatilities[optimizer.name] = expected_volatility
             statistic_runtime[optimizer.name] = end - start
-            
+
             # Store optimizer allocation for df_allocation DataFrame
             optimizer_allocations[optimizer.name] = weights
 
@@ -347,10 +347,7 @@ class AllocationOrchestrator:
             )
 
             result = AllocationResult(
-                asset_weights=asset_weights_dict, 
-                success=True, 
-                statistics=statistics,
-                df_allocation=df_allocation
+                asset_weights=asset_weights_dict, success=True, statistics=statistics, df_allocation=df_allocation
             )
 
             return result
@@ -395,10 +392,7 @@ class AllocationOrchestrator:
             )
 
             result = AllocationResult(
-                asset_weights=asset_weights_dict, 
-                success=True, 
-                statistics=statistics,
-                df_allocation=df_allocation
+                asset_weights=asset_weights_dict, success=True, statistics=statistics, df_allocation=df_allocation
             )
 
             return result
@@ -437,7 +431,7 @@ class AllocationOrchestrator:
             # Localize time_today if it's timezone-naive
             if time_today.tzinfo is None:
                 time_today = time_today.tz_localize(self.config.timezone)
-            
+
             # Step 1: Get pre-selection from Wikipedia allocation
             wikipedia_result = allocate_wikipedia(
                 all_stocks=all_stocks,
@@ -498,7 +492,7 @@ class AllocationOrchestrator:
             # Create full weight dict with all original assets
             all_assets = df_prices.columns.tolist()
             asset_weights_padded = {asset: 0.0 for asset in all_assets}
-            
+
             # Update with actual weights from optimization
             if optimization_result.asset_weights is not None:
                 asset_weights_padded.update(optimization_result.asset_weights)

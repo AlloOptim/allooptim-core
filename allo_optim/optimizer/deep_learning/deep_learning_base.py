@@ -1,14 +1,14 @@
 import logging
 import time
 from abc import ABC, abstractmethod
+from enum import Enum
+from typing import Optional
 
 import numpy as np
 from pydantic import BaseModel
 from tinygrad import Tensor, nn
 from tinygrad.nn.optim import Adam
 from tinygrad.nn.state import get_parameters
-from enum import Enum
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -745,10 +745,12 @@ class TCNPortfolioNet(PortfolioNetInterface):
 # PORTFOLIO OPTIMIZER (Model-Agnostic)
 # ============================================================================
 
+
 class ModelType(str, Enum):
-	LSTM = "lstm"
-	MAMBA = "mamba"
-	TCN = "tcn"
+    LSTM = "lstm"
+    MAMBA = "mamba"
+    TCN = "tcn"
+
 
 class LSTMOptimizerConfig(BaseModel):
     hidden_dim: int = 64
@@ -759,9 +761,10 @@ class LSTMOptimizerConfig(BaseModel):
     dropout: float = 0.15
     transaction_cost: float = 0.001
     n_heads_lstm: int = 2
-	n_heads_mamba: int = 2
- 	n_kernel_tcn: int = 3
- 	d_state_mamba: int = 16
+    n_heads_mamba: int = 2
+    n_kernel_tcn: int = 3
+    d_state_mamba: int = 16
+
 
 class DeepLearningOptimizer:
     """
@@ -769,7 +772,7 @@ class DeepLearningOptimizer:
     Supports multiple neural network architectures.
     """
 
-    model_type: = ModelType.LSTM
+    model_type: ModelType = ModelType.LSTM
 
     def __init__(
         self,
@@ -786,7 +789,7 @@ class DeepLearningOptimizer:
                 - 'tcn': Temporal Convolutional Network (fastest, parallelizable)
         """
         self._n_assets = n_assets
-		self._n_lookback = n_lookback
+        self._n_lookback = n_lookback
         self.config = config or LSTMOptimizerConfig()
 
         # Fractional differentiator
@@ -1193,9 +1196,7 @@ class DeepLearningOptimizer:
                 prev_w = Tensor(np.tile(prev_weights, (len(buffer_X), 1)), requires_grad=False)
 
                 weights, invested_ratio, pred_returns, pred_vols = self.net(X_batch, train=True)
-                loss = self._portfolio_loss(
-                    weights, invested_ratio, pred_returns, pred_vols, y_batch, prev_w
-                )
+                loss = self._portfolio_loss(weights, invested_ratio, pred_returns, pred_vols, y_batch, prev_w)
 
                 # Add small regularization to ensure all parameters get gradients
                 reg_loss = Tensor(0.0)

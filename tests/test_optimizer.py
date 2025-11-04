@@ -7,6 +7,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import sample_cov
 
+import allo_optim.optimizer.wikipedia.wiki_database as wiki_db
 from allo_optim.optimizer.allocation_metric import estimate_linear_moments
 from allo_optim.optimizer.efficient_frontier.efficient_frontier_optimizer import MaxSharpeOptimizer
 from allo_optim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
@@ -14,8 +15,6 @@ from allo_optim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 from allo_optim.optimizer.optimizer_list import OPTIMIZER_LIST
 from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import RiskParityOptimizer
-import allo_optim.optimizer.wikipedia.wiki_database as wiki_db
-from pathlib import Path
 
 # Constants for test tolerances
 WEIGHT_SUM_TEST_TOLERANCE = 0.01

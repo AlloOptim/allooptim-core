@@ -1,23 +1,25 @@
 import logging
+from typing import Optional
 
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel
 from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
 from sklearn.preprocessing import StandardScaler
-from pydantic import BaseModel
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
 # Constants for model training thresholds
 MIN_FEATURES_FOR_MODEL_TRAINING = 50
 
+
 class FastPortfolioOptimizerConfig(BaseModel):
-	decay: float = 0.94
-	risk_aversion: float = 2.0
-	transaction_cost: float = 0.001
+    decay: float = 0.94
+    risk_aversion: float = 2.0
+    transaction_cost: float = 0.001
+
 
 class FastPortfolioOptimizer:
     """

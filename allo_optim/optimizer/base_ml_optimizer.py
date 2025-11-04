@@ -120,7 +120,10 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
 
         # Create optimizer engine
         n_assets = df_prices.shape[1]
-        self._optimizer = self._create_engine(n_assets, n_lookback=self.config.n_lookback,)
+        self._optimizer = self._create_engine(
+            n_assets,
+            n_lookback=self.config.n_lookback,
+        )
 
         # Prepare training data with optional augmentation
         historical_prices = df_prices.values
@@ -166,7 +169,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
             equal_weights = np.ones(n_assets) / n_assets
             return create_weights_series(equal_weights, asset_names)
 
-        current_prices = self._df_prices.values[-self.config.n_lookback:]
+        current_prices = self._df_prices.values[-self.config.n_lookback :]
 
         # Incremental update if enough time has passed
         if self._last_update is None or (time is not None and time - self._last_update > self.config.update_timedelta):

@@ -6,8 +6,10 @@ into the backtesting framework and that df_allocation is properly populated.
 """
 
 from datetime import datetime
-from pathlib import Path
+from unittest.mock import patch
 
+import numpy as np
+import pandas as pd
 import pytest
 
 from allo_optim.allocation_to_allocators.allocation_orchestrator import (
@@ -17,9 +19,7 @@ from allo_optim.allocation_to_allocators.allocation_orchestrator import (
 )
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.backtest_engine import BacktestEngine
-import numpy as np
-import pandas as pd
-from unittest.mock import patch
+
 
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
 def test_orchestrator_in_backtest(orchestration_type):
@@ -67,7 +67,7 @@ def test_orchestrator_in_backtest(orchestration_type):
     synthetic_prices = pd.DataFrame(price_data, index=dates, columns=symbols)
 
     # Mock the data loader
-    with patch.object(engine.data_loader, 'load_price_data', return_value=synthetic_prices):
+    with patch.object(engine.data_loader, "load_price_data", return_value=synthetic_prices):
         # Run the backtest
         results = engine.run_backtest()
 
