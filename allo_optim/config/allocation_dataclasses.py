@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Optional, Union
 
 import pandas as pd
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class StatisticsType(str, Enum):
@@ -40,7 +40,7 @@ class WikipediaStatistics(BaseModel):
 
 
 class AllocationResult(BaseModel):
-    model_config = {"arbitrary_types_allowed": True}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     asset_weights: dict[str, float]
     success: bool

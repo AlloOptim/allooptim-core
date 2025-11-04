@@ -41,6 +41,7 @@ class BacktestEngine:
     def __init__(
         self,
         config_backtest: Optional[BacktestConfig] = None,
+        a2a_config: Optional[A2AConfig] = None,
         orchestrator_type: Optional[OrchestratorType] = None,
         **orchestrator_kwargs,
     ) -> None:
@@ -59,7 +60,9 @@ class BacktestEngine:
                 orchestrator_type = get_default_orchestrator_type()
 
         # Create orchestrator using factory
-        a2a_config = A2AConfig()  # Use defaults for now
+        if a2a_config is None:
+            a2a_config = A2AConfig()
+
         self.orchestrator = create_orchestrator(
             orchestrator_type=orchestrator_type,
             optimizer_names=self.config_backtest.optimizer_names,

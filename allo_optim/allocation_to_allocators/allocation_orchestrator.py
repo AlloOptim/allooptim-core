@@ -15,7 +15,7 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from pypfopt.expected_returns import mean_historical_return
 from pypfopt.risk_models import sample_cov
 
@@ -53,7 +53,7 @@ class OrchestrationType(str, Enum):
 
 
 class AllocationOrchestratorConfig(BaseModel):
-    model_config = {"arbitrary_types_allowed": True}
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     weights_tolterance: float = Field(0.01, ge=0.0, le=0.1)
 

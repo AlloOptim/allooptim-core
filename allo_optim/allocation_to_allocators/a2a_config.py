@@ -10,7 +10,7 @@ Design Principles:
 
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class A2AConfig(BaseModel):
@@ -55,5 +55,4 @@ class A2AConfig(BaseModel):
         description="Number of parallel jobs (-1 = all CPUs)"
     )
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)

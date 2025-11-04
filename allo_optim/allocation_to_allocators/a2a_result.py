@@ -9,7 +9,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import pandas as pd
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 
@@ -19,8 +19,7 @@ class OptimizerAllocation(BaseModel):
     optimizer_name: str = Field(description="Name of the optimizer")
     weights: pd.Series = Field(description="Asset weights (asset_name -> weight)")
 
-    class Config:
-        arbitrary_types_allowed = True  # Allow pandas Series
+    model_config = ConfigDict(arbitrary_types_allowed=True)  # Allow pandas Series
 
 
 class OptimizerWeight(BaseModel):
@@ -38,8 +37,7 @@ class PerformanceMetrics(BaseModel):
     max_drawdown: Optional[float] = Field(default=None, description="Maximum drawdown")
     turnover: Optional[float] = Field(default=None, description="Portfolio turnover")
 
-    class Config:
-        frozen = True
+    model_config = ConfigDict(frozen=True)
 
 
 class OptimizerError(BaseModel):
@@ -94,9 +92,7 @@ class A2AResult(BaseModel):
         description="Configuration used (Pydantic model, not dict snapshot)"
     )
 
-    class Config:
-        arbitrary_types_allowed = True  # Allow pandas Series, datetime
-        frozen = True
+    model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True)  # Allow pandas Series, datetime
 
     def to_dataframe(self) -> pd.DataFrame:
         """

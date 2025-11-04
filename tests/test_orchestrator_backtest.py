@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 from allo_optim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.backtest_engine import BacktestEngine
@@ -39,13 +40,18 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
         orchestration_type=OrchestratorType.AUTO,
     )
 
+    # Create A2A config with fast test parameters
+    a2a_config = A2AConfig(
+        n_simulations=10,  # Fast for testing
+        n_pso_iterations=5,
+        n_particles=10,
+    )
+
     # Create and run backtest with specified orchestrator type
     engine = BacktestEngine(
         config_backtest=config,
+        a2a_config=a2a_config,
         orchestrator_type=orchestrator_type,
-        n_data_observations=10,  # Fast for testing
-        n_particle_swarm_iterations=5,
-        n_particles=10,
     )
 
     # Verify orchestrator was set up correctly
