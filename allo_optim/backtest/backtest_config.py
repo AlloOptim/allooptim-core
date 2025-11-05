@@ -34,8 +34,8 @@ class BacktestConfig(BaseModel):
     # Time periods
     start_date: datetime = Field(..., description="Start date for the backtest period")
     end_date: datetime = Field(..., description="End date for the backtest period")
-    debug_start_date: datetime = Field(default=datetime(2022, 12, 31), description="Start date for quick debug testing")
-    debug_end_date: datetime = Field(default=datetime(2023, 2, 28), description="End date for quick debug testing")
+    quick_start_date: datetime = Field(default=datetime(2022, 12, 31), description="Start date for quick debug testing")
+    quick_end_date: datetime = Field(default=datetime(2023, 2, 28), description="End date for quick debug testing")
 
     # Test mode
     quick_test: bool = Field(default=True, description="Whether to run in quick test mode with shorter time periods")
@@ -138,7 +138,7 @@ class BacktestConfig(BaseModel):
     def get_report_date_range(self) -> tuple[datetime, datetime]:
         """Get start and end dates based on debug mode."""
         if self.quick_test:
-            return self.debug_start_date, self.debug_end_date
+            return self.quick_start_date, self.quick_end_date
         return self.start_date, self.end_date
 
     def get_data_date_range(self) -> tuple[datetime, datetime]:
@@ -146,7 +146,7 @@ class BacktestConfig(BaseModel):
         previous_days = timedelta(days=self.lookback_days)
 
         if self.quick_test:
-            return self.debug_start_date - previous_days, self.debug_end_date
+            return self.quick_start_date - previous_days, self.quick_end_date
         return self.start_date - previous_days, self.end_date
 
 
