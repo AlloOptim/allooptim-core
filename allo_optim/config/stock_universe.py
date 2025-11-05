@@ -1145,7 +1145,7 @@ def list_major_sp500_stocks() -> list[StockUniverse]:
     return sp500_stocks
 
 
-def everything_in_the_universe() -> list[StockUniverse]:
+def unfiltered_large_stock_universe() -> list[StockUniverse]:
     stocks = [
         *list_of_dax_stocks(),
         *get_sp500_companies_1(),
@@ -1169,12 +1169,12 @@ def everything_in_the_universe() -> list[StockUniverse]:
     return filtered_list
 
 
-def everything_in_alpaca() -> list[StockUniverse]:
+def large_stock_universte() -> list[StockUniverse]:
     """
     Returns a subset of everything_in_the_universe that are available on Alpaca.
     Excludes German stocks (.DE) and other known unavailable symbols.
     """
-    all_stocks = everything_in_the_universe()
+    all_stocks = unfiltered_large_stock_universe()
 
     alpaca_available_stocks = []
 
@@ -1195,5 +1195,5 @@ def extract_symbols_from_list(stocks: list[StockUniverse]) -> list[str]:
 
 
 def get_stocks_by_symbols(symbols: list[str]) -> list[StockUniverse]:
-    all_stocks = everything_in_the_universe()
+    all_stocks = unfiltered_large_stock_universe()
     return [stock for stock in all_stocks if stock.symbol in symbols]

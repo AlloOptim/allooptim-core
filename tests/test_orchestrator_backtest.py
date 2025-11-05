@@ -100,7 +100,7 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     assert len(results) > 0
 
     # Check that we have the expected result keys
-    expected_keys = ["NaiveOptimizer", "SPY_Benchmark", "A2A_Ensemble"]
+    expected_keys = ["NaiveOptimizer", "SPYBenchmark", "A2AEnsemble"]
     for key in expected_keys:
         assert key in results, f"Missing expected result key: {key}"
         assert "metrics" in results[key], f"Missing metrics for {key}"

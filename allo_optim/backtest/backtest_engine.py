@@ -475,7 +475,7 @@ class BacktestEngine:
                     **spy_change_rate_stats,
                 }
 
-                results["SPY_Benchmark"] = {
+                results["SPYBenchmark"] = {
                     "metrics": spy_all_metrics,
                     "portfolio_values": spy_portfolio_values,
                     "returns": spy_returns,
@@ -608,7 +608,7 @@ class BacktestEngine:
                         **a2a_change_rate_stats,
                     }
 
-                    results["A2A_Ensemble"] = {
+                    results["A2AEnsemble"] = {
                         "metrics": a2a_all_metrics,
                         "portfolio_values": a2a_portfolio_values,
                         "returns": a2a_returns,

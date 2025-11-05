@@ -1,24 +1,12 @@
-#!/usr/bin/env python3
 """
-Comprehensive Allocation Algorithm Backtest
+Comprehensive Allocation Algorithm Backtest.
 
-This script performs a comprehensive backtest of all allocation algorithms:
-- 13 individual optimizers from OPTIMIZER_LIST
-- A2A ensemble (average of all optimizer weights)
-- S&P 500 benchmark
+Runs a 14 year backtest (2014-2024) across multiple portfolio allocation algorithms,
+generates performance reports, visualizations, and clustering analysis of optimizer behaviors.
 
-Backtest Configuration:
-- Period: 2014-12-31 to 2024-12-31 (10 years)
-- Rebalancing: Every 5 trading days
-- Lookback: 90 days for optimizer estimation
-- Universe: ~400 assets from Alpaca universe
-- Execution: Perfect execution (target = actual)
+THE RUNTIME OF THIS SCRIPT MAY BE LONG (SEVERAL HOURS) DUE TO THE EXTENSIVE BACKTEST PERIOD AND NUMBER OF OPTIMIZERS TESTED.
 
-Performance Metrics:
-- Sharpe ratio, max drawdown, time underwater, CAGR
-- Risk-adjusted return, portfolio turnover, daily returns statistics
-- Computation time and memory usage
-- Optimizer clustering analysis
+Enable or disable 'quick_test' mode in BacktestConfig to shorten runtime for testing purposes.
 """
 
 import logging
@@ -34,7 +22,7 @@ from allo_optim.backtest.backtest_engine import BacktestEngine
 from allo_optim.backtest.backtest_report import generate_report
 from allo_optim.backtest.backtest_visualizer import create_visualizations
 from allo_optim.backtest.cluster_analyzer import ClusterAnalyzer
-from allo_optim.config.stock_universe import everything_in_alpaca, extract_symbols_from_list
+from allo_optim.config.stock_universe import extract_symbols_from_list, large_stock_universte
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -50,14 +38,14 @@ def main():
     logger.info("Starting comprehensive allocation algorithm backtest")
 
     try:
-        symbols = extract_symbols_from_list(everything_in_alpaca())
+        symbols = extract_symbols_from_list(large_stock_universte())
 
         config_backtest = BacktestConfig(
             start_date=datetime(2014, 12, 31),
             end_date=datetime(2024, 12, 31),
             rebalance_frequency=10,
             lookback_days=90,
-            quick_test=False,
+            quick_test=True,
             log_returns=True,
             benchmark="SPY",
             symbols=symbols,

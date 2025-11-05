@@ -274,10 +274,10 @@ Based on the underlying optimization approaches, we can group the algorithms the
 
 ### Market-Based Group
 - **MarketCapOptimizer:** Market capitalization weighted
-- **SPY_Benchmark:** S&P 500 benchmark
+- **SPYBenchmark:** S&P 500 benchmark
 
 ### Ensemble Group
-- **A2A_Ensemble:** Average of all individual optimizers
+- **A2AEnsemble:** Average of all individual optimizers
 
 ## Key Insights and Recommendations
 
@@ -286,8 +286,8 @@ Based on the underlying optimization approaches, we can group the algorithms the
 
     if results:
         # Calculate some insights
-        spy_performance = results.get("SPY_Benchmark", {}).get("metrics", {})
-        a2a_performance = results.get("A2A_Ensemble", {}).get("metrics", {})
+        spy_performance = results.get("SPYBenchmark", {}).get("metrics", {})
+        a2a_performance = results.get("A2AEnsemble", {}).get("metrics", {})
 
         if spy_performance and a2a_performance:
             outperformed = a2a_performance.get("sharpe_ratio", 0) > spy_performance.get("sharpe_ratio", 0)
