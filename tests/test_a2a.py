@@ -10,7 +10,7 @@ from allo_optim.allocation_to_allocators.allocation_orchestrator import (
 from allo_optim.config.stock_universe import list_of_dax_stocks
 
 
-@pytest.mark.parametrize("optimizer_names", [["Naive"], ["Naive", "CappedMomentum"]])
+@pytest.mark.parametrize("optimizer_names", [["NaiveOptimizer"], ["NaiveOptimizer", "MomentumOptimizer"]])
 @pytest.mark.parametrize("orchestration_type", OrchestrationType)
 def test_a2a(orchestration_type, optimizer_names, fast_a2a_config):
     """Test that all A2A allocators work correctly."""

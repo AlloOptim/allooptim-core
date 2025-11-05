@@ -49,7 +49,7 @@ def main():
     print(f"Date range: {dates[0].date()} to {dates[-1].date()}\n")
 
     # Configure orchestrator with 3 optimizers and 1 transformer
-    optimizer_names = ["Naive", "CappedMomentum", "RiskParity"]
+    optimizer_names = ["NaiveOptimizer", "MomentumOptimizer", "RiskParityOptimizer"]
     transformer_names = ["OracleCovarianceTransformer"]
 
     orchestration_types = [

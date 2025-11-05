@@ -74,4 +74,4 @@ class BlackLittermanOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "BlackLittermannOptimizer"
+        return "BlackLittermanOptimizer"

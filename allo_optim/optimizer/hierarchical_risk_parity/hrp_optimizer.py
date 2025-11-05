@@ -59,4 +59,4 @@ class HRPOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "HRP"
+        return "HRPOptimizer"

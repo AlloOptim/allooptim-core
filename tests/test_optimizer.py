@@ -76,7 +76,7 @@ class TestHRPOptimizer:
         assert len(weights) == len(mu)
 
     def test_name(self):
-        assert HRPOptimizer().name == "HRP"
+        assert HRPOptimizer().name == "HRPOptimizer"
 
 
 class TestRiskParityOptimizer:
@@ -115,7 +115,7 @@ class TestRiskParityOptimizer:
         )
 
     def test_name(self):
-        assert RiskParityOptimizer().name == "RiskParity"
+        assert RiskParityOptimizer().name == "RiskParityOptimizer"
 
 
 @pytest.mark.parametrize("optimizer_class", OPTIMIZER_LIST)

@@ -391,4 +391,4 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
     @property
     def name(self) -> str:
         """Return optimizer name."""
-        return "RobustMVO"
+        return "RobustMeanVarianceOptimizer"

@@ -70,7 +70,7 @@ class MomentumOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "CappedMomentum"
+        return "MomentumOptimizer"
 
 
 class EMAMomentumOptimizer(MomentumOptimizer):
@@ -81,4 +81,4 @@ class EMAMomentumOptimizer(MomentumOptimizer):
 
     @property
     def name(self) -> str:
-        return "EMACappedMomentum"
+        return "MomentumEMAOptimizer"

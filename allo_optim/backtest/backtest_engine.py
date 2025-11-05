@@ -18,8 +18,8 @@ from allo_optim.backtest.backtest_config import BacktestConfig
 from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
+from allo_optim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
 from allo_optim.optimizer.wikipedia.wiki_database import download_data
-from allo_optim.optimizer.allocation_metric import LMoments, estimate_linear_moments, MIN_OBSERVATIONS
 
 logger = logging.getLogger(__name__)
 
@@ -675,7 +675,7 @@ class _PriceDataProvider(AbstractObservationSimulator):
         returns = price_data.pct_change().dropna()
         self._mu = returns.mean()
         self._cov = returns.cov()
-        
+
         # Compute L-moments from returns data
         if len(returns) >= MIN_OBSERVATIONS:
             self._l_moments = estimate_linear_moments(returns.values)

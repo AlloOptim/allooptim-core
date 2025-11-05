@@ -347,7 +347,16 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return f"CMA_{self.risk_metric.name}"
+        risk_name_map = {
+            "mean_variance": "MeanVariance",
+            "sortino": "Sortino",
+            "cvar": "CVar",
+            "max_drawdown": "MaxDrawdown",
+            "robust_sharpe": "RobustSharpe",
+            "l_moments": "LMoments",
+        }
+        risk_suffix = risk_name_map.get(self.risk_metric.name, self.risk_metric.name.title().replace("_", ""))
+        return f"CMA{risk_suffix}"
 
 
 class CVARCMAOptimizer(MeanVarianceCMAOptimizer):

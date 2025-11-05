@@ -39,12 +39,12 @@ from allo_optim.optimizer.kelly_criterion.kelly_criterion_optimizer import (
     KellyCriterionOptimizer,
 )
 from allo_optim.optimizer.light_gbm.light_gbm_optimizer import AugmentedLightGBMOptimizer, LightGBMOptimizer
+from allo_optim.optimizer.naive.momentum_optimizer import (
+    EMAMomentumOptimizer,
+    MomentumOptimizer,
+)
 from allo_optim.optimizer.naive.naive_optimizer import (
     NaiveOptimizer,
-)
-from allo_optim.optimizer.naive.momentum_optimizer import (
-    MomentumOptimizer,
-    EMAMomentumOptimizer,
 )
 from allo_optim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer

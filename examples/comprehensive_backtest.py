@@ -35,8 +35,6 @@ from allo_optim.backtest.backtest_report import generate_report
 from allo_optim.backtest.backtest_visualizer import create_visualizations
 from allo_optim.backtest.cluster_analyzer import ClusterAnalyzer
 from allo_optim.config.stock_universe import everything_in_alpaca, extract_symbols_from_list
-from allo_optim.allocation_to_allocators.orchestrator_factory import OrchestratorType
-
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -64,20 +62,20 @@ def main():
             benchmark="SPY",
             symbols=symbols,
             optimizer_names=[
-                "CMA_MEAN_VARIANCE",
-                "CMA_L_MOMENTS",
-                "CMA_SORTINO",
-                "CMA_MAX_DRAWDOWN",
-                "CMA_ROBUST_SHARPE",
-                "CMA_CVAR",
-                "PSO_MeanVariance",
-                "PSO_LMoments",
+                "CMAMeanVariance",
+                "CMALMoments",
+                "CMASortino",
+                "CMAMaxDrawdown",
+                "CMARobustSharpe",
+                "CMACvar",
+                "PSOMeanVariance",
+                "PSOLMoments",
                 "NCOSharpeOptimizer",
-                "Naive",
-                "CappedMomentum",
-                "AdjustedReturns_MeanVariance",
-                "AdjustedReturns_SemiVariance",
-                "HigherMoment",
+                "NaiveOptimizer",
+                "MomentumOptimizer",
+                "AdjustedReturnsMeanVariance",
+                "AdjustedReturnsSemiVariance",
+                "HigherMomentOptimizer",
                 "EfficientReturn",
                 "EfficientRisk",
                 "MaxSharpe",

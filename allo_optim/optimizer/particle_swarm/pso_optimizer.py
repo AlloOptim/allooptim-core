@@ -141,7 +141,7 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "PSO_MeanVariance"
+        return "PSOMeanVariance"
 
 
 class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
@@ -151,4 +151,4 @@ class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
 
     @property
     def name(self) -> str:
-        return "PSO_LMoments"
+        return "PSOLMoments"

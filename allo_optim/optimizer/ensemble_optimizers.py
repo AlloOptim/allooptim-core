@@ -74,7 +74,7 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
 
     @property
     def name(self) -> str:
-        return "A2A_Ensemble"
+        return "A2AEnsemble"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """No fitting needed for ensemble optimizer."""
@@ -168,7 +168,7 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
 
     @property
     def name(self) -> str:
-        return "SPY_Benchmark"
+        return "SPYBenchmark"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """No fitting needed for benchmark."""

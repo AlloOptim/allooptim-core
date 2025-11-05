@@ -176,7 +176,7 @@ class ClusterAnalyzer:
         # Create correlation matrix
         optimizer_names = list(aligned_series.keys())
         correlation_matrix = np.corrcoef([aligned_series[name] for name in optimizer_names])
-        
+
         # Handle NaN values in correlation matrix (can occur with constant or invalid returns)
         if np.any(np.isnan(correlation_matrix)):
             logger.warning("NaN values found in correlation matrix, replacing with zeros")

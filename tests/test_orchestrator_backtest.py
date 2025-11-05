@@ -35,7 +35,7 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
         end_date=datetime(2023, 1, 10),
         rebalance_frequency=5,
         lookback_days=5,  # Minimal lookback
-        optimizer_names=["Naive"],
+        optimizer_names=["NaiveOptimizer"],
         transformer_names=["OracleCovarianceTransformer"],
         orchestration_type=OrchestratorType.AUTO,
     )
@@ -100,7 +100,7 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     assert len(results) > 0
 
     # Check that we have the expected result keys
-    expected_keys = ["Naive", "SPY_Benchmark", "A2A_Ensemble"]
+    expected_keys = ["NaiveOptimizer", "SPY_Benchmark", "A2A_Ensemble"]
     for key in expected_keys:
         assert key in results, f"Missing expected result key: {key}"
         assert "metrics" in results[key], f"Missing metrics for {key}"

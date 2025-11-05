@@ -179,4 +179,4 @@ class HigherMomentOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "HigherMoment"
+        return "HigherMomentOptimizer"

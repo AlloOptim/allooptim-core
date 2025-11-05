@@ -123,4 +123,4 @@ class RiskParityOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "RiskParity"
+        return "RiskParityOptimizer"

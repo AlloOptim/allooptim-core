@@ -19,6 +19,7 @@ from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 
+
 class NaiveOptimizerConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
@@ -88,4 +89,4 @@ class NaiveOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "Naive"
+        return "NaiveOptimizer"

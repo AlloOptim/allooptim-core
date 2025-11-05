@@ -1,4 +1,5 @@
 import logging
+
 import numpy as np
 import pandas as pd
 
@@ -70,9 +71,7 @@ def calculate_robust_ema_moments(
 
     # Apply bounds checking on expected returns
     # Clip extreme values that might indicate numerical issues
-    expected_returns = np.clip(expected_returns,
-                                min_reasonable_return,
-                                max_reasonable_return)
+    expected_returns = np.clip(expected_returns, min_reasonable_return, max_reasonable_return)
 
     # Additional robustness: if returns are still extreme, use a blended approach
     simple_returns = returns.mean().values

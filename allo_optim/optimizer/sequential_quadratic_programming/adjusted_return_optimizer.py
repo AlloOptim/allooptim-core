@@ -19,10 +19,10 @@ from allo_optim.optimizer.asset_name_utils import (
     validate_asset_names,
 )
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
-from allo_optim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
 from allo_optim.optimizer.sequential_quadratic_programming.estimate_robust_ema_moments import (
     calculate_robust_ema_moments,
 )
+from allo_optim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
 
 logger = logging.getLogger(__name__)
 
@@ -88,9 +88,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
             returns = df_prices.pct_change().dropna()
 
             # Use custom robust EMA calculation instead of PyPortfolioOpt's unstable implementation
-            mu_ema, cov_ema = calculate_robust_ema_moments(
-                returns, span=self.config.ema_span
-            )
+            mu_ema, cov_ema = calculate_robust_ema_moments(returns, span=self.config.ema_span)
 
             self._mu = mu_ema
             # Ensure covariance matrix is positive definite
@@ -101,7 +99,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
                 logger.warning("EMA calculation produced NaN values, using simple historical moments")
                 self._mu = returns.mean().values
                 self._cov = make_positive_definite(returns.cov().values)
-                
+
             elif np.any(np.abs(self._mu) > 1.0):  # Returns > 100% are suspicious
                 logger.warning(
                     f"EMA produced extreme returns (max abs: {np.max(np.abs(self._mu)):.2e}), "
@@ -207,7 +205,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
-        return "AdjustedReturns_MeanVariance"
+        return "AdjustedReturnsMeanVariance"
 
 
 class LMomentsAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
@@ -220,7 +218,7 @@ class LMomentsAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
 
     @property
     def name(self) -> str:
-        return "AdjustedReturns_LMoments"
+        return "AdjustedReturnsLMoments"
 
 
 class EMAAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
@@ -233,7 +231,7 @@ class EMAAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
 
     @property
     def name(self) -> str:
-        return "AdjustedReturns_EMA"
+        return "AdjustedReturnsEMA"
 
 
 class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
@@ -254,4 +252,4 @@ class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer)
 
     @property
     def name(self) -> str:
-        return "AdjustedReturns_SemiVariance"
+        return "AdjustedReturnsSemiVariance"

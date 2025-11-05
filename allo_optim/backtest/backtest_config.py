@@ -1,8 +1,8 @@
 import logging
 from datetime import datetime, timedelta
+from functools import cached_property
 from pathlib import Path
 from typing import List
-from functools import cached_property
 
 import yaml
 from pydantic import BaseModel, Field, field_validator
@@ -57,7 +57,7 @@ class BacktestConfig(BaseModel):
 
     # Optimizer and transformer names
     optimizer_names: List[str] = Field(
-        default=["RiskParity", "Naive", "CappedMomentum", "HRP", "NCO"],
+        default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
         min_length=1,
         description="List of optimizer names to include in the backtest",
     )
