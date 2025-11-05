@@ -2,6 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List
+from functools import cached_property
 
 import yaml
 from pydantic import BaseModel, Field, field_validator
@@ -134,7 +135,7 @@ class BacktestConfig(BaseModel):
 
         return cls(**data)
 
-    @property
+    @cached_property
     def results_dir(self) -> Path:
         """Generate results directory path with timestamp."""
         return Path("backtest_results") / datetime.now().strftime("%Y%m%d_%H%M%S")

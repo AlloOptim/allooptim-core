@@ -40,8 +40,11 @@ from allo_optim.optimizer.kelly_criterion.kelly_criterion_optimizer import (
 )
 from allo_optim.optimizer.light_gbm.light_gbm_optimizer import AugmentedLightGBMOptimizer, LightGBMOptimizer
 from allo_optim.optimizer.naive.naive_optimizer import (
-    MomentumOptimizer,
     NaiveOptimizer,
+)
+from allo_optim.optimizer.naive.momentum_optimizer import (
+    MomentumOptimizer,
+    EMAMomentumOptimizer,
 )
 from allo_optim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
 from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
@@ -82,6 +85,7 @@ OPTIMIZER_LIST: list[type[AbstractOptimizer]] = [
     NCOSharpeOptimizer,
     NaiveOptimizer,
     MomentumOptimizer,
+    EMAMomentumOptimizer,
     RiskParityOptimizer,
     MeanVarianceAdjustedReturnsOptimizer,
     EMAAdjustedReturnsOptimizer,
