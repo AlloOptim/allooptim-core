@@ -52,6 +52,7 @@ class BaseMLOptimizerConfig(BaseModel):
     update_timedelta: timedelta = timedelta(days=1)
     use_data_augmentation: bool = False
     n_lookback: int = 60
+    n_augmentation: int = 10
 
 
 class BaseMLOptimizer(AbstractOptimizer, ABC):
@@ -205,10 +206,9 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
             return current_prices, returns_array
 
         # Create augmented samples with noise
-        n_augmentation = 10
         augmented_returns_list = [returns_array]
 
-        for _ in range(n_augmentation):
+        for _ in range(self.config.n_augmentation):
             # Add Gaussian noise to returns (1% std)
             noise = np.random.normal(0, 0.01, returns_array.shape)
             augmented_returns = returns_array + noise

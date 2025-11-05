@@ -56,7 +56,7 @@ class BacktestConfig(BaseModel):
 
     # Optimizer and transformer names
     optimizer_names: List[str] = Field(
-        default=["MaxSharpe", "RiskParity", "Naive", "CappedMomentum", "HRP", "NCO"],
+        default=["RiskParity", "Naive", "CappedMomentum", "HRP", "NCO"],
         min_length=1,
         description="List of optimizer names to include in the backtest",
     )

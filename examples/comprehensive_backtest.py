@@ -52,17 +52,14 @@ def main():
     logger.info("Starting comprehensive allocation algorithm backtest")
 
     try:
-        # Use a smaller universe for comprehensive testing to avoid computational issues
-        all_symbols = extract_symbols_from_list(everything_in_alpaca())
-        # Limit to top 50 symbols for faster computation
-        symbols = all_symbols[:50]
+        symbols = extract_symbols_from_list(everything_in_alpaca())
 
         config_backtest = BacktestConfig(
             start_date=datetime(2014, 12, 31),
             end_date=datetime(2024, 12, 31),
             rebalance_frequency=10,
             lookback_days=90,
-            quick_test=True,
+            quick_test=False,
             log_returns=True,
             benchmark="SPY",
             symbols=symbols,
@@ -81,14 +78,12 @@ def main():
                 "CappedMomentum",
                 "RiskParity",
                 "AdjustedReturns_MeanVariance",
-                "AdjustedReturns_EMA",
                 "AdjustedReturns_LMoments",
                 "AdjustedReturns_SemiVariance",
                 "HigherMoment",
-                "MaxSharpe",
                 "EfficientReturn",
                 "EfficientRisk",
-                "AugmentedLightGBMOptimizer",
+                "LightGBMOptimizer",
                 "RobustMVO",
             ],
             transformer_names=["OracleCovarianceTransformer"],
