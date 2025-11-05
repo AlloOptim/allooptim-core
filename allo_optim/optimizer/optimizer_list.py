@@ -7,7 +7,7 @@ Integrates MCOS simulation with allocation optimization.
 
 import logging
 
-from allo_optim.optimizer.covariance_matrix_adaption.cma_optimizer import (
+from allooptim.optimizer.covariance_matrix_adaption.cma_optimizer import (
     CVARCMAOptimizer,
     LMomentsCMAOptimizer,
     MaxDrawdownCMAOptimizer,
@@ -15,59 +15,59 @@ from allo_optim.optimizer.covariance_matrix_adaption.cma_optimizer import (
     RobustSharpeCMAOptimizer,
     SortinoCMAOptimizer,
 )
-from allo_optim.optimizer.deep_learning.deep_learning_optimizer import (
+from allooptim.optimizer.deep_learning.deep_learning_optimizer import (
     LSTMOptimizer,
     MAMBAOptimizer,
     TCNOptimizer,
 )
-from allo_optim.optimizer.efficient_frontier.black_litterman_optimizer import (
+from allooptim.optimizer.efficient_frontier.black_litterman_optimizer import (
     BlackLittermanOptimizer,
 )
-from allo_optim.optimizer.efficient_frontier.efficient_frontier_optimizer import (
+from allooptim.optimizer.efficient_frontier.efficient_frontier_optimizer import (
     EfficientReturnOptimizer,
     EfficientRiskOptimizer,
     MaxSharpeOptimizer,
 )
-from allo_optim.optimizer.fundamental.fundamental_optimizer import (
+from allooptim.optimizer.fundamental.fundamental_optimizer import (
     BalancedFundamentalOptimizer,
     MarketCapFundamentalOptimizer,
     QualityGrowthFundamentalOptimizer,
     ValueInvestingFundamentalOptimizer,
 )
-from allo_optim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
-from allo_optim.optimizer.kelly_criterion.kelly_criterion_optimizer import (
+from allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
+from allooptim.optimizer.kelly_criterion.kelly_criterion_optimizer import (
     KellyCriterionOptimizer,
 )
-from allo_optim.optimizer.light_gbm.light_gbm_optimizer import AugmentedLightGBMOptimizer, LightGBMOptimizer
-from allo_optim.optimizer.naive.momentum_optimizer import (
+from allooptim.optimizer.light_gbm.light_gbm_optimizer import AugmentedLightGBMOptimizer, LightGBMOptimizer
+from allooptim.optimizer.naive.momentum_optimizer import (
     EMAMomentumOptimizer,
     MomentumOptimizer,
 )
-from allo_optim.optimizer.naive.naive_optimizer import (
+from allooptim.optimizer.naive.naive_optimizer import (
     NaiveOptimizer,
 )
-from allo_optim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
-from allo_optim.optimizer.particle_swarm.pso_optimizer import (
+from allooptim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.particle_swarm.pso_optimizer import (
     LMomentsParticleSwarmOptimizer,
     MeanVarianceParticleSwarmOptimizer,
 )
-from allo_optim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer import (
+from allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer import (
     EMAAdjustedReturnsOptimizer,
     LMomentsAdjustedReturnsOptimizer,
     MeanVarianceAdjustedReturnsOptimizer,
     SemiVarianceAdjustedReturnsOptimizer,
 )
-from allo_optim.optimizer.sequential_quadratic_programming.higher_moments_optimizer import (
+from allooptim.optimizer.sequential_quadratic_programming.higher_moments_optimizer import (
     HigherMomentOptimizer,
 )
-from allo_optim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import (
+from allooptim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import (
     RiskParityOptimizer,
 )
-from allo_optim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
+from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
     RobustMeanVarianceOptimizer,
 )
-from allo_optim.optimizer.wikipedia.wikipedia_optimizer import WikipediaOptimizer
+from allooptim.optimizer.wikipedia.wikipedia_optimizer import WikipediaOptimizer
 
 logger = logging.getLogger(__name__)
 

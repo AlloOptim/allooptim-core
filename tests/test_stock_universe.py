@@ -1,8 +1,7 @@
 from dataclasses import fields
 
 import pytest
-
-from allo_optim.config.stock_universe import (
+from allooptim.config.stock_universe import (
     INDUSTRY_NAMES,
     StockUniverse,
     get_sp500_companies_0,

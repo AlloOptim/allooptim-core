@@ -42,18 +42,17 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field
-
-from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
-from allo_optim.optimizer.allocation_metric import LMoments
-from allo_optim.optimizer.asset_name_utils import (
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.optimizer.allocation_metric import LMoments
+from allooptim.optimizer.asset_name_utils import (
     convert_pandas_to_numpy,
     create_weights_series,
     get_asset_names,
     validate_asset_names,
 )
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
-from allo_optim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
+from pydantic import BaseModel, Field
 
 logger = logging.getLogger(__name__)
 

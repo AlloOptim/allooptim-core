@@ -15,14 +15,13 @@ import warnings
 from datetime import datetime
 
 import pandas as pd
-
-from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
-from allo_optim.backtest.backtest_config import BacktestConfig
-from allo_optim.backtest.backtest_engine import BacktestEngine
-from allo_optim.backtest.backtest_report import generate_report
-from allo_optim.backtest.backtest_visualizer import create_visualizations
-from allo_optim.backtest.cluster_analyzer import ClusterAnalyzer
-from allo_optim.config.stock_universe import extract_symbols_from_list, large_stock_universte
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.backtest.backtest_engine import BacktestEngine
+from allooptim.backtest.backtest_report import generate_report
+from allooptim.backtest.backtest_visualizer import create_visualizations
+from allooptim.backtest.cluster_analyzer import ClusterAnalyzer
+from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universte
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")

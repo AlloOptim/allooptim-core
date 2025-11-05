@@ -4,22 +4,21 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-
-from allo_optim.optimizer.allocation_metric import (
+from allooptim.optimizer.allocation_metric import (
     LMoments,
 )
-from allo_optim.optimizer.asset_name_utils import (
+from allooptim.optimizer.asset_name_utils import (
     create_weights_series,
     validate_asset_names,
 )
-from allo_optim.optimizer.fundamental.fundamental_methods import (
+from allooptim.optimizer.fundamental.fundamental_methods import (
     BalancedFundamentalConfig,
     OnlyMarketCapFundamentalConfig,
     QualityGrowthFundamentalConfig,
     ValueInvestingFundamentalConfig,
     allocate,
 )
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 

@@ -10,9 +10,8 @@ from typing import Optional
 
 import numpy as np
 import yfinance as yf
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from pydantic import BaseModel, model_validator
-
-from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 
 logger = logging.getLogger(__name__)
 

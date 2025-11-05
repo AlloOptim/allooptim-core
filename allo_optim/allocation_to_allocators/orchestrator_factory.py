@@ -7,19 +7,19 @@ Factory for creating allocation-to-allocators orchestrators based on configurati
 from enum import Enum
 from typing import List
 
-from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
-from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
-from allo_optim.allocation_to_allocators.equal_weight_orchestrator import (
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
+from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
     EqualWeightOrchestrator,
 )
-from allo_optim.allocation_to_allocators.optimized_orchestrator import (
+from allooptim.allocation_to_allocators.optimized_orchestrator import (
     OptimizedOrchestrator,
 )
-from allo_optim.allocation_to_allocators.wikipedia_pipeline_orchestrator import (
+from allooptim.allocation_to_allocators.wikipedia_pipeline_orchestrator import (
     WikipediaPipelineOrchestrator,
 )
-from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
-from allo_optim.optimizer.optimizer_list import get_optimizer_by_names
+from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
+from allooptim.optimizer.optimizer_list import get_optimizer_by_names
 
 
 class OrchestratorType(str, Enum):

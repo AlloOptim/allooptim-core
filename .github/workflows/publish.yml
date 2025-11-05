@@ -44,7 +44,7 @@ jobs:
 
     environment:
       name: testpypi
-      url: https://test.pypi.org/p/allo_optim
+      url: https://test.pypi.org/p/allooptim
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
@@ -70,7 +70,7 @@ jobs:
 
     environment:
       name: pypi
-      url: https://pypi.org/p/allo_optim
+      url: https://pypi.org/p/allooptim
 
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing

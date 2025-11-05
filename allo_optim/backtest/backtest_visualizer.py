@@ -4,9 +4,8 @@ from typing import Optional
 
 import matplotlib.pyplot as plt
 import seaborn as sns
+from allooptim.backtest.backtest_config import BacktestConfig
 from scipy.cluster.hierarchy import dendrogram
-
-from allo_optim.backtest.backtest_config import BacktestConfig
 
 logger = logging.getLogger(__name__)
 

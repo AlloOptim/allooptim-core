@@ -1,21 +1,18 @@
 import numpy as np
 import pandas as pd
 import pytest
-
-from allo_optim.allocation_to_allocators.data_provider_factory import (
+from allooptim.allocation_to_allocators.a2a_result import A2AResult
+from allooptim.allocation_to_allocators.data_provider_factory import (
     get_data_provider_factory,
 )
-from allo_optim.allocation_to_allocators.orchestrator_factory import (
-    create_orchestrator,
+from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
+    create_orchestrator,
 )
-from allo_optim.allocation_to_allocators.a2a_result import A2AResult
-from allo_optim.config.stock_universe import list_of_dax_stocks
+from allooptim.config.stock_universe import list_of_dax_stocks
 
 
-@pytest.mark.parametrize(
-    "optimizer_names", [["NaiveOptimizer"], ["NaiveOptimizer", "MomentumOptimizer"]]
-)
+@pytest.mark.parametrize("optimizer_names", [["NaiveOptimizer"], ["NaiveOptimizer", "MomentumOptimizer"]])
 @pytest.mark.parametrize("orchestrator_type", OrchestratorType)
 def test_a2a(orchestrator_type, optimizer_names, fast_a2a_config):
     """Test that all A2A allocators work correctly."""

@@ -2,18 +2,17 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-
-from allo_optim.allocation_to_allocators.simulator_interface import (
+from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allo_optim.covariance_transformer.transformer_interface import (
+from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
-from allo_optim.optimizer.allocation_metric import (
+from allooptim.optimizer.allocation_metric import (
     expected_return_classical,
     validate_no_nan,
 )
-from allo_optim.optimizer.optimizer_interface import (
+from allooptim.optimizer.optimizer_interface import (
     AbstractOptimizer,
 )
 

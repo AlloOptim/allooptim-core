@@ -10,17 +10,16 @@ from datetime import datetime
 from typing import List, Optional
 
 import pandas as pd
-
-from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
-from allo_optim.allocation_to_allocators.a2a_result import A2AResult
-from allo_optim.allocation_to_allocators.simulator_interface import (
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.allocation_to_allocators.a2a_result import A2AResult
+from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allo_optim.config.stock_dataclasses import StockUniverse
-from allo_optim.covariance_transformer.transformer_interface import (
+from allooptim.config.stock_dataclasses import StockUniverse
+from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 
 class A2AOrchestrator(ABC):

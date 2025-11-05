@@ -4,8 +4,7 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
-
-from allo_optim.optimizer.allocation_metric import LMoments
+from allooptim.optimizer.allocation_metric import LMoments
 
 
 class AbstractObservationSimulator(ABC):

@@ -3,9 +3,8 @@ from datetime import datetime
 
 import pandas as pd
 import yfinance as yf
-
-from allo_optim.backtest.data_cleaning import clean_price_data
-from allo_optim.config.stock_universe import get_stocks_by_symbols
+from allooptim.backtest.data_cleaning import clean_price_data
+from allooptim.config.stock_universe import get_stocks_by_symbols
 
 logger = logging.getLogger(__name__)
 

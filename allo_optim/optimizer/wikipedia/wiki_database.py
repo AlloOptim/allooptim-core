@@ -14,9 +14,8 @@ from typing import Any, Optional
 import numpy as np
 import pandas as pd
 import yfinance as yf
-
-from allo_optim.config.stock_dataclasses import StockUniverse
-from allo_optim.optimizer.wikipedia.patched_pageview_api import pageviewapi
+from allooptim.config.stock_dataclasses import StockUniverse
+from allooptim.optimizer.wikipedia.patched_pageview_api import pageviewapi
 
 logger = logging.getLogger(__name__)
 

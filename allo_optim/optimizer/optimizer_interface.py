@@ -3,8 +3,7 @@ from datetime import datetime
 from typing import Optional
 
 import pandas as pd
-
-from allo_optim.optimizer.allocation_metric import LMoments
+from allooptim.optimizer.allocation_metric import LMoments
 
 
 class AbstractOptimizer(ABC):

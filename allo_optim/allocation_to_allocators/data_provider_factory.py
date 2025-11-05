@@ -10,11 +10,10 @@ from datetime import datetime
 from typing import Optional
 
 import pandas as pd
-
-from allo_optim.allocation_to_allocators.observation_simulator import (
+from allooptim.allocation_to_allocators.observation_simulator import (
     MuCovPartialObservationSimulator,
 )
-from allo_optim.allocation_to_allocators.simulator_interface import (
+from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 
@@ -77,7 +76,7 @@ class BacktestDataProviderFactory(AbstractDataProviderFactory):
             Data provider configured for backtest use
         """
         # Import here to avoid circular imports
-        from allo_optim.backtest.backtest_engine import _PriceDataProvider
+        from allooptim.backtest.backtest_engine import _PriceDataProvider
 
         return _PriceDataProvider(df_prices)
 

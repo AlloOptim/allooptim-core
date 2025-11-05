@@ -11,25 +11,24 @@ from pathlib import Path
 from typing import List, Optional
 
 import pandas as pd
-
-from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
-from allo_optim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
-from allo_optim.allocation_to_allocators.a2a_result import (
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
+from allooptim.allocation_to_allocators.a2a_result import (
     A2AResult,
     PerformanceMetrics,
 )
-from allo_optim.allocation_to_allocators.equal_weight_orchestrator import (
+from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
     EqualWeightOrchestrator,
 )
-from allo_optim.allocation_to_allocators.simulator_interface import (
+from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allo_optim.config.stock_dataclasses import StockUniverse
-from allo_optim.covariance_transformer.transformer_interface import (
+from allooptim.config.stock_dataclasses import StockUniverse
+from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
-from allo_optim.optimizer.wikipedia.allocate_wikipedia import allocate_wikipedia
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.wikipedia.allocate_wikipedia import allocate_wikipedia
 
 logger = logging.getLogger(__name__)
 

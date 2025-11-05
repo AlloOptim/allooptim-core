@@ -9,11 +9,10 @@ from functools import partial
 
 import numpy as np
 import pyswarms as ps
-
-from allo_optim.allocation_to_allocators.optimizer_simulator import (
+from allooptim.allocation_to_allocators.optimizer_simulator import (
     MCOSAllocationResult,
 )
-from allo_optim.optimizer.allocation_metric import (
+from allooptim.optimizer.allocation_metric import (
     expected_return_classical,
     validate_no_nan,
 )

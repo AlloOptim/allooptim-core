@@ -4,22 +4,21 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-
-from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
-from allo_optim.allocation_to_allocators.a2a_result import A2AResult
-from allo_optim.allocation_to_allocators.orchestrator_factory import (
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.allocation_to_allocators.a2a_result import A2AResult
+from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
 )
-from allo_optim.allocation_to_allocators.simulator_interface import (
+from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allo_optim.backtest.backtest_config import BacktestConfig
-from allo_optim.backtest.data_loader import DataLoader
-from allo_optim.backtest.performance_metrics import PerformanceMetrics
-from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
-from allo_optim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
-from allo_optim.optimizer.wikipedia.wiki_database import download_data
+from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.backtest.data_loader import DataLoader
+from allooptim.backtest.performance_metrics import PerformanceMetrics
+from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
+from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
+from allooptim.optimizer.wikipedia.wiki_database import download_data
 
 logger = logging.getLogger(__name__)
 

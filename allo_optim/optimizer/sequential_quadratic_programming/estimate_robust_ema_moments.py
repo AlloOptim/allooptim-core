@@ -2,8 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
-
-from allo_optim.optimizer.allocation_metric import (
+from allooptim.optimizer.allocation_metric import (
     make_positive_definite,
 )
 

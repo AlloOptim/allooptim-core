@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "allo_optim"
+name = "allooptim"
 version = "0.3.0"
 description = "Scientific portfolio optimization for institutional investors "
 authors = ["Jonas ten Haaf <jonas.tenhaaf@mail.de>"]

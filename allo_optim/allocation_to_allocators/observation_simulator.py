@@ -3,13 +3,12 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
-from pypfopt.expected_returns import mean_historical_return
-from pypfopt.risk_models import sample_cov
-
-from allo_optim.allocation_to_allocators.simulator_interface import (
+from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allo_optim.optimizer.allocation_metric import LMoments, estimate_linear_moments
+from allooptim.optimizer.allocation_metric import LMoments, estimate_linear_moments
+from pypfopt.expected_returns import mean_historical_return
+from pypfopt.risk_models import sample_cov
 
 
 class MuCovPartialObservationSimulator(AbstractObservationSimulator):

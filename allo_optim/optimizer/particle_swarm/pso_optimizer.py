@@ -5,16 +5,15 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import pyswarms as ps
-from pydantic import BaseModel
-
-from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
-from allo_optim.optimizer.allocation_metric import (
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.optimizer.allocation_metric import (
     LMoments,
 )
-from allo_optim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
-from allo_optim.optimizer.particle_swarm.early_stopping import EarlyStopObjective
-from allo_optim.optimizer.particle_swarm.pso_objective import risk_adjusted_returns_objective
+from allooptim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.particle_swarm.early_stopping import EarlyStopObjective
+from allooptim.optimizer.particle_swarm.pso_objective import risk_adjusted_returns_objective
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 

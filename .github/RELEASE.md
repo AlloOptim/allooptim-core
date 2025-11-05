@@ -11,7 +11,7 @@ This repository uses **GitHub Actions + PyPI Trusted Publishers** for automated,
 #### TestPyPI (for testing releases)
 1. Go to https://test.pypi.org/manage/account/publishing/
 2. Add a new pending publisher with these details:
-   - **PyPI Project Name**: `allo_optim`
+   - **PyPI Project Name**: `allooptim`
    - **Owner**: `AlloOptim`
    - **Repository name**: `allooptim-core`
    - **Workflow name**: `publish.yml`
@@ -20,7 +20,7 @@ This repository uses **GitHub Actions + PyPI Trusted Publishers** for automated,
 #### PyPI (for production releases)
 1. Go to https://pypi.org/manage/account/publishing/
 2. Add a new pending publisher with these details:
-   - **PyPI Project Name**: `allo_optim`
+   - **PyPI Project Name**: `allooptim`
    - **Owner**: `AlloOptim`
    - **Repository name**: `allooptim-core`
    - **Workflow name**: `publish.yml`

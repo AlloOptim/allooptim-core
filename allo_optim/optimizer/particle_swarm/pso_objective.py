@@ -1,8 +1,7 @@
 import logging
 
 import numpy as np
-
-from allo_optim.optimizer.allocation_metric import (
+from allooptim.optimizer.allocation_metric import (
     LMoments,
     expected_return_classical,
     expected_return_moments,

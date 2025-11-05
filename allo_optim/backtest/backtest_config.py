@@ -5,11 +5,10 @@ from pathlib import Path
 from typing import List
 
 import yaml
+from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
+from allooptim.covariance_transformer.transformer_list import get_all_transformers
+from allooptim.optimizer.optimizer_list import get_all_optimizer_names
 from pydantic import BaseModel, Field, field_validator
-
-from allo_optim.allocation_to_allocators.orchestrator_factory import OrchestratorType
-from allo_optim.covariance_transformer.transformer_list import get_all_transformers
-from allo_optim.optimizer.optimizer_list import get_all_optimizer_names
 
 logger = logging.getLogger(__name__)
 

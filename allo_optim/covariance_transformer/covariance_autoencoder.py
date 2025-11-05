@@ -10,14 +10,13 @@ from typing import Optional
 
 import numpy as np
 import pandas as pd
-from tinygrad import Tensor, dtypes, nn
-from tinygrad.nn import optim
-
-from allo_optim.covariance_transformer.transformer_interface import (
+from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
-from allo_optim.data_generation.lower_triangle_utils import get_packed_size, pack_lower_triangle, unpack_lower_triangle
-from allo_optim.data_generation.training_data import TrainingConfig, TrainingDataGenerator, load_training_data
+from allooptim.data_generation.lower_triangle_utils import get_packed_size, pack_lower_triangle, unpack_lower_triangle
+from allooptim.data_generation.training_data import TrainingConfig, TrainingDataGenerator, load_training_data
+from tinygrad import Tensor, dtypes, nn
+from tinygrad.nn import optim
 
 logger = logging.getLogger(__name__)
 

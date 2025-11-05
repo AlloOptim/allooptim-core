@@ -8,8 +8,8 @@ Suitable for: Production, daily rebalancing, quick experiments
 import logging
 from typing import Optional
 
-from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer, BaseMLOptimizerConfig
-from allo_optim.optimizer.light_gbm.light_gbm_base import LightGBMOptimizerEngine
+from allooptim.optimizer.base_ml_optimizer import BaseMLOptimizer, BaseMLOptimizerConfig
+from allooptim.optimizer.light_gbm.light_gbm_base import LightGBMOptimizerEngine
 
 logger = logging.getLogger(__name__)
 

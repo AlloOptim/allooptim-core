@@ -6,17 +6,16 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 import pytz
-from scipy import stats
-
-from allo_optim.config.allocation_dataclasses import (
+from allooptim.config.allocation_dataclasses import (
     AllocationResult,
     WikipediaStatistics,
     validate_asset_weights_length,
 )
 
 # Old complex caching imports removed - now using simple_sql_cache
-from allo_optim.config.stock_dataclasses import StockUniverse
-from allo_optim.optimizer.wikipedia.wiki_database import load_data
+from allooptim.config.stock_dataclasses import StockUniverse
+from allooptim.optimizer.wikipedia.wiki_database import load_data
+from scipy import stats
 
 logger = logging.getLogger(__name__)
 

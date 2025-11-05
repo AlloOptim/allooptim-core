@@ -6,22 +6,21 @@ from typing import Optional
 import cma
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel
-
-from allo_optim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
-from allo_optim.optimizer.allocation_metric import (
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.optimizer.allocation_metric import (
     LMoments,
     expected_return_classical,
     expected_return_moments,
 )
-from allo_optim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
-from allo_optim.optimizer.particle_swarm.pso_objective import (
+from allooptim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.particle_swarm.pso_objective import (
     conditional_value_at_risk_objective,
     maximum_drawdown_objective,
     robust_sharpe_objective,
     sortino_ratio_objective,
 )
+from pydantic import BaseModel
 
 logger = logging.getLogger(__name__)
 

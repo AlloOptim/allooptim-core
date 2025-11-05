@@ -9,9 +9,8 @@ from datetime import datetime
 from typing import List, Optional
 
 import pandas as pd
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from pydantic import BaseModel, ConfigDict, Field
-
-from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
 
 
 class OptimizerAllocation(BaseModel):

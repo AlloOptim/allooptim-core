@@ -11,12 +11,11 @@ from unittest.mock import patch
 import numpy as np
 import pandas as pd
 import pytest
-
-from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
-from allo_optim.allocation_to_allocators.orchestrator_factory import OrchestratorType
-from allo_optim.backtest.backtest_config import BacktestConfig
-from allo_optim.backtest.backtest_engine import BacktestEngine
-from allo_optim.config.allocation_dataclasses import (
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
+from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.backtest.backtest_engine import BacktestEngine
+from allooptim.config.allocation_dataclasses import (
     AllocationResult,
     WikipediaStatistics,
 )
@@ -86,7 +85,7 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
                 ),
             )
             with patch(
-                "allo_optim.allocation_to_allocators.wikipedia_pipeline_orchestrator.allocate_wikipedia",
+                "allooptim.allocation_to_allocators.wikipedia_pipeline_orchestrator.allocate_wikipedia",
                 return_value=mock_wiki_result,
             ):
                 # Run the backtest

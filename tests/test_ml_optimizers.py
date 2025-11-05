@@ -7,15 +7,14 @@ Test that LightGBM and Deep Learning optimizers work correctly after refactoring
 import numpy as np
 import pandas as pd
 import pytest
-
-from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer
-from allo_optim.optimizer.deep_learning.deep_learning_optimizer import (
+from allooptim.optimizer.base_ml_optimizer import BaseMLOptimizer
+from allooptim.optimizer.deep_learning.deep_learning_optimizer import (
     LSTMOptimizer,
     MAMBAOptimizer,
     ModelType,
     TCNOptimizer,
 )
-from allo_optim.optimizer.light_gbm.light_gbm_optimizer import (
+from allooptim.optimizer.light_gbm.light_gbm_optimizer import (
     AugmentedLightGBMOptimizer,
     LightGBMOptimizer,
 )

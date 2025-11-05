@@ -1,9 +1,9 @@
 import logging
 
-from allo_optim.covariance_transformer.covariance_autoencoder import (
+from allooptim.covariance_transformer.covariance_autoencoder import (
     AutoencoderCovarianceTransformer,
 )
-from allo_optim.covariance_transformer.covariance_transformer import (
+from allooptim.covariance_transformer.covariance_transformer import (
     DeNoiserCovarianceTransformer,
     DetoneCovarianceTransformer,
     EllipticEnvelopeShrinkageCovarianceTransformer,
@@ -14,7 +14,7 @@ from allo_optim.covariance_transformer.covariance_transformer import (
     PCACovarianceTransformer,
     SimpleShrinkageCovarianceTransformer,
 )
-from allo_optim.covariance_transformer.transformer_interface import (
+from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
 

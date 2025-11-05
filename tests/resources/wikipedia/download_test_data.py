@@ -10,9 +10,9 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import allo_optim.optimizer.wikipedia.wiki_database as sql_db
-from allo_optim.config.stock_universe import get_stocks_by_symbols
-from allo_optim.optimizer.wikipedia.wiki_database import download_data
+import allooptim.optimizer.wikipedia.wiki_database as sql_db
+from allooptim.config.stock_universe import get_stocks_by_symbols
+from allooptim.optimizer.wikipedia.wiki_database import download_data
 
 # Add the project root to the path
 project_root = Path(__file__).parent.parent.parent

@@ -8,8 +8,8 @@ Architectures: LSTM+Transformer, MAMBA (SSM), TCN
 
 import logging
 
-from allo_optim.optimizer.base_ml_optimizer import BaseMLOptimizer
-from allo_optim.optimizer.deep_learning.deep_learning_base import (
+from allooptim.optimizer.base_ml_optimizer import BaseMLOptimizer
+from allooptim.optimizer.deep_learning.deep_learning_base import (
     DeepLearningOptimizerEngine,
     ModelType,
 )

@@ -1,4 +1,4 @@
-from allo_optim.config.stock_dataclasses import StockUniverse
+from allooptim.config.stock_dataclasses import StockUniverse
 
 INDUSTRY_NAMES = [
     "Building Materials Manufacturing",

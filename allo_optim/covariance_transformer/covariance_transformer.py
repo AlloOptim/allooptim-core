@@ -2,14 +2,13 @@ from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
+from allooptim.covariance_transformer.transformer_interface import (
+    AbstractCovarianceTransformer,
+)
 from numpy import linalg
 from scipy.optimize import minimize
 from sklearn.covariance import OAS, EllipticEnvelope, EmpiricalCovariance, LedoitWolf, ShrunkCovariance
 from sklearn.neighbors import KernelDensity
-
-from allo_optim.covariance_transformer.transformer_interface import (
-    AbstractCovarianceTransformer,
-)
 
 # Constants for numerical thresholds
 NEAR_SINGULARITY_CONDITION_THRESHOLD = 1e12

@@ -10,18 +10,17 @@ from typing import List
 
 import numpy as np
 import pandas as pd
-
-from allo_optim.allocation_to_allocators.observation_simulator import (
+from allooptim.allocation_to_allocators.observation_simulator import (
     MuCovPartialObservationSimulator,
 )
-from allo_optim.allocation_to_allocators.optimizer_convergence import (
+from allooptim.allocation_to_allocators.optimizer_convergence import (
     simulate_optimizers_with_convergence,
 )
-from allo_optim.covariance_transformer.covariance_transformer import (
+from allooptim.covariance_transformer.covariance_transformer import (
     DeNoiserCovarianceTransformer,
 )
-from allo_optim.optimizer.allocation_metric import validate_no_nan
-from allo_optim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.allocation_metric import validate_no_nan
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 
 @dataclass
