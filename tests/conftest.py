@@ -7,10 +7,9 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from allo_optim.allocation_to_allocators.allocation_orchestrator import (
-    AllocationOrchestratorConfig,
-    OrchestrationType,
-)
+from allo_optim.allocation_to_allocators.a2a_config import A2AConfig
+
+TESTS_DIRECTORY = Path(__file__).parent.resolve()
 
 TESTS_DIRECTORY = Path(__file__).parent.resolve()
 
@@ -39,13 +38,10 @@ N_HISTORICAL_DAYS = 30
 def fast_a2a_config():
     """Create fast A2A config for testing."""
 
-    fast_a2a_config = AllocationOrchestratorConfig(
-        orchestration_type=OrchestrationType.EQUAL,
+    fast_a2a_config = A2AConfig(
+        n_simulations=FAST_TEST_OBSERVATIONS,
         n_particles=FAST_TEST_PARTICLES,
-        n_particle_swarm_iterations=FAST_TEST_ITERATIONS,
-        n_data_observations=FAST_TEST_OBSERVATIONS,
-        use_wiki_database=USE_WIKI_DATABASE,
-        n_historical_days=N_HISTORICAL_DAYS,
+        n_pso_iterations=FAST_TEST_ITERATIONS,
     )
 
     return fast_a2a_config

@@ -218,7 +218,7 @@ generated_output/performance_reports/*
 *.pkl
 
 data/*
-# backtest_results/*
+backtest_results/*
 tests/generated_output/*
 !backtest_results/20251105_112827_10_years/*
 
