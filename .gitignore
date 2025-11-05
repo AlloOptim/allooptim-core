@@ -220,11 +220,10 @@ generated_output/performance_reports/*
 data/*
 backtest_results/*
 tests/generated_output/*
+!backtest_results/20251105_112827_10_years/*
 
 report.*
 
-lumibot.db
-lumibot_trades.db
 market_data.db
 
 docs/*

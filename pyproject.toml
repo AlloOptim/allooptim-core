@@ -29,6 +29,13 @@ h5py = "^3.15.1"
 seaborn = "^0.13.2"
 matplotlib = "^3.10.7"
 
+[tool.poetry.group.examples.dependencies]
+jupyter = "^1.1.1"
+notebook = "^7.3.2"
+ipykernel = "^6.29.5"
+nbconvert = "^7.16.6"
+jupyterlab = "^4.3.5"
+
 [tool.poetry.group.dev]
 optional = true
 
