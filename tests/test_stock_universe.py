@@ -1,6 +1,7 @@
 from dataclasses import fields
 
 import pytest
+
 from allooptim.config.stock_universe import (
     INDUSTRY_NAMES,
     StockUniverse,

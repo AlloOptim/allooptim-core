@@ -7,6 +7,7 @@ Test that LightGBM and Deep Learning optimizers work correctly after refactoring
 import numpy as np
 import pandas as pd
 import pytest
+
 from allooptim.optimizer.base_ml_optimizer import BaseMLOptimizer
 from allooptim.optimizer.deep_learning.deep_learning_optimizer import (
     LSTMOptimizer,

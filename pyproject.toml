@@ -5,6 +5,7 @@ description = "Scientific portfolio optimization for institutional investors "
 authors = ["Jonas ten Haaf <jonas.tenhaaf@mail.de>"]
 license = "MIT"
 readme = "README.md"
+packages = [{include = "allooptim"}]
 
 [tool.poetry.dependencies]
 python = "^3.12.0"

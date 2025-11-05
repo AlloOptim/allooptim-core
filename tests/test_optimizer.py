@@ -1,9 +1,13 @@
 from datetime import datetime
 
-import allooptim.optimizer.wikipedia.wiki_database as wiki_db
 import numpy as np
 import pandas as pd
 import pytest
+from numpy.testing import assert_almost_equal, assert_array_almost_equal
+from pypfopt.expected_returns import mean_historical_return
+from pypfopt.risk_models import sample_cov
+
+import allooptim.optimizer.wikipedia.wiki_database as wiki_db
 from allooptim.optimizer.allocation_metric import estimate_linear_moments
 from allooptim.optimizer.efficient_frontier.efficient_frontier_optimizer import MaxSharpeOptimizer
 from allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
@@ -11,9 +15,6 @@ from allooptim.optimizer.nested_cluster.nco_optimizer import NCOSharpeOptimizer
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 from allooptim.optimizer.optimizer_list import OPTIMIZER_LIST
 from allooptim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import RiskParityOptimizer
-from numpy.testing import assert_almost_equal, assert_array_almost_equal
-from pypfopt.expected_returns import mean_historical_return
-from pypfopt.risk_models import sample_cov
 
 # Constants for test tolerances
 WEIGHT_SUM_TEST_TOLERANCE = 0.01

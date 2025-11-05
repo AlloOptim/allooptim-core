@@ -1,6 +1,10 @@
 import numpy as np
 import pandas as pd
 import pytest
+from numpy import linalg
+from numpy.testing import assert_almost_equal, assert_array_almost_equal
+from pypfopt.risk_models import sample_cov
+
 from allooptim.covariance_transformer.covariance_transformer import (
     DeNoiserCovarianceTransformer,
     DetoneCovarianceTransformer,
@@ -8,9 +12,6 @@ from allooptim.covariance_transformer.covariance_transformer import (
 )
 from allooptim.covariance_transformer.transformer_interface import AbstractCovarianceTransformer
 from allooptim.covariance_transformer.transformer_list import TRANSFORMER_LIST
-from numpy import linalg
-from numpy.testing import assert_almost_equal, assert_array_almost_equal
-from pypfopt.risk_models import sample_cov
 
 
 @pytest.fixture

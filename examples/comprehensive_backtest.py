@@ -15,6 +15,7 @@ import warnings
 from datetime import datetime
 
 import pandas as pd
+
 from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.backtest.backtest_config import BacktestConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
