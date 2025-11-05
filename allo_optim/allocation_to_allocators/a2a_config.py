@@ -32,7 +32,7 @@ class A2AConfig(BaseModel):
     )
 
     # General settings
-    random_seed: Optional[int] = Field(default=None, description="Random seed for reproducibility")
+    random_seed: Optional[int] = Field(default=42, description="Random seed for reproducibility")
     parallel: bool = Field(default=False, description="Enable parallel execution")
     n_jobs: int = Field(default=-1, description="Number of parallel jobs (-1 = all CPUs)")
 

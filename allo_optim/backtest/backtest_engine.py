@@ -10,7 +10,6 @@ from allo_optim.allocation_to_allocators.a2a_result import A2AResult
 from allo_optim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
-    get_default_orchestrator_type,
 )
 from allo_optim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
@@ -51,19 +50,15 @@ class BacktestEngine:
             symbols=self.config_backtest.symbols,
         )
 
-        # Determine orchestrator type
-        if orchestrator_type is None:
-            if self.config_backtest.orchestration_type != OrchestratorType.AUTO:
-                orchestrator_type = self.config_backtest.orchestration_type
-            else:
-                orchestrator_type = get_default_orchestrator_type()
-
         # Create orchestrator using factory
         if a2a_config is None:
             a2a_config = A2AConfig()
 
+        # Use orchestrator_type parameter if provided, otherwise use config
+        final_orchestrator_type = orchestrator_type or self.config_backtest.orchestration_type
+
         self.orchestrator = create_orchestrator(
-            orchestrator_type=orchestrator_type,
+            orchestrator_type=final_orchestrator_type,
             optimizer_names=self.config_backtest.optimizer_names,
             transformer_names=self.config_backtest.transformer_names,
             config=a2a_config,

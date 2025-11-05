@@ -56,10 +56,14 @@ class BacktestConfig(BaseModel):
 
     # Optimizer and transformer names
     optimizer_names: List[str] = Field(
-        ..., min_length=1, description="List of optimizer names to include in the backtest"
+        default=["MaxSharpe", "RiskParity", "Naive", "CappedMomentum", "HRP", "NCO"],
+        min_length=1,
+        description="List of optimizer names to include in the backtest",
     )
     transformer_names: List[str] = Field(
-        ..., min_length=1, description="List of covariance transformer names to include in the backtest"
+        default=["OracleCovarianceTransformer"],
+        min_length=1,
+        description="List of covariance transformer names to include in the backtest",
     )
 
     # AllocationOrchestrator options
@@ -148,31 +152,3 @@ class BacktestConfig(BaseModel):
         if self.quick_test:
             return self.quick_start_date - previous_days, self.quick_end_date
         return self.start_date - previous_days, self.end_date
-
-
-# Load default configuration from YAML file
-config_path = Path(__file__).parent / "backtest_config.yaml"
-if config_path.exists():
-    try:
-        config = BacktestConfig.from_yaml(str(config_path))
-        logger.info("Backtest configuration loaded successfully from YAML")
-    except Exception as e:
-        logger.warning(f"Failed to load configuration from YAML: {e}. Using defaults.")
-        # Fallback to basic configuration if YAML loading fails
-        config = BacktestConfig(
-            start_date=datetime(2014, 12, 31),
-            end_date=datetime(2024, 12, 31),
-            optimizer_names=["Naive"],
-            transformer_names=["OracleCovarianceTransformer"],
-            orchestration_type="equal",
-        )
-else:
-    logger.warning(f"Configuration file not found: {config_path}. Using defaults.")
-    # Fallback to basic configuration
-    config = BacktestConfig(
-        start_date=datetime(2014, 12, 31),
-        end_date=datetime(2024, 12, 31),
-        optimizer_names=["Naive"],
-        transformer_names=["OracleCovarianceTransformer"],
-        orchestration_type="equal",
-    )

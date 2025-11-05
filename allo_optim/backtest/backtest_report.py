@@ -1,18 +1,17 @@
 import logging
 from datetime import datetime
+from typing import Optional
 
 from allo_optim.backtest.backtest_config import BacktestConfig
 
 logger = logging.getLogger(__name__)
 
 
-def generate_report(results: dict, clustering_results: dict, config: "BacktestConfig" = None) -> str:
+def generate_report(results: dict, clustering_results: dict, config: Optional[BacktestConfig] = None) -> str:
     """Generate comprehensive markdown report."""
 
     if config is None:
-        from allo_optim.backtest.backtest_config import config as default_config
-
-        config = default_config
+        config = BacktestConfig()
 
     logger.info("Generating comprehensive report")
 

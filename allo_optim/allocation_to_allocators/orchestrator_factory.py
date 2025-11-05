@@ -32,7 +32,11 @@ class OrchestratorType(str, Enum):
 
 
 def create_orchestrator(
-    orchestrator_type: str, optimizer_names: List[str], transformer_names: List[str], config: A2AConfig, **kwargs
+    orchestrator_type: str,
+    optimizer_names: List[str],
+    transformer_names: List[str],
+    config: A2AConfig,
+    **kwargs,
 ) -> BaseOrchestrator:
     """
     Factory function to create the appropriate orchestrator based on type.
@@ -58,7 +62,11 @@ def create_orchestrator(
         orchestrator_type = get_default_orchestrator_type()
 
     if orchestrator_type == OrchestratorType.EQUAL_WEIGHT:
-        return EqualWeightOrchestrator(optimizers, transformers, config)
+        return EqualWeightOrchestrator(
+            optimizers=optimizers,
+            covariance_transformers=transformers,
+            config=config,
+        )
 
     elif orchestrator_type == OrchestratorType.OPTIMIZED:
         return OptimizedOrchestrator(
@@ -93,7 +101,7 @@ def get_default_orchestrator_type() -> OrchestratorType:
         optimizer_names: List of optimizer names being used
 
     Returns:
-        Default orchestrator type string
+        Default orchestrator
     """
 
     return OrchestratorType.EQUAL_WEIGHT

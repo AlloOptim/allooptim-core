@@ -1,19 +1,21 @@
 import logging
 from pathlib import Path
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram
 
+from allo_optim.backtest.backtest_config import BacktestConfig
+
 logger = logging.getLogger(__name__)
 
 
-def create_visualizations(results: dict, clustering_results: dict, results_dir: Path = None) -> None:
+def create_visualizations(results: dict, clustering_results: dict, results_dir: Optional[Path] = None) -> None:
     """Create comprehensive visualizations of results."""
 
     if results_dir is None:
-        from allo_optim.backtest.backtest_config import config
-
+        config = BacktestConfig()
         results_dir = config.results_dir
 
     logger.info("Creating visualizations")
