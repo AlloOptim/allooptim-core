@@ -82,7 +82,7 @@ def main():
 
         # Run allocation
         start_time = time.time()
-        result = orchestrator.run_allocation(
+        result = orchestrator.allocate(
             all_stocks=all_stocks,
             time_today=dates[-1],
             df_prices=prices,

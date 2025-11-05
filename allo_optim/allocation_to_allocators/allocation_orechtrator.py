@@ -94,7 +94,7 @@ class AllocationOrchestrator:
         for optimizer in self._optimizers:
             optimizer.fit(df_prices)
 
-    def run_allocation(
+    def allocate(
         self,
         all_stocks: List[StockUniverse],
         time_today: datetime,

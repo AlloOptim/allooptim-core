@@ -34,7 +34,7 @@ def test_a2a(orchestration_type, optimizer_names, fast_a2a_config):
         config=fast_a2a_config,
     )
 
-    result = orchestrator.run_allocation(
+    result = orchestrator.allocate(
         all_stocks=all_stocks,
         time_today=prices.index[-1],
         df_prices=prices,
