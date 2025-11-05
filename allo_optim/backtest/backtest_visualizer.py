@@ -18,6 +18,9 @@ def create_visualizations(results: dict, clustering_results: dict, results_dir: 
         config = BacktestConfig()
         results_dir = config.results_dir
 
+    # Ensure results directory exists
+    results_dir.mkdir(parents=True, exist_ok=True)
+
     logger.info("Creating visualizations")
 
     # Set up plotting style

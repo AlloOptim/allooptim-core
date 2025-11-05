@@ -19,6 +19,7 @@ from allo_optim.backtest.data_loader import DataLoader
 from allo_optim.backtest.performance_metrics import PerformanceMetrics
 from allo_optim.covariance_transformer.transformer_list import get_transformer_by_names
 from allo_optim.optimizer.wikipedia.wiki_database import download_data
+from allo_optim.optimizer.allocation_metric import LMoments, estimate_linear_moments, MIN_OBSERVATIONS
 
 logger = logging.getLogger(__name__)
 
@@ -186,6 +187,8 @@ class BacktestEngine:
             return
 
         try:
+            # Ensure results directory exists
+            self.config_backtest.results_dir.mkdir(exist_ok=True, parents=True)
             # Create DataFrame with timestamps as index and asset symbols as columns
             final_allocations = []
             valid_indices = []
@@ -672,6 +675,19 @@ class _PriceDataProvider(AbstractObservationSimulator):
         returns = price_data.pct_change().dropna()
         self._mu = returns.mean()
         self._cov = returns.cov()
+        
+        # Compute L-moments from returns data
+        if len(returns) >= MIN_OBSERVATIONS:
+            self._l_moments = estimate_linear_moments(returns.values)
+        else:
+            # Fallback: create zero L-moments with correct structure
+            n_assets = len(price_data.columns)
+            self._l_moments = LMoments(
+                lt_comoment_1=np.zeros((n_assets, n_assets)),
+                lt_comoment_2=np.zeros((n_assets, n_assets)),
+                lt_comoment_3=np.zeros((n_assets, n_assets)),
+                lt_comoment_4=np.zeros((n_assets, n_assets)),
+            )
 
     @property
     def mu(self):
@@ -696,9 +712,7 @@ class _PriceDataProvider(AbstractObservationSimulator):
     def get_ground_truth(self):
         # Return pandas objects with proper indices
         time_end = self.price_data.index[-1]  # Last timestamp in the data
-        # Simplified L-moments (just return zeros for now)
-        l_moments = np.zeros((len(self.price_data.columns), 4))
-        return self._mu, self._cov, self.price_data, time_end, l_moments
+        return self._mu, self._cov, self.price_data, time_end, self._l_moments
 
     @property
     def name(self) -> str:

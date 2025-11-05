@@ -35,6 +35,8 @@ from allo_optim.backtest.backtest_report import generate_report
 from allo_optim.backtest.backtest_visualizer import create_visualizations
 from allo_optim.backtest.cluster_analyzer import ClusterAnalyzer
 from allo_optim.config.stock_universe import everything_in_alpaca, extract_symbols_from_list
+from allo_optim.allocation_to_allocators.orchestrator_factory import OrchestratorType
+
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -50,47 +52,53 @@ def main():
     logger.info("Starting comprehensive allocation algorithm backtest")
 
     try:
-        symbols = extract_symbols_from_list(everything_in_alpaca())
+        # Use a smaller universe for comprehensive testing to avoid computational issues
+        all_symbols = extract_symbols_from_list(everything_in_alpaca())
+        # Limit to top 50 symbols for faster computation
+        symbols = all_symbols[:50]
 
         config_backtest = BacktestConfig(
             start_date=datetime(2014, 12, 31),
             end_date=datetime(2024, 12, 31),
             rebalance_frequency=10,
             lookback_days=90,
-            quick_test=False,
+            quick_test=True,
             log_returns=True,
             benchmark="SPY",
             symbols=symbols,
             optimizer_names=[
-                "MeanVarianceCMAOptimizer",
-                "LMomentsCMAOptimizer",
-                "SortinoCMAOptimizer",
-                "MaxDrawdownCMAOptimizer",
-                "RobustSharpeCMAOptimizer",
-                "CVARCMAOptimizer",
-                "MeanVarianceParticleSwarmOptimizer",
-                "LMomentsParticleSwarmOptimizer",
-                "HRPOptimizer",
+                "CMA_MEAN_VARIANCE",
+                "CMA_L_MOMENTS",
+                "CMA_SORTINO",
+                "CMA_MAX_DRAWDOWN",
+                "CMA_ROBUST_SHARPE",
+                "CMA_CVAR",
+                "PSO_MeanVariance",
+                "PSO_LMoments",
+                "HRP",
                 "NCOSharpeOptimizer",
-                "NaiveOptimizer",
-                "MomentumOptimizer",
-                "RiskParityOptimizer",
-                "MeanVarianceAdjustedReturnsOptimizer",
-                "EMAAdjustedReturnsOptimizer",
-                "LMomentsAdjustedReturnsOptimizer",
-                "SemiVarianceAdjustedReturnsOptimizer",
-                "HigherMomentOptimizer",
-                "MaxSharpeOptimizer",
-                "EfficientReturnOptimizer",
-                "EfficientRiskOptimizer",
+                "Naive",
+                "CappedMomentum",
+                "RiskParity",
+                "AdjustedReturns_MeanVariance",
+                "AdjustedReturns_EMA",
+                "AdjustedReturns_LMoments",
+                "AdjustedReturns_SemiVariance",
+                "HigherMoment",
+                "MaxSharpe",
+                "EfficientReturn",
+                "EfficientRisk",
                 "AugmentedLightGBMOptimizer",
-                "RobustMeanVarianceOptimizer",
+                "RobustMVO",
             ],
             transformer_names=["OracleCovarianceTransformer"],
-            orchestration_type="equal",
+            orchestration_type="equal_weight",
         )
 
         config_a2a = A2AConfig()
+
+        # Store results directory to ensure consistency
+        results_dir = config_backtest.results_dir
 
         # Initialize backtest engine with config
         backtest_engine = BacktestEngine(config_backtest, config_a2a)
@@ -107,13 +115,13 @@ def main():
         clustering_results = cluster_analyzer.analyze_clusters()
 
         # Create visualizations
-        create_visualizations(results, clustering_results, config_backtest.results_dir)
+        create_visualizations(results, clustering_results, results_dir)
 
         # Generate report
         report = generate_report(results, clustering_results, config_backtest)
 
         # Save report
-        report_path = config_backtest.results_dir / "comprehensive_backtest_report.md"
+        report_path = results_dir / "comprehensive_backtest_report.md"
         with open(report_path, "w") as f:
             f.write(report)
 
@@ -125,17 +133,17 @@ def main():
             csv_data.append(row)
 
         results_df = pd.DataFrame(csv_data)
-        results_df.to_csv(config_backtest.results_dir / "backtest_results.csv", index=False)
+        results_df.to_csv(results_dir / "backtest_results.csv", index=False)
 
         # Save Euclidean distance analysis to CSV
         if "euclidean_distance" in clustering_results and "closest_pairs" in clustering_results["euclidean_distance"]:
             distance_data = clustering_results["euclidean_distance"]["closest_pairs"]
             if distance_data:
                 distance_df = pd.DataFrame(distance_data)
-                distance_df.to_csv(config_backtest.results_dir / "optimizer_distances.csv", index=False)
+                distance_df.to_csv(results_dir / "optimizer_distances.csv", index=False)
                 logger.info("Optimizer distance analysis saved to optimizer_distances.csv")
 
-        logger.info(f"Backtest completed successfully. Results saved to {config_backtest.results_dir}")
+        logger.info(f"Backtest completed successfully. Results saved to {results_dir}")
         logger.info(f"Report available at: {report_path}")
 
         # Print summary
@@ -144,7 +152,7 @@ def main():
         print(f"{'='*80}")
         print(f"Period: {config_backtest.get_report_date_range()[0]} to {config_backtest.get_report_date_range()[1]}")
         print(f"Optimizers tested: {len(results)}")
-        print(f"Results directory: {config_backtest.results_dir}")
+        print(f"Results directory: {results_dir}")
         print(f"{'='*80}\n")
 
     except Exception as e:

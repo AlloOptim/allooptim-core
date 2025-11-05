@@ -72,7 +72,7 @@ class BacktestConfig(BaseModel):
         description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or 'auto' for automatic selection",
     )
 
-    @field_validator("optimizer_names")
+    @field_validator("optimizer_names", mode="before")
     @classmethod
     def validate_optimizer_names(cls, v: List[str]) -> List[str]:
         """Validate that all optimizer names exist and at least one is present."""
@@ -89,7 +89,7 @@ class BacktestConfig(BaseModel):
 
         return v
 
-    @field_validator("transformer_names")
+    @field_validator("transformer_names", mode="before")
     @classmethod
     def validate_transformer_names(cls, v: List[str]) -> List[str]:
         """Validate that all transformer names exist and at least one is present."""
@@ -106,7 +106,7 @@ class BacktestConfig(BaseModel):
 
         return v
 
-    @field_validator("orchestration_type")
+    @field_validator("orchestration_type", mode="before")
     @classmethod
     def validate_orchestration_type(cls, v: str) -> OrchestratorType:
         """Validate that orchestration type is one of the allowed values."""

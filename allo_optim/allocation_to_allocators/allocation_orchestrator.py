@@ -72,7 +72,7 @@ class AllocationOrchestratorConfig(BaseModel):
     # Timezone for timestamp localization (e.g., "UTC", "US/Eastern")
     timezone: str = Field("UTC")
 
-    @field_validator("orchestration_type")
+    @field_validator("orchestration_type", mode="before")
     @classmethod
     def validate_weights_tolerance(cls, v) -> OrchestrationType:
         return OrchestrationType(v)

@@ -374,10 +374,10 @@ the S&P 500 benchmark
 ### Configuration Parameters
 - **Start Date**: {start_date.strftime('%Y-%m-%d')}
 - **End Date**: {end_date.strftime('%Y-%m-%d')}
-- **Rebalancing Frequency**: {BacktestConfig.REBALANCE_FREQUENCY} trading days
-- **Lookback Period**: {BacktestConfig.LOOKBACK_DAYS} days
-- **Fallback Strategy**: {'Equal Weights' if BacktestConfig.USE_EQUAL_WEIGHTS_FALLBACK else 'Zero Weights'}
-- **Results Directory**: {BacktestConfig.RESULTS_DIR}
+- **Rebalancing Frequency**: {config.rebalance_frequency} trading days
+- **Lookback Period**: {config.lookback_days} days
+- **Fallback Strategy**: {'Equal Weights' if config.use_equal_weights_fallback else 'Zero Weights'}
+- **Results Directory**: {config.results_dir}
 
 ### Generated Files
 - `performance_comparison.png`: Performance metrics bar charts

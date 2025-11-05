@@ -54,7 +54,7 @@ class AllocationResult(BaseModel):
     def __hash__(self):
         return hash((type(self),) + tuple(self.__dict__.values()))
 
-    @field_validator("asset_weights")
+    @field_validator("asset_weights", mode="before")
     @classmethod
     def check_asset_weights(cls, values: dict[str, float]) -> dict[str, float]:
         for asset, weight in values.items():
