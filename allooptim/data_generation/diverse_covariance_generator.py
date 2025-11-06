@@ -1,4 +1,5 @@
-"""Diverse Covariance Matrix Training Data Generation Module
+"""Diverse Covariance Matrix Training Data Generation Module.
+
 Generates 30,000 artificial covariance matrices using multiple methods for autoencoder training.
 """
 
@@ -383,7 +384,8 @@ class CovarianceMatrixGenerator:
         return self._ensure_positive_definite(noisy_matrix)
 
     def generate_diverse_training_set(self) -> list[np.ndarray]:
-        """Generate diverse training set of 30,000 covariance matrices
+        """Generate diverse training set of 30,000 covariance matrices.
+
         Using multiple generation methods for maximum diversity.
         """
         print(

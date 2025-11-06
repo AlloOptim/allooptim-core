@@ -1,4 +1,5 @@
-"""Covariance Matrix Training Data Generation Module
+"""Covariance Matrix Training Data Generation Module.
+
 Generates synthetic correlation matrices for training denoising autoencoders.
 """
 

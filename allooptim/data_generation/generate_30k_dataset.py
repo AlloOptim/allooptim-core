@@ -1,4 +1,5 @@
-"""Generate Full 30K Covariance Training Dataset
+"""Generate Full 30K Covariance Training Dataset.
+
 Creates 30,000 diverse covariance matrices and saves them for autoencoder training.
 """
 

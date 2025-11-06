@@ -38,7 +38,8 @@ class AbstractCovarianceTransformer(ABC):
     """
 
     def fit(self, df_prices: pd.DataFrame) -> None:
-        """Optional method to fit the transformer to the data
+        """Optional method to fit the transformer to the data.
+
         :param df_prices: DataFrame of historical asset prices.
         """
         pass
@@ -49,7 +50,8 @@ class AbstractCovarianceTransformer(ABC):
         df_cov: pd.DataFrame,
         n_observations: Optional[int] = None,
     ) -> pd.DataFrame:
-        """Transforms a covariance matrix
+        """Transforms a covariance matrix.
+
         :param df_cov: covariance matrix
         :param n_observations: number of observations used to create the covariance matrix
         :return: transformed covariance matrix as pandas DataFrame with preserved asset names.

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Improved Autoencoder with Lower Triangle Optimization and Reconstruction Metrics
+"""Improved Autoencoder with Lower Triangle Optimization and Reconstruction Metrics.
+
 Educational implementation using synthetic training data generation.
 """
 

@@ -1,4 +1,5 @@
-"""Lower Triangle Matrix Utilities for Symmetric Covariance Matrices
+"""Lower Triangle Matrix Utilities for Symmetric Covariance Matrices.
+
 Optimizes autoencoder input/output by using only lower triangle elements.
 """
 

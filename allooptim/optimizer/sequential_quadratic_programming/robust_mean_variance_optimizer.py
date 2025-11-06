@@ -375,7 +375,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         return create_weights_series(weights, asset_names)
 
     def _objective_function(self, w: np.ndarray) -> float:
-        """Objective function for robust optimization: -[w'μ - ε_μ||w|| - λw'Σ_robust w]
+        """Objective function for robust optimization: -[w'μ - ε_μ||w|| - λw'Σ_robust w].
 
         We minimize the negative to maximize.
 

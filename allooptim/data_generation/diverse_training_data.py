@@ -1,4 +1,5 @@
-"""Diverse Covariance Matrix Training Data Generation Module
+"""Diverse Covariance Matrix Training Data Generation Module.
+
 Generates 50,000 diverse synthetic correlation matrices using multiple methods
 for enhanced autoencoder training.
 """
@@ -205,7 +206,8 @@ class DiverseCorrelationGenerator:
         return CovarianceMatrixGenerator.from_eigenvalues(spectrum)
 
     def corrgan_style_generation(self, N: int) -> np.ndarray:
-        """Simulate GAN-style generation with more complex patterns
+        """Simulate GAN-style generation with more complex patterns.
+
         Mimics what a CorrGAN might produce with diverse structures.
 
         Args:
@@ -362,7 +364,8 @@ class DiverseCorrelationGenerator:
         return eigenvecs @ np.diag(eigenvals) @ eigenvecs.T
 
     def bootstrap_sample(self, N: int) -> np.ndarray:
-        """Generate correlation matrix based on realistic market patterns
+        """Generate correlation matrix based on realistic market patterns.
+
         Simulates bootstrap sampling from real financial data.
 
         Args:
@@ -532,7 +535,8 @@ class DiverseCorrelationGenerator:
         return eigenvecs @ np.diag(eigenvals) @ eigenvecs.T
 
     def add_sampling_noise(self, C: np.ndarray) -> np.ndarray:
-        """Add finite sample estimation noise to correlation matrix
+        """Add finite sample estimation noise to correlation matrix.
+
         Simulates the noise that comes from estimating correlations from limited data.
 
         Args:
@@ -569,7 +573,8 @@ class DiverseCorrelationGenerator:
         return noisy_matrix
 
     def generate_diverse_training_set(self, n_samples: int = None) -> list[np.ndarray]:
-        """Kombiniert mehrere Methoden für Diversität
+        """Kombiniert mehrere Methoden für Diversität.
+
         Generates diverse training set with multiple methods.
 
         Args:

@@ -1,4 +1,5 @@
-"""Generate Manageable 5K Covariance Training Dataset
+"""Generate Manageable 5K Covariance Training Dataset.
+
 Creates 5,000 diverse covariance matrices as a starting point.
 """
 
