@@ -54,6 +54,10 @@ html_theme_options = {
     "collapse_navigation": False,
     "sticky_navigation": True,
     "includehidden": True,
+    "display_version": True,
+    "prev_next_buttons_location": "bottom",
+    "style_external_links": False,
+    "vcs_pageview_mode": "blob",  # or "edit" to go directly to edit mode
 }
 
 # Intersphinx
@@ -67,3 +71,15 @@ intersphinx_mapping = {
 templates_path = ["_templates"]
 exclude_patterns = []
 html_static_path = ["_static"]
+
+# GitHub integration
+html_context = {
+    "display_github": True,
+    "github_user": "AlloOptim",
+    "github_repo": "allooptim-core",
+    "github_version": "main",
+    "conf_py_path": "/docs/source/",
+}
+
+# Show link to source code
+html_show_sourcelink = True
