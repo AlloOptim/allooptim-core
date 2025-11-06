@@ -1,0 +1,492 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>allooptim.optimizer.optimizer_interface &mdash; AlloOptim 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=01f34227"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            AlloOptim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../quickstart.html#simple-optimization">Simple Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../quickstart.html#running-a-backtest">Running a Backtest</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../quickstart.html#advanced-usage">Advanced Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../quickstart.html#covariance-transformation">Covariance Transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../quickstart.html#ensemble-optimization">Ensemble Optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../architecture.html">Architecture Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../architecture.html#core-components">Core Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../architecture.html#data-flow">Data Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../architecture.html#key-design-principles">Key Design Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../architecture.html#component-details">Component Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../architecture.html#abstractoptimizer">AbstractOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../architecture.html#abstractcovariancetransformer">AbstractCovarianceTransformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../architecture.html#a2aorchestrator">A2AOrchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../architecture.html#backtestengine">BacktestEngine</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../optimizers/comparison.html">Optimizer Comparison</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../optimizers/comparison.html#performance-characteristics">Performance Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../optimizers/comparison.html#when-to-use-each-optimizer">When to Use Each Optimizer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../optimizers/comparison.html#production-daily-rebalancing">Production/Daily Rebalancing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../optimizers/comparison.html#research-monthly-rebalancing">Research/Monthly Rebalancing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../optimizers/comparison.html#implementation-considerations">Implementation Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../optimizers/comparison.html#speed-vs-accuracy-tradeoffs">Speed vs. Accuracy Tradeoffs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../optimizers/comparison.html#data-requirements">Data Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../optimizers/comparison.html#stability-considerations">Stability Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../optimizers/comparison.html#best-practices">Best Practices</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/optimizers.html">Optimizers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/optimizers.html#module-allooptim.optimizer.optimizer_interface">Core Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/optimizers.html#mean-variance-optimizers">Mean-Variance Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_l_moments"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_l_moments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_ema"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_ema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_semi_variance"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_semi_variance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/optimizers.html#module-allooptim.optimizer.covariance_matrix_adaption.cma_optimizer">CMA-ES Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric"><code class="docutils literal notranslate"><span class="pre">RiskMetric</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MEAN_VARIANCE"><code class="docutils literal notranslate"><span class="pre">RiskMetric.MEAN_VARIANCE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.SORTINO"><code class="docutils literal notranslate"><span class="pre">RiskMetric.SORTINO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.CVAR"><code class="docutils literal notranslate"><span class="pre">RiskMetric.CVAR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MAX_DRAWDOWN"><code class="docutils literal notranslate"><span class="pre">RiskMetric.MAX_DRAWDOWN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.ROBUST_SHARPE"><code class="docutils literal notranslate"><span class="pre">RiskMetric.ROBUST_SHARPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.L_MOMENTS"><code class="docutils literal notranslate"><span class="pre">RiskMetric.L_MOMENTS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState"><code class="docutils literal notranslate"><span class="pre">CMAState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.model_config"><code class="docutils literal notranslate"><span class="pre">CMAState.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.sigma"><code class="docutils literal notranslate"><span class="pre">CMAState.sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.mean"><code class="docutils literal notranslate"><span class="pre">CMAState.mean</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.C"><code class="docutils literal notranslate"><span class="pre">CMAState.C</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.model_config"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_simple_warm_start"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.enable_simple_warm_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_full_warm_start"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.enable_full_warm_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.budget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget_warm"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.budget_warm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.n_popsize"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.n_popsize</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_aversion"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.risk_aversion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.sigma"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.patience"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.patience</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.min_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.min_improvement_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.alpha_cvar"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.alpha_cvar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.target_return_sortino"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.target_return_sortino</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_penalty_max_drawdown"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.risk_penalty_max_drawdown</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.risk_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">CVARCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">CVARCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">LMomentsCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">LMomentsCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">RobustSharpeCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">RobustSharpeCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">SortinoCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">SortinoCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">MaxDrawdownCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">MaxDrawdownCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/optimizers.html#hierarchical-risk-parity">Hierarchical Risk Parity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.name"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../api/optimizers.html#module-allooptim.optimizer.light_gbm.light_gbm_optimizer">Machine Learning Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.name"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#development-setup">Development Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#installation">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#coding-standards">Coding Standards</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#code-style">Code Style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#docstrings">Docstrings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#type-hints">Type Hints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#unit-tests">Unit Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#integration-tests">Integration Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#build-documentation">Build Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../contributing.html#update-documentation">Update Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#contribution-workflow">Contribution Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#adding-new-optimizers">Adding New Optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#adding-covariance-transformers">Adding Covariance Transformers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#reporting-issues">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#code-of-conduct">Code of Conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributing.html#license">License</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AlloOptim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">allooptim.optimizer.optimizer_interface</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for allooptim.optimizer.optimizer_interface</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.optimizer.allocation_metric</span><span class="w"> </span><span class="kn">import</span> <span class="n">LMoments</span>
+
+
+<div class="viewcode-block" id="AbstractOptimizer">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractOptimizer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for all portfolio optimization algorithms.</span>
+
+<span class="sd">    All optimizers in AlloOptim inherit from this class and implement the</span>
+<span class="sd">    `allocate()` method to compute portfolio weights. This ensures a consistent</span>
+<span class="sd">    interface across different optimization strategies.</span>
+
+<span class="sd">    The optimizer interface is designed for flexibility and composability:</span>
+<span class="sd">    - Supports various risk metrics (variance, CVaR, max drawdown, L-moments)</span>
+<span class="sd">    - Handles missing data and edge cases gracefully</span>
+<span class="sd">    - Maintains asset name consistency throughout pipeline</span>
+<span class="sd">    - Enables warm-start optimization for performance</span>
+
+<span class="sd">    Subclassing Guide:</span>
+<span class="sd">        1. Inherit from AbstractOptimizer</span>
+<span class="sd">        2. Implement allocate() method</span>
+<span class="sd">        3. Implement name property</span>
+<span class="sd">        4. Add configuration via Pydantic BaseModel</span>
+<span class="sd">        5. Register config in optimizer registry</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        Creating a simple optimizer:</span>
+
+<span class="sd">        &gt;&gt;&gt; class MyOptimizer(AbstractOptimizer):</span>
+<span class="sd">        ...     def allocate(self, ds_mu, df_cov, **kwargs):</span>
+<span class="sd">        ...         # Equal-weight allocation</span>
+<span class="sd">        ...         n = len(ds_mu)</span>
+<span class="sd">        ...         return pd.Series(1 / n, index=ds_mu.index)</span>
+<span class="sd">        ...</span>
+<span class="sd">        ...     @property</span>
+<span class="sd">        ...     def name(self) -&gt; str:</span>
+<span class="sd">        ...         return &quot;MyOptimizer&quot;</span>
+
+<span class="sd">        Using an existing optimizer:</span>
+
+<span class="sd">        &gt;&gt;&gt; from allooptim.optimizer.efficient_frontier import EfficientFrontierOptimizer</span>
+<span class="sd">        &gt;&gt;&gt; optimizer = EfficientFrontierOptimizer(risk_aversion=2.0)</span>
+<span class="sd">        &gt;&gt;&gt; weights = optimizer.allocate(expected_returns, covariance_matrix)</span>
+<span class="sd">        &gt;&gt;&gt; print(weights.sum())  # Should be 1.0</span>
+<span class="sd">        1.0</span>
+
+<span class="sd">    See Also:</span>
+<span class="sd">        - :class:`AbstractEnsembleOptimizer`: Base class for ensemble methods</span>
+<span class="sd">        - :mod:`allooptim.optimizer.optimizer_list`: Available optimizer catalog</span>
+<span class="sd">        - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AbstractOptimizer.fit">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">df_prices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional setup method to prepare the optimizer with historical data.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AbstractOptimizer.reset">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional method to reset any internal state of the optimizer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AbstractOptimizer.allocate">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds_mu</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">df_cov</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">df_prices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">l_moments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LMoments</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an optimal portfolio allocation given the expected returns vector and covariance matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            mu: Expected return vector as pandas Series with asset names as index</span>
+<span class="sd">            cov: Expected covariance matrix as pandas DataFrame with asset names as both index and columns</span>
+<span class="sd">            time: Optional timestamp for time-dependent optimizers</span>
+<span class="sd">            l_moments: Optional L-moments for advanced risk modeling</span>
+<span class="sd">            df_allocations: Optional DataFrame with previous optimizer allocations.</span>
+<span class="sd">                           Rows are optimizer names, columns are asset names, values are allocation weights.</span>
+<span class="sd">                           Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Portfolio weights as pandas Series with asset names as index</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            - Asset names in mu.index must match cov.index and cov.columns</span>
+<span class="sd">            - Returned weights should sum to 1.0 for long-only portfolios</span>
+<span class="sd">            - Optimizer implementations can access asset names via cov.columns or mu.index</span>
+<span class="sd">            - Individual optimizers typically ignore df_allocations; ensemble optimizers use it for efficiency</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. The name will be displayed in the MCOS results DataFrame.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="AbstractEnsembleOptimizer">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AbstractEnsembleOptimizer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for ensemble portfolio optimization algorithms with pandas interface.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AbstractEnsembleOptimizer.fit">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">df_prices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional setup method to prepare the optimizer with historical data.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="AbstractEnsembleOptimizer.reset">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional method to reset any internal state of the optimizer.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="AbstractEnsembleOptimizer.allocate">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">allocate</span><span class="p">(</span>  <span class="c1"># noqa: PLR0913</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">ds_mu</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+        <span class="n">df_cov</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">df_prices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">df_allocations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">l_moments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LMoments</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an optimal portfolio allocation given the expected returns vector and covariance matrix.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df_allocations: Optional DataFrame with previous optimizer allocations.</span>
+<span class="sd">                           Rows are optimizer names, columns are asset names, values are allocation weights.</span>
+<span class="sd">                           Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Portfolio weights as pandas Series with asset names as index</span>
+
+<span class="sd">        Note:</span>
+<span class="sd">            - Asset names in mu.index must match cov.index and cov.columns</span>
+<span class="sd">            - Returned weights should sum to 1.0 for long-only portfolios</span>
+<span class="sd">            - Optimizer implementations can access asset names via cov.columns or mu.index</span>
+<span class="sd">            - Individual optimizers typically ignore df_allocations; ensemble optimizers use it for efficiency</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. The name will be displayed in the MCOS results DataFrame.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, AlloOptim Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

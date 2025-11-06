@@ -1,0 +1,654 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Index &mdash; AlloOptim 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AlloOptim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#simple-optimization">Simple Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-a-backtest">Running a Backtest</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#advanced-usage">Advanced Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#covariance-transformation">Covariance Transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#ensemble-optimization">Ensemble Optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#core-components">Core Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#data-flow">Data Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#key-design-principles">Key Design Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#component-details">Component Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#abstractoptimizer">AbstractOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#abstractcovariancetransformer">AbstractCovarianceTransformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#a2aorchestrator">A2AOrchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#backtestengine">BacktestEngine</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="optimizers/comparison.html">Optimizer Comparison</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#performance-characteristics">Performance Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#when-to-use-each-optimizer">When to Use Each Optimizer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#production-daily-rebalancing">Production/Daily Rebalancing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#research-monthly-rebalancing">Research/Monthly Rebalancing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#implementation-considerations">Implementation Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#speed-vs-accuracy-tradeoffs">Speed vs. Accuracy Tradeoffs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#data-requirements">Data Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#stability-considerations">Stability Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#best-practices">Best Practices</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/optimizers.html">Optimizers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#module-allooptim.optimizer.optimizer_interface">Core Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#mean-variance-optimizers">Mean-Variance Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_l_moments"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_l_moments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_ema"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_ema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_semi_variance"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_semi_variance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#module-allooptim.optimizer.covariance_matrix_adaption.cma_optimizer">CMA-ES Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric"><code class="docutils literal notranslate"><span class="pre">RiskMetric</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MEAN_VARIANCE"><code class="docutils literal notranslate"><span class="pre">RiskMetric.MEAN_VARIANCE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.SORTINO"><code class="docutils literal notranslate"><span class="pre">RiskMetric.SORTINO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.CVAR"><code class="docutils literal notranslate"><span class="pre">RiskMetric.CVAR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MAX_DRAWDOWN"><code class="docutils literal notranslate"><span class="pre">RiskMetric.MAX_DRAWDOWN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.ROBUST_SHARPE"><code class="docutils literal notranslate"><span class="pre">RiskMetric.ROBUST_SHARPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.L_MOMENTS"><code class="docutils literal notranslate"><span class="pre">RiskMetric.L_MOMENTS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState"><code class="docutils literal notranslate"><span class="pre">CMAState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.model_config"><code class="docutils literal notranslate"><span class="pre">CMAState.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.sigma"><code class="docutils literal notranslate"><span class="pre">CMAState.sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.mean"><code class="docutils literal notranslate"><span class="pre">CMAState.mean</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.C"><code class="docutils literal notranslate"><span class="pre">CMAState.C</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.model_config"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_simple_warm_start"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.enable_simple_warm_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_full_warm_start"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.enable_full_warm_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.budget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget_warm"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.budget_warm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.n_popsize"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.n_popsize</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_aversion"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.risk_aversion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.sigma"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.patience"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.patience</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.min_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.min_improvement_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.alpha_cvar"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.alpha_cvar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.target_return_sortino"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.target_return_sortino</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_penalty_max_drawdown"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.risk_penalty_max_drawdown</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.risk_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">CVARCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">CVARCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">LMomentsCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">LMomentsCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">RobustSharpeCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">RobustSharpeCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">SortinoCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">SortinoCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">MaxDrawdownCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">MaxDrawdownCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#hierarchical-risk-parity">Hierarchical Risk Parity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.name"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#module-allooptim.optimizer.light_gbm.light_gbm_optimizer">Machine Learning Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.name"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#development-setup">Development Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#installation">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#coding-standards">Coding Standards</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#code-style">Code Style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#docstrings">Docstrings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#type-hints">Type Hints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#unit-tests">Unit Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#integration-tests">Integration Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#build-documentation">Build Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#update-documentation">Update Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contribution-workflow">Contribution Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#adding-new-optimizers">Adding New Optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#adding-covariance-transformers">Adding Covariance Transformers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#reporting-issues">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#code-of-conduct">Code of Conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#license">License</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AlloOptim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Index</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/AlloOptim/allooptim-core/blob/main/docs/source/genindex" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ 
+</div>
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.__init__">__init__() (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer method)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.__init__">(allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.__init__">(allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.__init__">(allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer">AbstractEnsembleOptimizer (class in allooptim.optimizer.optimizer_interface)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer">AbstractOptimizer (class in allooptim.optimizer.optimizer_interface)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.allocate">allocate() (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer method)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.allocate">(allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate">(allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
+</li>
+      </ul></li>
+      <li>
+    allooptim.optimizer.covariance_matrix_adaption.cma_optimizer
+
+      <ul>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.covariance_matrix_adaption.cma_optimizer">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    allooptim.optimizer.deep_learning.deep_learning_optimizer
+
+      <ul>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.deep_learning.deep_learning_optimizer">module</a>
+</li>
+      </ul></li>
+      <li>
+    allooptim.optimizer.light_gbm.light_gbm_optimizer
+
+      <ul>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.light_gbm.light_gbm_optimizer">module</a>
+</li>
+      </ul></li>
+      <li>
+    allooptim.optimizer.optimizer_interface
+
+      <ul>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.optimizer_interface">module</a>
+</li>
+      </ul></li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.alpha_cvar">alpha_cvar (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer">AugmentedLightGBMOptimizer (class in allooptim.optimizer.light_gbm.light_gbm_optimizer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget">budget (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget_warm">budget_warm (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.C">C (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig">CMAOptimizerConfig (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState">CMAState (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.CVAR">CVAR (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer">CVARCMAOptimizer (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_ema">enable_ema (allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_full_warm_start">enable_full_warm_start (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_l_moments">enable_l_moments (allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_semi_variance">enable_semi_variance (allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_simple_warm_start">enable_simple_warm_start (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit">fit() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer">HRPOptimizer (class in allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.L_MOMENTS">L_MOMENTS (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer">LightGBMOptimizer (class in allooptim.optimizer.light_gbm.light_gbm_optimizer)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer">LMomentsCMAOptimizer (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer">LSTMOptimizer (class in allooptim.optimizer.deep_learning.deep_learning_optimizer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer">MAMBAOptimizer (class in allooptim.optimizer.deep_learning.deep_learning_optimizer)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MAX_DRAWDOWN">MAX_DRAWDOWN (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer">MaxDrawdownCMAOptimizer (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.mean">mean (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MEAN_VARIANCE">MEAN_VARIANCE (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer">MeanVarianceAdjustedReturnsOptimizer (class in allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer">MeanVarianceCMAOptimizer (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.min_improvement_threshold">min_improvement_threshold (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.model_config">model_config (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.model_config">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.model_type">model_type (allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer attribute)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.model_type">(allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer attribute)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.model_type">(allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer attribute)</a>
+</li>
+      </ul></li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.covariance_matrix_adaption.cma_optimizer">allooptim.optimizer.covariance_matrix_adaption.cma_optimizer</a>
+</li>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.deep_learning.deep_learning_optimizer">allooptim.optimizer.deep_learning.deep_learning_optimizer</a>
+</li>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.light_gbm.light_gbm_optimizer">allooptim.optimizer.light_gbm.light_gbm_optimizer</a>
+</li>
+        <li><a href="api/optimizers.html#module-allooptim.optimizer.optimizer_interface">allooptim.optimizer.optimizer_interface</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.n_popsize">n_popsize (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.name">name (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer property)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.name">(allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.name">(allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.name">(allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.name">(allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.name">(allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.name">(allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name">(allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name">(allooptim.optimizer.optimizer_interface.AbstractOptimizer property)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.patience">patience (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset">reset() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_aversion">risk_aversion (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer.risk_metric">risk_metric (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer attribute)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer.risk_metric">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer attribute)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer.risk_metric">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer attribute)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.risk_metric">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer attribute)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer.risk_metric">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer attribute)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer.risk_metric">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_penalty_max_drawdown">risk_penalty_max_drawdown (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric">RiskMetric (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.ROBUST_SHARPE">ROBUST_SHARPE (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer">RobustSharpeCMAOptimizer (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.sigma">sigma (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.sigma">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.SORTINO">SORTINO (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric attribute)</a>
+</li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer">SortinoCMAOptimizer (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.target_return_sortino">target_return_sortino (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer">TCNOptimizer (class in allooptim.optimizer.deep_learning.deep_learning_optimizer)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, AlloOptim Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
