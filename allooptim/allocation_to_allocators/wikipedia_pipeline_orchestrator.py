@@ -57,6 +57,17 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
         use_wiki_database: bool = False,
         wiki_database_path: Optional[Path] = None,
     ):
+        """
+        Initialize the Wikipedia Pipeline Orchestrator.
+
+        Args:
+            optimizers: List of portfolio optimization algorithms to orchestrate.
+            covariance_transformers: List of covariance matrix transformations to apply.
+            config: Configuration object with A2A orchestration parameters.
+            n_historical_days: Number of historical days to analyze for Wikipedia correlations.
+            use_wiki_database: Whether to use local Wikipedia database instead of API calls.
+            wiki_database_path: Path to local Wikipedia database file (if use_wiki_database=True).
+        """
         super().__init__(optimizers, covariance_transformers, config)
         self.n_historical_days = n_historical_days
         self.use_wiki_database = use_wiki_database
@@ -244,6 +255,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
 
     @property
     def name(self) -> str:
+        """Get the orchestrator name identifier."""
         return "WikipediaPipeline_A2A"
 
 
@@ -254,6 +266,16 @@ class _FilteredDataProvider(AbstractObservationSimulator):
     """
 
     def __init__(self, mu, cov, prices, time, l_moments):
+        """
+        Initialize the filtered data provider.
+
+        Args:
+            mu: Expected returns as pandas Series.
+            cov: Covariance matrix as pandas DataFrame.
+            prices: Historical price data as pandas DataFrame.
+            time: Timestamp for the data.
+            l_moments: L-moments for higher-order statistics.
+        """
         self._mu = mu
         self._cov = cov
         self._prices = prices
@@ -262,27 +284,33 @@ class _FilteredDataProvider(AbstractObservationSimulator):
 
     @property
     def mu(self):
+        """Get expected returns as numpy array."""
         return self._mu.values
 
     @property
     def cov(self):
+        """Get covariance matrix as numpy array."""
         return self._cov.values
 
     @property
     def historical_prices(self):
+        """Get historical price data as pandas DataFrame."""
         return self._prices
 
     @property
     def n_observations(self):
+        """Get number of observations in the historical price data."""
         return len(self._prices)
 
     def get_sample(self):
-        # For filtered provider, sample and ground truth are the same
+        """Get sample market parameters (same as ground truth for filtered provider)."""
         return self.get_ground_truth()
 
     def get_ground_truth(self):
+        """Get ground truth market parameters from filtered dataset."""
         return self._mu, self._cov, self._prices, self._time, self._l_moments
 
     @property
     def name(self) -> str:
+        """Get the data provider name identifier."""
         return "FilteredDataProvider"

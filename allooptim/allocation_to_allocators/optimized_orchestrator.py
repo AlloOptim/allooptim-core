@@ -58,6 +58,15 @@ class OptimizedOrchestrator(BaseOrchestrator):
         covariance_transformers: List[AbstractCovarianceTransformer],
         config: A2AConfig,
     ):
+        """
+        Initialize the Optimized Orchestrator.
+
+        Args:
+            optimizers: List of portfolio optimization algorithms to orchestrate.
+            covariance_transformers: List of covariance matrix transformations to apply.
+            config: Configuration object with A2A orchestration parameters including
+                Monte Carlo simulation count and PSO optimization settings.
+        """
         super().__init__(optimizers, covariance_transformers, config)
 
     def allocate(
@@ -246,4 +255,10 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
     @property
     def name(self) -> str:
+        """
+        Get the orchestrator name identifier.
+
+        Returns:
+            String identifier for this orchestrator type.
+        """
         return "Optimized_A2A"

@@ -93,10 +93,38 @@ def _reorder_matrix(m: np.array, sort_index: np.array) -> np.array:
 
 
 class SimpleShrinkageCovarianceTransformer(AbstractCovarianceTransformer):
+    """Simple shrinkage covariance transformer that shrinks towards identity matrix.
+
+    This transformer applies a simple linear shrinkage of the covariance matrix towards
+    the identity matrix. The shrinkage intensity is controlled by the shrinkage parameter.
+
+    Attributes:
+        shrinkage (float): Shrinkage intensity between 0 and 1. Higher values result in
+            more shrinkage towards the identity matrix.
+    """
+
     def __init__(self, shrinkage: float = 0.2):
+        """Initialize the simple shrinkage covariance transformer.
+
+        Args:
+            shrinkage: Shrinkage intensity between 0 and 1. Default is 0.2.
+        """
         self.shrinkage = shrinkage
 
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
+        """Apply simple shrinkage transformation to the covariance matrix.
+
+        Shrinks the input covariance matrix towards the identity matrix using linear
+        interpolation. The formula is: (1-shrinkage) * cov + shrinkage * I
+
+        Args:
+            df_cov: Input covariance matrix as pandas DataFrame.
+            n_observations: Number of observations used to estimate the covariance
+                (unused in this transformer).
+
+        Returns:
+            Transformed covariance matrix as pandas DataFrame with preserved asset names.
+        """
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
@@ -109,7 +137,26 @@ class SimpleShrinkageCovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class SklearnShrinkageCovarianceTransformer(AbstractCovarianceTransformer):
+    """Scikit-learn shrinkage covariance transformer using Ledoit-Wolf shrinkage.
+
+    This transformer uses scikit-learn's ShrunkCovariance estimator which applies
+    the Ledoit-Wolf shrinkage method to improve covariance matrix estimation.
+    """
+
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
+        """Apply scikit-learn shrinkage transformation to the covariance matrix.
+
+        Uses sklearn.covariance.ShrunkCovariance to estimate the covariance matrix
+        with automatic shrinkage intensity selection based on the Ledoit-Wolf method.
+
+        Args:
+            df_cov: Input covariance matrix as pandas DataFrame.
+            n_observations: Number of observations used to estimate the covariance
+                (unused in this transformer).
+
+        Returns:
+            Transformed covariance matrix as pandas DataFrame with preserved asset names.
+        """
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
@@ -122,7 +169,27 @@ class SklearnShrinkageCovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class EllipticEnvelopeShrinkageCovarianceTransformer(AbstractCovarianceTransformer):
+    """Elliptic envelope covariance transformer for robust covariance estimation.
+
+    This transformer uses scikit-learn's EllipticEnvelope estimator which fits
+    a robust covariance estimate using the Minimum Covariance Determinant (MCD) method.
+    This is useful for handling outliers in the data.
+    """
+
     def transform(self, df_cov: Union[np.ndarray, pd.DataFrame], n_observations: Optional[int] = None) -> pd.DataFrame:
+        """Apply elliptic envelope transformation to the covariance matrix.
+
+        Uses sklearn.covariance.EllipticEnvelope to estimate a robust covariance matrix
+        that is less sensitive to outliers in the data.
+
+        Args:
+            df_cov: Input covariance matrix as pandas DataFrame or numpy array.
+            n_observations: Number of observations used to estimate the covariance
+                (unused in this transformer).
+
+        Returns:
+            Transformed covariance matrix as pandas DataFrame with preserved asset names.
+        """
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
@@ -135,6 +202,13 @@ class EllipticEnvelopeShrinkageCovarianceTransformer(AbstractCovarianceTransform
 
 
 class EmpiricalCovarianceTransformer(AbstractCovarianceTransformer):
+    """Empirical covariance transformer with regularization for high-dimensional data.
+
+    This transformer computes empirical covariance estimates with automatic regularization
+    for cases where the number of observations is less than the number of assets (n << p).
+    It applies various regularization techniques to ensure numerical stability.
+    """
+
     def __init__(
         self,
         regularization_method: str = "diagonal_loading",
@@ -144,9 +218,10 @@ class EmpiricalCovarianceTransformer(AbstractCovarianceTransformer):
         """
         Initialize EmpiricalCovarianceTransformer with regularization for n>>p scenarios.
 
-        :param regularization_method: Method to handle singularity ('diagonal_loading', 'shrinkage', 'eigenvalue_clip')
-        :param reg_param: Regularization parameter
-        :param fallback_shrinkage: Shrinkage to use if matrix is singular and regularization fails
+        Args:
+            regularization_method: Method to handle singularity ('diagonal_loading', 'shrinkage', 'eigenvalue_clip')
+            reg_param: Regularization parameter
+            fallback_shrinkage: Shrinkage to use if matrix is singular and regularization fails
         """
         self.regularization_method = regularization_method
         self.reg_param = reg_param
@@ -215,7 +290,27 @@ class EmpiricalCovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class OracleCovarianceTransformer(AbstractCovarianceTransformer):
+    """Oracle Approximating Shrinkage (OAS) covariance transformer.
+
+    This transformer uses the Oracle Approximating Shrinkage method which provides
+    an optimal shrinkage intensity estimate when the true covariance matrix is known
+    (oracle case). In practice, it provides a good approximation without knowing the truth.
+    """
+
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
+        """Apply Oracle Approximating Shrinkage transformation to the covariance matrix.
+
+        Uses sklearn.covariance.OAS to estimate the covariance matrix with optimal
+        shrinkage intensity based on the Oracle Approximating Shrinkage method.
+
+        Args:
+            df_cov: Input covariance matrix as pandas DataFrame.
+            n_observations: Number of observations used to estimate the covariance
+                (unused in this transformer).
+
+        Returns:
+            Transformed covariance matrix as pandas DataFrame with preserved asset names.
+        """
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
@@ -228,7 +323,27 @@ class OracleCovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class LedoitWolfCovarianceTransformer(AbstractCovarianceTransformer):
+    """Ledoit-Wolf shrinkage covariance transformer.
+
+    This transformer uses the classical Ledoit-Wolf shrinkage method which provides
+    a well-performing shrinkage intensity estimate for covariance matrix regularization.
+    It shrinks towards the identity matrix with an analytically derived shrinkage intensity.
+    """
+
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
+        """Apply Ledoit-Wolf shrinkage transformation to the covariance matrix.
+
+        Uses sklearn.covariance.LedoitWolf to estimate the covariance matrix with
+        analytically optimal shrinkage intensity towards the identity matrix.
+
+        Args:
+            df_cov: Input covariance matrix as pandas DataFrame.
+            n_observations: Number of observations used to estimate the covariance
+                (unused in this transformer).
+
+        Returns:
+            Transformed covariance matrix as pandas DataFrame with preserved asset names.
+        """
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
@@ -241,11 +356,20 @@ class LedoitWolfCovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class MarcenkoPasturCovarianceTransformer(AbstractCovarianceTransformer):
+    """Marchenko-Pastur covariance transformer for random matrix theory denoising.
+
+    This transformer applies Random Matrix Theory to identify and filter out noise
+    eigenvalues that fall within the Marchenko-Pastur distribution bounds. Signal
+    eigenvalues outside these bounds are preserved while noise eigenvalues are
+    replaced with their average value.
+    """
+
     def __init__(self, variance_scaling: float = 1.0):
         """
         Initialize Marchenko-Pastur covariance transformer.
 
-        :param variance_scaling: Scaling factor for MP distribution (default assumes σ² = 1)
+        Args:
+            variance_scaling: Scaling factor for MP distribution (default assumes σ² = 1)
         """
         self.variance_scaling = variance_scaling
 
@@ -326,12 +450,21 @@ class MarcenkoPasturCovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class PCACovarianceTransformer(AbstractCovarianceTransformer):
+    """PCA-based covariance transformer for dimensionality reduction.
+
+    This transformer applies Principal Component Analysis to denoise the covariance
+    matrix by retaining only the top principal components that explain a specified
+    fraction of the total variance. This reduces noise while preserving the most
+    important signal components.
+    """
+
     def __init__(self, n_components: int = None, variance_threshold: float = 0.95):
         """
         Initialize PCA covariance transformer.
 
-        :param n_components: Number of components to retain. If None, uses variance_threshold
-        :param variance_threshold: Fraction of variance to retain when n_components is None
+        Args:
+            n_components: Number of components to retain. If None, uses variance_threshold
+            variance_threshold: Fraction of variance to retain when n_components is None
         """
         self.n_components = n_components
         self.variance_threshold = variance_threshold
@@ -392,13 +525,25 @@ class PCACovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
+    """Kernel density estimation based covariance denoiser.
+
+    This transformer uses Kernel Density Estimation to fit the Marchenko-Pastur
+    distribution to the empirical eigenvalue distribution, then shrinks eigenvalues
+    associated with noise while preserving signal eigenvalues. Based on the method
+    described in "A Robust Estimator of the Efficient Frontier".
+    """
+
     def __init__(
         self,
         bandwidth: float = 0.25,
         n_observations: int = 1,
     ) -> None:
         """
-        :param bandwidth: bandwidth hyper-parameter for KernelDensity
+        Initialize DeNoiser covariance transformer.
+
+        Args:
+            bandwidth: Bandwidth hyper-parameter for KernelDensity
+            n_observations: Number of observations used to estimate covariance
         """
         self.bandwidth = bandwidth
         self.n_observations = n_observations
@@ -562,14 +707,22 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
 
 
 class DetoneCovarianceTransformer(AbstractCovarianceTransformer):
+    """Detoning covariance transformer for market factor removal.
+
+    This transformer removes the largest eigenvalue/eigenvector pairs from the
+    covariance matrix, which are typically associated with market-wide factors.
+    This has the effect of removing the market's influence on correlations between
+    securities, focusing on idiosyncratic risk. Based on methods from "Machine
+    Learning for Asset Managers".
+    """
+
     def __init__(self, remove_fraction: float = None, n_remove: int = None) -> None:
         """
-        Removes the largest eigenvalue/eigenvector pairs from the covariance matrix. Since the largest eigenvalues are
-        typically associated with the market component, removing such eigenvalues has the effect of removing the
-        market's influence on the correlations between securities. See chapter 2.6 of "Machine Learning for Asset
-        Managers".
-        :param remove_fraction: Fraction of eigenvalues to remove (0 < remove_fraction < 1)
-        :param n_remove: Number of eigenvalues to remove (backward compatibility)
+        Initialize Detone covariance transformer.
+
+        Args:
+            remove_fraction: Fraction of eigenvalues to remove (0 < remove_fraction < 1)
+            n_remove: Number of eigenvalues to remove (backward compatibility)
         """
         if n_remove is not None and remove_fraction is not None:
             raise ValueError("Cannot specify both n_remove and remove_fraction")
@@ -588,6 +741,19 @@ class DetoneCovarianceTransformer(AbstractCovarianceTransformer):
             self.n_remove = None
 
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
+        """Apply detoning transformation to remove market factors from covariance matrix.
+
+        Removes the largest eigenvalue/eigenvector pairs that correspond to market-wide
+        factors, focusing the covariance matrix on idiosyncratic risk components.
+
+        Args:
+            df_cov: Input covariance matrix as pandas DataFrame.
+            n_observations: Number of observations used to estimate the covariance
+                (unused in this transformer).
+
+        Returns:
+            Detoned covariance matrix as pandas DataFrame with preserved asset names.
+        """
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 

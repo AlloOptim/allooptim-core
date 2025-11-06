@@ -13,11 +13,35 @@ from allooptim.optimizer.allocation_metric import LMoments, estimate_linear_mome
 
 
 class MuCovPartialObservationSimulator(AbstractObservationSimulator):
+    """
+    Partial observation simulator for mean and covariance estimation.
+
+    This simulator generates samples by randomly selecting partial time windows
+    from historical price data and estimating parameters from those windows.
+    It simulates the uncertainty that comes from having limited historical data.
+
+    The simulator:
+    1. Randomly samples partial time windows from full historical data
+    2. Estimates mean returns and covariance from each partial window
+    3. Generates simulated returns using the estimated parameters
+    4. Computes L-moments from simulated data for higher-order statistics
+
+    This approach helps evaluate how robust optimization methods are to
+    parameter estimation uncertainty.
+    """
+
     def __init__(
         self,
         prices_df: pd.DataFrame,
         n_observations: int,
     ) -> None:
+        """
+        Initialize the partial observation simulator.
+
+        Args:
+            prices_df: Historical price data with datetime index and asset columns.
+            n_observations: Number of observations to generate for parameter estimation.
+        """
         self.historical_prices_all = prices_df.copy()
         self.historical_prices = prices_df.copy()
 
@@ -43,6 +67,23 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
         return "MuCovPartialObservationSimulator"
 
     def get_sample(self) -> Tuple[pd.Series, pd.DataFrame, pd.DataFrame, datetime, LMoments]:
+        """
+        Generate a sample of market parameters from partial historical observations.
+
+        This method simulates parameter estimation uncertainty by:
+        1. Randomly selecting multiple partial time windows from historical data
+        2. Estimating mean returns and covariance from each window
+        3. Generating simulated returns using multivariate normal distribution
+        4. Computing L-moments from simulated data for higher-order statistics
+
+        Returns:
+            Tuple containing:
+            - mu_sim_series: Simulated expected returns as pandas Series
+            - cov_sim_df: Simulated covariance matrix as pandas DataFrame
+            - historical_prices: Price data for the simulated period
+            - time_sim: Timestamp for the simulation
+            - l_moments_sim: L-moments computed from simulated returns (or None)
+        """
         x_all = np.zeros((self.n_observations, self.n_assets))
         mean_start = 0
         mean_end = 0

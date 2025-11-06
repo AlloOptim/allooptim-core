@@ -44,6 +44,17 @@ class BacktestEngine:
         orchestrator_type: Optional[OrchestratorType] = None,
         **orchestrator_kwargs,
     ) -> None:
+        """
+        Initialize the backtest engine.
+
+        Args:
+            config_backtest: Configuration for backtest parameters including date ranges,
+                optimizers, and result storage settings.
+            a2a_config: Configuration for allocation-to-allocators orchestration parameters.
+            orchestrator_type: Type of orchestrator to use (equal_weight, optimized, etc.).
+                If None, uses the type specified in config_backtest.
+            **orchestrator_kwargs: Additional keyword arguments passed to orchestrator creation.
+        """
         self.config_backtest = config_backtest or BacktestConfig()
 
         self.data_loader = DataLoader(
@@ -674,6 +685,12 @@ class _PriceDataProvider(AbstractObservationSimulator):
     """Simple data provider that wraps price DataFrame for orchestrator compatibility."""
 
     def __init__(self, price_data: pd.DataFrame):
+        """
+        Initialize the price data provider.
+
+        Args:
+            price_data: Historical price data with datetime index and asset columns.
+        """
         self.price_data = price_data
         # Calculate basic statistics (simplified) - return as pandas objects
         returns = price_data.pct_change().dropna()
@@ -695,29 +712,34 @@ class _PriceDataProvider(AbstractObservationSimulator):
 
     @property
     def mu(self):
+        """Get expected returns as pandas Series."""
         return self._mu
 
     @property
     def cov(self):
+        """Get covariance matrix as pandas DataFrame."""
         return self._cov
 
     @property
     def historical_prices(self):
+        """Get historical price data as pandas DataFrame."""
         return self.price_data
 
     @property
     def n_observations(self):
+        """Get number of observations in the price data."""
         return len(self.price_data)
 
     def get_sample(self):
-        # For backtest, sample and ground truth are the same
+        """Get sample market parameters (same as ground truth for backtest)."""
         return self.get_ground_truth()
 
     def get_ground_truth(self):
-        # Return pandas objects with proper indices
+        """Get ground truth market parameters from historical data."""
         time_end = self.price_data.index[-1]  # Last timestamp in the data
         return self._mu, self._cov, self.price_data, time_end, self._l_moments
 
     @property
     def name(self) -> str:
+        """Get the data provider name identifier."""
         return "BacktestDataProvider"

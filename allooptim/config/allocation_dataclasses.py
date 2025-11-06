@@ -6,16 +6,19 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 
 class StatisticsType(str, Enum):
+    """Enumeration of allocation statistics types."""
     A2A = "A2A"
     WIKIPEDIA = "WIKIPEDIA"
     NONE = "NONE"
 
 
 class NoStatistics(BaseModel):
+    """Represents absence of allocation statistics."""
     type: StatisticsType = StatisticsType.NONE
 
 
 class A2AStatistics(BaseModel):
+    """Statistics from Allocation-to-Allocators (A2A) optimization."""
     asset_returns: dict[str, float]
     asset_volatilities: dict[str, float]
     algo_runtime: dict[str, float]
@@ -26,6 +29,7 @@ class A2AStatistics(BaseModel):
 
 
 class WikipediaStatistics(BaseModel):
+    """Statistics from Wikipedia-based stock allocation."""
     end_date: str
     r_squared: float
     p_value: float
@@ -40,6 +44,7 @@ class WikipediaStatistics(BaseModel):
 
 
 class AllocationResult(BaseModel):
+    """Result of an allocation operation with comprehensive metadata."""
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     asset_weights: dict[str, float]
@@ -57,6 +62,7 @@ class AllocationResult(BaseModel):
     @field_validator("asset_weights", mode="before")
     @classmethod
     def check_asset_weights(cls, values: dict[str, float]) -> dict[str, float]:
+        """Validate that asset weights are non-negative."""
         for asset, weight in values.items():
             if weight < 0.0:
                 raise ValueError(f"Asset weights must be non-negative, got {weight} for {asset}")
@@ -74,5 +80,6 @@ class AllocationStatisticsResult(BaseModel):
 
 
 def validate_asset_weights_length(asset_weights: dict[str, float], n_assets: int) -> None:
+    """Validate that asset weights dictionary has the correct length."""
     if len(asset_weights) != n_assets:
         raise ValueError(f"Asset weights length {len(asset_weights)} does not match number of assets {n_assets}")

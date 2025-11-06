@@ -5,6 +5,7 @@ import numpy as np
 
 @dataclass(frozen=True)
 class StockData:
+    """Data structure for stock information including Wikipedia views and price."""
     symbol: str
     company_name: str
     wikipedia_name: str
@@ -17,6 +18,7 @@ class StockData:
 
 @dataclass(frozen=True)
 class StockUniverse:
+    """Data structure for stock universe information."""
     symbol: str
     company_name: str
     wikipedia_name: str

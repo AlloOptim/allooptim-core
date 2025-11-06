@@ -52,6 +52,14 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         covariance_transformers: List[AbstractCovarianceTransformer],
         config: A2AConfig,
     ):
+        """
+        Initialize the Equal Weight Orchestrator.
+
+        Args:
+            optimizers: List of portfolio optimization algorithms to orchestrate.
+            covariance_transformers: List of covariance matrix transformations to apply.
+            config: Configuration object with A2A orchestration parameters.
+        """
         super().__init__(optimizers, covariance_transformers, config)
 
     def allocate(
@@ -189,4 +197,10 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
     @property
     def name(self) -> str:
+        """
+        Get the orchestrator name identifier.
+
+        Returns:
+            String identifier for this orchestrator type.
+        """
         return "EqualWeight_A2A"

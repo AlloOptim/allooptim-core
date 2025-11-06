@@ -46,6 +46,7 @@ class MeanSquaredErrorEstimator(AbstractErrorEstimator):
 
     @property
     def name(self) -> str:
+        """Get the estimator name identifier."""
         return "mse"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
@@ -68,6 +69,7 @@ class FrobeniusNormEstimator(AbstractErrorEstimator):
 
     @property
     def name(self) -> str:
+        """Get the estimator name identifier."""
         return "frobenius"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
@@ -91,6 +93,7 @@ class RelativeErrorEstimator(AbstractErrorEstimator):
 
     @property
     def name(self) -> str:
+        """Get the estimator name identifier."""
         return "relative"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
@@ -114,6 +117,7 @@ class KullbackLeiblerEstimator(AbstractErrorEstimator):
 
     @property
     def name(self) -> str:
+        """Get the estimator name identifier."""
         return "kl_divergence"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:

@@ -18,6 +18,13 @@ class DataLoader:
         benchmark: str,
         symbols: list[str],
     ) -> None:
+        """
+        Initialize the data loader.
+
+        Args:
+            benchmark: Benchmark symbol (e.g., 'SPY') to include in the universe.
+            symbols: List of stock symbols to load data for.
+        """
         self.stock_universe = get_stocks_by_symbols(symbols)
         self.symbols = symbols
 

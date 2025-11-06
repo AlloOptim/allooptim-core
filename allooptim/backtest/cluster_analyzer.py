@@ -20,6 +20,12 @@ class ClusterAnalyzer:
     """Analyze clustering of optimizers based on performance and portfolio similarity."""
 
     def __init__(self, results: dict):
+        """
+        Initialize the cluster analyzer.
+
+        Args:
+            results: Dictionary containing backtest results for all optimizers.
+        """
         self.results = results
 
     def analyze_clusters(self) -> dict:
