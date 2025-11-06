@@ -257,6 +257,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
 
 class _FilteredDataProvider(AbstractObservationSimulator):
     """Simple filtered data provider for Wikipedia pipeline.
+
     This is a temporary implementation - in the future, this should be a proper DataProvider.
     """
 

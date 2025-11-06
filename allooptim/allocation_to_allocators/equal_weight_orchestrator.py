@@ -70,6 +70,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         Args:
             data_provider: Provides ground truth parameters
             time_today: Current time step (optional)
+            all_stocks: List of all available stocks (optional)
 
         Returns:
             A2AResult with equal-weighted optimizer combination

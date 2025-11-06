@@ -101,6 +101,7 @@ class PerformanceMetrics:
         rel_threshold: float,
     ) -> pd.Series:
         """Calculate portfolio invested assets for each period.
+
         Count all assets with more than 5% of equal weight portfolio weights.
         """
         if len(weights_history) < MIN_DATA_POINTS:
@@ -123,6 +124,7 @@ class PerformanceMetrics:
         top_n: int,
     ) -> pd.Series:
         """Calculate portfolio invested assets for each period.
+
         count the combined weight of the top n assets.
         """
         if len(weights_history) < MIN_DATA_POINTS:

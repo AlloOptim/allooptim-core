@@ -43,7 +43,7 @@ class OptimizerConfig(BaseModel):
             try:
                 validate_optimizer_config(name, v)
             except Exception as e:
-                raise ValueError(f"Invalid config for optimizer {name}: {e}")
+                raise ValueError(f"Invalid config for optimizer {name}: {e}") from e
 
         return v
 
@@ -93,7 +93,8 @@ class BacktestConfig(BaseModel):
     optimizer_configs: List[Union[str, OptimizerConfig]] = Field(
         default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
         min_length=1,
-        description="List of optimizer configurations. Can be optimizer names (strings) or OptimizerConfig objects with custom parameters",
+        description="List of optimizer configurations. Can be optimizer names (strings) or "
+                   "OptimizerConfig objects with custom parameters",
     )
     transformer_names: List[str] = Field(
         default=["OracleCovarianceTransformer"],
@@ -104,7 +105,8 @@ class BacktestConfig(BaseModel):
     # AllocationOrchestrator options
     orchestration_type: OrchestratorType = Field(
         default=OrchestratorType.AUTO,
-        description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or 'auto' for automatic selection",
+        description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or "
+                   "'auto' for automatic selection",
     )
 
     store_results: bool = Field(

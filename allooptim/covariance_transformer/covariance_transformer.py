@@ -465,8 +465,7 @@ class PCACovarianceTransformer(AbstractCovarianceTransformer):
         self.variance_threshold = variance_threshold
 
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
-        """Applies PCA to denoise the covariance matrix by retaining only the top n_components
-        principal components.
+        """Applies PCA to denoise the covariance matrix by retaining only the top n_components principal components.
 
         :param cov: the covariance matrix we want to denoise
         :param n_observations: the number of observations used to create the covariance matrix
@@ -542,7 +541,9 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         self.n_observations = n_observations
 
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
-        """Computes the correlation matrix associated with a given covariance matrix,
+        """Computes the correlation matrix and shrinks eigenvalues associated with noise.
+
+        Computes the correlation matrix associated with a given covariance matrix,
         and derives the eigenvalues and eigenvectors for that correlation matrix.
         Then shrinks the eigenvalues associated with noise, resulting in a de-noised correlation matrix
         which is then used to recover the covariance matrix.
@@ -588,7 +589,8 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         return _create_cov_dataframe(transformed_cov, asset_names)
 
     def _get_PCA(self, matrix: np.array) -> tuple[np.array, np.array]:
-        """Gets eigenvalues and eigenvectors from a Hermitian matrix
+        """Gets eigenvalues and eigenvectors from a Hermitian matrix.
+
         :param matrix: a Hermitian matrix
         :return: array of eigenvalues and array of eigenvectors.
         """
@@ -599,9 +601,12 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         return eigenvalues, eigenvectors
 
     def _find_max_eigenvalue(self, eigenvalues: np.array, q: float) -> float:
-        """Uses a Kernel Density Estimate (KDE) algorithm to fit the
+        """Uses KDE to fit Marcenko-Pastur distribution and separate noise from signal.
+
+        Uses a Kernel Density Estimate (KDE) algorithm to fit the
         Marcenko-Pastur distribution to the empirical distribution of eigenvalues.
         This has the effect of separating noise-related eigenvalues from signal-related eigenvalues.
+
         :param eigenvalues: array of eigenvalues
         :param q: q=T/N where T=sample length and N=number of variables
         :return: max random eigenvalue, variance.
@@ -618,9 +623,12 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         return max_eigenvalue
 
     def _err_PDFs(self, var: float, eigenvalues: pd.Series, q: float, pts: int = 1000) -> float:
-        """Calculates a theoretical Marcenko-Pastur probability density function and
+        """Calculate error between theoretical and empirical Marcenko-Pastur PDFs.
+
+        Calculates a theoretical Marcenko-Pastur probability density function and
         an empirical Marcenko-Pastur probability density function,
         and finds the error between the two by squaring the difference of the two
+
         :param var: variance 𝜎^2
         :param eigenvalues: array of eigenvalues
         :param q: q=T/N where T=sample length and N=number of variables
@@ -637,7 +645,8 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         return sse
 
     def _mp_PDF(self, var: float, q: float, pts: int) -> pd.Series:
-        """Creates a theoretical Marcenko-Pastur probability density function
+        """Creates a theoretical Marcenko-Pastur probability density function.
+
         :param var: variance 𝜎^2
         :param q: q=T/N where T=sample length and N=number of variables
         :param pts: number of points in the distribution
@@ -658,8 +667,11 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         return pdf
 
     def _fit_KDE(self, obs: np.array, kernel: str = "gaussian", x: np.array = None) -> pd.Series:
-        """Fit kernel to a series of observations, and derive the prob of observations.
+        """Fit kernel to observations and derive probability density.
+
+        Fit kernel to a series of observations, and derive the prob of observations.
         x is the array of values on which the fit KDE will be evaluated
+
         :param obs: the series of observations
         :param kernel: kernel hyper-parameter for KernelDensity
         :param x: array of values _fit_KDE will be evaluated against
@@ -677,7 +689,8 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         return pdf
 
     def _de_noised_corr(self, eigenvalues: np.array, eigenvectors: np.array, n_facts: int) -> np.array:
-        """Shrinks the eigenvalues associated with noise, and returns a de-noised correlation matrix
+        """Shrinks eigenvalues associated with noise and returns de-noised correlation matrix.
+
         :param eigenvalues: array of eigenvalues
         :param eigenvectors: array of eigenvectors
         :param n_facts: number of elements in diagonalized eigenvalues to replace with the mean of eigenvalues

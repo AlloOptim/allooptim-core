@@ -90,7 +90,7 @@ def validate_optimizer_config(optimizer_name: str, config_params: Dict[str, Any]
     try:
         return config_class(**config_params)
     except Exception as e:
-        raise ValueError(f"Invalid config for {optimizer_name}: {str(e)}")
+        raise ValueError(f"Invalid config for {optimizer_name}: {str(e)}") from e
 
 
 def get_registered_optimizer_names() -> list[str]:

@@ -10,10 +10,10 @@ from typing import List
 import numpy as np
 import pandas as pd
 
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.observation_simulator import (
     MuCovPartialObservationSimulator,
 )
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.optimizer_convergence import (
     simulate_optimizers_with_convergence,
 )

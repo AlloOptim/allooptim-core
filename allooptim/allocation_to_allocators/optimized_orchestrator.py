@@ -78,6 +78,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         Args:
             data_provider: Provides sampling capability for Monte Carlo
             time_today: Current time step (optional)
+            all_stocks: List of all available stocks (optional)
 
         Returns:
             A2AResult with PSO-optimized optimizer combination

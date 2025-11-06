@@ -31,9 +31,28 @@ jobs:
       - name: Run pytest
         run: poetry run pytest tests/ -v
 
-      # - name: Run ruff check
-      #   run: poetry run ruff check allooptim
-      #   continue-on-error: true  # Don't fail release on linting warnings
+      - name: Run ruff check
+        run: poetry run ruff check allooptim
+
+      - name: Run bandit security check
+        run: |
+          pip install bandit[toml]
+          bandit -r allooptim -f json -o bandit-report.json || true
+          bandit -r allooptim
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   build:
     name: Build distribution 📦

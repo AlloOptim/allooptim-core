@@ -136,11 +136,11 @@ def simulate_optimizers_with_convergence(
     remaining_optimizer_indices = list(range(n_optimizers))
 
     theoretical_returns = _simulate_optimization(
-        optimizer_list=active_optimizers,
+        optimizer_list=optimizer_list,
         obs_simulator=obs_simulator,
         covariance_transformers=covariance_transformers,
         n_observations=n_observations,
-        n_optimizers=len(active_optimizers),
+        n_optimizers=len(optimizer_list),
         n_assets=n_assets,
         use_optimal_observation=True,
         allow_partial_investment=config.allow_partial_investment,
