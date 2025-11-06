@@ -8,6 +8,7 @@ build:
   jobs:
     pre_install:
       - curl -sSL https://install.python-poetry.org | python3 -
+      - export PATH="$HOME/.local/bin:$PATH" && poetry config virtualenvs.create false
       - export PATH="$HOME/.local/bin:$PATH" && poetry install --with docs
 
 sphinx:
