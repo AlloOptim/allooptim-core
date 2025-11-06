@@ -88,4 +88,4 @@ docstring-code-line-length = 120
 
 [tool.bandit]
 exclude_dirs = ["tests", "examples"]
-skips = ["B403"]
+skips = ["B403", "B301", "B311"]

@@ -548,7 +548,7 @@ class DiverseCorrelationGenerator:
         N = C.shape[0]
 
         # Simulate finite sample effects
-        sample_size = random.randint(SAMPLE_SIZE_MIN, SAMPLE_SIZE_MAX)  # Typical sample sizes in finance
+        sample_size = random.randint(SAMPLE_SIZE_MIN, SAMPLE_SIZE_MAX)
 
         # Generate noise proportional to estimation error
         # Standard error of correlation ~ 1/sqrt(T-3) for T observations

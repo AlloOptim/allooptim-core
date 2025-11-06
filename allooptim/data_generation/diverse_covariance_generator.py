@@ -188,8 +188,8 @@ class CovarianceMatrixGenerator:
                 data = pd.read_csv(csv_files[0], index_col=0)
                 if len(data.columns) >= MIN_ASSETS_FOR_BOOTSTRAP:  # Need some assets
                     return self._bootstrap_from_real_data(data)
-            except Exception:
-                pass
+            except (FileNotFoundError, pd.errors.EmptyDataError, pd.errors.ParserError, ValueError):
+                pass  # Fall back to synthetic generation if CSV reading fails
 
         # Fallback: simulate realistic market patterns
         return self._generate_market_like_covariance()
