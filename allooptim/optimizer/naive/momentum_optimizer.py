@@ -1,3 +1,18 @@
+"""Momentum-based portfolio allocation strategies.
+
+This module implements momentum-based portfolio allocation strategies that
+allocate capital to assets showing positive price momentum. These strategies
+capitalize on the tendency of assets with recent positive performance to
+continue performing well.
+
+Key features:
+- Momentum-based asset selection and weighting
+- Lookback period configuration for momentum calculation
+- Risk-adjusted momentum strategies
+- Trend-following allocation approaches
+- Integration with price data for momentum signals
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

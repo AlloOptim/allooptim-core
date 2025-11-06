@@ -1,3 +1,16 @@
+"""Naive portfolio allocation strategies.
+
+This module implements simple baseline portfolio allocation strategies that
+serve as benchmarks for more sophisticated optimization algorithms. These
+strategies provide equal weighting or other simple allocation rules.
+
+Key optimizers:
+- EqualWeightOptimizer: Equal allocation across all assets
+- Simple rule-based allocation strategies
+- Benchmark strategies for performance comparison
+- Minimal computational complexity approaches
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

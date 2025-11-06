@@ -17,6 +17,10 @@ from allooptim.optimizer.allocation_metric import (
     validate_no_nan,
 )
 
+# Constants for numerical tolerances
+WEIGHT_SUM_TOLERANCE = 1e-10
+NEGATIVE_WEIGHT_TOLERANCE = -1e-6
+
 
 def optimize_allocator_weights(
     mcos_result: MCOSAllocationResult,
@@ -84,7 +88,7 @@ def optimize_allocator_weights(
 
     # Normalize to sum to 1
     weight_sum = np.sum(optimal_weights)
-    if weight_sum <= 1e-10:
+    if weight_sum <= WEIGHT_SUM_TOLERANCE:
         raise ValueError(f"Optimal weights sum to near zero: {weight_sum}")
 
     optimal_weights = optimal_weights / weight_sum
@@ -95,7 +99,7 @@ def optimize_allocator_weights(
     if not np.isclose(np.sum(optimal_weights), 1.0, rtol=1e-6):
         raise ValueError(f"Optimal weights sum {np.sum(optimal_weights)} != 1.0")
 
-    if np.any(optimal_weights < -1e-6):
+    if np.any(optimal_weights < NEGATIVE_WEIGHT_TOLERANCE):
         raise ValueError(f"Optimal weights contain negative values: {optimal_weights}")
 
     return optimal_weights

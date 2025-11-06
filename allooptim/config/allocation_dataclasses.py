@@ -1,3 +1,17 @@
+"""Data classes for portfolio allocation results and statistics.
+
+This module defines Pydantic models and data structures for representing
+portfolio allocation outputs, performance statistics, and optimization results.
+These classes ensure type safety and validation for allocation data throughout
+the AlloOptim pipeline.
+
+Key components:
+- StatisticsType: Enumeration of allocation statistics types
+- Allocation result models with validation
+- Performance metrics data structures
+- Type-safe interfaces for optimizer outputs
+"""
+
 from enum import Enum
 from typing import Optional, Union
 
@@ -62,6 +76,7 @@ class AllocationResult(BaseModel):
     optimizer_computation_time: Optional[dict[str, float]] = None
 
     def __hash__(self):
+        """Hash function for the dataclass to enable use in sets and as dict keys."""
         return hash((type(self),) + tuple(self.__dict__.values()))
 
     @field_validator("asset_weights", mode="before")

@@ -1,3 +1,20 @@
+"""Clustering analysis for portfolio optimizer comparison.
+
+This module provides sophisticated clustering algorithms to analyze and group
+portfolio optimizers based on their performance characteristics and portfolio
+weight similarities. It helps identify patterns in optimizer behavior and
+performance across different market conditions.
+
+Key features:
+- Hierarchical clustering of optimizer performance
+- K-means clustering for portfolio weight similarity
+- PCA-based dimensionality reduction
+- Distance matrix calculations
+- Cluster stability analysis
+- Automated cluster number selection
+- Visualization support for clustering results
+"""
+
 import logging
 
 import numpy as np

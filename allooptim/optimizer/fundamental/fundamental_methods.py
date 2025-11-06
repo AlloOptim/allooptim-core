@@ -138,6 +138,7 @@ def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 
     """Download fundamental data for multiple stocks using batch processing.
 
     Args:
+        today: Current date for data fetching
         tickers: list of ticker symbols to fetch data for
         batch_size: Maximum number of tickers to process in one batch
 
@@ -309,9 +310,9 @@ def allocate(
     5. Current Ratio - Short-term liquidity
 
     Args:
-        stock_names: list of stock ticker symbols
+        asset_names: list of stock ticker symbols
         today: Current date (for logging purposes)
-        config: Configuration for fundamental scoring (optional)
+        config: Configuration for fundamental scoring
 
     Returns:
         np.ndarray: Portfolio weights summing to 1.0

@@ -1,3 +1,19 @@
+"""Portfolio optimizer interfaces and abstract base classes.
+
+This module defines the core interfaces for portfolio optimization algorithms
+in AlloOptim. It provides abstract base classes that ensure consistent APIs
+across different optimization strategies including traditional mean-variance
+optimization, risk parity, hierarchical risk parity, and machine learning-based
+approaches.
+
+The interfaces support:
+- Standard pandas DataFrame inputs for price/return data
+- Flexible risk metric specifications (variance, CVaR, drawdown, L-moments)
+- Ensemble optimization combining multiple strategies
+- Warm-start capabilities for iterative optimization
+- Consistent error handling and validation
+"""
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional
@@ -54,6 +70,7 @@ class AbstractOptimizer(ABC):
         - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities
     """
 
+    @abstractmethod
     def fit(
         self,
         df_prices: Optional[pd.DataFrame] = None,
@@ -77,13 +94,11 @@ class AbstractOptimizer(ABC):
         """Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
 
         Args:
-            mu: Expected return vector as pandas Series with asset names as index
-            cov: Expected covariance matrix as pandas DataFrame with asset names as both index and columns
+            ds_mu: Expected return vector as pandas Series with asset names as index
+            df_cov: Expected covariance matrix as pandas DataFrame with asset names as both index and columns
+            df_prices: Optional historical prices DataFrame
             time: Optional timestamp for time-dependent optimizers
             l_moments: Optional L-moments for advanced risk modeling
-            df_allocations: Optional DataFrame with previous optimizer allocations.
-                           Rows are optimizer names, columns are asset names, values are allocation weights.
-                           Used by ensemble optimizers (e.g., A2A) to avoid re-computation.
 
         Returns:
             Portfolio weights as pandas Series with asset names as index
@@ -106,6 +121,7 @@ class AbstractOptimizer(ABC):
 class AbstractEnsembleOptimizer(ABC):
     """Abstract base class for ensemble portfolio optimization algorithms with pandas interface."""
 
+    @abstractmethod
     def fit(
         self,
         df_prices: Optional[pd.DataFrame] = None,
@@ -130,9 +146,14 @@ class AbstractEnsembleOptimizer(ABC):
         """Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
 
         Args:
+            ds_mu: Expected return vector as pandas Series with asset names as index
+            df_cov: Expected covariance matrix as pandas DataFrame with asset names as both index and columns
+            df_prices: Optional historical prices DataFrame
             df_allocations: Optional DataFrame with previous optimizer allocations.
                            Rows are optimizer names, columns are asset names, values are allocation weights.
                            Used by ensemble optimizers (e.g., A2A) to avoid re-computation.
+            time: Optional timestamp for time-dependent optimizers
+            l_moments: Optional L-moments for advanced risk modeling
 
         Returns:
             Portfolio weights as pandas Series with asset names as index

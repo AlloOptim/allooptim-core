@@ -1,3 +1,18 @@
+"""Abstract interfaces for observation simulators.
+
+This module defines the abstract base classes and interfaces for observation
+simulators used in Monte Carlo Cross-Simulation (MCOS). These simulators generate
+synthetic observations of financial data for robust backtesting and uncertainty
+analysis of portfolio optimization algorithms.
+
+Key components:
+- AbstractObservationSimulator: Base class for all simulators
+- Standardized observation generation interface
+- Asset name preservation guarantees
+- Integration with MCOS framework
+- Type-safe observation data structures
+"""
+
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Tuple

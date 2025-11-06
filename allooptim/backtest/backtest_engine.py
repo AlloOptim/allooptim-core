@@ -1,3 +1,20 @@
+"""Portfolio backtesting engine for evaluating optimization strategies.
+
+This module provides comprehensive backtesting capabilities for portfolio
+optimization algorithms. It simulates historical performance by running
+optimizers on rolling windows of historical data, computing portfolio weights,
+and tracking returns over time.
+
+Key features:
+- Rolling window backtesting with configurable lookback periods
+- Multiple rebalancing frequencies (daily, weekly, monthly)
+- Performance metrics calculation (Sharpe ratio, max drawdown, etc.)
+- Risk-adjusted return analysis
+- Transaction cost modeling
+- Benchmark comparisons
+- Comprehensive result aggregation and reporting
+"""
+
 import logging
 from datetime import datetime, timedelta
 from typing import Optional

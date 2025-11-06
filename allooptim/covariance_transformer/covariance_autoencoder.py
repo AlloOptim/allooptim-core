@@ -53,8 +53,20 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
         Args:
             hidden_dims: Architecture layers (None for auto-sizing)
+            learning_rate: Learning rate for optimizer
+            epochs: Number of training epochs
+            batch_size: Batch size for training
+            window_size: Rolling window size for covariance estimation
+            validation_split: Fraction of data for validation
+            patience: Early stopping patience
+            min_delta: Minimum improvement for early stopping
+            dropout_rate: Dropout rate for regularization
+            l2_lambda: L2 regularization strength
+            gradient_clip_value: Gradient clipping threshold
+            training_data_overlapping: Overlap fraction for training windows
             use_lower_triangle: Use symmetric matrix optimization (recommended)
-            Other params: Regularization and training settings
+            use_synthetic: Whether to use synthetic training data
+            n_synthetic_samples: Number of synthetic samples to generate
         """
         self.use_lower_triangle = use_lower_triangle
         self.hidden_dims = hidden_dims

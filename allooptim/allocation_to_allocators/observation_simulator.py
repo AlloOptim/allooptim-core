@@ -1,3 +1,18 @@
+"""Observation simulators for portfolio optimization evaluation.
+
+This module provides simulators that generate partial observations of financial
+data for testing portfolio optimization algorithms under realistic data
+constraints. These simulators help evaluate optimizer robustness when only
+limited historical data is available.
+
+Key simulators:
+- Partial observation simulation with random time windows
+- Mean and covariance estimation from limited data
+- L-moments calculation for higher-order risk measures
+- Realistic data sampling for backtesting
+- Integration with PyPortfolioOpt for standard calculations
+"""
+
 from datetime import datetime
 from typing import Tuple
 
@@ -10,6 +25,9 @@ from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 from allooptim.optimizer.allocation_metric import LMoments, estimate_linear_moments
+
+# Constants for minimum observations
+MIN_OBSERVATIONS = 10
 
 
 class MuCovPartialObservationSimulator(AbstractObservationSimulator):
@@ -116,10 +134,7 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
 
         # Compute L-moments from the simulated returns
         # Only compute L-moments if we have sufficient observations
-        if x_all.shape[0] >= 10:  # MIN_OBSERVATIONS from allocation_metric.py
-            l_moments_sim = estimate_linear_moments(x_all)
-        else:
-            l_moments_sim = None
+        l_moments_sim = estimate_linear_moments(x_all) if x_all.shape[0] >= MIN_OBSERVATIONS else None
 
         # Use the end date of the partial period as the simulation time
         time_sim = self.historical_prices_all.index[int(mean_end)]

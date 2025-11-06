@@ -98,11 +98,12 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
         """Compute efficient ensemble allocation from pre-computed optimizer allocations.
 
         Args:
-            mu: Expected returns (used for asset names and fallback)
-            cov: Covariance matrix (used for asset names)
-            time: Current timestamp
-            l_moments: L-moments (not used by ensemble)
+            ds_mu: Expected returns (used for asset names and fallback)
+            df_cov: Covariance matrix (used for asset names)
+            df_prices: Historical prices (not used)
             df_allocations: DataFrame with optimizer allocations (rows=optimizers, cols=assets)
+            time: Current timestamp (not used)
+            l_moments: L-moments (not used by ensemble)
 
         Returns:
             Ensemble weights as pandas Series with asset names as index
@@ -196,11 +197,12 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
         """Allocate 100% to SPY if available, otherwise equal weights.
 
         Args:
-            mu: Expected returns (used for asset names)
-            cov: Covariance matrix (used for asset names)
+            ds_mu: Expected returns (used for asset names)
+            df_cov: Covariance matrix (used for asset names)
+            df_prices: Historical prices (not used)
+            df_allocations: Pre-computed allocations (not used by benchmark)
             time: Current timestamp (not used)
             l_moments: L-moments (not used)
-            df_allocations: Pre-computed allocations (not used by benchmark)
 
         Returns:
             Benchmark weights as pandas Series with asset names as index

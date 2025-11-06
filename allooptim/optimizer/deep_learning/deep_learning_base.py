@@ -141,6 +141,7 @@ class MultiHeadAttention:
         self.out_proj = nn.Linear(embed_dim, embed_dim)
 
     def __call__(self, x):
+        """Apply multi-head attention to input tensor."""
         batch, seq_len, embed_dim = x.shape
 
         # Project and reshape for multi-head
@@ -275,6 +276,7 @@ class TemporalBlock:
         self.dropout = dropout
 
     def __call__(self, x, train=True):
+        """Apply LSTM cell with residual connection."""
         # LSTM with residual
         lstm_out, _ = self.lstm(x)
         x = x + lstm_out if x.shape == lstm_out.shape else lstm_out
@@ -569,6 +571,19 @@ class MambaPortfolioNet(PortfolioNetInterface):
         self.cash_net = [nn.Linear(hidden_dim * n_assets, hidden_dim), nn.Linear(hidden_dim, 1)]
 
     def __call__(self, x, train=True):
+        """Forward pass through the Mamba portfolio network.
+
+        Args:
+            x: Input tensor of shape (batch, n_assets, seq_len, n_features)
+            train: Whether to apply dropout during training
+
+        Returns:
+            tuple: (weights, invested_ratio, pred_returns, pred_vols)
+                - weights: Portfolio weights tensor of shape (batch, n_assets)
+                - invested_ratio: Fraction invested in assets (0-1) of shape (batch,)
+                - pred_returns: Predicted returns tensor of shape (batch, n_assets)
+                - pred_vols: Predicted volatilities tensor of shape (batch, n_assets)
+        """
         batch, n_assets, seq_len, n_features = x.shape
 
         # Process each asset's time series
@@ -773,6 +788,19 @@ class TCNPortfolioNet(PortfolioNetInterface):
         self.cash_net = [nn.Linear(hidden_dim * n_assets, hidden_dim), nn.Linear(hidden_dim, 1)]
 
     def __call__(self, x, train=True):
+        """Forward pass through the TCN portfolio network.
+
+        Args:
+            x: Input tensor of shape (batch, n_assets, seq_len, n_features)
+            train: Whether to apply dropout during training
+
+        Returns:
+            tuple: (weights, invested_ratio, pred_returns, pred_vols)
+                - weights: Portfolio weights tensor of shape (batch, n_assets)
+                - invested_ratio: Fraction invested in assets (0-1) of shape (batch,)
+                - pred_returns: Predicted returns tensor of shape (batch, n_assets)
+                - pred_vols: Predicted volatilities tensor of shape (batch, n_assets)
+        """
         batch, n_assets, seq_len, n_features = x.shape
 
         # Process each asset's time series
@@ -1151,6 +1179,8 @@ class DeepLearningOptimizerEngine:
         Args:
             prices: (n_days, n_assets) historical prices
             returns: (n_days, n_assets) historical returns
+            n_epochs: Number of training epochs
+            batch_size: Batch size for training
         """
         # Enable training mode for tinygrad
         Tensor.training = True
@@ -1256,7 +1286,8 @@ class DeepLearningOptimizerEngine:
 
         Args:
             new_prices: (lookback+1, n_assets) recent prices
-            new_returns: (1, n_assets) latest returns.
+            new_returns: (1, n_assets) latest returns
+            n_steps: Number of training steps to perform
         """
         # Enable training mode
         Tensor.training = True

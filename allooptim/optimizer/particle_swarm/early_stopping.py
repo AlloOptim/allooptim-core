@@ -34,6 +34,7 @@ class EarlyStopObjective:
         self.objective_function = objective_function
 
     def __call__(self, x):
+        """Evaluate objective function with early stopping logic."""
         if self.converged:
             # Return best known value once converged to stop further meaningful updates
             return self.best_value

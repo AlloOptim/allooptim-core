@@ -39,7 +39,7 @@ def _exponential_decay_weights(
 
     Args:
         n: Number of weights to generate
-        factor: Ratio of newest weight to oldest weight (default 3.0)
+        decay_factor: Ratio of newest weight to oldest weight (default 3.0)
 
     Returns:
         Array of weights with exponential decay from oldest to newest

@@ -1,3 +1,18 @@
+"""Covariance matrix transformation and regularization implementations.
+
+This module provides concrete implementations of covariance matrix transformers
+that improve the conditioning and quality of covariance estimates for portfolio
+optimization. These transformers apply statistical techniques to make covariance
+matrices more suitable for optimization algorithms.
+
+Key transformers:
+- Shrinkage estimators (Ledoit-Wolf, Oracle Approximating Shrinkage)
+- Robust covariance estimation with outlier detection
+- Eigenvalue cleaning and regularization
+- Condition number improvement
+- Integration with scikit-learn covariance estimators
+"""
+
 from typing import Optional, Union
 
 import numpy as np

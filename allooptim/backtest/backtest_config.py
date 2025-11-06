@@ -1,3 +1,19 @@
+"""Configuration classes for backtesting portfolio optimization strategies.
+
+This module defines Pydantic models and configuration structures for setting up
+comprehensive backtesting scenarios. It includes optimizer configurations, data
+sources, performance metrics, and reporting options for evaluating portfolio
+strategies over historical periods.
+
+Key components:
+- BacktestConfig: Main configuration class for backtesting scenarios
+- OptimizerConfig: Individual optimizer settings with validation
+- Data source configuration and validation
+- Performance metric specifications
+- YAML configuration file support
+- Type-safe configuration management
+"""
+
 import logging
 from datetime import datetime, timedelta
 from functools import cached_property

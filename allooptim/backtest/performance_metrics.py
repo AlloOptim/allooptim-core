@@ -1,3 +1,18 @@
+"""Portfolio performance metrics and risk calculations.
+
+This module provides comprehensive performance evaluation tools for portfolio
+backtesting. It includes risk-adjusted return metrics, drawdown analysis,
+and statistical measures for comparing portfolio strategies.
+
+Key metrics:
+- Sharpe ratio and risk-adjusted returns
+- Maximum drawdown and recovery analysis
+- Volatility and standard deviation measures
+- Benchmark-relative performance
+- Statistical significance testing
+- Rolling performance windows
+"""
+
 import numpy as np
 import pandas as pd
 

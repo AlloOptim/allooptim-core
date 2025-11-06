@@ -1,3 +1,19 @@
+"""Visualization utilities for backtest results and analysis.
+
+This module provides comprehensive plotting and visualization capabilities
+for portfolio backtesting results. It creates charts for performance comparison,
+clustering analysis, and statistical insights using matplotlib and seaborn.
+
+Key visualizations:
+- Portfolio performance time series plots
+- Risk-return scatter plots
+- Clustering dendrograms and heatmaps
+- Performance metric comparisons
+- Benchmark-relative performance charts
+- Statistical distribution plots
+- Automated chart saving and formatting
+"""
+
 import logging
 from pathlib import Path
 from typing import Optional

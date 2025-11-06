@@ -29,6 +29,10 @@ def calculate_robust_ema_moments(
     Args:
         returns: DataFrame of asset returns (n_observations, n_assets)
         span: EMA span parameter (higher = more smoothing)
+        n_min_observations: Minimum observations required for EMA calculation
+        max_reasonable_return: Maximum reasonable return value for bounds checking
+        min_reasonable_return: Minimum reasonable return value for bounds checking
+        blend_factor: Blend factor between EMA and simple historical moments
 
     Returns:
         Tuple of (expected_returns, covariance_matrix)

@@ -1,3 +1,20 @@
+"""Backtest report generation and formatting utilities.
+
+This module provides comprehensive reporting functionality for portfolio
+backtesting results. It generates detailed markdown reports with performance
+metrics, visualizations, and statistical analysis for comparing different
+optimization strategies.
+
+Key features:
+- Comprehensive markdown report generation
+- Performance metrics summary and analysis
+- Clustering analysis visualization
+- Statistical significance testing
+- Benchmark comparisons
+- Automated report formatting and structure
+- Configurable reporting periods and metrics
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

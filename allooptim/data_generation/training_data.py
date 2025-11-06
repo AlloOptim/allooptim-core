@@ -249,7 +249,8 @@ class CovarianceMatrixGenerator:
 
         Args:
             M: Matrix to rotate
-            i, j: Rotation indices
+            i: First rotation index
+            j: Second rotation index
 
         Returns:
             Rotated matrix

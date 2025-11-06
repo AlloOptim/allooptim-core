@@ -453,6 +453,7 @@ def load_data(
         end_date: End date for data
         stocks: list of StockUniverse objects
         use_wiki_database: If True, load from SQL database. If False, fetch fresh data.
+        database_path: Optional path to SQL database file
 
     Returns:
         tuple of (wiki_views_df, stock_prices_df, stock_volumes_df)

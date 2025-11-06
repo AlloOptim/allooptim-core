@@ -138,6 +138,10 @@ def expected_return_classical(  # noqa: PLR0913
         weights: 2D array of weight candidates (n_candidates, n_allocators)
         mu: Expected returns for each allocator (n_allocators,)
         cov: Covariance matrix (n_allocators, n_allocators)
+        skew: Optional skewness tensor or vector
+        kurt: Optional kurtosis tensor or vector
+        risk_aversion: Risk aversion coefficient
+        normalize_weights: Whether to normalize weights to sum to 1
 
     Returns:
         Array of geometric mean returns (n_candidates,)

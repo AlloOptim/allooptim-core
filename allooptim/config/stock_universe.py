@@ -1,3 +1,18 @@
+"""Stock universe definitions and filtering utilities.
+
+This module provides comprehensive stock universe data and utilities for
+managing investment universes in AlloOptim. It includes industry classifications,
+delisted symbol tracking, and filtering functions for creating custom stock
+universes based on various criteria.
+
+Key components:
+- Industry classification mappings
+- Delisted symbol tracking for data integrity
+- Stock universe filtering utilities
+- Market cap and sector-based selection tools
+- Integration with Yahoo Finance data sources
+"""
+
 from allooptim.config.stock_dataclasses import StockUniverse
 
 INDUSTRY_NAMES = [

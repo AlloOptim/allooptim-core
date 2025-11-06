@@ -191,8 +191,8 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         """Computes the optimal weights using the NCO algorithm.
 
         Args:
-            objective: "sharpe" for maximum sharpe ratio, and "variance"
-                for minimum variance
+            returns: Expected returns for each asset
+            cov: Covariance matrix
 
         returns:
             optimal weight allocation

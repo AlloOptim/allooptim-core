@@ -1,3 +1,18 @@
+"""Registry and factory functions for covariance transformers.
+
+This module provides a centralized registry of all available covariance
+transformers and utility functions for creating and managing transformer
+instances. It serves as the main entry point for accessing covariance
+transformation capabilities.
+
+Key features:
+- Complete registry of all transformer implementations
+- Factory functions for transformer creation
+- Name-based transformer lookup and instantiation
+- Integration with configuration systems
+- Comprehensive transformer catalog
+"""
+
 import logging
 
 from allooptim.covariance_transformer.covariance_autoencoder import (

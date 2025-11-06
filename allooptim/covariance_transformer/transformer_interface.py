@@ -1,3 +1,17 @@
+"""Abstract interfaces for covariance matrix transformations.
+
+This module defines the abstract base classes and interfaces for covariance
+matrix transformation algorithms. These interfaces ensure consistent APIs
+across different covariance regularization and improvement techniques.
+
+Key components:
+- AbstractCovarianceTransformer: Base class for all transformers
+- Standardized transform() method interface
+- Optional fit() method for data-dependent transformations
+- Asset name preservation guarantees
+- Type-safe covariance matrix handling
+"""
+
 from abc import ABC, abstractmethod
 from typing import Optional
 
@@ -37,6 +51,7 @@ class AbstractCovarianceTransformer(ABC):
         - :mod:`allooptim.covariance_transformer`: Available transformers
     """
 
+    @abstractmethod
     def fit(self, df_prices: pd.DataFrame) -> None:
         """Optional method to fit the transformer to the data.
 

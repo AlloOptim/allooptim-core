@@ -1,3 +1,18 @@
+"""Data loading and preprocessing utilities for backtesting.
+
+This module provides data acquisition and cleaning functionality for portfolio
+backtesting. It handles downloading historical price data from Yahoo Finance,
+applying data quality filters, and preparing clean datasets for optimization.
+
+Key features:
+- Yahoo Finance data integration
+- Automatic data cleaning and validation
+- Benchmark price data loading
+- Missing data handling and interpolation
+- Data quality assurance and logging
+- Efficient caching and retrieval
+"""
+
 import logging
 from datetime import datetime
 

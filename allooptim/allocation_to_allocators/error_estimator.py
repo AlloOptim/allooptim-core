@@ -97,7 +97,7 @@ class RelativeErrorEstimator(AbstractErrorEstimator):
         Args:
             predicted: Predicted matrix
             actual: Actual matrix
-            epsilon: Small value to avoid division by zero (default: 1e-8)
+            **kwargs: Additional parameters (e.g., epsilon for division by zero avoidance)
 
         Returns:
             Relative error value
