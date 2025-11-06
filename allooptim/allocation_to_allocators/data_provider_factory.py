@@ -1,4 +1,4 @@
-"""Data Provider Factory
+"""Data Provider Factory.
 
 Factory for creating data providers with time-step alignment abstraction.
 Provides clean interface for creating observation simulators for different contexts.

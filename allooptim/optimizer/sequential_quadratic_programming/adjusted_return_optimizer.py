@@ -43,7 +43,7 @@ class MeanVarianceAdjustedReturnsOptimizerConfig(BaseModel):
 
 
 class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
-    """Adjusted Returns Optimizer"""
+    """Adjusted Returns Optimizer."""
 
     enable_l_moments: bool = False
     enable_ema: bool = False
@@ -221,7 +221,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
 
 
 class LMomentsAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
-    """Adjusted Returns Optimizer with L-Moments"""
+    """Adjusted Returns Optimizer with L-Moments."""
 
     enable_l_moments: bool = True
     enable_ema: bool = False
@@ -237,7 +237,7 @@ class LMomentsAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
 
 
 class EMAAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
-    """Adjusted Returns Optimizer with EMA"""
+    """Adjusted Returns Optimizer with EMA."""
 
     enable_l_moments: bool = False
     enable_ema: bool = True
@@ -253,7 +253,7 @@ class EMAAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
 
 
 class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
-    """Mean-Semivariance Optimizer
+    """Mean-Semivariance Optimizer.
 
     Optimizes return-risk tradeoff using only downside deviations (semivariance)
     instead of total variance. This asymmetric risk measure is more suitable for

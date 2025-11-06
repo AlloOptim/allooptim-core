@@ -1,4 +1,4 @@
-"""Optimizer Simulation Module
+"""Optimizer Simulation Module.
 
 Enhanced MCOS simulation that always returns allocation statistics.
 Clean implementation with explicit error handling and no legacy fallbacks.
@@ -25,7 +25,7 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 @dataclass
 class MCOSAllocationResult:
-    """Complete MCOS result with error estimates and allocation statistics"""
+    """Complete MCOS result with error estimates and allocation statistics."""
 
     expected_return_means: np.ndarray  # (n_optimizers, 1)
     expected_returns_covariance: np.ndarray  # (n_optimizers, n_optimizers)

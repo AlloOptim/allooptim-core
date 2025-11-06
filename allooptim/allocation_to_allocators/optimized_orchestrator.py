@@ -1,4 +1,4 @@
-"""Optimized A2A Orchestrator
+"""Optimized A2A Orchestrator.
 
 Monte Carlo Optimization Selection (MCOS) orchestrator with PSO optimization of optimizer weights.
 """
@@ -173,7 +173,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         for k, optimizer in enumerate(self.optimizers):
             # Track memory and time
             tracemalloc.start()
-            start = timer()
+            timer()
 
             try:
                 logger.info(f"Computing allocation for {optimizer.name}...")
@@ -203,7 +203,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 optimizer.reset()
                 raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}") from error
 
-            end = timer()
+            timer()
             current, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
 

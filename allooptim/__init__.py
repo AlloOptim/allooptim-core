@@ -1,4 +1,4 @@
-"""Portfolio Allocation Optimization Package"""
+"""Portfolio Allocation Optimization Package."""
 
 import logging
 

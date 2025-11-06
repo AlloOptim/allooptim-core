@@ -18,7 +18,7 @@ NEAR_SINGULARITY_CONDITION_THRESHOLD = 1e12
 def _extract_cov_info(cov: Union[np.ndarray, pd.DataFrame]) -> tuple[np.ndarray, list]:
     """Extract numpy array and asset names from covariance matrix
     :param cov: covariance matrix (numpy array or pandas DataFrame)
-    :return: tuple of (numpy array, asset names list)
+    :return: tuple of (numpy array, asset names list).
     """
     if isinstance(cov, pd.DataFrame):
         asset_names = cov.index.tolist()
@@ -34,7 +34,7 @@ def _create_cov_dataframe(cov_array: np.ndarray, asset_names: list) -> pd.DataFr
     """Create pandas DataFrame from numpy covariance matrix with asset names
     :param cov_array: covariance matrix as numpy array
     :param asset_names: list of asset names
-    :return: pandas DataFrame with asset names as index/columns
+    :return: pandas DataFrame with asset names as index/columns.
     """
     return pd.DataFrame(cov_array, index=asset_names, columns=asset_names)
 
@@ -47,7 +47,7 @@ def _ensure_symmetric(matrix: np.array) -> np.array:
 def cov_to_corr(cov: np.array) -> np.array:
     """Derive the correlation matrix from a covariance matrix
     :param cov: covariance matrix
-    :return: correlation matrix
+    :return: correlation matrix.
     """
     # Ensure input is numpy array (not DataFrame)
     cov = np.asarray(cov)
@@ -76,7 +76,7 @@ def _corr_to_cov(corr: np.array, std: np.array) -> np.array:
     """Recovers the covariance matrix from the de-noise correlation matrix
     :param corr: de-noised correlation matrix
     :param std: standard deviation of the correlation matrix
-    :return: a recovered covariance matrix
+    :return: a recovered covariance matrix.
     """
     cov = corr * np.outer(std, std)
     return cov
@@ -586,7 +586,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
     def _get_PCA(self, matrix: np.array) -> tuple[np.array, np.array]:
         """Gets eigenvalues and eigenvectors from a Hermitian matrix
         :param matrix: a Hermitian matrix
-        :return: array of eigenvalues and array of eigenvectors
+        :return: array of eigenvalues and array of eigenvectors.
         """
         eigenvalues, eigenvectors = np.linalg.eigh(matrix)
         indices = eigenvalues.argsort()[::-1]  # arguments for sorting eigenvalues desc
@@ -600,7 +600,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         This has the effect of separating noise-related eigenvalues from signal-related eigenvalues.
         :param eigenvalues: array of eigenvalues
         :param q: q=T/N where T=sample length and N=number of variables
-        :return: max random eigenvalue, variance
+        :return: max random eigenvalue, variance.
         """
         # Find max random eigenvalues by fitting Marcenko's dist to the empirical one
         out = minimize(
@@ -622,7 +622,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         :param q: q=T/N where T=sample length and N=number of variables
         :param pts: number of points in the distribution
         :return: the error of the probability distribution functions obtained by squaring the difference
-        of the theoretical and empirical Marcenko-Pastur probability density functions
+        of the theoretical and empirical Marcenko-Pastur probability density functions.
         """
         # Fit error
         theoretical_pdf = self._mp_PDF(var, q, pts)  # theoretical probability density function
@@ -637,7 +637,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         :param var: variance 𝜎^2
         :param q: q=T/N where T=sample length and N=number of variables
         :param pts: number of points in the distribution
-        :return: a theoretical Marcenko-Pastur probability density function
+        :return: a theoretical Marcenko-Pastur probability density function.
         """
         min_eigenvalue, max_eigenvalue = (
             var * (1 - (1.0 / q) ** 0.5) ** 2,
@@ -659,7 +659,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         :param obs: the series of observations
         :param kernel: kernel hyper-parameter for KernelDensity
         :param x: array of values _fit_KDE will be evaluated against
-        :return: an empirical Marcenko-Pastur probability density function
+        :return: an empirical Marcenko-Pastur probability density function.
         """
         if len(obs.shape) == 1:
             obs = obs.reshape(-1, 1)
@@ -677,7 +677,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         :param eigenvalues: array of eigenvalues
         :param eigenvectors: array of eigenvectors
         :param n_facts: number of elements in diagonalized eigenvalues to replace with the mean of eigenvalues
-        :return: de-noised correlation matrix
+        :return: de-noised correlation matrix.
         """
         # Remove noise from corr by fixing random eigenvalues
         eigenvalues_ = np.diag(eigenvalues).copy()

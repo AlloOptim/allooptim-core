@@ -1,4 +1,4 @@
-"""Error Estimator Registry
+"""Error Estimator Registry.
 
 Extensible registry for MCOS error estimation metrics.
 Provides a plugin architecture for different error estimation methods.
@@ -133,7 +133,7 @@ class KullbackLeiblerEstimator(AbstractErrorEstimator):
         actual_reg = actual + epsilon * np.eye(actual.shape[0])
 
         try:
-            pred_inv = np.linalg.inv(pred_reg)
+            np.linalg.inv(pred_reg)
             actual_inv = np.linalg.inv(actual_reg)
 
             # KL divergence: 0.5 * (trace(actual_inv @ predicted) + log(det(actual)/det(predicted)) - n)

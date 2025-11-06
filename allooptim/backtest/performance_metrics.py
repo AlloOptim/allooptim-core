@@ -123,7 +123,7 @@ class PerformanceMetrics:
         top_n: int,
     ) -> pd.Series:
         """Calculate portfolio invested assets for each period.
-        count the combined weight of the top n assets
+        count the combined weight of the top n assets.
         """
         if len(weights_history) < MIN_DATA_POINTS:
             return pd.Series([], dtype=float)

@@ -1,5 +1,5 @@
 """Generate Manageable 5K Covariance Training Dataset
-Creates 5,000 diverse covariance matrices as a starting point
+Creates 5,000 diverse covariance matrices as a starting point.
 """
 
 import pickle
@@ -14,7 +14,7 @@ from lower_triangle_utils import pack_lower_triangle
 
 
 def main():
-    """Generate 5K covariance dataset for initial testing"""
+    """Generate 5K covariance dataset for initial testing."""
     print("=" * 60)
     print("GENERATING 5,000 COVARIANCE MATRIX TRAINING DATASET")
     print("=" * 60)

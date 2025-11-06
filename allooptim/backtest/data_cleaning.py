@@ -1,4 +1,4 @@
-"""Data Cleaning Utilities
+"""Data Cleaning Utilities.
 
 Provides comprehensive data cleaning functions for financial price data.
 Handles NaN values, market closures, insufficient data, and data quality issues.

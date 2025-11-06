@@ -1,4 +1,4 @@
-"""Optimizer Configuration Registry
+"""Optimizer Configuration Registry.
 
 Auto-discovers and registers optimizer configuration classes from the OPTIMIZER_LIST.
 Provides type-safe access to optimizer configs for API and factory use.

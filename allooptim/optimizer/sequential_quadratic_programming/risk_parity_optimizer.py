@@ -37,7 +37,7 @@ class RiskParityOptimizerConfig(BaseModel):
 
 
 class RiskParityOptimizer(AbstractOptimizer):
-    """Risk Parity Optimizer"""
+    """Risk Parity Optimizer."""
 
     def __init__(self, config: Optional[RiskParityOptimizerConfig] = None) -> None:
         """Initialize the risk parity optimizer.

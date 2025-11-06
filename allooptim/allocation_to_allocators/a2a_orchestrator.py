@@ -1,4 +1,4 @@
-"""A2A Orchestrator Base Classes
+"""A2A Orchestrator Base Classes.
 
 Abstract base classes for Allocation-to-Allocators orchestration.
 Provides clean separation between different orchestration strategies.

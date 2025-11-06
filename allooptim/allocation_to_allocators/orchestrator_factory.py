@@ -1,4 +1,4 @@
-"""Orchestrator Factory
+"""Orchestrator Factory.
 
 Factory for creating allocation-to-allocators orchestrators based on configuration.
 """

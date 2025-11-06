@@ -1,4 +1,4 @@
-"""Allocation Metrics Module"""
+"""Allocation Metrics Module."""
 
 import logging
 from dataclasses import dataclass
@@ -59,7 +59,7 @@ class LMoments:
 
 
 def validate_no_nan(data: np.ndarray, name: str) -> None:
-    """Validate array contains no NaN values"""
+    """Validate array contains no NaN values."""
     if np.any(np.isnan(data)):
         raise ValueError(f"{name} contains NaN values: {data}")
 

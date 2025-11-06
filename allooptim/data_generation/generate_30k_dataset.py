@@ -1,5 +1,5 @@
 """Generate Full 30K Covariance Training Dataset
-Creates 30,000 diverse covariance matrices and saves them for autoencoder training
+Creates 30,000 diverse covariance matrices and saves them for autoencoder training.
 """
 
 import pickle
@@ -20,7 +20,7 @@ EIGENVALUE_POSITIVE_TOLERANCE = -1e-10
 
 
 def generate_full_training_dataset(save_path: str = None):
-    """Generate full 30,000 covariance matrix training dataset"""
+    """Generate full 30,000 covariance matrix training dataset."""
     print("=" * 60)
     print("GENERATING 30,000 COVARIANCE MATRIX TRAINING DATASET")
     print("=" * 60)
@@ -171,7 +171,7 @@ def generate_full_training_dataset(save_path: str = None):
 
 
 def load_training_dataset(save_path: str = None):
-    """Load the pre-generated training dataset"""
+    """Load the pre-generated training dataset."""
     if save_path is None:
         output_dir = Path(__file__).parent.parent.parent / "generated_output"
         save_path = output_dir / "covariance_training_data_30k.pkl"

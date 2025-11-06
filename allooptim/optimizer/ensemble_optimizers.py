@@ -1,4 +1,4 @@
-"""Ensemble Optimizers Module
+"""Ensemble Optimizers Module.
 
 Contains optimizers that combine or aggregate results from multiple individual optimizers:
 - A2AEnsembleOptimizer: Efficiently computes ensemble allocation from pre-computed allocations

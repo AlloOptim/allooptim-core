@@ -1,4 +1,4 @@
-"""Kelly Criterion Portfolio Optimizer
+"""Kelly Criterion Portfolio Optimizer.
 
 This module implements the Kelly Criterion for portfolio optimization, which maximizes
 the expected logarithm of wealth (geometric mean return) rather than the arithmetic mean.

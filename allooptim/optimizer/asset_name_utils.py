@@ -1,4 +1,4 @@
-"""Asset Name Utilities for Pandas-based Optimizer Interface
+"""Asset Name Utilities for Pandas-based Optimizer Interface.
 
 Provides validation and conversion functions for ensuring asset name consistency
 between mu (pd.Series) and cov (pd.DataFrame) inputs in the optimizer interface.
@@ -271,7 +271,7 @@ class NumpyOptimizerAdapter:
 
     def __init__(self, numpy_optimizer):
         """Args:
-        numpy_optimizer: Optimizer with numpy-based allocate method
+        numpy_optimizer: Optimizer with numpy-based allocate method.
         """
         self.numpy_optimizer = numpy_optimizer
 

@@ -1,4 +1,4 @@
-"""Robust Mean-Variance Portfolio Optimizer
+"""Robust Mean-Variance Portfolio Optimizer.
 
 This module implements robust portfolio optimization with ellipsoidal uncertainty sets
 for both expected returns and covariance matrix. Unlike standard mean-variance optimization

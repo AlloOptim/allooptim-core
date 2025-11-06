@@ -27,7 +27,7 @@ def _simulate_optimization(
     n_assets: int,
     use_optimal_observation: bool,
 ) -> np.ndarray:
-    """Run single optimization simulation with allocation tracking"""
+    """Run single optimization simulation with allocation tracking."""
     try:
         # Generate observation
         if use_optimal_observation:

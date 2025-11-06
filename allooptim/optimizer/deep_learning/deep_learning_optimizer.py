@@ -2,7 +2,7 @@
 Training time: Minutes to hours
 Min data: 500+ periods (recommended)
 Suitable for: Research, long-term strategies, complex patterns
-Architectures: LSTM+Transformer, MAMBA (SSM), TCN
+Architectures: LSTM+Transformer, MAMBA (SSM), TCN.
 """
 
 import logging

@@ -1,4 +1,4 @@
-"""Enhanced Optimizer Factory with Configuration Support
+"""Enhanced Optimizer Factory with Configuration Support.
 
 Provides factory functions for creating optimizers with custom configurations.
 Supports both default configs and custom parameter overrides.

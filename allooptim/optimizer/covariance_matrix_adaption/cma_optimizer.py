@@ -82,7 +82,7 @@ class CMAOptimizerConfig(BaseModel):
 
 
 class MeanVarianceCMAOptimizer(AbstractOptimizer):
-    """CMA-ES optimizer with explicit scaling and interpolation"""
+    """CMA-ES optimizer with explicit scaling and interpolation."""
 
     risk_metric: RiskMetric = RiskMetric.MEAN_VARIANCE
 
@@ -388,30 +388,30 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 
 
 class CVARCMAOptimizer(MeanVarianceCMAOptimizer):
-    """CMA-ES optimizer with explicit scaling and interpolation"""
+    """CMA-ES optimizer with explicit scaling and interpolation."""
 
     risk_metric: RiskMetric = RiskMetric.CVAR
 
 
 class LMomentsCMAOptimizer(MeanVarianceCMAOptimizer):
-    """CMA-ES optimizer with explicit scaling and interpolation"""
+    """CMA-ES optimizer with explicit scaling and interpolation."""
 
     risk_metric: RiskMetric = RiskMetric.L_MOMENTS
 
 
 class RobustSharpeCMAOptimizer(MeanVarianceCMAOptimizer):
-    """CMA-ES optimizer with explicit scaling and interpolation"""
+    """CMA-ES optimizer with explicit scaling and interpolation."""
 
     risk_metric: RiskMetric = RiskMetric.ROBUST_SHARPE
 
 
 class SortinoCMAOptimizer(MeanVarianceCMAOptimizer):
-    """CMA-ES optimizer with explicit scaling and interpolation"""
+    """CMA-ES optimizer with explicit scaling and interpolation."""
 
     risk_metric: RiskMetric = RiskMetric.SORTINO
 
 
 class MaxDrawdownCMAOptimizer(MeanVarianceCMAOptimizer):
-    """CMA-ES optimizer with explicit scaling and interpolation"""
+    """CMA-ES optimizer with explicit scaling and interpolation."""
 
     risk_metric: RiskMetric = RiskMetric.MAX_DRAWDOWN

@@ -44,7 +44,7 @@ class PSOOptimizerConfig(BaseModel):
 
 
 class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
-    """Optimizer based on the naive momentum"""
+    """Optimizer based on the naive momentum."""
 
     enable_l_moments: bool = False
 
@@ -187,7 +187,7 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 
 
 class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
-    """Optimizer based on the naive momentum"""
+    """Optimizer based on the naive momentum."""
 
     enable_l_moments: bool = True
 

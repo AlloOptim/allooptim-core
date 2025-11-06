@@ -1,4 +1,4 @@
-"""ML Optimizers Testing
+"""ML Optimizers Testing.
 
 Test that LightGBM and Deep Learning optimizers work correctly after refactoring.
 """

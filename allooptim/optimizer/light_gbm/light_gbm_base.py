@@ -32,7 +32,7 @@ class LightGBMOptimizerEngine:
     """State-of-the-art portfolio optimizer using:
     1. LightGBM for return prediction (fast training)
     2. Online covariance estimation with exponential weighting
-    3. Risk-aware optimization with transaction costs
+    3. Risk-aware optimization with transaction costs.
     """
 
     def __init__(
@@ -43,7 +43,7 @@ class LightGBMOptimizerEngine:
     ) -> None:
         """Args:
         n_assets: Number of assets in portfolio
-        lookback: Historical window for feature engineering
+        lookback: Historical window for feature engineering.
         """
         self._n_assets = n_assets
         self._n_lookback = n_lookback
@@ -65,7 +65,7 @@ class LightGBMOptimizerEngine:
         self._max_buffer_size = 1000
 
     def _engineer_features(self, prices: np.ndarray) -> list[np.ndarray]:
-        """Create features from price data"""
+        """Create features from price data."""
         features = []
 
         for i in range(self._n_assets):
@@ -116,7 +116,7 @@ class LightGBMOptimizerEngine:
         return features
 
     def _update_covariance(self, returns: np.ndarray) -> np.ndarray:
-        """Update covariance matrix using exponential weighting"""
+        """Update covariance matrix using exponential weighting."""
         if self._ewm_cov is None:
             self._ewm_cov = np.cov(returns.T)
         else:
@@ -129,7 +129,7 @@ class LightGBMOptimizerEngine:
         return (1 - shrinkage) * self._ewm_cov + shrinkage * target
 
     def train(self, prices: np.ndarray, returns: np.ndarray = None) -> None:
-        """Fast training using LightGBM with early stopping
+        """Fast training using LightGBM with early stopping.
 
         Args:
             prices: (T, n_assets) historical prices
@@ -199,7 +199,7 @@ class LightGBMOptimizerEngine:
         logger.debug("Training complete! Models ready for daily updates.")
 
     def incremental_update(self, new_prices: np.ndarray, new_returns: np.ndarray = None) -> None:
-        """Fast incremental update with new data (runs in <1 second)
+        """Fast incremental update with new data (runs in <1 second).
 
         Args:
             new_prices: (lookback+1, n_assets) recent prices including new day
@@ -227,7 +227,7 @@ class LightGBMOptimizerEngine:
             self._periodic_retrain()
 
     def _periodic_retrain(self) -> None:
-        """Retrain models with buffered data"""
+        """Retrain models with buffered data."""
         for i in range(self._n_assets):
             asset_features = [f for idx, f in self._feature_buffer if idx == i]
             asset_targets = [self._target_buffer[j] for j, (idx, _) in enumerate(self._feature_buffer) if idx == i]
@@ -244,7 +244,7 @@ class LightGBMOptimizerEngine:
         self._target_buffer = []
 
     def predict(self, current_prices: np.ndarray) -> np.ndarray:
-        """Predict returns and optimize portfolio (runs in milliseconds)
+        """Predict returns and optimize portfolio (runs in milliseconds).
 
         Args:
             current_prices: (lookback, n_assets) recent prices
@@ -282,7 +282,7 @@ class LightGBMOptimizerEngine:
         return optimal_weights
 
     def _optimize_portfolio(self, mu: np.ndarray, cov: np.ndarray) -> np.ndarray:
-        """Mean-variance optimization with transaction costs"""
+        """Mean-variance optimization with transaction costs."""
         n = len(mu)
 
         def objective(w):

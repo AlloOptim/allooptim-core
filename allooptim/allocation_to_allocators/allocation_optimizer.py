@@ -1,4 +1,4 @@
-"""Allocation Optimizer Module
+"""Allocation Optimizer Module.
 
 Enhanced allocation optimization using direct inter-optimizer covariance matrices.
 Clean implementation with analytical solutions and explicit error handling.

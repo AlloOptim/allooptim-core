@@ -1,4 +1,4 @@
-"""Covariance Matrix Transformations
+"""Covariance Matrix Transformations.
 
 This module provides statistical techniques to improve covariance matrix estimates
 for better-conditioned portfolio optimization. Transformations include shrinkage,

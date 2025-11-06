@@ -1,5 +1,5 @@
 """Diverse Covariance Matrix Training Data Generation Module
-Generates 30,000 artificial covariance matrices using multiple methods for autoencoder training
+Generates 30,000 artificial covariance matrices using multiple methods for autoencoder training.
 """
 
 import random
@@ -17,7 +17,7 @@ OVERDETERMINED_EXTRA_COLUMNS = 10
 
 @dataclass
 class CovarianceConfig:
-    """Configuration for covariance matrix generation"""
+    """Configuration for covariance matrix generation."""
 
     n_assets: int = 500
     n_samples: int = 30000
@@ -35,25 +35,25 @@ class CovarianceConfig:
 
 
 class SpectrumGenerator:
-    """Generates various types of eigenvalue spectra for covariance matrices"""
+    """Generates various types of eigenvalue spectra for covariance matrices."""
 
     @staticmethod
     def exponential_decay(n_assets: int, decay_rate: float = 2.0) -> np.ndarray:
-        """Generate exponentially decaying eigenvalues (market-like)"""
+        """Generate exponentially decaying eigenvalues (market-like)."""
         i = np.arange(1, n_assets + 1)
         eigenvals = np.exp(-decay_rate * (i - 1) / n_assets)
         return eigenvals * n_assets / np.sum(eigenvals)
 
     @staticmethod
     def power_law(n_assets: int, alpha: float = 1.5) -> np.ndarray:
-        """Generate power-law eigenvalues (heavy-tailed)"""
+        """Generate power-law eigenvalues (heavy-tailed)."""
         i = np.arange(1, n_assets + 1)
         eigenvals = i ** (-alpha)
         return eigenvals * n_assets / np.sum(eigenvals)
 
     @staticmethod
     def mixed_regime(n_assets: int, n_factors: int = None) -> np.ndarray:
-        """Generate mixed regime eigenvalues (few large, many small)"""
+        """Generate mixed regime eigenvalues (few large, many small)."""
         if n_factors is None:
             n_factors = max(3, n_assets // 20)
 
@@ -69,7 +69,7 @@ class SpectrumGenerator:
 
     @staticmethod
     def random_spectrum(n_assets: int) -> np.ndarray:
-        """Generate random but realistic eigenvalue spectrum"""
+        """Generate random but realistic eigenvalue spectrum."""
         # Ensure valid range for mixed_regime n_factors
         max_factors = max(4, n_assets // 15)  # At least 4, up to n_assets//15
         min_factors = min(3, max_factors - 1)  # At least 3, but less than max
@@ -83,7 +83,7 @@ class SpectrumGenerator:
 
 
 class CovarianceMatrixGenerator:
-    """Main class for generating diverse covariance matrices"""
+    """Main class for generating diverse covariance matrices."""
 
     def __init__(self, config: CovarianceConfig):
         """Initialize the covariance matrix generator.
@@ -96,7 +96,7 @@ class CovarianceMatrixGenerator:
         random.seed(config.random_seed)
 
     def generate_synthetic_covariance(self) -> np.ndarray:
-        """Generate synthetic covariance matrix from eigenvalue spectrum"""
+        """Generate synthetic covariance matrix from eigenvalue spectrum."""
         # Get random eigenvalue spectrum
         eigenvals = SpectrumGenerator.random_spectrum(self.config.n_assets)
 
@@ -114,7 +114,7 @@ class CovarianceMatrixGenerator:
         return self._ensure_positive_definite(cov_matrix)
 
     def generate_gan_style_covariance(self) -> np.ndarray:
-        """Generate covariance matrix using GAN-style diverse patterns"""
+        """Generate covariance matrix using GAN-style diverse patterns."""
         # Create multiple random components and combine
         n = self.config.n_assets
 
@@ -140,7 +140,7 @@ class CovarianceMatrixGenerator:
         return self._ensure_positive_definite(cov_matrix)
 
     def generate_block_structured_covariance(self) -> np.ndarray:
-        """Generate block-structured covariance (sector-based)"""
+        """Generate block-structured covariance (sector-based)."""
         n = self.config.n_assets
         n_blocks = np.random.randint(5, 15)  # 5-15 sectors
 
@@ -177,7 +177,7 @@ class CovarianceMatrixGenerator:
         return self._ensure_positive_definite(cov_matrix)
 
     def generate_real_data_based_covariance(self) -> np.ndarray:
-        """Generate covariance based on real market data patterns"""
+        """Generate covariance based on real market data patterns."""
         # Look for CSV files with market data
         csv_files = self._find_market_data_files()
 
@@ -194,7 +194,7 @@ class CovarianceMatrixGenerator:
         return self._generate_market_like_covariance()
 
     def _generate_random_correlation(self) -> np.ndarray:
-        """Generate random correlation matrix"""
+        """Generate random correlation matrix."""
         # Use Wishart distribution approach
         n = self.config.n_assets
         A = np.random.randn(n, n + OVERDETERMINED_EXTRA_COLUMNS)  # Overdetermined for stability
@@ -212,7 +212,7 @@ class CovarianceMatrixGenerator:
         return self._ensure_positive_definite(corr)
 
     def _random_block_sizes(self, n_assets: int, n_blocks: int) -> list[int]:
-        """Generate random block sizes that sum to n_assets"""
+        """Generate random block sizes that sum to n_assets."""
         # Generate random splits
         splits = sorted(np.random.choice(n_assets - 1, n_blocks - 1, replace=False))
         splits = [0] + list(splits) + [n_assets]
@@ -222,7 +222,7 @@ class CovarianceMatrixGenerator:
         return [max(1, size) for size in block_sizes if size > 0]  # Ensure positive sizes
 
     def _generate_sector_volatilities(self, block_sizes: list[int]) -> np.ndarray:
-        """Generate realistic sector-based volatilities"""
+        """Generate realistic sector-based volatilities."""
         volatilities = []
 
         for block_size in block_sizes:
@@ -234,7 +234,7 @@ class CovarianceMatrixGenerator:
         return np.array(volatilities)
 
     def _find_market_data_files(self) -> list[str]:
-        """Find CSV files that might contain market data"""
+        """Find CSV files that might contain market data."""
         base_path = Path(__file__).parent.parent.parent
         csv_files = []
 
@@ -261,7 +261,7 @@ class CovarianceMatrixGenerator:
         return market_files[:5]  # Limit to first 5 files
 
     def _bootstrap_from_real_data(self, data: pd.DataFrame) -> np.ndarray:
-        """Bootstrap covariance matrix from real market data"""
+        """Bootstrap covariance matrix from real market data."""
         # Calculate returns
         returns = data.pct_change().dropna() if len(data) > 1 else data
 
@@ -280,7 +280,7 @@ class CovarianceMatrixGenerator:
         return self._ensure_positive_definite(cov_matrix)
 
     def _generate_market_like_covariance(self) -> np.ndarray:
-        """Generate covariance matrix with realistic market properties"""
+        """Generate covariance matrix with realistic market properties."""
         # Use mixed regime eigenvalues
         eigenvals = SpectrumGenerator.mixed_regime(self.config.n_assets, np.random.randint(5, 15))
 
@@ -296,7 +296,7 @@ class CovarianceMatrixGenerator:
         return self._ensure_positive_definite(cov_matrix)
 
     def _generate_market_volatilities(self) -> np.ndarray:
-        """Generate realistic market volatility distribution"""
+        """Generate realistic market volatility distribution."""
         # Most assets have moderate volatility, few have high volatility
         n = self.config.n_assets
 
@@ -314,7 +314,7 @@ class CovarianceMatrixGenerator:
         return volatilities / np.sqrt(252)  # Daily to annual conversion
 
     def _resize_covariance_matrix(self, cov_matrix: np.ndarray, target_size: int) -> np.ndarray:
-        """Resize covariance matrix to target dimensions"""
+        """Resize covariance matrix to target dimensions."""
         current_size = cov_matrix.shape[0]
 
         if current_size == target_size:
@@ -348,7 +348,7 @@ class CovarianceMatrixGenerator:
             return expanded
 
     def _ensure_positive_definite(self, matrix: np.ndarray) -> np.ndarray:
-        """Ensure matrix is positive definite"""
+        """Ensure matrix is positive definite."""
         # Symmetrize
         matrix = (matrix + matrix.T) / 2
 
@@ -366,7 +366,7 @@ class CovarianceMatrixGenerator:
         return matrix
 
     def add_sampling_noise(self, cov_matrix: np.ndarray) -> np.ndarray:
-        """Add realistic sampling noise to covariance matrix"""
+        """Add realistic sampling noise to covariance matrix."""
         n = cov_matrix.shape[0]
 
         # Generate noise matrix
@@ -384,7 +384,7 @@ class CovarianceMatrixGenerator:
 
     def generate_diverse_training_set(self) -> list[np.ndarray]:
         """Generate diverse training set of 30,000 covariance matrices
-        Using multiple generation methods for maximum diversity
+        Using multiple generation methods for maximum diversity.
         """
         print(
             f"Generating {self.config.n_samples} diverse covariance matrices "
@@ -442,7 +442,7 @@ class CovarianceMatrixGenerator:
 
 
 def main():
-    """Demo function to generate diverse covariance training set"""
+    """Demo function to generate diverse covariance training set."""
     config = CovarianceConfig(n_assets=500, n_samples=30000, random_seed=42)
 
     generator = CovarianceMatrixGenerator(config)

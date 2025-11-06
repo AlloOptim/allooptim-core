@@ -1,7 +1,7 @@
 """LIGHTWEIGHT OPTIMIZER
 Training time: Seconds
 Min data: 61 periods
-Suitable for: Production, daily rebalancing, quick experiments
+Suitable for: Production, daily rebalancing, quick experiments.
 """
 
 import logging

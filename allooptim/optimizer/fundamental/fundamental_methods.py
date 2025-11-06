@@ -1,6 +1,6 @@
 """Pure Fundamental-Based Portfolio Allocation
 Uses 5 key fundamental metrics to determine portfolio weights
-No price data, returns, or covariance analysis
+No price data, returns, or covariance analysis.
 """
 
 import logging
@@ -21,7 +21,7 @@ MINIMUM_WEIGHT_DISPLAY_THRESHOLD = 0.001  # 0.1% minimum weight to display
 
 
 class FundamentalData(BaseModel):
-    """Fundamental data for a single ticker"""
+    """Fundamental data for a single ticker."""
 
     model_config = DEFAULT_PYDANTIC_CONFIG
 
@@ -34,7 +34,7 @@ class FundamentalData(BaseModel):
 
     @property
     def is_valid(self) -> bool:
-        """Determine if this fundamental data is valid"""
+        """Determine if this fundamental data is valid."""
         return any(
             [
                 self.market_cap is not None,
@@ -47,7 +47,7 @@ class FundamentalData(BaseModel):
 
 
 class BalancedFundamentalConfig(BaseModel):
-    """Configuration for fundamental analysis weights"""
+    """Configuration for fundamental analysis weights."""
 
     model_config = DEFAULT_PYDANTIC_CONFIG
 
@@ -83,7 +83,7 @@ class BalancedFundamentalConfig(BaseModel):
 
     @model_validator(mode="after")
     def validate_weights(self):
-        """Validate that weights sum to 1.0"""
+        """Validate that weights sum to 1.0."""
         total = (
             self.market_cap_weight
             + self.roe_weight
@@ -98,7 +98,7 @@ class BalancedFundamentalConfig(BaseModel):
 
 
 class QualityGrowthFundamentalConfig(BalancedFundamentalConfig):
-    """Configuration favoring quality growth stocks"""
+    """Configuration favoring quality growth stocks."""
 
     market_cap_weight: float = 0.20
     roe_weight: float = 0.40
@@ -111,7 +111,7 @@ class QualityGrowthFundamentalConfig(BalancedFundamentalConfig):
 
 
 class ValueInvestingFundamentalConfig(BalancedFundamentalConfig):
-    """Configuration favoring value investing"""
+    """Configuration favoring value investing."""
 
     market_cap_weight: float = 0.15
     roe_weight: float = 0.30
@@ -124,7 +124,7 @@ class ValueInvestingFundamentalConfig(BalancedFundamentalConfig):
 
 
 class OnlyMarketCapFundamentalConfig(BalancedFundamentalConfig):
-    """Configuration favoring market cap"""
+    """Configuration favoring market cap."""
 
     market_cap_weight: float = 1.0
     roe_weight: float = 0.0
@@ -134,7 +134,7 @@ class OnlyMarketCapFundamentalConfig(BalancedFundamentalConfig):
 
 
 def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 1000) -> list[FundamentalData]:
-    """Download fundamental data for multiple stocks using batch processing
+    """Download fundamental data for multiple stocks using batch processing.
 
     Args:
         tickers: list of ticker symbols to fetch data for
@@ -215,7 +215,7 @@ def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 
 
 
 def normalize_metric(values: np.ndarray, inverse: bool = False) -> np.ndarray:
-    """Normalize values to 0-1 range using min-max normalization
+    """Normalize values to 0-1 range using min-max normalization.
 
     Args:
         values: Array of metric values
@@ -258,7 +258,7 @@ def normalize_metric(values: np.ndarray, inverse: bool = False) -> np.ndarray:
 
 
 def calculate_fundamental_scores(fundamentals: list[FundamentalData], config: BalancedFundamentalConfig) -> np.ndarray:
-    """Calculate composite fundamental scores for each stock
+    """Calculate composite fundamental scores for each stock.
 
     Args:
         fundamentals: list of FundamentalData objects
@@ -298,7 +298,7 @@ def allocate(
     today: datetime,
     config: BalancedFundamentalConfig,
 ) -> np.ndarray:
-    """Allocate portfolio weights based purely on fundamental data
+    """Allocate portfolio weights based purely on fundamental data.
 
     Uses 5 fundamental metrics:
     1. Market Cap - Company size and stability

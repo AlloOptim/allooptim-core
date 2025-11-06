@@ -45,7 +45,7 @@ MIN_PRICE_OBSERVATIONS_FOR_RETURNS = 2
 
 
 class BaseMLOptimizerConfig(BaseModel):
-    """Configuration parameters for ML-based optimizers"""
+    """Configuration parameters for ML-based optimizers."""
 
     model_config = DEFAULT_PYDANTIC_CONFIG
     update_timedelta: timedelta = timedelta(days=1)

@@ -58,11 +58,11 @@ class AbstractOptimizer(ABC):
         self,
         df_prices: Optional[pd.DataFrame] = None,
     ) -> None:
-        """Optional setup method to prepare the optimizer with historical data"""
+        """Optional setup method to prepare the optimizer with historical data."""
         pass
 
     def reset(self) -> None:
-        """Optional method to reset any internal state of the optimizer"""
+        """Optional method to reset any internal state of the optimizer."""
         self.__init__()
 
     @abstractmethod
@@ -110,11 +110,11 @@ class AbstractEnsembleOptimizer(ABC):
         self,
         df_prices: Optional[pd.DataFrame] = None,
     ) -> None:
-        """Optional setup method to prepare the optimizer with historical data"""
+        """Optional setup method to prepare the optimizer with historical data."""
         pass
 
     def reset(self) -> None:
-        """Optional method to reset any internal state of the optimizer"""
+        """Optional method to reset any internal state of the optimizer."""
         self.__init__()
 
     @abstractmethod

@@ -1,4 +1,4 @@
-"""Equal Weight A2A Orchestrator
+"""Equal Weight A2A Orchestrator.
 
 Simplest orchestrator that calls each optimizer once and combines results with equal weights.
 """

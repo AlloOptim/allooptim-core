@@ -42,14 +42,14 @@ class ClusterResult:
 
 
 class ObjectiveType(Enum):
-    """Optimization objectives"""
+    """Optimization objectives."""
 
     SHARPE = "sharpe"
     VARIANCE = "variance"
 
 
 def compute_corr(cov: np.ndarray) -> np.ndarray:
-    """Normalize covariance matrix into a correlation matrix
+    """Normalize covariance matrix into a correlation matrix.
 
     Args:
         cov: covariance matrix of daily returns
@@ -110,7 +110,7 @@ class NCOOptimizerConfig(BaseModel):
 
 class NCOSharpeOptimizer(AbstractOptimizer):
     """optimal portfolio allocation using Nested Clustered Optimization algorithm
-    (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3469961)
+    (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3469961).
 
     Attributes:
         _returns: daily returns
@@ -187,7 +187,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         returns: np.ndarray,
         cov: np.ndarray,
     ) -> np.ndarray:
-        """Computes the optimal weights using the NCO algorithm
+        """Computes the optimal weights using the NCO algorithm.
 
         Args:
             objective: "sharpe" for maximum sharpe ratio, and "variance"
@@ -272,7 +272,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 
     def _cluster_assets(self) -> None:
         """Groups assets into clusters using k means, using silhoueete scores
-        to find the optimal number of clusters
+        to find the optimal number of clusters.
 
         Args:
             max_num_clusters: maximum number of clusters allowed

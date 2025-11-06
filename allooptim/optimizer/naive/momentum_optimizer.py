@@ -34,7 +34,7 @@ class MomentumOptimizerConfig(BaseModel):
 
 
 class MomentumOptimizer(AbstractOptimizer):
-    """Optimizer based on the naive momentum"""
+    """Optimizer based on the naive momentum."""
 
     def __init__(self, config: Optional[MomentumOptimizerConfig] = None) -> None:
         """Initialize the momentum optimizer.
@@ -106,7 +106,7 @@ class MomentumOptimizer(AbstractOptimizer):
 
 
 class EMAMomentumOptimizer(MomentumOptimizer):
-    """Optimizer based on the naive momentum with EMA"""
+    """Optimizer based on the naive momentum with EMA."""
 
     def __init__(self, config: Optional[MomentumOptimizerConfig] = None) -> None:
         """Initialize the EMA momentum optimizer.

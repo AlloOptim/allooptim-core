@@ -277,9 +277,7 @@ class BacktestEngine:
             for opt_alloc in result.optimizer_allocations:
                 weights_history[opt_alloc.optimizer_name].append(opt_alloc.weights)
 
-        # Memory/time tracking removed in new A2A architecture
-        memory_stats = {name: [] for name in optimizer_names}
-        time_stats = {name: [] for name in optimizer_names}
+
 
         # Calculate performance for each optimizer
         results = {}

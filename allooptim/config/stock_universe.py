@@ -73,7 +73,7 @@ MISSING_ON_ALPACA = [
 
 
 def list_of_dax_stocks() -> list[StockUniverse]:
-    """List of DAX40 stocks with their Wikipedia names"""
+    """List of DAX40 stocks with their Wikipedia names."""
     dax_stocks = [
         StockUniverse("ADS.DE", "Adidas AG", "Adidas", "Consumer Discretionary"),
         StockUniverse("ALV.DE", "Allianz SE", "Allianz", "Financials"),
@@ -119,7 +119,7 @@ def list_of_dax_stocks() -> list[StockUniverse]:
 
 
 def get_sp500_companies_1() -> list[StockUniverse]:
-    """List of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names."""
     stocks_1 = [
         # Companies 101-200 (Sorted by original index)
         StockUniverse(
@@ -282,7 +282,7 @@ def get_sp500_companies_1() -> list[StockUniverse]:
 
 
 def get_sp500_companies_0() -> list[StockUniverse]:
-    """List of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names."""
     stocks = [
         StockUniverse("AOS", "A O Smith Corp", "A. O. Smith", "Industrials"),
         StockUniverse("ABT", "Abbott Laboratories", "Abbott Laboratories", "Health Care"),
@@ -478,7 +478,7 @@ def get_sp500_companies_0() -> list[StockUniverse]:
 
 
 def get_sp500_companies_2() -> list[StockUniverse]:
-    """List of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names."""
     stocks = [
         # Companies 201-300 (Sorted by original index)
         StockUniverse("FLT", "Fleetcor Technologies Inc", "FLEETCOR", "Financials"),
@@ -646,7 +646,7 @@ def get_sp500_companies_2() -> list[StockUniverse]:
 
 
 def get_sp500_companies_3() -> list[StockUniverse]:
-    """List of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names."""
     stocks = [
         # Companies 301-400 (M-R)
         StockUniverse(
@@ -869,7 +869,7 @@ def get_sp500_companies_3() -> list[StockUniverse]:
 
 
 def get_sp500_companies_4() -> list[StockUniverse]:
-    """List of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names."""
     stocks = [
         # Companies 401-500 (R-Z)
         StockUniverse("ROK", "Rockwell Automation Inc", "Rockwell Automation", "Industrials"),
@@ -1072,7 +1072,7 @@ def get_sp500_companies_4() -> list[StockUniverse]:
 
 
 def get_sp500_companies_5() -> list[StockUniverse]:
-    """List of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names."""
     stocks = [
         # Companies 501-503 (Z)
         StockUniverse(
@@ -1088,7 +1088,7 @@ def get_sp500_companies_5() -> list[StockUniverse]:
 
 
 def list_major_sp500_stocks() -> list[StockUniverse]:
-    """Major S&P500 companies with verified Wikipedia names"""
+    """Major S&P500 companies with verified Wikipedia names."""
     sp500_stocks = [
         # Technology
         StockUniverse("AAPL", "Apple Inc.", "Apple Inc.", "Information Technology"),

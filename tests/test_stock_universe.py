@@ -18,7 +18,7 @@ from allooptim.config.stock_universe import (
 
 @pytest.fixture
 def all_stocks():
-    """Fixture that combines all stock lists for comprehensive testing"""
+    """Fixture that combines all stock lists for comprehensive testing."""
     dax_stocks = list_of_dax_stocks()
     major_sp500 = list_major_sp500_stocks()
     sp500_0 = get_sp500_companies_0()
@@ -32,7 +32,7 @@ def all_stocks():
 
 
 def test_stock_dataclass_structure(all_stocks):
-    """Test that each stock object is a valid StockUniverse dataclass with exactly the defined fields"""
+    """Test that each stock object is a valid StockUniverse dataclass with exactly the defined fields."""
     expected_fields = {field.name for field in fields(StockUniverse)}
 
     for stock in all_stocks:
@@ -51,6 +51,6 @@ def test_stock_dataclass_structure(all_stocks):
 
 
 def test_industry_names(all_stocks):
-    """Test that all industry names are from the predefined INDUSTRY_NAMES list"""
+    """Test that all industry names are from the predefined INDUSTRY_NAMES list."""
     for stock in all_stocks:
         assert stock.industry in INDUSTRY_NAMES, f"Stock {stock.symbol} has invalid industry name: {stock.industry}"

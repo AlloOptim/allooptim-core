@@ -1,4 +1,4 @@
-"""Pydantic models for A2A result structures - Phase 3: Result Structure Refinement
+"""Pydantic models for A2A result structures - Phase 3: Result Structure Refinement.
 
 This module defines nested Pydantic models to eliminate dict usage in favor of
 structured, type-safe result objects as specified in the future A2A architecture.

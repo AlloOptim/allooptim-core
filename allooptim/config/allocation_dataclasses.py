@@ -75,7 +75,7 @@ class AllocationResult(BaseModel):
 
 
 class AllocationStatisticsResult(BaseModel):
-    """Statistics from allocation operations"""
+    """Statistics from allocation operations."""
 
     returns: dict[str, float]
     volatilities: dict[str, float]

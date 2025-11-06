@@ -42,7 +42,7 @@ class HigherMomentsOptimizerConfig(BaseModel):
 
 
 class HigherMomentOptimizer(AbstractOptimizer):
-    """Higher-Moment Portfolio Optimizer (Skewness-Kurtosis)
+    """Higher-Moment Portfolio Optimizer (Skewness-Kurtosis).
 
     Goes beyond mean-variance by incorporating third and fourth moments:
     - L-skewness (τ3): Measures asymmetry - positive values indicate upside potential
@@ -136,7 +136,7 @@ class HigherMomentOptimizer(AbstractOptimizer):
         return create_weights_series(optimal_weights, asset_names)
 
     def _objective(self, x: np.ndarray) -> float:
-        """Objective function: minimize -(E[R] - λ*Var + α*Skew - β*Kurt)
+        """Objective function: minimize -(E[R] - λ*Var + α*Skew - β*Kurt).
 
         We negate because scipy.optimize.minimize minimizes the objective.
         """

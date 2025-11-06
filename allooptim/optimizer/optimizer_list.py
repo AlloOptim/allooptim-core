@@ -1,4 +1,4 @@
-"""Enhanced Allocation Workflow
+"""Enhanced Allocation Workflow.
 
 Clean orchestration of the complete allocation-to-allocators process.
 Integrates MCOS simulation with allocation optimization.

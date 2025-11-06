@@ -1,4 +1,4 @@
-"""Wikipedia Pipeline A2A Orchestrator
+"""Wikipedia Pipeline A2A Orchestrator.
 
 Orchestrator that combines Wikipedia-based stock pre-selection with portfolio optimization.
 """

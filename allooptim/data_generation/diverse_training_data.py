@@ -1,6 +1,6 @@
 """Diverse Covariance Matrix Training Data Generation Module
 Generates 50,000 diverse synthetic correlation matrices using multiple methods
-for enhanced autoencoder training
+for enhanced autoencoder training.
 """
 
 import random
@@ -115,7 +115,7 @@ DIVERSITY_SAMPLE_SIZE = 10
 
 @dataclass
 class DiverseTrainingConfig:
-    """Configuration for diverse training data generation"""
+    """Configuration for diverse training data generation."""
 
     n_samples: int = DEFAULT_N_SAMPLES
     n_assets: int = DEFAULT_N_ASSETS
@@ -134,7 +134,7 @@ class DiverseTrainingConfig:
 
 
 class DiverseCorrelationGenerator:
-    """Enhanced correlation matrix generator with multiple diverse methods"""
+    """Enhanced correlation matrix generator with multiple diverse methods."""
 
     def __init__(self, config: DiverseTrainingConfig = None):
         """Initialize the diverse correlation generator.
@@ -147,7 +147,7 @@ class DiverseCorrelationGenerator:
         random.seed(self.config.random_seed)
 
     def random_spectrum_generation(self) -> np.ndarray:
-        """Generate diverse eigenvalue spectra using various distributions
+        """Generate diverse eigenvalue spectra using various distributions.
 
         Returns:
             Array of eigenvalues (normalized to sum to n_assets)
@@ -186,7 +186,7 @@ class DiverseCorrelationGenerator:
         return eigenvals
 
     def random_correlation_matrix(self, N: int, spectrum: np.ndarray = None) -> np.ndarray:
-        """Generate correlation matrix from spectrum using random orthogonal basis
+        """Generate correlation matrix from spectrum using random orthogonal basis.
 
         Args:
             N: Matrix dimension
@@ -206,7 +206,7 @@ class DiverseCorrelationGenerator:
 
     def corrgan_style_generation(self, N: int) -> np.ndarray:
         """Simulate GAN-style generation with more complex patterns
-        Mimics what a CorrGAN might produce with diverse structures
+        Mimics what a CorrGAN might produce with diverse structures.
 
         Args:
             N: Matrix dimension
@@ -231,7 +231,7 @@ class DiverseCorrelationGenerator:
             return self._generate_noisy_factor_model(N)
 
     def _generate_hierarchical_structure(self, N: int) -> np.ndarray:
-        """Generate hierarchical correlation structure"""
+        """Generate hierarchical correlation structure."""
         # Create base correlation with distance-based decay
         positions = np.random.uniform(0, 1, N)  # Random positions on [0,1]
         distances = np.abs(positions[:, None] - positions[None, :])
@@ -269,7 +269,7 @@ class DiverseCorrelationGenerator:
         return eigenvecs @ np.diag(eigenvals) @ eigenvecs.T
 
     def _generate_random_blocks(self, N: int) -> np.ndarray:
-        """Generate random block structure"""
+        """Generate random block structure."""
         n_blocks = random.randint(BLOCKS_MIN, BLOCKS_MAX)
         block_sizes = np.random.multinomial(N, np.ones(n_blocks) / n_blocks)
         block_sizes = block_sizes[block_sizes > 0]  # Remove zero-size blocks
@@ -304,7 +304,7 @@ class DiverseCorrelationGenerator:
         return eigenvecs @ np.diag(eigenvals) @ eigenvecs.T
 
     def _generate_smooth_interpolation(self, N: int) -> np.ndarray:
-        """Generate smooth interpolation between different patterns"""
+        """Generate smooth interpolation between different patterns."""
         # Create two different correlation patterns
         eigenvals1 = SpectrumGenerator.exponential_decay(N, decay_rate=1.0)
         eigenvals2 = SpectrumGenerator.power_law(N, exponent=2.0)
@@ -326,7 +326,7 @@ class DiverseCorrelationGenerator:
         return eigenvecs @ np.diag(eigenvals) @ eigenvecs.T
 
     def _generate_noisy_factor_model(self, N: int) -> np.ndarray:
-        """Generate noisy factor model with additional complexity"""
+        """Generate noisy factor model with additional complexity."""
         n_factors = random.randint(N_FACTORS_MIN, min(N_FACTORS_MAX_RATIO, N // N_FACTORS_MAX_RATIO))
 
         # Random factor loadings
@@ -363,7 +363,7 @@ class DiverseCorrelationGenerator:
 
     def bootstrap_sample(self, N: int) -> np.ndarray:
         """Generate correlation matrix based on realistic market patterns
-        Simulates bootstrap sampling from real financial data
+        Simulates bootstrap sampling from real financial data.
 
         Args:
             N: Matrix dimension
@@ -412,7 +412,7 @@ class DiverseCorrelationGenerator:
         return eigenvecs @ np.diag(eigenvals) @ eigenvecs.T
 
     def _generate_sector_effects(self, N: int) -> np.ndarray:
-        """Generate sector-based correlation effects"""
+        """Generate sector-based correlation effects."""
         n_sectors = random.randint(SECTORS_MIN, SECTORS_MAX)
         sector_assignments = np.random.randint(0, n_sectors, N)
 
@@ -427,7 +427,7 @@ class DiverseCorrelationGenerator:
         return sector_corr + sector_corr.T
 
     def _generate_sector_rotation_pattern(self, N: int) -> np.ndarray:
-        """Generate sector rotation correlation pattern"""
+        """Generate sector rotation correlation pattern."""
         n_sectors = random.randint(SECTOR_ROTATION_SECTORS_MIN, SECTOR_ROTATION_SECTORS_MAX)
         sector_size = N // n_sectors
 
@@ -455,7 +455,7 @@ class DiverseCorrelationGenerator:
         return corr_matrix + corr_matrix.T
 
     def generate_block_structure(self, N: int, n_blocks: int = None) -> np.ndarray:
-        """Generate block-structured correlation matrix (sectors)
+        """Generate block-structured correlation matrix (sectors).
 
         Args:
             N: Matrix dimension
@@ -533,7 +533,7 @@ class DiverseCorrelationGenerator:
 
     def add_sampling_noise(self, C: np.ndarray) -> np.ndarray:
         """Add finite sample estimation noise to correlation matrix
-        Simulates the noise that comes from estimating correlations from limited data
+        Simulates the noise that comes from estimating correlations from limited data.
 
         Args:
             C: Input correlation matrix
@@ -570,7 +570,7 @@ class DiverseCorrelationGenerator:
 
     def generate_diverse_training_set(self, n_samples: int = None) -> list[np.ndarray]:
         """Kombiniert mehrere Methoden für Diversität
-        Generates diverse training set with multiple methods
+        Generates diverse training set with multiple methods.
 
         Args:
             n_samples: Number of samples to generate (uses config default if None)
@@ -646,7 +646,7 @@ class DiverseCorrelationGenerator:
 
 
 def validate_training_data(training_data: list[np.ndarray], sample_size: int = VALIDATION_SAMPLE_SIZE) -> dict:
-    """Validate the diversity and quality of generated training data
+    """Validate the diversity and quality of generated training data.
 
     Args:
         training_data: list of correlation matrices
