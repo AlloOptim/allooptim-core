@@ -9,35 +9,50 @@ from allooptim.optimizer.allocation_metric import LMoments
 
 class AbstractOptimizer(ABC):
     """
-    Abstract base class for portfolio optimization algorithms with pandas interface.
+    Abstract base class for all portfolio optimization algorithms.
 
-    This interface defines the standard contract for all portfolio optimizers in the system.
-    All optimizers work with pandas Series/DataFrame inputs to provide direct access to asset
-    names and maintain data integrity throughout the optimization process.
+    All optimizers in AlloOptim inherit from this class and implement the
+    `allocate()` method to compute portfolio weights. This ensures a consistent
+    interface across different optimization strategies.
 
-    Key Features:
-        - Asset name accessibility via mu.index and cov.columns
-        - Automatic asset name validation and consistency checks
-        - Pandas-based interface for seamless data manipulation
-        - Consistent return format with preserved asset identities
+    The optimizer interface is designed for flexibility and composability:
+    - Supports various risk metrics (variance, CVaR, max drawdown, L-moments)
+    - Handles missing data and edge cases gracefully
+    - Maintains asset name consistency throughout pipeline
+    - Enables warm-start optimization for performance
+
+    Subclassing Guide:
+        1. Inherit from AbstractOptimizer
+        2. Implement allocate() method
+        3. Implement name property
+        4. Add configuration via Pydantic BaseModel
+        5. Register config in optimizer registry
 
     Examples:
-        Basic optimizer usage with asset name access:
+        Creating a simple optimizer:
 
-        >>> optimizer = MaxSharpeOptimizer()
-        >>> weights = optimizer.allocate(mu, cov)
-        >>> asset_names = weights.index.tolist()  # Direct access to asset names
-        >>> for asset, weight in weights.items():
-        ...     print(f"{asset}: {weight:.3f}")
-        AAPL: 0.250
-        GOOGL: 0.300
+        >>> class MyOptimizer(AbstractOptimizer):
+        ...     def allocate(self, ds_mu, df_cov, **kwargs):
+        ...         # Equal-weight allocation
+        ...         n = len(ds_mu)
+        ...         return pd.Series(1/n, index=ds_mu.index)
         ...
+        ...     @property
+        ...     def name(self) -> str:
+        ...         return "MyOptimizer"
 
-        Accessing asset names from inputs:
+        Using an existing optimizer:
 
-        >>> available_assets = mu.index.tolist()  # From expected returns
-        >>> covariance_assets = cov.columns.tolist()  # From covariance matrix
-        >>> # Both should be identical for valid inputs
+        >>> from allooptim.optimizer.efficient_frontier import EfficientFrontierOptimizer
+        >>> optimizer = EfficientFrontierOptimizer(risk_aversion=2.0)
+        >>> weights = optimizer.allocate(expected_returns, covariance_matrix)
+        >>> print(weights.sum())  # Should be 1.0
+        1.0
+
+    See Also:
+        - :class:`AbstractEnsembleOptimizer`: Base class for ensemble methods
+        - :mod:`allooptim.optimizer.optimizer_list`: Available optimizer catalog
+        - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities
     """
 
     def fit(

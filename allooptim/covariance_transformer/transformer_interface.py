@@ -6,19 +6,36 @@ import pandas as pd
 
 class AbstractCovarianceTransformer(ABC):
     """
-    Abstract base class for covariance matrix transformations with asset name preservation.
+    Abstract base class for all covariance matrix transformations.
 
-    Covariance transformers apply various statistical techniques to improve covariance matrix
-    estimates, such as shrinkage, noise filtering, or dimensionality reduction. All transformers
-    maintain asset name consistency and return properly formatted pandas DataFrames.
+    Covariance transformers improve covariance matrix estimates through statistical techniques
+    like shrinkage, denoising, or regularization. This ensures better-conditioned matrices
+    for portfolio optimization, especially with limited historical data.
+
+    The transformer interface maintains asset name consistency and provides a standardized
+    approach to covariance preprocessing across different optimization strategies.
+
+    Subclassing Guide:
+        1. Inherit from AbstractCovarianceTransformer
+        2. Implement transform() method
+        3. Optionally implement fit() for data-dependent transformations
+        4. Ensure asset names are preserved in output DataFrame
 
     Examples:
-        Basic usage with asset name preservation:
+        Basic transformer usage:
 
-        >>> transformer = SimpleShrinkageCovarianceTransformer(shrinkage=0.2)
-        >>> cov_clean = transformer.transform(cov_matrix, n_observations=252)
-        >>> print(cov_clean.index.tolist())  # Asset names preserved
-        ['AAPL', 'GOOGL', 'MSFT', ...]
+        >>> transformer = SimpleShrinkageCovarianceTransformer(shrinkage=0.3)
+        >>> clean_cov = transformer.transform(sample_cov, n_observations=60)
+
+        Fitting transformer to data:
+
+        >>> transformer.fit(historical_prices)
+        >>> clean_cov = transformer.transform(sample_cov)
+
+    See Also:
+        - :class:`SimpleShrinkageCovarianceTransformer`: Basic shrinkage estimation
+        - :class:`LedoitWolfCovarianceTransformer`: Optimal shrinkage
+        - :mod:`allooptim.covariance_transformer`: Available transformers
     """
 
     def fit(self, df_prices: pd.DataFrame) -> None:
