@@ -7,7 +7,7 @@ Supports both default configs and custom parameter overrides.
 
 import logging
 from typing import List, Dict, Any, Optional
-
+from allooptim.optimizer.optimizer_config_registry import get_all_optimizer_configs
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 from allooptim.optimizer.optimizer_config_registry import (
     get_optimizer_class,
@@ -15,6 +15,7 @@ from allooptim.optimizer.optimizer_config_registry import (
     get_registered_optimizer_names,
     NAME_TO_OPTIMIZER_CLASS,
 )
+from allooptim.optimizer.optimizer_config_registry import get_optimizer_names_without_configs
 
 logger = logging.getLogger(__name__)
 
@@ -29,15 +30,11 @@ class OptimizerConfig:
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> "OptimizerConfig":
         """Create from dictionary representation."""
-        return cls(
-            optimizer_name=data["optimizer_name"],
-            params=data.get("params", {})
-        )
+        return cls(optimizer_name=data["optimizer_name"], params=data.get("params", {}))
 
 
 def get_optimizer_by_names_with_configs(
-    names: List[str],
-    optimizer_configs: Optional[List[OptimizerConfig]] = None
+    names: List[str], optimizer_configs: Optional[List[OptimizerConfig]] = None
 ) -> List[AbstractOptimizer]:
     """
     Enhanced factory function that creates optimizers with custom configurations.
@@ -113,10 +110,7 @@ def create_optimizer_config_template(optimizer_name: str) -> Dict[str, Any]:
         available = list(NAME_TO_OPTIMIZER_CLASS.keys())
         raise ValueError(f"Unknown optimizer '{optimizer_name}'. Available optimizers: {available}")
 
-    return {
-        "optimizer_name": optimizer_name,
-        "params": {}
-    }
+    return {"optimizer_name": optimizer_name, "params": {}}
 
 
 def get_available_optimizer_configs() -> Dict[str, Dict[str, Any]]:
@@ -126,7 +120,6 @@ def get_available_optimizer_configs() -> Dict[str, Dict[str, Any]]:
     Returns:
         Dictionary mapping optimizer names to their config schema info
     """
-    from allooptim.optimizer.optimizer_config_registry import get_all_optimizer_configs
 
     result = {}
     configs = get_all_optimizer_configs()
@@ -137,17 +130,12 @@ def get_available_optimizer_configs() -> Dict[str, Dict[str, Any]]:
             "has_config": True,
             "schema": schema,
             "required_fields": schema.get("required", []),
-            "properties": schema.get("properties", {})
+            "properties": schema.get("properties", {}),
         }
 
     # Add optimizers without configs
-    from allooptim.optimizer.optimizer_config_registry import get_optimizer_names_without_configs
     for name in get_optimizer_names_without_configs():
-        result[name] = {
-            "has_config": False,
-            "schema": None,
-            "note": "This optimizer uses default configuration only"
-        }
+        result[name] = {"has_config": False, "schema": None, "note": "This optimizer uses default configuration only"}
 
     return result
 

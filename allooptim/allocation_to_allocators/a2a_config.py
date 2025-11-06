@@ -39,5 +39,5 @@ class A2AConfig(BaseModel):
         default=False,
         description="Allow partial investment (0 <= sum(asset_weights) <= 1)",
     )
-    
+
     model_config = ConfigDict(frozen=True)

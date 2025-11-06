@@ -150,7 +150,6 @@ class OptimizedOrchestrator(BaseOrchestrator):
             Tuple of (final_allocation, optimizer_allocations_list, optimizer_weights_list, metrics, optimizer_errors)
         """
 
-
         if len(self.optimizers) != len(allocator_weights):
             raise ValueError(f"Optimizer count {len(self.optimizers)} != weight count {len(allocator_weights)}")
 
@@ -180,7 +179,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 weights = optimizer.allocate(mu, cov_transformed, prices, time, l_moments)
                 if isinstance(weights, np.ndarray):
                     weights = weights.flatten()
-                
+
                 weights = np.array(weights)
                 if self.config.allow_partial_investment and np.sum(weights) > 0:
                     weights = weights / np.sum(weights)

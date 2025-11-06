@@ -35,7 +35,7 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
         end_date=datetime(2023, 1, 10),
         rebalance_frequency=5,
         lookback_days=5,  # Minimal lookback
-        optimizer_names=["NaiveOptimizer"],
+        optimizer_configs=["NaiveOptimizer"],
         transformer_names=["OracleCovarianceTransformer"],
         orchestration_type=OrchestratorType.AUTO,
     )

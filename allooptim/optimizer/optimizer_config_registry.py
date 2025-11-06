@@ -8,6 +8,7 @@ Provides type-safe access to optimizer configs for API and factory use.
 from typing import Type, Dict, Optional, get_type_hints, Any
 from pydantic import BaseModel
 import logging
+from allooptim.optimizer.optimizer_list import OPTIMIZER_LIST, get_all_optimizer_names
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,6 @@ def register_optimizer_configs():
     This function introspects each optimizer class to extract its config class
     from the __init__ method type hints.
     """
-    from allooptim.optimizer.optimizer_list import OPTIMIZER_LIST
 
     for optimizer_class in OPTIMIZER_LIST:
         try:
@@ -38,10 +38,10 @@ def register_optimizer_configs():
 
             # Extract config class from type hints
             hints = get_type_hints(optimizer_class.__init__)
-            if 'config' in hints:
-                config_type = hints['config']
+            if "config" in hints:
+                config_type = hints["config"]
                 # Handle Optional[ConfigClass] -> extract ConfigClass
-                if hasattr(config_type, '__args__'):
+                if hasattr(config_type, "__args__"):
                     actual_config_class = config_type.__args__[0]
                     if issubclass(actual_config_class, BaseModel):
                         OPTIMIZER_CONFIG_REGISTRY[name] = actual_config_class
@@ -102,7 +102,6 @@ def get_registered_optimizer_names() -> list[str]:
 
 def get_optimizer_names_without_configs() -> list[str]:
     """Get list of optimizer names that don't have registered configs."""
-    from allooptim.optimizer.optimizer_list import get_all_optimizer_names
     all_names = set(get_all_optimizer_names())
     registered_names = set(OPTIMIZER_CONFIG_REGISTRY.keys())
     return list(all_names - registered_names)
@@ -132,6 +131,6 @@ def get_optimizer_config_schema(optimizer_name: str) -> Dict[str, Any]:
 register_optimizer_configs()
 
 # Log registration summary
-logger.info(f"Registered {len(OPTIMIZER_CONFIG_REGISTRY)} optimizer configs")
+logger.debug(f"Registered {len(OPTIMIZER_CONFIG_REGISTRY)} optimizer configs")
 if unregistered := get_optimizer_names_without_configs():
-    logger.info(f"Optimizers without configs: {unregistered}")
+    logger.warning(f"Optimizers without configs: {unregistered}")

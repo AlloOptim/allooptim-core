@@ -102,7 +102,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 if self.config.allow_partial_investment and weights_sum > 0:
                     weights = weights / weights_sum  # Normalize
 
-
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(

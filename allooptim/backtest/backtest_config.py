@@ -27,9 +27,7 @@ class OptimizerConfig(BaseModel):
         """Validate that the optimizer name exists."""
         available_optimizers = get_all_optimizer_names()
         if v not in available_optimizers:
-            raise ValueError(
-                f"Invalid optimizer name: {v}. " f"Available optimizers: {available_optimizers}"
-            )
+            raise ValueError(f"Invalid optimizer name: {v}. " f"Available optimizers: {available_optimizers}")
         return v
 
     @field_validator("config", mode="before")
@@ -93,13 +91,7 @@ class BacktestConfig(BaseModel):
 
     # Optimizer and transformer names
     optimizer_configs: List[Union[str, OptimizerConfig]] = Field(
-        default=[
-            "RiskParityOptimizer",
-            "NaiveOptimizer",
-            "MomentumOptimizer",
-            "HRPOptimizer",
-            "NCOSharpeOptimizer"
-        ],
+        default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
         min_length=1,
         description="List of optimizer configurations. Can be optimizer names (strings) or OptimizerConfig objects with custom parameters",
     )
