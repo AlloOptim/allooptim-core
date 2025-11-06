@@ -28,7 +28,6 @@ def _simulate_optimization(
     use_optimal_observation: bool,
 ) -> np.ndarray:
     """Run single optimization simulation with allocation tracking"""
-
     try:
         # Generate observation
         if use_optimal_observation:
@@ -90,8 +89,7 @@ def simulate_optimizers_with_convergence(
     min_points_fraction: float = 0.1,
     run_all_steps: bool = True,
 ) -> np.ndarray:
-    """
-    Estimate expected returns with simple convergence detection.
+    """Estimate expected returns with simple convergence detection.
 
     Args:
         optimizer_list: List of optimizers to simulate
@@ -107,7 +105,6 @@ def simulate_optimizers_with_convergence(
     Returns:
         Array of expected returns for all time steps (n_time_steps, n_optimizers)
     """
-
     expected_return_all_time_steps = np.zeros((n_time_steps, n_optimizers))
 
     if run_all_steps:

@@ -20,6 +20,13 @@ PORTFOLIO_WEIGHT_SUM_LOWER_TOLERANCE = 0.999
 
 
 class HRPOptimizerConfig(BaseModel):
+    """Configuration for Hierarchical Risk Parity optimizer.
+
+    This config class holds parameters for the HRP optimizer. Currently minimal
+    as HRP typically doesn't require extensive configuration, but structured
+    for future extensibility.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     # HRP typically doesn't need many parameters, but adding for consistency
@@ -28,7 +35,21 @@ class HRPOptimizerConfig(BaseModel):
 
 
 class HRPOptimizer(AbstractOptimizer):
+    """Hierarchical Risk Parity optimizer for portfolio allocation.
+
+    This optimizer uses the Hierarchical Risk Parity (HRP) approach, which
+    constructs portfolios by considering the hierarchical structure of asset
+    correlations. It aims to provide better diversification by allocating
+    weights based on risk clustering rather than traditional mean-variance
+    optimization.
+    """
+
     def __init__(self, config: Optional[HRPOptimizerConfig] = None) -> None:
+        """Initialize the Hierarchical Risk Parity optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or HRPOptimizerConfig()
 
     def allocate(
@@ -39,6 +60,18 @@ class HRPOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio weights using Hierarchical Risk Parity optimization.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data (unused by HRP)
+            time: Current timestamp (unused by HRP)
+            l_moments: L-moments (unused by HRP)
+
+        Returns:
+            Portfolio weights as pandas Series with asset names as index
+        """
         # Validate asset names consistency
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
@@ -59,4 +92,9 @@ class HRPOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the Hierarchical Risk Parity optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "HRPOptimizer"

@@ -18,8 +18,7 @@ def calculate_robust_ema_moments(
     min_reasonable_return: float = -0.5,  # annually
     blend_factor: float = 0.3,  # Blend 30% simple with 70% EMA
 ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Calculate robust exponentially weighted moments from returns data.
+    """Calculate robust exponentially weighted moments from returns data.
 
     This implementation is more stable than PyPortfolioOpt's version and includes:
     - Proper exponential weighting of returns

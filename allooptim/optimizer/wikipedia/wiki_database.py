@@ -1,5 +1,4 @@
-"""
-Simple SQL-based data storage for Wikipedia page views, stock prices, and volumes.
+"""Simple SQL-based data storage for Wikipedia page views, stock prices, and volumes.
 
 This module provides a clean, simple interface for managing market data in SQLite databases
 with manual control over data downloading and loading.
@@ -375,8 +374,7 @@ def _load_from_database(
 
 
 def status_report_databases() -> dict[str, Any]:
-    """
-    Read-only status report of all three databases.
+    """Read-only status report of all three databases.
 
     Returns:
         Dictionary with statistics for wiki_views, stock_prices, and stock_volumes tables
@@ -403,8 +401,7 @@ def status_report_databases() -> dict[str, Any]:
 
 
 def download_data(start_date: datetime, end_date: datetime, stocks: list[StockUniverse]) -> None:
-    """
-    B) Manual data download/update function (incremental).
+    """B) Manual data download/update function (incremental).
 
     Args:
         start_date: Start date for data download
@@ -449,8 +446,7 @@ def load_data(
     use_wiki_database: bool,
     database_path: Optional[Path] = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-    """
-    Load data from SQL database or fetch fresh from APIs.
+    """Load data from SQL database or fetch fresh from APIs.
 
     Args:
         start_date: Start date for data

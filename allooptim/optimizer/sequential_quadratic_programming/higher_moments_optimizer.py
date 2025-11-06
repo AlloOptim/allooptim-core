@@ -25,6 +25,12 @@ DIVISION_BY_ZERO_TOLERANCE = 1e-10
 
 
 class HigherMomentsOptimizerConfig(BaseModel):
+    """Configuration for higher moments optimizer.
+
+    This config holds parameters for the higher moments optimizer including
+    weights for skewness and kurtosis terms, risk aversion, and L-moments usage.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     alpha_skew: float = Field(default=1.0, ge=0.0, description="Weight for L-skewness (positive skew is good)")
@@ -36,8 +42,7 @@ class HigherMomentsOptimizerConfig(BaseModel):
 
 
 class HigherMomentOptimizer(AbstractOptimizer):
-    """
-    Higher-Moment Portfolio Optimizer (Skewness-Kurtosis)
+    """Higher-Moment Portfolio Optimizer (Skewness-Kurtosis)
 
     Goes beyond mean-variance by incorporating third and fourth moments:
     - L-skewness (τ3): Measures asymmetry - positive values indicate upside potential
@@ -54,6 +59,11 @@ class HigherMomentOptimizer(AbstractOptimizer):
     """
 
     def __init__(self, config: Optional[HigherMomentsOptimizerConfig] = None) -> None:
+        """Initialize the higher moments optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or HigherMomentsOptimizerConfig()
 
         # Store moment data for optimization
@@ -72,8 +82,7 @@ class HigherMomentOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Allocate portfolio weights using higher moment optimization.
+        """Allocate portfolio weights using higher moment optimization.
 
         Args:
             ds_mu: Expected returns for each asset
@@ -127,8 +136,7 @@ class HigherMomentOptimizer(AbstractOptimizer):
         return create_weights_series(optimal_weights, asset_names)
 
     def _objective(self, x: np.ndarray) -> float:
-        """
-        Objective function: minimize -(E[R] - λ*Var + α*Skew - β*Kurt)
+        """Objective function: minimize -(E[R] - λ*Var + α*Skew - β*Kurt)
 
         We negate because scipy.optimize.minimize minimizes the objective.
         """
@@ -179,4 +187,9 @@ class HigherMomentOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the higher moments optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "HigherMomentOptimizer"

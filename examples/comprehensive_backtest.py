@@ -1,5 +1,4 @@
-"""
-Comprehensive Allocation Algorithm Backtest.
+"""Comprehensive Allocation Algorithm Backtest.
 
 Runs a 14 year backtest (2014-2024) across multiple portfolio allocation algorithms,
 generates performance reports, visualizations, and clustering analysis of optimizer behaviors.
@@ -34,7 +33,6 @@ logger = logging.getLogger(__name__)
 
 def main():
     """Main execution function."""
-
     logger.info("Starting comprehensive allocation algorithm backtest")
 
     try:

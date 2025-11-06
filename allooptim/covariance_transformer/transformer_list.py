@@ -41,7 +41,6 @@ def get_all_transformers() -> list[AbstractCovarianceTransformer]:
 
 def get_transformer_by_names(names: list[str]) -> list[AbstractCovarianceTransformer]:
     """Retrieve transformer instances by their names."""
-
     all_transformers = get_all_transformers()
     name_to_transformer = {transformer.name: transformer for transformer in all_transformers}
 

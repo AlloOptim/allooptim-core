@@ -23,6 +23,12 @@ WEIGHT_SUM_MINIMUM_THRESHOLD = 1e-10
 
 
 class PSOOptimizerConfig(BaseModel):
+    """Configuration for Particle Swarm Optimization optimizer.
+
+    This config holds parameters for the PSO algorithm including swarm size,
+    cognitive/social parameters, and convergence criteria.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     enable_warm_start: bool = True
@@ -43,6 +49,11 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
     enable_l_moments: bool = False
 
     def __init__(self, config: Optional[PSOOptimizerConfig] = None) -> None:
+        """Initialize the mean-variance particle swarm optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or PSOOptimizerConfig()
         self._previous_positions = None
 
@@ -54,6 +65,21 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio using Particle Swarm Optimization for mean-variance optimization.
+
+        Uses PSO to find optimal portfolio weights that maximize risk-adjusted returns
+        based on classical mean-variance framework.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data (unused)
+            time: Current timestamp (unused)
+            l_moments: L-moments (unused by this optimizer)
+
+        Returns:
+            Portfolio weights as pandas Series optimized by PSO
+        """
         # Validate asset names consistency
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
@@ -98,6 +124,17 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
         )
 
         def objective_function(x):
+            """PSO objective function wrapper.
+
+            Wraps the risk-adjusted returns objective for PSO optimization.
+            Returns negative values for minimization.
+
+            Args:
+                x: Decision variables (scale + weights)
+
+            Returns:
+                Negative risk-adjusted returns for minimization
+            """
             return risk_adjusted_returns_objective(
                 x,
                 enable_l_moments=self.enable_l_moments,
@@ -141,6 +178,11 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the mean-variance PSO optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "PSOMeanVariance"
 
 
@@ -151,4 +193,9 @@ class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the L-moments PSO optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "PSOLMoments"

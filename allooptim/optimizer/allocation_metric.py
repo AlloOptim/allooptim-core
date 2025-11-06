@@ -1,6 +1,4 @@
-"""
-Allocation Metrics Module
-"""
+"""Allocation Metrics Module"""
 
 import logging
 from dataclasses import dataclass
@@ -52,6 +50,8 @@ def make_positive_definite(
 
 @dataclass
 class LMoments:
+    """Container for L-comoments (linear moments) of asset returns."""
+
     lt_comoment_1: np.ndarray
     lt_comoment_2: np.ndarray
     lt_comoment_3: np.ndarray
@@ -70,6 +70,17 @@ def expected_return_moments(
     risk_aversion: float = DEFAULT_RISK_AVERSION,
     normalize_weights: bool = False,
 ) -> np.ndarray:
+    """Compute expected portfolio returns using L-comoments with higher-order moment adjustments.
+
+    Args:
+        weights: Portfolio weights, shape (n_particles, n_assets) or (n_assets,)
+        l_moments: L-comoments container with lt_comoment_1, lt_comoment_2, lt_comoment_3, lt_comoment_4
+        risk_aversion: Risk aversion parameter for utility function
+        normalize_weights: Whether to normalize weights to sum to 1
+
+    Returns:
+        Expected returns for each portfolio, shape (n_particles,) or scalar
+    """
     if normalize_weights:
         weights = weights / np.sum(weights, axis=1)[:, np.newaxis]
 
@@ -121,8 +132,7 @@ def expected_return_classical(  # noqa: PLR0913
     risk_aversion: float = DEFAULT_RISK_AVERSION,
     normalize_weights: bool = False,
 ) -> np.ndarray:
-    """
-    Computes the portfolio geometric mean return analytically assuming normal returns.
+    """Computes the portfolio geometric mean return analytically assuming normal returns.
 
     Args:
         weights: 2D array of weight candidates (n_candidates, n_allocators)
@@ -170,10 +180,7 @@ def estimate_linear_moments(
     returns: np.ndarray,
     trim: Optional[float] = DEFAULT_TRIM,
 ) -> LMoments:
-    """
-    Estimate L-comoments from return samples.
-    """
-
+    """Estimate L-comoments from return samples."""
     # Compute L-comoments
     l_comom_1 = lmo.l_comoment(returns, 1, rowvar=False, trim=trim)
     l_comom_2 = lmo.l_comoment(returns, 2, rowvar=False, trim=trim)
@@ -196,8 +203,7 @@ def estimate_classical_moments(
     estimate_vectors: bool = True,
     min_points: int = MIN_OBSERVATIONS,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """
-    Estimate co-skewness and co-kurtosis tensors or vectors from return samples using classical moments.
+    """Estimate co-skewness and co-kurtosis tensors or vectors from return samples using classical moments.
 
     Args:
         returns: array of shape (n_observations, n_assets)

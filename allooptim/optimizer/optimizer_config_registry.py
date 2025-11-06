@@ -1,13 +1,14 @@
-"""
-Optimizer Configuration Registry
+"""Optimizer Configuration Registry
 
 Auto-discovers and registers optimizer configuration classes from the OPTIMIZER_LIST.
 Provides type-safe access to optimizer configs for API and factory use.
 """
 
-from typing import Type, Dict, Optional, get_type_hints, Any
-from pydantic import BaseModel
 import logging
+from typing import Any, Dict, Optional, Type, get_type_hints
+
+from pydantic import BaseModel
+
 from allooptim.optimizer.optimizer_list import OPTIMIZER_LIST, get_all_optimizer_names
 
 logger = logging.getLogger(__name__)
@@ -20,13 +21,11 @@ NAME_TO_OPTIMIZER_CLASS: Dict[str, Type] = {}
 
 
 def register_optimizer_configs():
-    """
-    Automatically populate registry from OPTIMIZER_LIST.
+    """Automatically populate registry from OPTIMIZER_LIST.
 
     This function introspects each optimizer class to extract its config class
     from the __init__ method type hints.
     """
-
     for optimizer_class in OPTIMIZER_LIST:
         try:
             # Create instance to get the name
@@ -71,8 +70,7 @@ def get_optimizer_class(optimizer_name: str) -> Optional[Type]:
 
 
 def validate_optimizer_config(optimizer_name: str, config_params: Dict[str, Any]) -> BaseModel:
-    """
-    Validate config parameters against the registered config class.
+    """Validate config parameters against the registered config class.
 
     Args:
         optimizer_name: Name of the optimizer
@@ -108,8 +106,7 @@ def get_optimizer_names_without_configs() -> list[str]:
 
 
 def get_optimizer_config_schema(optimizer_name: str) -> Dict[str, Any]:
-    """
-    Get the JSON schema for an optimizer's configuration.
+    """Get the JSON schema for an optimizer's configuration.
 
     Args:
         optimizer_name: Name of the optimizer

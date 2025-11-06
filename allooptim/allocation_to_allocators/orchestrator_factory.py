@@ -1,5 +1,4 @@
-"""
-Orchestrator Factory
+"""Orchestrator Factory
 
 Factory for creating allocation-to-allocators orchestrators based on configuration.
 """
@@ -39,8 +38,7 @@ def create_orchestrator(
     config: A2AConfig = None,
     **kwargs,
 ) -> BaseOrchestrator:
-    """
-    Factory function to create the appropriate orchestrator based on type.
+    """Factory function to create the appropriate orchestrator based on type.
 
     Args:
         orchestrator_type: Type of orchestrator to create
@@ -102,8 +100,7 @@ def create_orchestrator(
 
 
 def get_default_orchestrator_type() -> OrchestratorType:
-    """
-    Determine the default orchestrator type based on optimizer names.
+    """Determine the default orchestrator type based on optimizer names.
 
     Args:
         optimizer_names: List of optimizer names being used
@@ -111,5 +108,4 @@ def get_default_orchestrator_type() -> OrchestratorType:
     Returns:
         Default orchestrator
     """
-
     return OrchestratorType.EQUAL_WEIGHT

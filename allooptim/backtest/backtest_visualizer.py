@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 def create_visualizations(results: dict, clustering_results: dict, results_dir: Optional[Path] = None) -> None:
     """Create comprehensive visualizations of results."""
-
     if results_dir is None:
         config = BacktestConfig()
         results_dir = config.results_dir

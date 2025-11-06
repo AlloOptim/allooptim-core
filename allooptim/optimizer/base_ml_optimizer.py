@@ -1,5 +1,4 @@
-"""
-Base class for machine learning-based portfolio optimizers.
+"""Base class for machine learning-based portfolio optimizers.
 
 This module provides common functionality for ML optimizers to eliminate code duplication
 while maintaining clear separation between lightweight and heavyweight implementations.
@@ -56,8 +55,7 @@ class BaseMLOptimizerConfig(BaseModel):
 
 
 class BaseMLOptimizer(AbstractOptimizer, ABC):
-    """
-    Abstract base class for machine learning-based portfolio optimizers.
+    """Abstract base class for machine learning-based portfolio optimizers.
 
     This class handles all common wrapper logic including:
     - Data validation and preprocessing
@@ -72,6 +70,11 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
     """
 
     def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+        """Initialize the base ML optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or BaseMLOptimizerConfig()
         self._optimizer = None
         self._df_prices: Optional[pd.DataFrame] = None
@@ -79,8 +82,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
 
     @abstractmethod
     def _create_engine(self, n_assets: int, n_lookback: int) -> None:
-        """
-        Factory method to create the optimization engine.
+        """Factory method to create the optimization engine.
 
         Args:
             n_assets: Number of assets in the portfolio
@@ -92,8 +94,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
         pass
 
     def fit(self, df_prices: pd.DataFrame) -> None:
-        """
-        Fit the optimizer with historical price data.
+        """Fit the optimizer with historical price data.
 
         Args:
             df_prices: Historical price data with dates as index and assets as columns
@@ -141,8 +142,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Allocate portfolio weights based on expected returns and covariance.
+        """Allocate portfolio weights based on expected returns and covariance.
 
         Args:
             ds_mu: Expected returns series with asset names as index
@@ -186,8 +186,7 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
         return create_weights_series(weights, asset_names)
 
     def _artificial_data_augmentation(self, current_prices: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Apply data augmentation by adding Gaussian noise to returns.
+        """Apply data augmentation by adding Gaussian noise to returns.
 
         This technique helps prevent overfitting by creating synthetic training samples
         that maintain the statistical properties of the original data.

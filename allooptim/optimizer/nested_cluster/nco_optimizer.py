@@ -29,6 +29,12 @@ SMALL_ASSET_COUNT_THRESHOLD = 20
 
 @dataclass
 class ClusterResult:
+    """Result of a clustering operation for NCO algorithm.
+
+    Stores the outcome of attempting to cluster assets with K-means,
+    including quality metrics and success status.
+    """
+
     age: int
     score: float
     kmeans: Optional[KMeans]
@@ -43,10 +49,9 @@ class ObjectiveType(Enum):
 
 
 def compute_corr(cov: np.ndarray) -> np.ndarray:
-    """
-    normalize covariance matrix into a correlation matrix
+    """Normalize covariance matrix into a correlation matrix
 
-    args:
+    Args:
         cov: covariance matrix of daily returns
 
     returns:
@@ -59,7 +64,18 @@ def compute_corr(cov: np.ndarray) -> np.ndarray:
 
 
 def convex_opt(cov: np.ndarray, mu: np.ndarray) -> None:
-    """ """
+    """Solve convex optimization problem for portfolio weights.
+
+    Computes optimal portfolio weights using the inverse covariance matrix
+    approach. Falls back to pseudoinverse for numerically unstable matrices.
+
+    Args:
+        cov: Covariance matrix of asset returns
+        mu: Expected returns vector
+
+    Returns:
+        Optimal portfolio weights as numpy array
+    """
     # pseudoinverse for numerically unstable matrices
     try:
         inv = np.linalg.inv(cov)
@@ -78,6 +94,12 @@ def convex_opt(cov: np.ndarray, mu: np.ndarray) -> None:
 
 
 class NCOOptimizerConfig(BaseModel):
+    """Configuration for Nested Clustered Optimization optimizer.
+
+    This config holds parameters for the NCO optimizer including
+    long-only constraints, warm start settings, and clustering parameters.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     long_only: bool = True
@@ -87,11 +109,10 @@ class NCOOptimizerConfig(BaseModel):
 
 
 class NCOSharpeOptimizer(AbstractOptimizer):
-    """
-    optimal portfolio allocation using Nested Clustered Optimization algorithm
+    """optimal portfolio allocation using Nested Clustered Optimization algorithm
     (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3469961)
 
-    attributes:
+    Attributes:
         _returns: daily returns
         _cov: covariance matrix of daily returns
         _num_assets: number of assets in investment universe
@@ -104,6 +125,11 @@ class NCOSharpeOptimizer(AbstractOptimizer):
     objective_type = ObjectiveType.SHARPE
 
     def __init__(self, config: Optional[NCOOptimizerConfig] = None) -> None:
+        """Initialize the Nested Clustered Optimization Sharpe optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or NCOOptimizerConfig()
 
         self._previous_weights = None
@@ -119,6 +145,21 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio using Nested Clustered Optimization for Sharpe ratio.
+
+        Uses the NCO algorithm to cluster assets and optimize portfolio weights
+        within and across clusters to maximize the Sharpe ratio.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data (unused)
+            time: Current timestamp (unused)
+            l_moments: L-moments (unused)
+
+        Returns:
+            Portfolio weights as pandas Series optimized for Sharpe ratio
+        """
         # Validate asset names consistency
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
@@ -146,10 +187,9 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         returns: np.ndarray,
         cov: np.ndarray,
     ) -> np.ndarray:
-        """
-        computes the optimal weights using the NCO algorithm
+        """Computes the optimal weights using the NCO algorithm
 
-        args:
+        Args:
             objective: "sharpe" for maximum sharpe ratio, and "variance"
                 for minimum variance
 
@@ -231,11 +271,10 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         self._corr = compute_corr(cov)
 
     def _cluster_assets(self) -> None:
-        """
-        groups assets into clusters using k means, using silhoueete scores
+        """Groups assets into clusters using k means, using silhoueete scores
         to find the optimal number of clusters
 
-        args:
+        Args:
             max_num_clusters: maximum number of clusters allowed
         """
         # distance matrix for silhouette scores
@@ -391,12 +430,28 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the NCO Sharpe optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "NCOSharpeOptimizer"
 
 
 class NCOVarianceOptimizer(NCOSharpeOptimizer):
+    """Nested Clustered Optimization for minimum variance portfolios.
+
+    This optimizer uses the NCO algorithm to find minimum variance portfolios
+    by clustering assets and optimizing within and across clusters.
+    """
+
     objective_type = ObjectiveType.VARIANCE
 
     @property
     def name(self) -> str:
+        """Get the name of the NCO variance optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "NCOVarianceOptimizer"

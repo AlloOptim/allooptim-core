@@ -1,15 +1,15 @@
-"""
-Optimized A2A Orchestrator
+"""Optimized A2A Orchestrator
 
 Monte Carlo Optimization Selection (MCOS) orchestrator with PSO optimization of optimizer weights.
 """
 
 import logging
 import time
-from datetime import datetime
-from typing import List, Optional
 import tracemalloc
+from datetime import datetime
 from timeit import default_timer as timer
+from typing import List, Optional
+
 import numpy as np
 import pandas as pd
 
@@ -41,8 +41,7 @@ logger = logging.getLogger(__name__)
 
 
 class OptimizedOrchestrator(BaseOrchestrator):
-    """
-    Optimized Allocation-to-Allocators orchestrator using Monte Carlo + PSO.
+    """Optimized Allocation-to-Allocators orchestrator using Monte Carlo + PSO.
 
     Process:
     1. Run Monte Carlo simulation to get optimizer performance statistics
@@ -58,8 +57,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         covariance_transformers: List[AbstractCovarianceTransformer],
         config: A2AConfig,
     ):
-        """
-        Initialize the Optimized Orchestrator.
+        """Initialize the Optimized Orchestrator.
 
         Args:
             optimizers: List of portfolio optimization algorithms to orchestrate.
@@ -75,8 +73,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List[StockUniverse]] = None,
     ) -> A2AResult:
-        """
-        Run optimized allocation orchestration with MCOS + PSO.
+        """Run optimized allocation orchestration with MCOS + PSO.
 
         Args:
             data_provider: Provides sampling capability for Monte Carlo
@@ -147,8 +144,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         time_today: datetime,
         allocator_weights: np.ndarray,
     ) -> tuple:
-        """
-        Compute final asset weights and performance metrics using structured models.
+        """Compute final asset weights and performance metrics using structured models.
 
         Args:
             data_provider: Provides ground truth parameters
@@ -158,7 +154,6 @@ class OptimizedOrchestrator(BaseOrchestrator):
         Returns:
             Tuple of (final_allocation, optimizer_allocations_list, optimizer_weights_list, metrics, optimizer_errors)
         """
-
         if len(self.optimizers) != len(allocator_weights):
             raise ValueError(f"Optimizer count {len(self.optimizers)} != weight count {len(allocator_weights)}")
 
@@ -255,8 +250,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
     @property
     def name(self) -> str:
-        """
-        Get the orchestrator name identifier.
+        """Get the orchestrator name identifier.
 
         Returns:
             String identifier for this orchestrator type.

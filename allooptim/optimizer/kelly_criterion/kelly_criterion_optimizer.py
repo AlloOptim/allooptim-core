@@ -1,5 +1,4 @@
-"""
-Kelly Criterion Portfolio Optimizer
+"""Kelly Criterion Portfolio Optimizer
 
 This module implements the Kelly Criterion for portfolio optimization, which maximizes
 the expected logarithm of wealth (geometric mean return) rather than the arithmetic mean.
@@ -103,8 +102,7 @@ class KellyCriterionOptimizerConfig(BaseModel):
 
 
 class KellyCriterionOptimizer(AbstractOptimizer):
-    """
-    Kelly Criterion Portfolio Optimizer.
+    """Kelly Criterion Portfolio Optimizer.
 
     Implements the Kelly Criterion for optimal portfolio sizing, maximizing the expected
     logarithm of wealth (geometric mean return). Unlike mean-variance optimization which
@@ -140,14 +138,18 @@ class KellyCriterionOptimizer(AbstractOptimizer):
     """
 
     def __init__(self, config: KellyCriterionOptimizerConfig | None = None) -> None:
+        """Initialize the Kelly Criterion optimizer.
+
+        Args:
+            config: Configuration object with Kelly-specific parameters. If None, uses default config.
+        """
         self.config = config or KellyCriterionOptimizerConfig()
         self.win_rates: pd.Series | None = None
         self.avg_gains: pd.Series | None = None
         self.avg_losses: pd.Series | None = None
 
     def fit(self, df_prices: pd.DataFrame | None = None) -> None:
-        """
-        Calculate historical win rates and average gains/losses from price data.
+        """Calculate historical win rates and average gains/losses from price data.
 
         This method computes key statistics needed for Kelly optimization:
             - Win rate: fraction of periods with positive returns
@@ -214,8 +216,7 @@ class KellyCriterionOptimizer(AbstractOptimizer):
         time: datetime | None = None,
         l_moments: LMoments | None = None,
     ) -> pd.Series:
-        """
-        Calculate Kelly-optimal portfolio weights.
+        """Calculate Kelly-optimal portfolio weights.
 
         The allocation process follows these steps:
         1. Validate inputs and extract asset names
@@ -336,5 +337,4 @@ class KellyCriterionOptimizer(AbstractOptimizer):
     @property
     def name(self) -> str:
         """Return optimizer name."""
-
         return "KellyCriterionOptimizer"

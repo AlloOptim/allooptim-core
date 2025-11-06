@@ -1,5 +1,4 @@
-"""
-Robust Mean-Variance Portfolio Optimizer
+"""Robust Mean-Variance Portfolio Optimizer
 
 This module implements robust portfolio optimization with ellipsoidal uncertainty sets
 for both expected returns and covariance matrix. Unlike standard mean-variance optimization
@@ -114,8 +113,7 @@ class RobustMeanVarianceOptimizerConfig(BaseModel):
 
 
 class RobustMeanVarianceOptimizer(AbstractOptimizer):
-    """
-    Robust Mean-Variance Portfolio Optimizer with Ellipsoidal Uncertainty.
+    """Robust Mean-Variance Portfolio Optimizer with Ellipsoidal Uncertainty.
 
     This optimizer solves a worst-case optimization problem that protects against
     parameter estimation errors in both expected returns and covariance matrix.
@@ -157,14 +155,18 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
     """
 
     def __init__(self, config: Optional[RobustMeanVarianceOptimizerConfig] = None) -> None:
+        """Initialize the robust mean-variance optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or RobustMeanVarianceOptimizerConfig()
         self.estimated_mu_uncertainty: Optional[float] = None
         self.estimated_cov_uncertainty: Optional[float] = None
         self._previous_best_weights: Optional[np.ndarray] = None
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
-        """
-        Estimate uncertainty levels from historical price data.
+        """Estimate uncertainty levels from historical price data.
 
         Uses bootstrap resampling or historical standard deviation to estimate
         the magnitude of parameter estimation errors. These estimates can override
@@ -260,8 +262,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Calculate robust portfolio weights using worst-case optimization.
+        """Calculate robust portfolio weights using worst-case optimization.
 
         Solves the robust counterpart:
             max_w (w'μ - ε_μ||w|| - λw'(Σ + ε_ΣI)w)
@@ -370,8 +371,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         return create_weights_series(weights, asset_names)
 
     def _objective_function(self, w: np.ndarray) -> float:
-        """
-        Objective function for robust optimization: -[w'μ - ε_μ||w|| - λw'Σ_robust w]
+        """Objective function for robust optimization: -[w'μ - ε_μ||w|| - λw'Σ_robust w]
         We minimize the negative to maximize.
 
         Args:

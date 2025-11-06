@@ -121,7 +121,6 @@ class TestRiskParityOptimizer:
 @pytest.mark.parametrize("optimizer_class", OPTIMIZER_LIST)
 def test_optimizers(optimizer_class, wikipedia_test_db_path):
     """Test that all optimizers in OPTIMIZER_LIST work correctly."""
-
     assert issubclass(optimizer_class, AbstractOptimizer)
 
     # Create sample data for testing

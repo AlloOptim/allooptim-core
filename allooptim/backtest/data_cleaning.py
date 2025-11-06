@@ -1,5 +1,4 @@
-"""
-Data Cleaning Utilities
+"""Data Cleaning Utilities
 
 Provides comprehensive data cleaning functions for financial price data.
 Handles NaN values, market closures, insufficient data, and data quality issues.
@@ -22,8 +21,7 @@ def clean_price_data(
     max_individual_gaps_pct: float = 0.05,
     min_symbols_required: int = 10,
 ) -> pd.DataFrame:
-    """
-    Clean price data by removing market closures, insufficient data, and handling NaN values.
+    """Clean price data by removing market closures, insufficient data, and handling NaN values.
 
     This function performs comprehensive data cleaning in multiple steps:
     1. Remove market closure days (weekends/holidays where majority of stocks have NaN)

@@ -20,19 +20,17 @@ MIN_REPLAY_BUFFER_SIZE = 32
 
 
 class FractionalDifferentiator:
-    """
-    Fractional differentiation for preserving memory while achieving stationarity.
+    """Fractional differentiation for preserving memory while achieving stationarity.
     Based on "Advances in Financial Machine Learning" by Marcos López de Prado.
     """
 
     def __init__(self, d=0.5, threshold=1e-5):
-        """
-        Args:
-            d: Differentiation order (0 < d < 1)
-               d=0: no differencing (original series)
-               d=0.5: balance between memory and stationarity
-               d=1: standard first difference (loses all memory)
-            threshold: Weight threshold for truncation
+        """Args:
+        d: Differentiation order (0 < d < 1)
+           d=0: no differencing (original series)
+           d=0.5: balance between memory and stationarity
+           d=1: standard first difference (loses all memory)
+        threshold: Weight threshold for truncation
         """
         self.d = d
         self.threshold = threshold
@@ -62,8 +60,7 @@ class FractionalDifferentiator:
         return weights
 
     def transform(self, series):
-        """
-        Apply fractional differentiation to a time series
+        """Apply fractional differentiation to a time series
 
         Args:
             series: (n_samples,) array
@@ -95,15 +92,13 @@ class FractionalDifferentiator:
 
 
 class PortfolioNetInterface(ABC):
-    """
-    Abstract base class for portfolio optimization networks.
+    """Abstract base class for portfolio optimization networks.
     All implementations must provide the same interface for seamless swapping.
     """
 
     @abstractmethod
     def __call__(self, x, train=True):
-        """
-        Forward pass of the network.
+        """Forward pass of the network.
 
         Args:
             x: (batch, n_assets, seq_len, n_features) - Input features
@@ -127,6 +122,12 @@ class MultiHeadAttention:
     """Multi-head self-attention for temporal patterns"""
 
     def __init__(self, embed_dim, num_heads):
+        """Initialize multi-head attention.
+
+        Args:
+            embed_dim: Embedding dimension
+            num_heads: Number of attention heads
+        """
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
         assert self.head_dim * num_heads == embed_dim
@@ -156,6 +157,12 @@ class LSTMCell:
     """Custom LSTM cell implementation for tinygrad"""
 
     def __init__(self, input_dim, hidden_dim):
+        """Initialize LSTM cell.
+
+        Args:
+            input_dim: Input feature dimension
+            hidden_dim: Hidden state dimension
+        """
         self.hidden_dim = hidden_dim
 
         # Input gate
@@ -179,11 +186,10 @@ class LSTMCell:
         self.b_o = Tensor.zeros(hidden_dim)
 
     def __call__(self, x, h_prev, c_prev):
-        """
-        Args:
-            x: (batch, input_dim)
-            h_prev: (batch, hidden_dim)
-            c_prev: (batch, hidden_dim)
+        """Args:
+        x: (batch, input_dim)
+        h_prev: (batch, hidden_dim)
+        c_prev: (batch, hidden_dim)
         """
         # Input gate
         i = (x @ self.W_i + h_prev @ self.U_i + self.b_i).sigmoid()
@@ -210,13 +216,19 @@ class LSTM:
     """Custom LSTM layer for tinygrad"""
 
     def __init__(self, input_dim, hidden_dim):
+        """Initialize LSTM layer.
+
+        Args:
+            input_dim: Input feature dimension
+            hidden_dim: Hidden state dimension
+        """
         self.hidden_dim = hidden_dim
         self.cell = LSTMCell(input_dim, hidden_dim)
 
     def __call__(self, x):
-        """
-        Args:
+        """Args:
             x: (batch, seq_len, input_dim)
+
         Returns:
             output: (batch, seq_len, hidden_dim)
         """
@@ -242,6 +254,14 @@ class TemporalBlock:
     """LSTM + Attention block with residual connections"""
 
     def __init__(self, input_dim, hidden_dim, num_heads=4, dropout=0.1):
+        """Initialize temporal block with LSTM and attention.
+
+        Args:
+            input_dim: Input feature dimension
+            hidden_dim: Hidden dimension
+            num_heads: Number of attention heads
+            dropout: Dropout rate
+        """
         self.lstm = LSTM(input_dim, hidden_dim)
         self.attention = MultiHeadAttention(hidden_dim, num_heads)
         self.norm1 = nn.LayerNorm(hidden_dim)
@@ -273,8 +293,7 @@ class TemporalBlock:
 
 
 class LSTMAttentionPortfolioNet(PortfolioNetInterface):
-    """
-    Advanced portfolio optimizer using:
+    """Advanced portfolio optimizer using:
     - Stacked LSTM with attention mechanisms
     - Cross-sectional features (relative strength across assets)
     - Multi-task learning (returns + volatility prediction)
@@ -282,6 +301,16 @@ class LSTMAttentionPortfolioNet(PortfolioNetInterface):
     """
 
     def __init__(self, n_assets, n_features, hidden_dim=128, num_layers=2, num_heads=4, dropout=0.15):  # noqa: PLR0913
+        """Initialize LSTM attention portfolio network.
+
+        Args:
+            n_assets: Number of assets
+            n_features: Number of input features per asset
+            hidden_dim: Hidden dimension
+            num_layers: Number of temporal blocks
+            num_heads: Number of attention heads
+            dropout: Dropout rate
+        """
         self.n_assets = n_assets
         self.n_features = n_features
         self.hidden_dim = hidden_dim
@@ -314,9 +343,9 @@ class LSTMAttentionPortfolioNet(PortfolioNetInterface):
         ]
 
     def __call__(self, x, train=True):
-        """
-        Args:
+        """Args:
             x: (batch, n_assets, seq_len, n_features)
+
         Returns:
             weights: (batch, n_assets) - Long-only weights (0 to 1 per asset)
             invested_ratio: (batch,) - Fraction of capital invested (0 to 1)
@@ -383,12 +412,19 @@ class LSTMAttentionPortfolioNet(PortfolioNetInterface):
 
 
 class MambaBlock:
-    """
-    Simplified Mamba/S4 block - Selective State Space Model
+    """Simplified Mamba/S4 block - Selective State Space Model
     Based on "Mamba: Linear-Time Sequence Modeling with Selective State Spaces"
     """
 
     def __init__(self, d_model, d_state=16, d_conv=4, expand=2):
+        """Initialize Mamba block.
+
+        Args:
+            d_model: Model dimension
+            d_state: State dimension for SSM
+            d_conv: Convolution kernel size
+            expand: Expansion factor for inner dimension
+        """
         self.d_model = d_model
         self.d_inner = int(expand * d_model)
         self.d_state = d_state
@@ -412,9 +448,9 @@ class MambaBlock:
         self.D = Tensor.ones(self.d_inner)
 
     def __call__(self, x):
-        """
-        Args:
+        """Args:
             x: (batch, seq_len, d_model)
+
         Returns:
             output: (batch, seq_len, d_model)
         """
@@ -479,14 +515,23 @@ class MambaBlock:
 
 
 class MambaPortfolioNet(PortfolioNetInterface):
-    """
-    Portfolio network using Mamba (Selective State Space Model)
+    """Portfolio network using Mamba (Selective State Space Model)
     - Linear time complexity
     - Strong long-range dependency modeling
     - Input-dependent dynamics (selective mechanism)
     """
 
     def __init__(self, n_assets, n_features, hidden_dim=64, num_layers=2, d_state=16, dropout=0.15):  # noqa: PLR0913
+        """Initialize Mamba portfolio network.
+
+        Args:
+            n_assets: Number of assets
+            n_features: Number of input features per asset
+            hidden_dim: Hidden dimension
+            num_layers: Number of Mamba blocks
+            d_state: State dimension for SSM
+            dropout: Dropout rate
+        """
         self.n_assets = n_assets
         self.hidden_dim = hidden_dim
         self.dropout = dropout
@@ -577,6 +622,14 @@ class CausalConv1d:
     """Causal 1D convolution - only looks at past"""
 
     def __init__(self, in_channels, out_channels, kernel_size, dilation=1):
+        """Initialize causal 1D convolution.
+
+        Args:
+            in_channels: Number of input channels
+            out_channels: Number of output channels
+            kernel_size: Convolution kernel size
+            dilation: Dilation factor
+        """
         self.kernel_size = kernel_size
         self.dilation = dilation
         self.padding = (kernel_size - 1) * dilation
@@ -585,9 +638,9 @@ class CausalConv1d:
         self.bias = Tensor.zeros(out_channels)
 
     def __call__(self, x):
-        """
-        Args:
+        """Args:
             x: (batch, seq_len, in_channels)
+
         Returns:
             output: (batch, seq_len, out_channels)
         """
@@ -627,6 +680,15 @@ class TemporalBlock_TCN:
     """TCN residual block with dilated causal convolutions"""
 
     def __init__(self, n_inputs, n_outputs, kernel_size, dilation, dropout=0.15):
+        """Initialize TCN residual block.
+
+        Args:
+            n_inputs: Number of input channels
+            n_outputs: Number of output channels
+            kernel_size: Convolution kernel size
+            dilation: Dilation factor
+            dropout: Dropout rate
+        """
         self.conv1 = CausalConv1d(n_inputs, n_outputs, kernel_size, dilation)
         self.conv2 = CausalConv1d(n_outputs, n_outputs, kernel_size, dilation)
         self.dropout = dropout
@@ -635,9 +697,8 @@ class TemporalBlock_TCN:
         self.downsample = nn.Linear(n_inputs, n_outputs) if n_inputs != n_outputs else None
 
     def __call__(self, x, train=True):
-        """
-        Args:
-            x: (batch, seq_len, n_inputs)
+        """Args:
+        x: (batch, seq_len, n_inputs)
         """
         out = self.conv1(x).relu()
         if train and self.dropout > 0:
@@ -653,8 +714,7 @@ class TemporalBlock_TCN:
 
 
 class TCNPortfolioNet(PortfolioNetInterface):
-    """
-    Portfolio network using Temporal Convolutional Network (TCN)
+    """Portfolio network using Temporal Convolutional Network (TCN)
     - Parallelizable (faster than RNNs)
     - Dilated convolutions for large receptive field
     - Causal (no future leakage)
@@ -662,6 +722,16 @@ class TCNPortfolioNet(PortfolioNetInterface):
     """
 
     def __init__(self, n_assets, n_features, hidden_dim=64, num_layers=3, kernel_size=3, dropout=0.15):  # noqa: PLR0913
+        """Initialize TCN portfolio network.
+
+        Args:
+            n_assets: Number of assets
+            n_features: Number of input features per asset
+            hidden_dim: Hidden dimension
+            num_layers: Number of TCN blocks
+            kernel_size: Convolution kernel size
+            dropout: Dropout rate
+        """
         self.n_assets = n_assets
         self.hidden_dim = hidden_dim
         self.dropout = dropout
@@ -747,12 +817,16 @@ class TCNPortfolioNet(PortfolioNetInterface):
 
 
 class ModelType(str, Enum):
+    """Enumeration of available deep learning model architectures."""
+
     LSTM = "lstm"
     MAMBA = "mamba"
     TCN = "tcn"
 
 
 class LSTMOptimizerConfig(BaseModel):
+    """Configuration parameters for deep learning portfolio optimizers."""
+
     hidden_dim: int = 64
     num_layers: int = 1
     risk_aversion: float = 2.0
@@ -767,8 +841,7 @@ class LSTMOptimizerConfig(BaseModel):
 
 
 class DeepLearningOptimizerEngine:
-    """
-    State-of-the-art portfolio optimizer with online learning.
+    """State-of-the-art portfolio optimizer with online learning.
     Supports multiple neural network architectures.
     """
 
@@ -780,13 +853,12 @@ class DeepLearningOptimizerEngine:
         n_lookback: int,
         config: Optional[LSTMOptimizerConfig] = None,
     ) -> None:
-        """
-        Args:
-            n_assets: Number of assets in the portfolio
-            model_type: str, one of ['lstm', 'mamba', 'tcn']
-                - 'lstm': LSTM + Transformer (original, best for complex patterns)
-                - 'mamba': Selective State Space Model (linear time, great for long sequences)
-                - 'tcn': Temporal Convolutional Network (fastest, parallelizable)
+        """Args:
+        n_assets: Number of assets in the portfolio
+        model_type: str, one of ['lstm', 'mamba', 'tcn']
+            - 'lstm': LSTM + Transformer (original, best for complex patterns)
+            - 'mamba': Selective State Space Model (linear time, great for long sequences)
+            - 'tcn': Temporal Convolutional Network (fastest, parallelizable)
         """
         self._n_assets = n_assets
         self._n_lookback = n_lookback
@@ -846,10 +918,10 @@ class DeepLearningOptimizerEngine:
         self.feature_std = None
 
     def _engineer_features(self, prices: np.ndarray) -> np.ndarray:
-        """
-        Create advanced features from price data
+        """Create advanced features from price data
         Args:
             prices: (batch, n_assets, seq_len) or (n_assets, seq_len)
+
         Returns:
             features: (batch, n_assets, seq_len, n_features)
         """
@@ -1018,8 +1090,7 @@ class DeepLearningOptimizerEngine:
         actual_returns,
         prev_weights,
     ):
-        """
-        Multi-objective loss for long-only with cash:
+        """Multi-objective loss for long-only with cash:
         1. Return prediction accuracy
         2. Volatility prediction accuracy
         3. Portfolio return (negative)
@@ -1058,8 +1129,8 @@ class DeepLearningOptimizerEngine:
         return loss
 
     def train(self, prices, returns, n_epochs=50, batch_size=128):
-        """
-        Train the network (optimized for speed)
+        """Train the network (optimized for speed)
+
         Args:
             prices: (n_days, n_assets) historical prices
             returns: (n_days, n_assets) historical returns
@@ -1164,8 +1235,7 @@ class DeepLearningOptimizerEngine:
         self.trained = True
 
     def _online_update(self, new_prices, new_returns, n_steps=10):
-        """
-        Fast online update with new data
+        """Fast online update with new data
         Args:
             new_prices: (lookback+1, n_assets) recent prices
             new_returns: (1, n_assets) latest returns
@@ -1209,8 +1279,7 @@ class DeepLearningOptimizerEngine:
                 self.optimizer.step()
 
     def _predict(self, prices, n_samples=10):
-        """
-        Predict portfolio weights with uncertainty estimation
+        """Predict portfolio weights with uncertainty estimation
         Args:
             prices: (lookback, n_assets) recent prices
             n_samples: Number of MC dropout samples
@@ -1247,8 +1316,7 @@ class DeepLearningOptimizerEngine:
         return mean_weights, std_weights, cash_ratio, mean_returns
 
     def predict(self, current_prices: np.ndarray) -> np.ndarray:
-        """
-        Predict portfolio weights
+        """Predict portfolio weights
 
         Args:
             current_prices: (lookback, n_assets) recent prices
@@ -1260,8 +1328,7 @@ class DeepLearningOptimizerEngine:
         return mean_weights
 
     def incremental_update(self, new_prices: np.ndarray, new_returns: np.ndarray) -> None:
-        """
-        Incremental update with new data
+        """Incremental update with new data
 
         Args:
             new_prices: Recent prices

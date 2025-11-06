@@ -1,5 +1,4 @@
-"""
-Enhanced Allocation Workflow
+"""Enhanced Allocation Workflow
 
 Clean orchestration of the complete allocation-to-allocators process.
 Integrates MCOS simulation with allocation optimization.
@@ -123,7 +122,6 @@ def get_all_optimizers() -> list[AbstractOptimizer]:
 
 def get_optimizer_by_names(names: list[str]) -> list[AbstractOptimizer]:
     """Retrieve optimizer instances by their names."""
-
     all_optimizers = get_all_optimizers()
     name_to_optimizer = {optimizer.name: optimizer for optimizer in all_optimizers}
 

@@ -13,8 +13,7 @@ from allooptim.optimizer.allocation_metric import LMoments, estimate_linear_mome
 
 
 class MuCovPartialObservationSimulator(AbstractObservationSimulator):
-    """
-    Partial observation simulator for mean and covariance estimation.
+    """Partial observation simulator for mean and covariance estimation.
 
     This simulator generates samples by randomly selecting partial time windows
     from historical price data and estimating parameters from those windows.
@@ -35,8 +34,7 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
         prices_df: pd.DataFrame,
         n_observations: int,
     ) -> None:
-        """
-        Initialize the partial observation simulator.
+        """Initialize the partial observation simulator.
 
         Args:
             prices_df: Historical price data with datetime index and asset columns.
@@ -67,8 +65,7 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
         return "MuCovPartialObservationSimulator"
 
     def get_sample(self) -> Tuple[pd.Series, pd.DataFrame, pd.DataFrame, datetime, LMoments]:
-        """
-        Generate a sample of market parameters from partial historical observations.
+        """Generate a sample of market parameters from partial historical observations.
 
         This method simulates parameter estimation uncertainty by:
         1. Randomly selecting multiple partial time windows from historical data
@@ -130,9 +127,7 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
         return mu_sim_series, cov_sim_df, self.historical_prices, time_sim, l_moments_sim
 
     def get_ground_truth(self) -> Tuple[pd.Series, pd.DataFrame, pd.DataFrame, datetime, LMoments]:
-        """
-        Return ground truth parameters computed from the full historical dataset.
-        """
+        """Return ground truth parameters computed from the full historical dataset."""
         mu_gt_series = pd.Series(self.mu, index=self.asset_names)
         cov_gt_df = pd.DataFrame(self.cov, index=self.asset_names, columns=self.asset_names)
 

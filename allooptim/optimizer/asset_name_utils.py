@@ -1,5 +1,4 @@
-"""
-Asset Name Utilities for Pandas-based Optimizer Interface
+"""Asset Name Utilities for Pandas-based Optimizer Interface
 
 Provides validation and conversion functions for ensuring asset name consistency
 between mu (pd.Series) and cov (pd.DataFrame) inputs in the optimizer interface.
@@ -13,8 +12,7 @@ import pandas as pd
 
 
 def validate_asset_names(mu: pd.Series, cov: pd.DataFrame) -> None:
-    """
-    Validate that asset names are consistent between mu and cov.
+    """Validate that asset names are consistent between mu and cov.
 
     Args:
         mu: Expected returns as pandas Series with asset names as index
@@ -62,8 +60,7 @@ def validate_asset_names(mu: pd.Series, cov: pd.DataFrame) -> None:
 
 
 def get_asset_names(mu: pd.Series = None, cov: pd.DataFrame = None) -> list[str]:
-    """
-    Extract asset names from mu or cov.
+    """Extract asset names from mu or cov.
 
     Args:
         mu: Expected returns series (optional)
@@ -86,8 +83,7 @@ def get_asset_names(mu: pd.Series = None, cov: pd.DataFrame = None) -> list[str]
 def align_assets(
     mu: pd.Series, cov: pd.DataFrame, reorder: bool = True, fill_missing: bool = False
 ) -> tuple[pd.Series, pd.DataFrame]:
-    """
-    Align asset names between mu and cov, optionally reordering or filling missing assets.
+    """Align asset names between mu and cov, optionally reordering or filling missing assets.
 
     Args:
         mu: Expected returns series
@@ -157,8 +153,7 @@ def align_assets(
 def convert_numpy_to_pandas(
     mu: Union[np.ndarray, pd.Series], cov: Union[np.ndarray, pd.DataFrame], asset_names: list[str] = None
 ) -> tuple[pd.Series, pd.DataFrame]:
-    """
-    Convert numpy arrays to pandas Series/DataFrame with asset names.
+    """Convert numpy arrays to pandas Series/DataFrame with asset names.
 
     Args:
         mu: Expected returns as numpy array or pandas Series
@@ -205,8 +200,7 @@ def convert_numpy_to_pandas(
 
 
 def convert_pandas_to_numpy(mu: pd.Series, cov: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, list[str]]:
-    """
-    Convert pandas Series/DataFrame to numpy arrays while preserving asset name order.
+    """Convert pandas Series/DataFrame to numpy arrays while preserving asset name order.
 
     Args:
         mu: Expected returns as pandas Series
@@ -225,8 +219,7 @@ def convert_pandas_to_numpy(mu: pd.Series, cov: pd.DataFrame) -> tuple[np.ndarra
 
 
 def create_weights_series(weights: np.ndarray, asset_names: list[str]) -> pd.Series:
-    """
-    Convert weight array to pandas Series with asset names.
+    """Convert weight array to pandas Series with asset names.
 
     Args:
         weights: Portfolio weights as numpy array
@@ -243,8 +236,7 @@ def create_weights_series(weights: np.ndarray, asset_names: list[str]) -> pd.Ser
 
 
 def validate_weights_series(weights: pd.Series, tolerance: float = 1e-6) -> None:
-    """
-    Validate that weights series is properly formatted for portfolio optimization.
+    """Validate that weights series is properly formatted for portfolio optimization.
 
     Args:
         weights: Portfolio weights as pandas Series
@@ -272,23 +264,19 @@ def validate_weights_series(weights: pd.Series, tolerance: float = 1e-6) -> None
 
 # Backward compatibility wrapper for numpy-based optimizers
 class NumpyOptimizerAdapter:
-    """
-    Adapter to wrap numpy-based optimizers for use with pandas interface.
+    """Adapter to wrap numpy-based optimizers for use with pandas interface.
 
     This allows gradual migration of optimizers from numpy to pandas interface.
     """
 
     def __init__(self, numpy_optimizer):
-        """
-        Args:
-            numpy_optimizer: Optimizer with numpy-based allocate method
+        """Args:
+        numpy_optimizer: Optimizer with numpy-based allocate method
         """
         self.numpy_optimizer = numpy_optimizer
 
     def allocate(self, mu: pd.Series, cov: pd.DataFrame, **kwargs) -> pd.Series:
-        """
-        Adapt pandas inputs to numpy, call numpy optimizer, convert back to pandas.
-        """
+        """Adapt pandas inputs to numpy, call numpy optimizer, convert back to pandas."""
         # Convert to numpy
         mu_array, cov_array, asset_names = convert_pandas_to_numpy(mu, cov)
 
@@ -302,4 +290,9 @@ class NumpyOptimizerAdapter:
 
     @property
     def name(self) -> str:
+        """Get the name of the wrapped numpy optimizer.
+
+        Returns:
+            Name of the optimizer, defaults to "NumpyAdapter" if not available
+        """
         return getattr(self.numpy_optimizer, "name", "NumpyAdapter")

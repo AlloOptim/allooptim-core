@@ -1,5 +1,4 @@
-"""
-Allocation to Allocators Package
+"""Allocation to Allocators Package
 
 This package contains components for the A2A (Allocation-to-Allocators) architecture,
 including data providers, simulators, optimizers, and error estimation.

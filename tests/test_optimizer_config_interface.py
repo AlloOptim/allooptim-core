@@ -1,20 +1,20 @@
-"""
-Unit tests for the optimizer configuration interface.
+"""Unit tests for the optimizer configuration interface.
 
 Tests the optimizer configuration system for type safety, validation,
 and integration with factory and backtest components.
 """
 
-import pytest
 from datetime import datetime
 
-from allooptim.optimizer.optimizer_config_registry import (
-    validate_optimizer_config,
-    get_registered_optimizer_names,
-    get_optimizer_config_class,
-    get_all_optimizer_configs,
-)
+import pytest
+
 from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.optimizer.optimizer_config_registry import (
+    get_all_optimizer_configs,
+    get_optimizer_config_class,
+    get_registered_optimizer_names,
+    validate_optimizer_config,
+)
 
 
 class TestOptimizerConfigRegistry:

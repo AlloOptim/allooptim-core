@@ -1,5 +1,4 @@
-"""
-Portfolio Optimization Algorithms
+"""Portfolio Optimization Algorithms
 
 This module provides a comprehensive suite of 35+ portfolio optimization
 algorithms spanning traditional mean-variance, risk parity, machine learning,

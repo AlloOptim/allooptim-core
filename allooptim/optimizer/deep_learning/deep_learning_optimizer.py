@@ -1,5 +1,4 @@
-"""
-HEAVYWEIGHT OPTIMIZER
+"""HEAVYWEIGHT OPTIMIZER
 Training time: Minutes to hours
 Min data: 500+ periods (recommended)
 Suitable for: Research, long-term strategies, complex patterns

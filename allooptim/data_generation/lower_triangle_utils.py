@@ -1,5 +1,4 @@
-"""
-Lower Triangle Matrix Utilities for Symmetric Covariance Matrices
+"""Lower Triangle Matrix Utilities for Symmetric Covariance Matrices
 Optimizes autoencoder input/output by using only lower triangle elements.
 """
 
@@ -7,8 +6,7 @@ import numpy as np
 
 
 def pack_lower_triangle(matrix: np.array) -> np.array:
-    """
-    Pack a symmetric matrix into a 1D array containing only lower triangle elements.
+    """Pack a symmetric matrix into a 1D array containing only lower triangle elements.
 
     For an n×n symmetric matrix, this reduces storage from n² to n(n+1)/2 elements.
     For 500×500 matrix: 250,000 → 125,250 (50% reduction)
@@ -42,8 +40,7 @@ def pack_lower_triangle(matrix: np.array) -> np.array:
 
 
 def unpack_lower_triangle(packed: np.array, n: int) -> np.array:
-    """
-    Unpack a 1D array of lower triangle elements back to symmetric n×n matrix.
+    """Unpack a 1D array of lower triangle elements back to symmetric n×n matrix.
 
     Reconstructs the full symmetric matrix and applies (A + A.T)/2 to ensure symmetry.
 
@@ -86,8 +83,7 @@ def get_packed_size(n: int) -> int:
 
 
 def validate_symmetric(matrix: np.array, tolerance: float = 1e-10) -> bool:
-    """
-    Check if a matrix is symmetric within tolerance.
+    """Check if a matrix is symmetric within tolerance.
 
     Args:
         matrix: Matrix to check

@@ -33,8 +33,7 @@ def _exponential_decay_weights(
     n: int,
     decay_factor: float,
 ) -> np.ndarray:
-    """
-    Create exponential decay weights where the most recent point has 'factor' times
+    """Create exponential decay weights where the most recent point has 'factor' times
     higher weight than the oldest point.
 
     Args:
@@ -88,8 +87,7 @@ def _remove_outliers_iqr(
     columns: list[str],
     iqr_factor: float,
 ) -> pd.DataFrame:
-    """
-    Remove outliers from specified columns using the IQR method.
+    """Remove outliers from specified columns using the IQR method.
     k is the IQR multiplier, typically 1.5 for outliers or 3 for extreme outliers.
     """
     for column in columns:
@@ -253,7 +251,6 @@ def _process_and_filter_data_combined(  # noqa: PLR0913
     iqr_factor: float,
 ) -> tuple[bool, pd.DataFrame, list[str]]:
     """Combined function: Vectorized data quality filtering and processing with wide-form DataFrames."""
-
     # Step 1: Filter symbols with >90% NaN in any DataFrame
     wiki_nan_pct = df_wiki_views.isna().mean()
     price_nan_pct = df_stock_prices.isna().mean()
@@ -357,8 +354,7 @@ def allocate_wikipedia(  # noqa: PLR0913
     df_stock_volumes: Optional[pd.DataFrame] = None,
     wiki_database_path: Optional[Path] = None,
 ) -> AllocationResult:
-    """
-    Production-ready Wikipedia-based stock allocation.
+    """Production-ready Wikipedia-based stock allocation.
 
     Analyzes historical correlation between Wikipedia page views and stock price movements
     to allocate weights to stocks with significant positive correlations.
@@ -380,7 +376,6 @@ def allocate_wikipedia(  # noqa: PLR0913
     - df_stock_volumes: Optional pre-loaded stock volumes DataFrame (for testing)
     - database_path: Optional path to SQL database file (for testing with custom database)
     """
-
     end_date = time_today.astimezone(pytz.UTC)
     start_date = end_date - n_lag_days * ONE_DAY - n_historical_days * ONE_DAY - n_weeks_difference * ONE_WEEK
 

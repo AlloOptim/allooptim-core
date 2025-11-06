@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Download script for Wikipedia optimizer test resources.
+"""Download script for Wikipedia optimizer test resources.
 
 This script downloads a small dataset for testing the Wikipedia optimizer
 with a few popular stocks over a short time period.
@@ -26,7 +25,6 @@ sql_db.DATABASE_DIR = test_db_path.parent
 
 def main():
     """Download test data for Wikipedia optimizer."""
-
     # Define test stocks (popular ones with good Wikipedia data)
     test_symbols = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "ADS.DE", "ALV.DE", "BAS.DE", "BAYN.DE", "BMW.DE"]
 

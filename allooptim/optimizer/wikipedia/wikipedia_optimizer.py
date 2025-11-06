@@ -24,13 +24,32 @@ logger = logging.getLogger(__name__)
 
 
 class WikipediaOptimizerConfig(BaseModel):
+    """Configuration for Wikipedia-based optimizer.
+
+    This config holds parameters for the Wikipedia optimizer. Currently minimal
+    as the Wikipedia strategy doesn't require extensive configuration, but structured
+    for future extensibility.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     # Wikipedia optimizer doesn't need specific parameters currently
 
 
 class WikipediaOptimizer(AbstractOptimizer):
+    """Wikipedia-based portfolio optimizer.
+
+    This optimizer uses Wikipedia page view data and other web-based signals
+    to determine portfolio allocations. It leverages the allocate_wikipedia
+    function to compute weights based on online attention metrics.
+    """
+
     def __init__(self, config: Optional[WikipediaOptimizerConfig] = None) -> None:
+        """Initialize the Wikipedia optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or WikipediaOptimizerConfig()
 
     def allocate(
@@ -41,6 +60,22 @@ class WikipediaOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio using Wikipedia-based signals.
+
+        Uses Wikipedia page view data and web-based metrics to determine
+        portfolio weights. Falls back to equal weights if Wikipedia data
+        is unavailable or allocation fails.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index (unused)
+            df_cov: Covariance matrix DataFrame (unused)
+            df_prices: Historical price data (unused)
+            time: Current timestamp (required for Wikipedia data lookup)
+            l_moments: L-moments (unused)
+
+        Returns:
+            Portfolio weights as pandas Series based on Wikipedia signals
+        """
         # Validate inputs
         validate_asset_names(ds_mu, df_cov)
         assert time is not None, "Time parameter must be provided"
@@ -96,4 +131,9 @@ class WikipediaOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the Wikipedia optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "WikipediaOptimizer"

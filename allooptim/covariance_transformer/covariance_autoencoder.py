@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Improved Autoencoder with Lower Triangle Optimization and Reconstruction Metrics
+"""Improved Autoencoder with Lower Triangle Optimization and Reconstruction Metrics
 Educational implementation using synthetic training data generation.
 """
 
@@ -29,9 +28,7 @@ CONSERVATIVE_SAMPLES_PER_PARAM_THRESHOLD = 0.1
 
 
 class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
-    """
-    Autoencoder with symmetric matrix optimization and reconstruction metrics.
-    """
+    """Autoencoder with symmetric matrix optimization and reconstruction metrics."""
 
     def __init__(  # noqa: PLR0913
         self,
@@ -51,15 +48,13 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         use_synthetic: bool = True,
         n_synthetic_samples: int = 50000,
     ):
-        """
-        Initialize improved autoencoder with aggressive regularization.
+        """Initialize improved autoencoder with aggressive regularization.
 
         Args:
             hidden_dims: Architecture layers (None for auto-sizing)
             use_lower_triangle: Use symmetric matrix optimization (recommended)
             Other params: Regularization and training settings
         """
-
         self.use_lower_triangle = use_lower_triangle
         self.hidden_dims = hidden_dims
         self.learning_rate = learning_rate
@@ -132,8 +127,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
     def _generate_synthetic_training_data(
         self, n_samples: int = 50000, use_cached: bool = True, cache_file: str = "covariance_training_data.h5"
     ) -> tuple[Tensor, Tensor]:
-        """
-        Generate synthetic training data using the training_data module.
+        """Generate synthetic training data using the training_data module.
 
         Args:
             n_samples: Number of synthetic samples to generate
@@ -310,7 +304,6 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
     def _initial_fit(self, n_assets: int) -> None:
         """Initial setup before training."""
-
         self.n_assets = n_assets
 
         # Calculate input/output dimensions
@@ -368,8 +361,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         self,
         df_prices: Optional[pd.DataFrame] = None,
     ) -> None:
-        """
-        Train the autoencoder using synthetic or historical data.
+        """Train the autoencoder using synthetic or historical data.
 
         Args:
             df_prices: Historical price data (optional if use_synthetic=True or n_assets provided)
@@ -435,6 +427,16 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
         # Simple batching
         def get_batches(data_x, data_y, batch_size):
+            """Generate batches of training data for mini-batch training.
+
+            Args:
+                data_x: Input data tensor
+                data_y: Target data tensor
+                batch_size: Size of each batch
+
+            Yields:
+                tuple: (batch_x, batch_y) tensors for each batch
+            """
             for i in range(0, len(data_x), batch_size):
                 yield data_x[i : i + batch_size], data_y[i : i + batch_size]
 

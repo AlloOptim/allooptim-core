@@ -20,8 +20,7 @@ class ClusterAnalyzer:
     """Analyze clustering of optimizers based on performance and portfolio similarity."""
 
     def __init__(self, results: dict):
-        """
-        Initialize the cluster analyzer.
+        """Initialize the cluster analyzer.
 
         Args:
             results: Dictionary containing backtest results for all optimizers.
@@ -30,7 +29,6 @@ class ClusterAnalyzer:
 
     def analyze_clusters(self) -> dict:
         """Perform comprehensive clustering analysis."""
-
         logger.info("Starting clustering analysis")
 
         clustering_results = {}
@@ -54,7 +52,6 @@ class ClusterAnalyzer:
 
     def _cluster_by_performance(self) -> dict:
         """Cluster optimizers by performance metrics."""
-
         # Extract performance metrics
         metrics_data = []
         optimizer_names = []
@@ -109,7 +106,6 @@ class ClusterAnalyzer:
 
     def _cluster_by_portfolio_correlation(self) -> dict:
         """Cluster optimizers by portfolio weight correlation."""
-
         # Extract portfolio weights time series
         weights_series = {}
 
@@ -164,7 +160,6 @@ class ClusterAnalyzer:
 
     def _cluster_by_returns_correlation(self) -> dict:
         """Cluster optimizers by returns correlation."""
-
         # Extract returns time series
         returns_series = {}
 
@@ -209,7 +204,6 @@ class ClusterAnalyzer:
 
     def _combined_clustering(self) -> dict:
         """Combined clustering using multiple features."""
-
         # Combine performance metrics, portfolio similarity, and returns correlation
         combined_features = []
         optimizer_names = []
@@ -273,7 +267,6 @@ class ClusterAnalyzer:
 
     def _analyze_euclidean_distances(self) -> dict:
         """Analyze mean Euclidean distances between optimizer weights across all timesteps."""
-
         logger.info("Computing Euclidean distances between optimizer weights")
 
         # Extract weights history for all optimizers

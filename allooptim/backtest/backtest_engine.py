@@ -44,8 +44,7 @@ class BacktestEngine:
         orchestrator_type: Optional[OrchestratorType] = None,
         **orchestrator_kwargs,
     ) -> None:
-        """
-        Initialize the backtest engine.
+        """Initialize the backtest engine.
 
         Args:
             config_backtest: Configuration for backtest parameters including date ranges,
@@ -86,8 +85,7 @@ class BacktestEngine:
             self.config_backtest.results_dir.mkdir(exist_ok=True, parents=True)
 
     def run_backtest(self) -> dict:
-        """
-        Run the comprehensive backtest.
+        """Run the comprehensive backtest.
 
         Returns:
             Dictionary containing all results and metrics
@@ -179,7 +177,6 @@ class BacktestEngine:
 
     def _get_rebalance_dates(self, date_index: pd.DatetimeIndex) -> list[datetime]:
         """Get rebalancing dates every N trading days."""
-
         rebalance_dates = []
         for i in range(self.config_backtest.lookback_days, len(date_index), self.config_backtest.rebalance_frequency):
             rebalance_dates.append(date_index[i])
@@ -187,8 +184,7 @@ class BacktestEngine:
         return rebalance_dates
 
     def _save_a2a_allocations(self, allocation_results: list[A2AResult], rebalance_dates: list[datetime]):
-        """
-        Save A2A final allocations to CSV file.
+        """Save A2A final allocations to CSV file.
 
         Args:
             allocation_results: List of A2AResult objects
@@ -269,7 +265,6 @@ class BacktestEngine:
         rebalance_dates: list[datetime],
     ) -> dict:
         """Calculate comprehensive performance metrics for all portfolios."""
-
         # Extract per-optimizer weights_history from optimizer_allocations
         optimizer_names = set()
         for result in allocation_results:
@@ -637,7 +632,6 @@ class BacktestEngine:
         self, price_data: pd.DataFrame, weights_history: list[pd.Series], rebalance_dates: list[datetime]
     ) -> pd.Series:
         """Simulate portfolio performance with perfect execution."""
-
         if not weights_history or not rebalance_dates:
             return pd.Series([], dtype=float)
 
@@ -685,8 +679,7 @@ class _PriceDataProvider(AbstractObservationSimulator):
     """Simple data provider that wraps price DataFrame for orchestrator compatibility."""
 
     def __init__(self, price_data: pd.DataFrame):
-        """
-        Initialize the price data provider.
+        """Initialize the price data provider.
 
         Args:
             price_data: Historical price data with datetime index and asset columns.

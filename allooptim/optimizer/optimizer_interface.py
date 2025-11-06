@@ -8,8 +8,7 @@ from allooptim.optimizer.allocation_metric import LMoments
 
 
 class AbstractOptimizer(ABC):
-    """
-    Abstract base class for all portfolio optimization algorithms.
+    """Abstract base class for all portfolio optimization algorithms.
 
     All optimizers in AlloOptim inherit from this class and implement the
     `allocate()` method to compute portfolio weights. This ensures a consistent
@@ -35,7 +34,7 @@ class AbstractOptimizer(ABC):
         ...     def allocate(self, ds_mu, df_cov, **kwargs):
         ...         # Equal-weight allocation
         ...         n = len(ds_mu)
-        ...         return pd.Series(1/n, index=ds_mu.index)
+        ...         return pd.Series(1 / n, index=ds_mu.index)
         ...
         ...     @property
         ...     def name(self) -> str:
@@ -75,8 +74,7 @@ class AbstractOptimizer(ABC):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
+        """Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
 
         Args:
             mu: Expected return vector as pandas Series with asset names as index
@@ -101,16 +99,12 @@ class AbstractOptimizer(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        """
-        Name of this optimizer. The name will be displayed in the MCOS results DataFrame.
-        """
+        """Name of this optimizer. The name will be displayed in the MCOS results DataFrame."""
         pass
 
 
 class AbstractEnsembleOptimizer(ABC):
-    """
-    Abstract base class for ensemble portfolio optimization algorithms with pandas interface.
-    """
+    """Abstract base class for ensemble portfolio optimization algorithms with pandas interface."""
 
     def fit(
         self,
@@ -133,8 +127,7 @@ class AbstractEnsembleOptimizer(ABC):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
+        """Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
 
         Args:
             df_allocations: Optional DataFrame with previous optimizer allocations.
@@ -155,7 +148,5 @@ class AbstractEnsembleOptimizer(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        """
-        Name of this optimizer. The name will be displayed in the MCOS results DataFrame.
-        """
+        """Name of this optimizer. The name will be displayed in the MCOS results DataFrame."""
         pass

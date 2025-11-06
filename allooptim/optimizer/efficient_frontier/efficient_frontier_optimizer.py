@@ -25,6 +25,8 @@ logger = logging.getLogger(__name__)
 
 
 class MaxSharpeOptimizerConfig(BaseModel):
+    """Configuration parameters for maximum Sharpe ratio optimizer."""
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     # Configuration for fallback bounds when nonconvex optimization is needed
@@ -34,8 +36,7 @@ class MaxSharpeOptimizerConfig(BaseModel):
 
 
 class MaxSharpeOptimizer(AbstractOptimizer):
-    """
-    Maximum Sharpe ratio optimizer using Modern Portfolio Theory with pandas interface.
+    """Maximum Sharpe ratio optimizer using Modern Portfolio Theory with pandas interface.
 
     Implements the classic mean-variance optimization to find the portfolio with the highest
     Sharpe ratio (return per unit of risk). Based on Harry Markowitz's Nobel Prize-winning
@@ -84,6 +85,11 @@ class MaxSharpeOptimizer(AbstractOptimizer):
         self,
         config: Optional[MaxSharpeOptimizerConfig] = None,
     ) -> None:
+        """Initialize maximum Sharpe ratio optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or MaxSharpeOptimizerConfig()
 
     def allocate(
@@ -94,6 +100,18 @@ class MaxSharpeOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio weights to maximize Sharpe ratio.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data (unused)
+            time: Current timestamp (unused)
+            l_moments: L-moments (unused)
+
+        Returns:
+            Optimal portfolio weights as pandas Series
+        """
         # Validate inputs
         validate_asset_names(ds_mu, df_cov)
         asset_names = get_asset_names(mu=ds_mu)
@@ -153,10 +171,17 @@ class MaxSharpeOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the maximum Sharpe ratio optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "MaxSharpe"
 
 
 class EfficientRiskOptimizerConfig(BaseModel):
+    """Configuration parameters for efficient risk optimizer."""
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     min_target_risk: float = 0.15  # Minimum target risk
@@ -167,6 +192,11 @@ class EfficientRiskOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'"""
 
     def __init__(self, config: Optional[EfficientRiskOptimizerConfig] = None) -> None:
+        """Initialize efficient risk optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or EfficientRiskOptimizerConfig()
 
     def allocate(
@@ -177,6 +207,18 @@ class EfficientRiskOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio weights for efficient risk optimization.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data (unused)
+            time: Current timestamp (unused)
+            l_moments: L-moments (unused)
+
+        Returns:
+            Optimal portfolio weights as pandas Series
+        """
         # Validate asset names consistency
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
@@ -206,10 +248,17 @@ class EfficientRiskOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the efficient risk optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "EfficientRisk"
 
 
 class EfficientReturnOptimizerConfig(BaseModel):
+    """Configuration parameters for efficient return optimizer."""
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     min_target_return: float = 0.0  # Minimum target return
@@ -220,6 +269,11 @@ class EfficientReturnOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'"""
 
     def __init__(self, config: Optional[EfficientReturnOptimizerConfig] = None) -> None:
+        """Initialize efficient return optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or EfficientReturnOptimizerConfig()
 
     def allocate(
@@ -230,6 +284,18 @@ class EfficientReturnOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio weights for efficient return optimization.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data (unused)
+            time: Current timestamp (unused)
+            l_moments: L-moments (unused)
+
+        Returns:
+            Optimal portfolio weights as pandas Series
+        """
         # Validate asset names consistency
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
@@ -257,4 +323,9 @@ class EfficientReturnOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the efficient return optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "EfficientReturn"

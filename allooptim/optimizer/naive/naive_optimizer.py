@@ -21,6 +21,13 @@ logger = logging.getLogger(__name__)
 
 
 class NaiveOptimizerConfig(BaseModel):
+    """Configuration for naive equal-weight optimizer.
+
+    This config class holds parameters for the naive optimizer. Currently minimal
+    as the naive strategy doesn't require extensive configuration, but structured
+    for future extensibility.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     # No parameters needed for naive equal weight, but keeping for consistency
@@ -28,8 +35,7 @@ class NaiveOptimizerConfig(BaseModel):
 
 
 class NaiveOptimizer(AbstractOptimizer):
-    """
-    Equal-weight portfolio optimizer with pandas interface.
+    """Equal-weight portfolio optimizer with pandas interface.
 
     Implements the simplest possible allocation strategy by assigning equal weights
     to all available assets (1/N strategy). Despite its simplicity, this approach
@@ -63,6 +69,11 @@ class NaiveOptimizer(AbstractOptimizer):
     """
 
     def __init__(self, config: Optional[NaiveOptimizerConfig] = None) -> None:
+        """Initialize the naive equal-weight optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or NaiveOptimizerConfig()
 
     def allocate(
@@ -73,6 +84,22 @@ class NaiveOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio using equal-weight strategy.
+
+        Assigns equal weights (1/N) to all assets regardless of expected returns
+        or risk characteristics. This simple strategy often outperforms more
+        complex optimization methods due to robustness to estimation errors.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index (unused)
+            df_cov: Covariance matrix DataFrame (unused)
+            df_prices: Historical price data (unused)
+            time: Current timestamp (unused)
+            l_moments: L-moments (unused)
+
+        Returns:
+            Portfolio weights as pandas Series with equal weights summing to 1.0
+        """
         # Validate inputs
         validate_asset_names(ds_mu, df_cov)
 
@@ -89,4 +116,9 @@ class NaiveOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the naive optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "NaiveOptimizer"

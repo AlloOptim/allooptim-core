@@ -1,5 +1,4 @@
-"""
-Pydantic models for A2A result structures - Phase 3: Result Structure Refinement
+"""Pydantic models for A2A result structures - Phase 3: Result Structure Refinement
 
 This module defines nested Pydantic models to eliminate dict usage in favor of
 structured, type-safe result objects as specified in the future A2A architecture.
@@ -52,8 +51,7 @@ class OptimizerError(BaseModel):
 
 
 class A2AResult(BaseModel):
-    """
-    Pydantic result structure from A2A orchestration.
+    """Pydantic result structure from A2A orchestration.
 
     Design Principles:
     - NO dicts for structured data - all typed models
@@ -85,8 +83,7 @@ class A2AResult(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True)  # Allow pandas Series, datetime
 
     def to_dataframe(self) -> pd.DataFrame:
-        """
-        Convert optimizer allocations to DataFrame.
+        """Convert optimizer allocations to DataFrame.
 
         Returns:
             DataFrame with optimizers as columns, assets as rows
@@ -95,8 +92,7 @@ class A2AResult(BaseModel):
         return pd.DataFrame(alloc_dict)
 
     def get_optimizer_weights_series(self) -> pd.Series:
-        """
-        Get optimizer weights as pandas Series.
+        """Get optimizer weights as pandas Series.
 
         Returns:
             Series with optimizer names as index, weights as values

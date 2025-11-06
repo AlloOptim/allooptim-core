@@ -18,8 +18,7 @@ class DataLoader:
         benchmark: str,
         symbols: list[str],
     ) -> None:
-        """
-        Initialize the data loader.
+        """Initialize the data loader.
 
         Args:
             benchmark: Benchmark symbol (e.g., 'SPY') to include in the universe.
@@ -35,8 +34,7 @@ class DataLoader:
         logger.info(f"Loaded universe with {len(self.symbols)} symbols")
 
     def load_price_data(self, start_date: datetime, end_date: datetime) -> pd.DataFrame:
-        """
-        Load historical price data for the entire universe.
+        """Load historical price data for the entire universe.
 
         Returns:
             DataFrame with dates as index and symbols as columns

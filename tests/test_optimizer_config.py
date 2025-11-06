@@ -1,21 +1,19 @@
-"""
-Unit tests for optimizer configuration registry and validation.
+"""Unit tests for optimizer configuration registry and validation.
 
 Tests the core optimizer configuration functionality including registry,
 validation, and basic config operations.
 """
 
 import pytest
-from typing import Dict, Any
 from pydantic import BaseModel
 
 from allooptim.optimizer.optimizer_config_registry import (
-    get_registered_optimizer_names,
-    get_optimizer_config_class,
-    get_all_optimizer_configs,
-    validate_optimizer_config,
-    get_optimizer_config_schema,
     OPTIMIZER_CONFIG_REGISTRY,
+    get_all_optimizer_configs,
+    get_optimizer_config_class,
+    get_optimizer_config_schema,
+    get_registered_optimizer_names,
+    validate_optimizer_config,
 )
 
 

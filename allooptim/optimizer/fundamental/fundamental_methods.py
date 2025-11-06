@@ -1,5 +1,4 @@
-"""
-Pure Fundamental-Based Portfolio Allocation
+"""Pure Fundamental-Based Portfolio Allocation
 Uses 5 key fundamental metrics to determine portfolio weights
 No price data, returns, or covariance analysis
 """
@@ -36,7 +35,6 @@ class FundamentalData(BaseModel):
     @property
     def is_valid(self) -> bool:
         """Determine if this fundamental data is valid"""
-
         return any(
             [
                 self.market_cap is not None,
@@ -136,8 +134,7 @@ class OnlyMarketCapFundamentalConfig(BalancedFundamentalConfig):
 
 
 def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 1000) -> list[FundamentalData]:
-    """
-    Download fundamental data for multiple stocks using batch processing
+    """Download fundamental data for multiple stocks using batch processing
 
     Args:
         tickers: list of ticker symbols to fetch data for
@@ -218,8 +215,7 @@ def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 
 
 
 def normalize_metric(values: np.ndarray, inverse: bool = False) -> np.ndarray:
-    """
-    Normalize values to 0-1 range using min-max normalization
+    """Normalize values to 0-1 range using min-max normalization
 
     Args:
         values: Array of metric values
@@ -262,8 +258,7 @@ def normalize_metric(values: np.ndarray, inverse: bool = False) -> np.ndarray:
 
 
 def calculate_fundamental_scores(fundamentals: list[FundamentalData], config: BalancedFundamentalConfig) -> np.ndarray:
-    """
-    Calculate composite fundamental scores for each stock
+    """Calculate composite fundamental scores for each stock
 
     Args:
         fundamentals: list of FundamentalData objects
@@ -272,7 +267,6 @@ def calculate_fundamental_scores(fundamentals: list[FundamentalData], config: Ba
     Returns:
         Array of composite scores for each stock
     """
-
     # Extract metrics into arrays from FundamentalData objects
     market_caps = np.array([f.market_cap if f.market_cap is not None else np.nan for f in fundamentals])
     roes = np.array([f.roe if f.roe is not None else np.nan for f in fundamentals])
@@ -304,8 +298,7 @@ def allocate(
     today: datetime,
     config: BalancedFundamentalConfig,
 ) -> np.ndarray:
-    """
-    Allocate portfolio weights based purely on fundamental data
+    """Allocate portfolio weights based purely on fundamental data
 
     Uses 5 fundamental metrics:
     1. Market Cap - Company size and stability
@@ -322,7 +315,6 @@ def allocate(
     Returns:
         np.ndarray: Portfolio weights summing to 1.0
     """
-
     logger.debug(f"\n{'='*60}")
     logger.debug(f"FUNDAMENTAL PORTFOLIO ALLOCATION - {today.date()}")
     logger.debug(f"{'='*60}")

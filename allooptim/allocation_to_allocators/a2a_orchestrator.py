@@ -1,5 +1,4 @@
-"""
-A2A Orchestrator Base Classes
+"""A2A Orchestrator Base Classes
 
 Abstract base classes for Allocation-to-Allocators orchestration.
 Provides clean separation between different orchestration strategies.
@@ -24,8 +23,7 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 
 class A2AOrchestrator(ABC):
-    """
-    Abstract base class for Allocation-to-Allocators orchestration.
+    """Abstract base class for Allocation-to-Allocators orchestration.
 
     Design Philosophy:
     - INTERFACE ONLY: No implementation in ABC
@@ -44,8 +42,7 @@ class A2AOrchestrator(ABC):
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List["StockUniverse"]] = None,
     ) -> A2AResult:
-        """
-        Orchestrate allocation process for current time step.
+        """Orchestrate allocation process for current time step.
 
         Args:
             data_provider: Provides ground truth and sampling capability for current time step
@@ -65,8 +62,7 @@ class A2AOrchestrator(ABC):
 
 
 class BaseOrchestrator(A2AOrchestrator):
-    """
-    Base implementation providing shared functionality for all orchestrators.
+    """Base implementation providing shared functionality for all orchestrators.
 
     Design Philosophy:
     - CONCRETE IMPLEMENTATION: Provides utility methods
@@ -81,8 +77,7 @@ class BaseOrchestrator(A2AOrchestrator):
         covariance_transformers: List[AbstractCovarianceTransformer],
         config: A2AConfig,
     ):
-        """
-        Initialize orchestrator.
+        """Initialize orchestrator.
 
         Args:
             optimizers: List of optimizer instances
@@ -94,8 +89,7 @@ class BaseOrchestrator(A2AOrchestrator):
         self.config = config
 
     def _apply_covariance_transformers(self, cov: pd.DataFrame, n_observations: int) -> pd.DataFrame:
-        """
-        Apply covariance transformation pipeline.
+        """Apply covariance transformation pipeline.
 
         Args:
             cov: Raw covariance matrix from data provider
@@ -116,8 +110,7 @@ class BaseOrchestrator(A2AOrchestrator):
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List[StockUniverse]] = None,
     ) -> A2AResult:
-        """
-        Orchestrate allocation process for current time step.
+        """Orchestrate allocation process for current time step.
 
         Args:
             data_provider: Provides ground truth and sampling capability for current time step

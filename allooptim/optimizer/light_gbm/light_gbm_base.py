@@ -16,14 +16,20 @@ MIN_FEATURES_FOR_MODEL_TRAINING = 50
 
 
 class LightGBMOptimizerConfig(BaseModel):
+    """Configuration for LightGBM-based portfolio optimizer.
+
+    This config holds parameters for the LightGBM optimizer including
+    decay rates for exponential weighting, risk aversion levels, and
+    transaction cost assumptions.
+    """
+
     decay: float = 0.94
     risk_aversion: float = 2.0
     transaction_cost: float = 0.001
 
 
 class LightGBMOptimizerEngine:
-    """
-    State-of-the-art portfolio optimizer using:
+    """State-of-the-art portfolio optimizer using:
     1. LightGBM for return prediction (fast training)
     2. Online covariance estimation with exponential weighting
     3. Risk-aware optimization with transaction costs
@@ -35,10 +41,9 @@ class LightGBMOptimizerEngine:
         n_lookback: int,
         config: Optional[LightGBMOptimizerConfig] = None,
     ) -> None:
-        """
-        Args:
-            n_assets: Number of assets in portfolio
-            lookback: Historical window for feature engineering
+        """Args:
+        n_assets: Number of assets in portfolio
+        lookback: Historical window for feature engineering
         """
         self._n_assets = n_assets
         self._n_lookback = n_lookback
@@ -124,8 +129,7 @@ class LightGBMOptimizerEngine:
         return (1 - shrinkage) * self._ewm_cov + shrinkage * target
 
     def train(self, prices: np.ndarray, returns: np.ndarray = None) -> None:
-        """
-        Fast training using LightGBM with early stopping
+        """Fast training using LightGBM with early stopping
 
         Args:
             prices: (T, n_assets) historical prices
@@ -195,8 +199,7 @@ class LightGBMOptimizerEngine:
         logger.debug("Training complete! Models ready for daily updates.")
 
     def incremental_update(self, new_prices: np.ndarray, new_returns: np.ndarray = None) -> None:
-        """
-        Fast incremental update with new data (runs in <1 second)
+        """Fast incremental update with new data (runs in <1 second)
 
         Args:
             new_prices: (lookback+1, n_assets) recent prices including new day
@@ -241,8 +244,7 @@ class LightGBMOptimizerEngine:
         self._target_buffer = []
 
     def predict(self, current_prices: np.ndarray) -> np.ndarray:
-        """
-        Predict returns and optimize portfolio (runs in milliseconds)
+        """Predict returns and optimize portfolio (runs in milliseconds)
 
         Args:
             current_prices: (lookback, n_assets) recent prices
@@ -280,12 +282,21 @@ class LightGBMOptimizerEngine:
         return optimal_weights
 
     def _optimize_portfolio(self, mu: np.ndarray, cov: np.ndarray) -> np.ndarray:
-        """
-        Mean-variance optimization with transaction costs
-        """
+        """Mean-variance optimization with transaction costs"""
         n = len(mu)
 
         def objective(w):
+            """Portfolio optimization objective function.
+
+            Maximizes return minus risk penalty minus transaction costs.
+            Used by scipy.optimize.minimize for portfolio optimization.
+
+            Args:
+                w: Portfolio weights array
+
+            Returns:
+                Negative objective value (since minimize maximizes negative objective)
+            """
             port_return = np.dot(w, mu)
             port_risk = np.sqrt(np.dot(w, np.dot(cov, w)))
             turnover = np.sum(np.abs(w - self._last_weights))

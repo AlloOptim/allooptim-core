@@ -1,5 +1,4 @@
-"""
-Integration test for AllocationOrchestrator in backtest context.
+"""Integration test for AllocationOrchestrator in backtest context.
 
 This test verifies that the orchestrator works correctly when integrated
 into the backtesting framework and that df_allocation is properly populated.
@@ -28,7 +27,6 @@ from allooptim.config.allocation_dataclasses import (
 )
 def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     """Test orchestrator integration with backtest engine."""
-
     # Create a minimal backtest configuration using orchestrator
     config = BacktestConfig(
         start_date=datetime(2023, 1, 1),

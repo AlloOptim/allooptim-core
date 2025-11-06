@@ -21,8 +21,7 @@ def price_based_objective_function(
     prices: np.ndarray,
     risk_aversion: float,
 ) -> np.ndarray:
-    """
-    Calculate risk-adjusted returns for multiple particles using efficient matrix operations.
+    """Calculate risk-adjusted returns for multiple particles using efficient matrix operations.
 
     This function computes the mean-variance utility for multiple portfolio weight configurations
     simultaneously, making it ideal for particle swarm optimization and other population-based
@@ -83,8 +82,7 @@ def price_based_objective_function(
 
 
 def sortino_ratio_objective(weights: np.ndarray, prices: np.ndarray, target_return: float = 0.0) -> np.ndarray:
-    """
-    Calculate Sortino ratio for multiple portfolios - focuses only on downside risk.
+    """Calculate Sortino ratio for multiple portfolios - focuses only on downside risk.
 
     The Sortino ratio is a distribution-free risk measure that only penalizes returns
     below a target threshold, making it more suitable for asymmetric return distributions.
@@ -129,8 +127,7 @@ def sortino_ratio_objective(weights: np.ndarray, prices: np.ndarray, target_retu
 
 
 def conditional_value_at_risk_objective(weights: np.ndarray, prices: np.ndarray, alpha: float = 0.05) -> np.ndarray:
-    """
-    Calculate Conditional Value at Risk (CVaR) based objective function.
+    """Calculate Conditional Value at Risk (CVaR) based objective function.
 
     CVaR is a coherent risk measure that considers the expected loss beyond the VaR threshold.
     It's distribution-free and provides a more conservative risk assessment than VaR alone.
@@ -180,8 +177,7 @@ def conditional_value_at_risk_objective(weights: np.ndarray, prices: np.ndarray,
 
 
 def maximum_drawdown_objective(weights: np.ndarray, prices: np.ndarray, return_penalty: float = 1.0) -> np.ndarray:
-    """
-    Calculate maximum drawdown based objective function.
+    """Calculate maximum drawdown based objective function.
 
     Maximum drawdown measures the largest peak-to-trough decline in portfolio value,
     providing a distribution-free measure of downside risk that captures the worst
@@ -233,8 +229,7 @@ def maximum_drawdown_objective(weights: np.ndarray, prices: np.ndarray, return_p
 
 
 def robust_sharpe_objective(weights: np.ndarray, prices: np.ndarray, mad_multiplier: float = 1.4826) -> np.ndarray:
-    """
-    Calculate robust Sharpe ratio using Median Absolute Deviation (MAD) instead of standard deviation.
+    """Calculate robust Sharpe ratio using Median Absolute Deviation (MAD) instead of standard deviation.
 
     The robust Sharpe ratio replaces standard deviation with MAD, making it less sensitive
     to outliers and not assuming normal distribution. MAD is multiplied by 1.4826 to make
@@ -290,6 +285,23 @@ def risk_adjusted_returns_objective(  # noqa: PLR0913
     mu: np.ndarray,
     cov: np.ndarray,
 ) -> np.ndarray:
+    """Calculate risk-adjusted returns objective for PSO optimization.
+
+    This function computes the negative expected return adjusted for risk,
+    suitable for minimization by PSO. Supports both classical mean-variance
+    and higher-order moment-based risk adjustments.
+
+    Args:
+        x: Decision variables with scaling and weights (n_particles, n_assets+1)
+        enable_l_moments: Whether to use higher-order moments for risk adjustment
+        l_moments: L-moments for higher-order risk measures
+        risk_aversion: Risk aversion parameter
+        mu: Expected returns vector
+        cov: Covariance matrix
+
+    Returns:
+        Negative risk-adjusted returns for minimization
+    """
     scale = x[:, 0:1]  # (n_particles, 1)
     raw_weights = x[:, 1:]  # (n_particles, n_assets)
 

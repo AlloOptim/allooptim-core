@@ -1,5 +1,4 @@
-"""
-Ensemble Optimizers Module
+"""Ensemble Optimizers Module
 
 Contains optimizers that combine or aggregate results from multiple individual optimizers:
 - A2AEnsembleOptimizer: Efficiently computes ensemble allocation from pre-computed allocations
@@ -25,17 +24,15 @@ logger = logging.getLogger(__name__)
 
 
 class EnsembleOptimizerConfig(BaseModel):
+    """Configuration parameters for ensemble optimizers."""
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     # Ensemble optimizers don't need specific parameters currently
 
 
 class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
-    def __init__(self) -> None:
-        self.config = EnsembleOptimizerConfig()
-
-    """
-    Efficient Allocation-to-Allocators (A2A) ensemble optimizer.
+    """Efficient Allocation-to-Allocators (A2A) ensemble optimizer.
 
     Instead of re-running all individual optimizers, this optimizer uses the df_allocations
     DataFrame containing pre-computed allocations from all individual optimizers and computes
@@ -72,8 +69,17 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
         MSFT     0.417  # (0.40 + 0.45 + 0.40) / 3
     """
 
+    def __init__(self) -> None:
+        """Initialize A2A ensemble optimizer."""
+        self.config = EnsembleOptimizerConfig()
+
     @property
     def name(self) -> str:
+        """Get the name of the A2A ensemble optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "A2AEnsemble"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
@@ -89,8 +95,7 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Compute efficient ensemble allocation from pre-computed optimizer allocations.
+        """Compute efficient ensemble allocation from pre-computed optimizer allocations.
 
         Args:
             mu: Expected returns (used for asset names and fallback)
@@ -143,11 +148,7 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
 
 
 class SPY500Benchmark(AbstractEnsembleOptimizer):
-    def __init__(self) -> None:
-        self.config = EnsembleOptimizerConfig()
-
-    """
-    S&P 500 benchmark optimizer that allocates 100% to SPY.
+    """S&P 500 benchmark optimizer that allocates 100% to SPY.
 
     Provides a simple benchmark allocation strategy for comparison with active
     optimization strategies. Always allocates 100% to SPY if available,
@@ -166,8 +167,17 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
         1.0
     """
 
+    def __init__(self) -> None:
+        """Initialize SPY 500 benchmark optimizer."""
+        self.config = EnsembleOptimizerConfig()
+
     @property
     def name(self) -> str:
+        """Get the name of the SPY 500 benchmark optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "SPYBenchmark"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
@@ -183,8 +193,7 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Allocate 100% to SPY if available, otherwise equal weights.
+        """Allocate 100% to SPY if available, otherwise equal weights.
 
         Args:
             mu: Expected returns (used for asset names)

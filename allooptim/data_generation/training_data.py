@@ -1,5 +1,4 @@
-"""
-Covariance Matrix Training Data Generation Module
+"""Covariance Matrix Training Data Generation Module
 Generates synthetic correlation matrices for training denoising autoencoders
 """
 
@@ -35,8 +34,7 @@ class SpectrumGenerator:
 
     @staticmethod
     def exponential_decay(n: int, decay_rate: float = None) -> np.ndarray:
-        """
-        Exponentially decaying spectrum (most common in equity markets)
+        """Exponentially decaying spectrum (most common in equity markets)
 
         Args:
             n: Number of eigenvalues
@@ -53,8 +51,7 @@ class SpectrumGenerator:
 
     @staticmethod
     def power_law(n: int, exponent: float = None) -> np.ndarray:
-        """
-        Power-law spectrum (Zipf-like distribution)
+        """Power-law spectrum (Zipf-like distribution)
 
         Args:
             n: Number of eigenvalues
@@ -71,8 +68,7 @@ class SpectrumGenerator:
 
     @staticmethod
     def spiked_model(n: int, n_factors: int = None, factor_strength: tuple[float, float] = (5.0, 20.0)) -> np.ndarray:
-        """
-        Spiked model: few large factors + noise
+        """Spiked model: few large factors + noise
         Models market with strong factors (market, sector, etc.)
 
         Args:
@@ -97,8 +93,7 @@ class SpectrumGenerator:
 
     @staticmethod
     def hierarchical(n: int, n_levels: int = None) -> np.ndarray:
-        """
-        Hierarchical spectrum: multiple scales of correlation
+        """Hierarchical spectrum: multiple scales of correlation
         Models markets with sector structure
 
         Args:
@@ -130,8 +125,7 @@ class SpectrumGenerator:
 
     @staticmethod
     def flat_with_noise(n: int, base_level: float = None) -> np.ndarray:
-        """
-        Nearly flat spectrum with small perturbations
+        """Nearly flat spectrum with small perturbations
 
         Args:
             n: Number of eigenvalues
@@ -149,8 +143,7 @@ class SpectrumGenerator:
 
     @staticmethod
     def market_model(n: int, market_variance_explained: float = None) -> np.ndarray:
-        """
-        Single factor (market) model with idiosyncratic risk
+        """Single factor (market) model with idiosyncratic risk
 
         Args:
             n: Number of eigenvalues
@@ -178,8 +171,7 @@ class CovarianceMatrixGenerator:
 
     @staticmethod
     def from_eigenvalues(eigenvalues: np.ndarray) -> np.ndarray:
-        """
-        Generate correlation matrix from specified eigenvalues
+        """Generate correlation matrix from specified eigenvalues
         Using Davies-Higham algorithm with Givens rotations
 
         Args:
@@ -204,8 +196,7 @@ class CovarianceMatrixGenerator:
 
     @staticmethod
     def _apply_givens_rotations(M: np.ndarray, max_iter: int = 1000) -> np.ndarray:
-        """
-        Apply Givens rotations to transform matrix to correlation form
+        """Apply Givens rotations to transform matrix to correlation form
 
         Args:
             M: Symmetric positive definite matrix
@@ -250,8 +241,7 @@ class CovarianceMatrixGenerator:
 
     @staticmethod
     def _givens_rotation(M: np.ndarray, i: int, j: int) -> np.ndarray:
-        """
-        Apply Givens rotation to matrix M at position (i, j)
+        """Apply Givens rotation to matrix M at position (i, j)
 
         Args:
             M: Matrix to rotate
@@ -288,8 +278,7 @@ class CovarianceMatrixGenerator:
     def block_structure(
         n: int, n_blocks: int, intra_block_corr: float = None, inter_block_corr: float = None
     ) -> np.ndarray:
-        """
-        Generate correlation matrix with block structure (sectors)
+        """Generate correlation matrix with block structure (sectors)
 
         Args:
             n: Matrix dimension
@@ -332,8 +321,7 @@ class CovarianceMatrixGenerator:
 
     @staticmethod
     def _project_to_correlation(M: np.ndarray) -> np.ndarray:
-        """
-        Project matrix to valid correlation matrix space
+        """Project matrix to valid correlation matrix space
 
         Args:
             M: Symmetric matrix
@@ -362,8 +350,7 @@ class CovarianceMatrixGenerator:
 
     @staticmethod
     def toeplitz_blocks(n: int, n_blocks: int) -> np.ndarray:
-        """
-        Generate correlation matrix with Toeplitz-structured blocks
+        """Generate correlation matrix with Toeplitz-structured blocks
 
         Args:
             n: Matrix dimension
@@ -403,8 +390,7 @@ class NoisyObservationGenerator:
 
     @staticmethod
     def add_estimation_noise(true_cov: np.ndarray, n_observations: int, return_eigvals: bool = True) -> dict:
-        """
-        Generate noisy sample covariance matrix by simulating data
+        """Generate noisy sample covariance matrix by simulating data
 
         Args:
             true_cov: True correlation/covariance matrix
@@ -451,14 +437,18 @@ class TrainingDataGenerator:
     """Main class for generating complete training dataset"""
 
     def __init__(self, config: TrainingConfig):
+        """Initialize the training data generator.
+
+        Args:
+            config: Configuration object containing generation parameters
+        """
         self.config = config
         self.spectrum_gen = SpectrumGenerator()
         self.cov_gen = CovarianceMatrixGenerator()
         self.noise_gen = NoisyObservationGenerator()
 
     def generate_single_sample(self, sample_idx: int) -> dict:
-        """
-        Generate a single training sample
+        """Generate a single training sample
 
         Args:
             sample_idx: Sample index (used for seeding)
@@ -522,8 +512,7 @@ class TrainingDataGenerator:
             raise ValueError(f"Unknown spectrum type: {spectrum_type}")
 
     def generate_parallel(self, verbose: bool = True) -> list[dict]:
-        """
-        Generate training data in parallel
+        """Generate training data in parallel
 
         Args:
             verbose: Print progress
@@ -545,8 +534,7 @@ class TrainingDataGenerator:
         return samples
 
     def save_to_hdf5(self, samples: list[dict], filename: Optional[str] = None):
-        """
-        Save training data to HDF5 file
+        """Save training data to HDF5 file
 
         Args:
             samples: list of training samples
@@ -579,8 +567,7 @@ class TrainingDataGenerator:
 
 
 def load_training_data(filename: str) -> dict[str, np.ndarray]:
-    """
-    Load training data from HDF5 file
+    """Load training data from HDF5 file
 
     Args:
         filename: HDF5 filename

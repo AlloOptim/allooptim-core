@@ -1,5 +1,4 @@
-"""
-Wikipedia Pipeline A2A Orchestrator
+"""Wikipedia Pipeline A2A Orchestrator
 
 Orchestrator that combines Wikipedia-based stock pre-selection with portfolio optimization.
 """
@@ -36,8 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 class WikipediaPipelineOrchestrator(BaseOrchestrator):
-    """
-    Wikipedia Pipeline Allocation-to-Allocators orchestrator.
+    """Wikipedia Pipeline Allocation-to-Allocators orchestrator.
 
     Process:
     1. Use allocate_wikipedia for pre-selection of stocks with significant Wikipedia correlation
@@ -57,8 +55,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
         use_wiki_database: bool = False,
         wiki_database_path: Optional[Path] = None,
     ):
-        """
-        Initialize the Wikipedia Pipeline Orchestrator.
+        """Initialize the Wikipedia Pipeline Orchestrator.
 
         Args:
             optimizers: List of portfolio optimization algorithms to orchestrate.
@@ -79,8 +76,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List[StockUniverse]] = None,
     ) -> A2AResult:
-        """
-        Run Wikipedia pipeline allocation orchestration.
+        """Run Wikipedia pipeline allocation orchestration.
 
         Args:
             data_provider: Provides full dataset parameters
@@ -260,14 +256,12 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
 
 
 class _FilteredDataProvider(AbstractObservationSimulator):
-    """
-    Simple filtered data provider for Wikipedia pipeline.
+    """Simple filtered data provider for Wikipedia pipeline.
     This is a temporary implementation - in the future, this should be a proper DataProvider.
     """
 
     def __init__(self, mu, cov, prices, time, l_moments):
-        """
-        Initialize the filtered data provider.
+        """Initialize the filtered data provider.
 
         Args:
             mu: Expected returns as pandas Series.

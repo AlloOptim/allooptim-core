@@ -1,5 +1,4 @@
-"""
-Error Estimator Registry
+"""Error Estimator Registry
 
 Extensible registry for MCOS error estimation metrics.
 Provides a plugin architecture for different error estimation methods.
@@ -12,8 +11,7 @@ import numpy as np
 
 
 class AbstractErrorEstimator(ABC):
-    """
-    Abstract base class for error estimators.
+    """Abstract base class for error estimators.
 
     Error estimators compute metrics that quantify the difference between
     predicted and actual values in MCOS simulations.
@@ -27,8 +25,7 @@ class AbstractErrorEstimator(ABC):
 
     @abstractmethod
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
-        """
-        Estimate the error between predicted and actual values.
+        """Estimate the error between predicted and actual values.
 
         Args:
             predicted: Predicted values (e.g., estimated covariance matrix)
@@ -50,8 +47,7 @@ class MeanSquaredErrorEstimator(AbstractErrorEstimator):
         return "mse"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
-        """
-        Compute Mean Squared Error between predicted and actual matrices.
+        """Compute Mean Squared Error between predicted and actual matrices.
 
         Args:
             predicted: Predicted matrix
@@ -73,8 +69,7 @@ class FrobeniusNormEstimator(AbstractErrorEstimator):
         return "frobenius"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
-        """
-        Compute Frobenius norm of the difference matrix.
+        """Compute Frobenius norm of the difference matrix.
 
         Args:
             predicted: Predicted matrix
@@ -97,8 +92,7 @@ class RelativeErrorEstimator(AbstractErrorEstimator):
         return "relative"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
-        """
-        Compute relative error normalized by actual values.
+        """Compute relative error normalized by actual values.
 
         Args:
             predicted: Predicted matrix
@@ -121,8 +115,7 @@ class KullbackLeiblerEstimator(AbstractErrorEstimator):
         return "kl_divergence"
 
     def estimate_error(self, predicted: np.ndarray, actual: np.ndarray, **kwargs) -> float:
-        """
-        Compute KL divergence between two covariance matrices.
+        """Compute KL divergence between two covariance matrices.
 
         Assumes predicted and actual are positive definite covariance matrices.
 
@@ -155,8 +148,7 @@ class KullbackLeiblerEstimator(AbstractErrorEstimator):
 
 
 class ErrorEstimatorRegistry:
-    """
-    Registry for error estimators.
+    """Registry for error estimators.
 
     Provides a centralized way to register and access different error
     estimation methods for MCOS simulations.
@@ -175,8 +167,7 @@ class ErrorEstimatorRegistry:
         self.register_estimator(KullbackLeiblerEstimator())
 
     def register_estimator(self, estimator: AbstractErrorEstimator):
-        """
-        Register a new error estimator.
+        """Register a new error estimator.
 
         Args:
             estimator: Error estimator instance to register
@@ -184,8 +175,7 @@ class ErrorEstimatorRegistry:
         self._estimators[estimator.name] = estimator
 
     def get_estimator(self, name: str) -> AbstractErrorEstimator:
-        """
-        Get an error estimator by name.
+        """Get an error estimator by name.
 
         Args:
             name: Name of the estimator
@@ -202,8 +192,7 @@ class ErrorEstimatorRegistry:
         return self._estimators[name]
 
     def list_estimators(self) -> List[str]:
-        """
-        List all registered error estimator names.
+        """List all registered error estimator names.
 
         Returns:
             List of estimator names
@@ -213,8 +202,7 @@ class ErrorEstimatorRegistry:
     def estimate_errors(
         self, predicted: np.ndarray, actual: np.ndarray, estimator_names: Optional[List[str]] = None, **kwargs
     ) -> Dict[str, float]:
-        """
-        Estimate errors using multiple estimators.
+        """Estimate errors using multiple estimators.
 
         Args:
             predicted: Predicted values

@@ -1,5 +1,4 @@
-"""
-Pydantic configuration for A2A orchestrator.
+"""Pydantic configuration for A2A orchestrator.
 
 Design Principles:
 - NO dict access: Always use config.attribute
@@ -14,9 +13,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class A2AConfig(BaseModel):
-    """
-    Pydantic configuration for A2A orchestrator.
-    """
+    """Pydantic configuration for A2A orchestrator."""
 
     # Error estimation
     error_estimator_names: List[str] = Field(

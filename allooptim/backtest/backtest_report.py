@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 def generate_report(results: dict, clustering_results: dict, config: Optional[BacktestConfig] = None) -> str:
     """Generate comprehensive markdown report."""
-
     if config is None:
         config = BacktestConfig()
 

@@ -1,5 +1,4 @@
-"""
-ML Optimizers Testing
+"""ML Optimizers Testing
 
 Test that LightGBM and Deep Learning optimizers work correctly after refactoring.
 """
@@ -134,7 +133,6 @@ def test_lstm_optimizer_type(sample_prices):
 
 def test_optimizer_inheritance():
     """Test that all optimizers inherit from BaseMLOptimizer correctly."""
-
     # Check LightGBM optimizers
     lgbm = LightGBMOptimizer()
     assert isinstance(lgbm, BaseMLOptimizer)

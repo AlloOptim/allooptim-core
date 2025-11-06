@@ -1,5 +1,4 @@
-"""
-LIGHTWEIGHT OPTIMIZER
+"""LIGHTWEIGHT OPTIMIZER
 Training time: Seconds
 Min data: 61 periods
 Suitable for: Production, daily rebalancing, quick experiments
@@ -18,6 +17,11 @@ class LightGBMOptimizer(BaseMLOptimizer):
     """Lightweight optimizer using LightGBM for portfolio optimization."""
 
     def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+        """Initialize the LightGBM optimizer.
+
+        Args:
+            config: Configuration for the optimizer. If None, uses default config.
+        """
         super().__init__(config)
         self.config.use_data_augmentation = False
 
@@ -35,6 +39,11 @@ class AugmentedLightGBMOptimizer(LightGBMOptimizer):
     """LightGBM optimizer with data augmentation enabled."""
 
     def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+        """Initialize the augmented LightGBM optimizer.
+
+        Args:
+            config: Configuration for the optimizer. If None, uses default config.
+        """
         super().__init__(config)
         self.config.use_data_augmentation = True
 

@@ -25,7 +25,14 @@ logger = logging.getLogger(__name__)
 
 
 class BalancedFundamentalOptimizer(AbstractOptimizer):
+    """Balanced fundamental optimizer using fundamental analysis for portfolio allocation."""
+
     def __init__(self, config: Optional[BalancedFundamentalConfig] = None) -> None:
+        """Initialize balanced fundamental optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or BalancedFundamentalConfig()
 
         self._weights_today: Optional[np.ndarray] = None
@@ -38,6 +45,18 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio weights using fundamental analysis.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data (unused)
+            time: Current timestamp for weight estimation
+            l_moments: L-moments (unused)
+
+        Returns:
+            Portfolio weights as pandas Series
+        """
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
 
@@ -74,34 +93,75 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the balanced fundamental optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "BalancedFundamentalOptimizer"
 
 
 class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
+    """Quality and growth focused fundamental optimizer."""
+
     def __init__(self, config: Optional[QualityGrowthFundamentalConfig] = None) -> None:
+        """Initialize quality growth fundamental optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         super().__init__()
         self.config = config or QualityGrowthFundamentalConfig()
 
     @property
     def name(self) -> str:
+        """Get the name of the quality growth fundamental optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "QualityGrowthFundamentalOptimizer"
 
 
 class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
+    """Value investing focused fundamental optimizer."""
+
     def __init__(self, config: Optional[ValueInvestingFundamentalConfig] = None) -> None:
+        """Initialize value investing fundamental optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         super().__init__()
         self.config = config or ValueInvestingFundamentalConfig()
 
     @property
     def name(self) -> str:
+        """Get the name of the value investing fundamental optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "ValueInvestingFundamentalOptimizer"
 
 
 class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
+    """Market capitalization based fundamental optimizer."""
+
     def __init__(self, config: Optional[OnlyMarketCapFundamentalConfig] = None) -> None:
+        """Initialize market cap fundamental optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         super().__init__()
         self.config = config or OnlyMarketCapFundamentalConfig()
 
     @property
     def name(self) -> str:
+        """Get the name of the market cap fundamental optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "MarketCapFundamentalOptimizer"

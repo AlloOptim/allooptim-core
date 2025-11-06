@@ -1,21 +1,19 @@
-"""
-Enhanced Optimizer Factory with Configuration Support
+"""Enhanced Optimizer Factory with Configuration Support
 
 Provides factory functions for creating optimizers with custom configurations.
 Supports both default configs and custom parameter overrides.
 """
 
 import logging
-from typing import List, Dict, Any, Optional
-from allooptim.optimizer.optimizer_config_registry import get_all_optimizer_configs
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from typing import Any, Dict, List, Optional
+
 from allooptim.optimizer.optimizer_config_registry import (
-    get_optimizer_class,
-    validate_optimizer_config,
-    get_registered_optimizer_names,
     NAME_TO_OPTIMIZER_CLASS,
+    get_all_optimizer_configs,
+    get_optimizer_names_without_configs,
+    validate_optimizer_config,
 )
-from allooptim.optimizer.optimizer_config_registry import get_optimizer_names_without_configs
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +22,12 @@ class OptimizerConfig:
     """Wrapper for optimizer configuration parameters."""
 
     def __init__(self, optimizer_name: str, params: Optional[Dict[str, Any]] = None):
+        """Initialize optimizer configuration wrapper.
+
+        Args:
+            optimizer_name: Name of the optimizer to configure
+            params: Dictionary of configuration parameters
+        """
         self.optimizer_name = optimizer_name
         self.params = params or {}
 
@@ -36,8 +40,7 @@ class OptimizerConfig:
 def get_optimizer_by_names_with_configs(
     names: List[str], optimizer_configs: Optional[List[OptimizerConfig]] = None
 ) -> List[AbstractOptimizer]:
-    """
-    Enhanced factory function that creates optimizers with custom configurations.
+    """Enhanced factory function that creates optimizers with custom configurations.
 
     Args:
         names: List of optimizer names to create
@@ -85,8 +88,7 @@ def get_optimizer_by_names_with_configs(
 
 
 def get_optimizer_by_names(names: List[str]) -> List[AbstractOptimizer]:
-    """
-    Backward-compatible factory function for creating optimizers with default configs.
+    """Backward-compatible factory function for creating optimizers with default configs.
 
     This maintains compatibility with existing code.
     """
@@ -94,8 +96,7 @@ def get_optimizer_by_names(names: List[str]) -> List[AbstractOptimizer]:
 
 
 def create_optimizer_config_template(optimizer_name: str) -> Dict[str, Any]:
-    """
-    Create a template config dictionary for an optimizer.
+    """Create a template config dictionary for an optimizer.
 
     Args:
         optimizer_name: Name of the optimizer
@@ -114,13 +115,11 @@ def create_optimizer_config_template(optimizer_name: str) -> Dict[str, Any]:
 
 
 def get_available_optimizer_configs() -> Dict[str, Dict[str, Any]]:
-    """
-    Get information about all available optimizer configurations.
+    """Get information about all available optimizer configurations.
 
     Returns:
         Dictionary mapping optimizer names to their config schema info
     """
-
     result = {}
     configs = get_all_optimizer_configs()
 
@@ -141,8 +140,7 @@ def get_available_optimizer_configs() -> Dict[str, Dict[str, Any]]:
 
 
 def validate_optimizer_config_list(configs: List[OptimizerConfig]) -> List[str]:
-    """
-    Validate a list of optimizer configs and return any errors.
+    """Validate a list of optimizer configs and return any errors.
 
     Args:
         configs: List of OptimizerConfig instances

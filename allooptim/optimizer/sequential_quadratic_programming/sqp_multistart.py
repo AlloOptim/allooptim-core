@@ -16,8 +16,7 @@ def minimize_with_multistart(
     allow_cash: bool,
     previous_best_weights: Optional[np.ndarray],
 ) -> np.ndarray:
-    """
-    Perform optimization with multiple starting points to avoid local minima.
+    """Perform optimization with multiple starting points to avoid local minima.
 
     Tries:
     1. Equal weights (1/n for each asset)

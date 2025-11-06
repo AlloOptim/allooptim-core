@@ -28,6 +28,12 @@ logger = logging.getLogger(__name__)
 
 
 class MeanVarianceAdjustedReturnsOptimizerConfig(BaseModel):
+    """Configuration for mean-variance adjusted returns optimizer.
+
+    This config holds parameters for the adjusted returns optimizer including
+    risk aversion, L-moments reduction settings, and EMA parameters.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     risk_aversion: float = 4.0
@@ -37,15 +43,18 @@ class MeanVarianceAdjustedReturnsOptimizerConfig(BaseModel):
 
 
 class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
-    """
-    Adjusted Returns Optimizer
-    """
+    """Adjusted Returns Optimizer"""
 
     enable_l_moments: bool = False
     enable_ema: bool = False
     enable_semi_variance: bool = False
 
     def __init__(self, config: Optional[MeanVarianceAdjustedReturnsOptimizerConfig] = None) -> None:
+        """Initialize the mean-variance adjusted returns optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or MeanVarianceAdjustedReturnsOptimizerConfig()
 
         self._mu: Optional[np.ndarray] = None
@@ -62,8 +71,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Gets position weights according to the adjusted returns method
+        """Gets position weights according to the adjusted returns method
         :param cov: covariance matrix
         :param mu: vector of expected returns
         :return: Series of position weights with asset names as index.
@@ -146,8 +154,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
         return create_weights_series(optimal_weights, asset_names)
 
     def _calculate_semivariance_matrix(self, df_prices: pd.DataFrame, target_return: float = 0.0) -> np.ndarray:
-        """
-        Calculate downside covariance matrix (semivariance) from price data.
+        """Calculate downside covariance matrix (semivariance) from price data.
 
         Only considers returns below the target return threshold, making it asymmetric
         and suitable for loss-averse investors who care more about downside risk.
@@ -205,38 +212,48 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the mean-variance adjusted returns optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "AdjustedReturnsMeanVariance"
 
 
 class LMomentsAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
-    """
-    Adjusted Returns Optimizer with L-Moments
-    """
+    """Adjusted Returns Optimizer with L-Moments"""
 
     enable_l_moments: bool = True
     enable_ema: bool = False
 
     @property
     def name(self) -> str:
+        """Get the name of the L-moments adjusted returns optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "AdjustedReturnsLMoments"
 
 
 class EMAAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
-    """
-    Adjusted Returns Optimizer with EMA
-    """
+    """Adjusted Returns Optimizer with EMA"""
 
     enable_l_moments: bool = False
     enable_ema: bool = True
 
     @property
     def name(self) -> str:
+        """Get the name of the EMA adjusted returns optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "AdjustedReturnsEMA"
 
 
 class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
-    """
-    Mean-Semivariance Optimizer
+    """Mean-Semivariance Optimizer
 
     Optimizes return-risk tradeoff using only downside deviations (semivariance)
     instead of total variance. This asymmetric risk measure is more suitable for
@@ -252,4 +269,9 @@ class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer)
 
     @property
     def name(self) -> str:
+        """Get the name of the semi-variance adjusted returns optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "AdjustedReturnsSemiVariance"

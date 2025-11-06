@@ -1,6 +1,4 @@
-"""
-Test configuration for allooptim-core tests.
-"""
+"""Test configuration for allooptim-core tests."""
 
 from pathlib import Path
 
@@ -37,7 +35,6 @@ N_HISTORICAL_DAYS = 30
 @pytest.fixture
 def fast_a2a_config():
     """Create fast A2A config for testing."""
-
     fast_a2a_config = A2AConfig(
         n_simulations=FAST_TEST_OBSERVATIONS,
         n_particles=FAST_TEST_PARTICLES,

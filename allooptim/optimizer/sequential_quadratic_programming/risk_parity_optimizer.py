@@ -22,6 +22,13 @@ logger = logging.getLogger(__name__)
 
 
 class RiskParityOptimizerConfig(BaseModel):
+    """Configuration for risk parity optimizer.
+
+    This config holds parameters for the risk parity optimizer. Currently minimal
+    as risk parity typically uses equal risk contribution by default, but structured
+    for future extensibility.
+    """
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     # Risk parity uses equal risk contribution by default, but can be customized
@@ -30,11 +37,14 @@ class RiskParityOptimizerConfig(BaseModel):
 
 
 class RiskParityOptimizer(AbstractOptimizer):
-    """
-    Risk Parity Optimizer
-    """
+    """Risk Parity Optimizer"""
 
     def __init__(self, config: Optional[RiskParityOptimizerConfig] = None) -> None:
+        """Initialize the risk parity optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or RiskParityOptimizerConfig()
         self._previous_weights: Optional[np.ndarray] = None
         self._target_risk: Optional[np.ndarray] = None
@@ -47,8 +57,7 @@ class RiskParityOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """
-        Gets position weights according to the risk parity method
+        """Gets position weights according to the risk parity method
         :param cov: covariance matrix
         :param mu: vector of expected returns
         :return: list of position weights.
@@ -123,4 +132,9 @@ class RiskParityOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the risk parity optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "RiskParityOptimizer"

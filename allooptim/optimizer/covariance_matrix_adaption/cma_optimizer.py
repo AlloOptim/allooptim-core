@@ -33,6 +33,8 @@ MIN_OBSERVATIONS_RISK_METRICS = 30
 
 
 class RiskMetric(Enum):
+    """Enumeration of available risk metrics for CMA-ES optimization."""
+
     MEAN_VARIANCE = "mean_variance"
     SORTINO = "sortino"
     CVAR = "cvar"
@@ -51,6 +53,8 @@ DISTRIBUTION_FREE_METRICS = {
 
 
 class CMAState(BaseModel):
+    """Container for CMA-ES optimizer state for warm starting."""
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     sigma: float
@@ -59,6 +63,8 @@ class CMAState(BaseModel):
 
 
 class CMAOptimizerConfig(BaseModel):
+    """Configuration parameters for CMA-ES portfolio optimization."""
+
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     enable_simple_warm_start: bool = True
@@ -84,6 +90,11 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
         self,
         config: Optional[CMAOptimizerConfig] = None,
     ) -> None:
+        """Initialize the CMA-ES optimizer.
+
+        Args:
+            config: Configuration parameters for the optimizer. If None, uses default config.
+        """
         self.config = config or CMAOptimizerConfig()
 
         self._previous_solution: Optional[np.ndarray] = None
@@ -102,6 +113,18 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Allocate portfolio weights using CMA-ES optimization.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Historical price data for risk metrics (required for distribution-free metrics)
+            time: Current timestamp (unused)
+            l_moments: L-moments for L-moments risk metric
+
+        Returns:
+            Optimal portfolio weights as pandas Series
+        """
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
 
@@ -347,6 +370,11 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
 
     @property
     def name(self) -> str:
+        """Get the name of the CMA-ES optimizer including the risk metric.
+
+        Returns:
+            Optimizer name string
+        """
         risk_name_map = {
             "mean_variance": "MeanVariance",
             "sortino": "Sortino",

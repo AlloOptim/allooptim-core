@@ -1,5 +1,4 @@
-"""
-Allocation Optimizer Module
+"""Allocation Optimizer Module
 
 Enhanced allocation optimization using direct inter-optimizer covariance matrices.
 Clean implementation with analytical solutions and explicit error handling.
@@ -24,8 +23,7 @@ def optimize_allocator_weights(
     n_particle_swarm_iterations: int = 1_000,
     n_particles: int = 200,
 ) -> np.ndarray:
-    """
-    Optimize allocator weights using expected returns mean and covariance.
+    """Optimize allocator weights using expected returns mean and covariance.
 
     Args:
         mcos_result: MCOS result with expected returns mean and covariance
@@ -38,7 +36,6 @@ def optimize_allocator_weights(
     Raises:
         ValueError: If inputs contain NaN or optimization fails
     """
-
     # Input validation - use the simplified structure
     if mcos_result.expected_returns_covariance is None:
         raise ValueError("MCOS result must contain expected returns covariance matrix")

@@ -9,8 +9,7 @@ from allooptim.optimizer.allocation_metric import LMoments
 
 
 class AbstractObservationSimulator(ABC):
-    """
-    Abstract base class for generating synthetic observations with asset name preservation.
+    """Abstract base class for generating synthetic observations with asset name preservation.
 
     Observation simulators are used in Monte Carlo Cross-Simulation (MCOS) to generate
     multiple realizations of expected returns and covariance matrices for robust
@@ -43,8 +42,7 @@ class AbstractObservationSimulator(ABC):
 
     @abstractmethod
     def get_sample(self) -> Tuple[pd.Series, pd.DataFrame, pd.DataFrame, datetime, LMoments]:
-        """
-        Generate synthetic observations of expected returns, covariance matrix, prices, time, and L-moments.
+        """Generate synthetic observations of expected returns, covariance matrix, prices, time, and L-moments.
 
         Implements various statistical techniques to simulate realistic market scenarios
         while preserving asset name information throughout the process.
@@ -65,8 +63,7 @@ class AbstractObservationSimulator(ABC):
 
     @abstractmethod
     def get_ground_truth(self) -> Tuple[pd.Series, pd.DataFrame, pd.DataFrame, datetime, LMoments]:
-        """
-        Return the ground truth parameters from the full historical dataset.
+        """Return the ground truth parameters from the full historical dataset.
 
         This provides the baseline parameters computed from all available historical data,
         useful for error estimation and comparison with simulated samples.
@@ -84,7 +81,5 @@ class AbstractObservationSimulator(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        """
-        Name of this optimizer. The name will be displayed in the MCOS results DataFrame.
-        """
+        """Name of this optimizer. The name will be displayed in the MCOS results DataFrame."""
         pass

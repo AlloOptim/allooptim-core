@@ -7,12 +7,25 @@ logger = logging.getLogger(__name__)
 
 
 class EarlyStopObjective:
+    """Objective function wrapper with early stopping capability.
+
+    Monitors optimization progress and stops when no significant improvement
+    is observed for a specified number of iterations, preventing wasted computation.
+    """
+
     def __init__(
         self,
         objective_function: Callable,
         tolerance: float = 1e-6,
         stagnation_limit: int = 50,
     ) -> None:
+        """Initialize early stopping objective wrapper.
+
+        Args:
+            objective_function: The objective function to wrap
+            tolerance: Minimum improvement threshold to reset stagnation counter
+            stagnation_limit: Number of iterations without improvement before stopping
+        """
         self.best_value = np.inf
         self.no_improve_count = 0
         self.tolerance = tolerance

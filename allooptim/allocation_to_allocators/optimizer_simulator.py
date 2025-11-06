@@ -1,5 +1,4 @@
-"""
-Optimizer Simulation Module
+"""Optimizer Simulation Module
 
 Enhanced MCOS simulation that always returns allocation statistics.
 Clean implementation with explicit error handling and no legacy fallbacks.
@@ -37,8 +36,7 @@ def simulate_optimizers_with_allocation_statistics(
     optimizer_list: List[AbstractOptimizer],
     n_data_observations: int = 20,
 ) -> MCOSAllocationResult:
-    """
-    Simulate optimizers with enhanced allocation statistics tracking.
+    """Simulate optimizers with enhanced allocation statistics tracking.
 
     Args:
         df_assets: Asset price DataFrame
@@ -51,7 +49,6 @@ def simulate_optimizers_with_allocation_statistics(
     Raises:
         ValueError: If data contains NaN or optimizers fail validation
     """
-
     # Input validation
     if df_assets.isna().any().any():
         raise ValueError("df_assets contains NaN values")

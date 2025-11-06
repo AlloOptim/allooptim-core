@@ -73,7 +73,7 @@ MISSING_ON_ALPACA = [
 
 
 def list_of_dax_stocks() -> list[StockUniverse]:
-    """list of DAX40 stocks with their Wikipedia names"""
+    """List of DAX40 stocks with their Wikipedia names"""
     dax_stocks = [
         StockUniverse("ADS.DE", "Adidas AG", "Adidas", "Consumer Discretionary"),
         StockUniverse("ALV.DE", "Allianz SE", "Allianz", "Financials"),
@@ -119,7 +119,7 @@ def list_of_dax_stocks() -> list[StockUniverse]:
 
 
 def get_sp500_companies_1() -> list[StockUniverse]:
-    """list of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names"""
     stocks_1 = [
         # Companies 101-200 (Sorted by original index)
         StockUniverse(
@@ -282,7 +282,7 @@ def get_sp500_companies_1() -> list[StockUniverse]:
 
 
 def get_sp500_companies_0() -> list[StockUniverse]:
-    """list of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names"""
     stocks = [
         StockUniverse("AOS", "A O Smith Corp", "A. O. Smith", "Industrials"),
         StockUniverse("ABT", "Abbott Laboratories", "Abbott Laboratories", "Health Care"),
@@ -478,7 +478,7 @@ def get_sp500_companies_0() -> list[StockUniverse]:
 
 
 def get_sp500_companies_2() -> list[StockUniverse]:
-    """list of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names"""
     stocks = [
         # Companies 201-300 (Sorted by original index)
         StockUniverse("FLT", "Fleetcor Technologies Inc", "FLEETCOR", "Financials"),
@@ -646,7 +646,7 @@ def get_sp500_companies_2() -> list[StockUniverse]:
 
 
 def get_sp500_companies_3() -> list[StockUniverse]:
-    """list of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names"""
     stocks = [
         # Companies 301-400 (M-R)
         StockUniverse(
@@ -869,7 +869,7 @@ def get_sp500_companies_3() -> list[StockUniverse]:
 
 
 def get_sp500_companies_4() -> list[StockUniverse]:
-    """list of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names"""
     stocks = [
         # Companies 401-500 (R-Z)
         StockUniverse("ROK", "Rockwell Automation Inc", "Rockwell Automation", "Industrials"),
@@ -1072,7 +1072,7 @@ def get_sp500_companies_4() -> list[StockUniverse]:
 
 
 def get_sp500_companies_5() -> list[StockUniverse]:
-    """list of S&P500 companies with verified Wikipedia names"""
+    """List of S&P500 companies with verified Wikipedia names"""
     stocks = [
         # Companies 501-503 (Z)
         StockUniverse(
@@ -1146,6 +1146,13 @@ def list_major_sp500_stocks() -> list[StockUniverse]:
 
 
 def unfiltered_large_stock_universe() -> list[StockUniverse]:
+    """Get the complete stock universe without filtering for availability.
+
+    Returns:
+        Complete list of StockUniverse objects including all DAX and S&P500 stocks,
+        with potential duplicates removed. This includes stocks that may not be
+        available on all trading platforms.
+    """
     stocks = [
         *list_of_dax_stocks(),
         *get_sp500_companies_1(),
@@ -1170,8 +1177,7 @@ def unfiltered_large_stock_universe() -> list[StockUniverse]:
 
 
 def large_stock_universte() -> list[StockUniverse]:
-    """
-    Returns a subset of everything_in_the_universe that are available on Alpaca.
+    """Returns a subset of everything_in_the_universe that are available on Alpaca.
     Excludes German stocks (.DE) and other known unavailable symbols.
     """
     all_stocks = unfiltered_large_stock_universe()
@@ -1191,9 +1197,26 @@ def large_stock_universte() -> list[StockUniverse]:
 
 
 def extract_symbols_from_list(stocks: list[StockUniverse]) -> list[str]:
+    """Extract symbol strings from a list of StockUniverse objects.
+
+    Args:
+        stocks: List of StockUniverse objects to extract symbols from.
+
+    Returns:
+        List of symbol strings in the same order as input stocks.
+    """
     return [stock.symbol for stock in stocks]
 
 
 def get_stocks_by_symbols(symbols: list[str]) -> list[StockUniverse]:
+    """Retrieve StockUniverse objects for given symbol strings.
+
+    Args:
+        symbols: List of stock symbol strings to look up.
+
+    Returns:
+        List of StockUniverse objects matching the provided symbols.
+        Only includes stocks that exist in the universe.
+    """
     all_stocks = unfiltered_large_stock_universe()
     return [stock for stock in all_stocks if stock.symbol in symbols]

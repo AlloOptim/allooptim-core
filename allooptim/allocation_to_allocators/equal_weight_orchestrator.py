@@ -1,5 +1,4 @@
-"""
-Equal Weight A2A Orchestrator
+"""Equal Weight A2A Orchestrator
 
 Simplest orchestrator that calls each optimizer once and combines results with equal weights.
 """
@@ -34,8 +33,7 @@ logger = logging.getLogger(__name__)
 
 
 class EqualWeightOrchestrator(BaseOrchestrator):
-    """
-    Equal Weight Allocation-to-Allocators orchestrator.
+    """Equal Weight Allocation-to-Allocators orchestrator.
 
     Process:
     1. Call each optimizer once with ground truth parameters
@@ -52,8 +50,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         covariance_transformers: List[AbstractCovarianceTransformer],
         config: A2AConfig,
     ):
-        """
-        Initialize the Equal Weight Orchestrator.
+        """Initialize the Equal Weight Orchestrator.
 
         Args:
             optimizers: List of portfolio optimization algorithms to orchestrate.
@@ -68,8 +65,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         time_today: Optional[datetime] = None,
         all_stocks: Optional[List[StockUniverse]] = None,
     ) -> A2AResult:
-        """
-        Run equal weight allocation orchestration.
+        """Run equal weight allocation orchestration.
 
         Args:
             data_provider: Provides ground truth parameters
@@ -197,8 +193,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
     @property
     def name(self) -> str:
-        """
-        Get the orchestrator name identifier.
+        """Get the orchestrator name identifier.
 
         Returns:
             String identifier for this orchestrator type.

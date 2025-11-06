@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, field_validator
 
 class StatisticsType(str, Enum):
     """Enumeration of allocation statistics types."""
+
     A2A = "A2A"
     WIKIPEDIA = "WIKIPEDIA"
     NONE = "NONE"
@@ -14,11 +15,13 @@ class StatisticsType(str, Enum):
 
 class NoStatistics(BaseModel):
     """Represents absence of allocation statistics."""
+
     type: StatisticsType = StatisticsType.NONE
 
 
 class A2AStatistics(BaseModel):
     """Statistics from Allocation-to-Allocators (A2A) optimization."""
+
     asset_returns: dict[str, float]
     asset_volatilities: dict[str, float]
     algo_runtime: dict[str, float]
@@ -30,6 +33,7 @@ class A2AStatistics(BaseModel):
 
 class WikipediaStatistics(BaseModel):
     """Statistics from Wikipedia-based stock allocation."""
+
     end_date: str
     r_squared: float
     p_value: float
@@ -45,6 +49,7 @@ class WikipediaStatistics(BaseModel):
 
 class AllocationResult(BaseModel):
     """Result of an allocation operation with comprehensive metadata."""
+
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     asset_weights: dict[str, float]

@@ -9,7 +9,7 @@ from typing import List, Tuple
 
 def check_module(filepath: Path) -> Tuple[int, int, List[str]]:
     """Check docstring coverage in a Python file."""
-    with open(filepath, encoding='utf-8') as f:
+    with open(filepath, encoding="utf-8") as f:
         tree = ast.parse(f.read())
 
     total = 0
@@ -19,7 +19,7 @@ def check_module(filepath: Path) -> Tuple[int, int, List[str]]:
     for node in ast.walk(tree):
         if isinstance(node, (ast.ClassDef, ast.FunctionDef)):
             # Skip private unless it's __init__
-            if node.name.startswith('_') and node.name != '__init__':
+            if node.name.startswith("_") and node.name != "__init__":
                 continue
 
             total += 1
@@ -61,10 +61,10 @@ def main():
 
     # Fail if coverage below threshold
     if coverage < 60:
-        print(f"\n❌ Coverage below 60% threshold")
+        print("\n❌ Coverage below 60% threshold")
         sys.exit(1)
     else:
-        print(f"\n✅ Documentation coverage acceptable")
+        print("\n✅ Documentation coverage acceptable")
 
 
 if __name__ == "__main__":
