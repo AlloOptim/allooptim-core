@@ -16,7 +16,8 @@ NEAR_SINGULARITY_CONDITION_THRESHOLD = 1e12
 
 
 def _extract_cov_info(cov: Union[np.ndarray, pd.DataFrame]) -> tuple[np.ndarray, list]:
-    """Extract numpy array and asset names from covariance matrix
+    """Extract numpy array and asset names from covariance matrix.
+
     :param cov: covariance matrix (numpy array or pandas DataFrame)
     :return: tuple of (numpy array, asset names list).
     """
@@ -31,7 +32,8 @@ def _extract_cov_info(cov: Union[np.ndarray, pd.DataFrame]) -> tuple[np.ndarray,
 
 
 def _create_cov_dataframe(cov_array: np.ndarray, asset_names: list) -> pd.DataFrame:
-    """Create pandas DataFrame from numpy covariance matrix with asset names
+    """Create pandas DataFrame from numpy covariance matrix with asset names.
+
     :param cov_array: covariance matrix as numpy array
     :param asset_names: list of asset names
     :return: pandas DataFrame with asset names as index/columns.
@@ -45,7 +47,8 @@ def _ensure_symmetric(matrix: np.array) -> np.array:
 
 
 def cov_to_corr(cov: np.array) -> np.array:
-    """Derive the correlation matrix from a covariance matrix
+    """Derive the correlation matrix from a covariance matrix.
+
     :param cov: covariance matrix
     :return: correlation matrix.
     """
@@ -73,7 +76,8 @@ def cov_to_corr(cov: np.array) -> np.array:
 
 
 def _corr_to_cov(corr: np.array, std: np.array) -> np.array:
-    """Recovers the covariance matrix from the de-noise correlation matrix
+    """Recovers the covariance matrix from the de-noise correlation matrix.
+
     :param corr: de-noised correlation matrix
     :param std: standard deviation of the correlation matrix
     :return: a recovered covariance matrix.
