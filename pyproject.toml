@@ -60,7 +60,10 @@ line-length = 120
 indent-width = 4
 
 [tool.ruff.lint]
-select = ["E", "F", "UP", "B", "SIM", "I", "PL"]
+select = ["E", "F", "UP", "B", "SIM", "I", "PL", "D"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.format]
 quote-style = "double"
