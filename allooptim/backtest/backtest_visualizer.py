@@ -18,17 +18,29 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 from scipy.cluster.hierarchy import dendrogram
 
 from allooptim.backtest.backtest_config import BacktestConfig
 
 logger = logging.getLogger(__name__)
 
+try:
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+
+    visualization_dependencies_available = True
+except ImportError:
+    logger.info("Visualization dependencies are not available. Skipping visualization methods.")
+    visualization_dependencies_available = False
+
 
 def create_visualizations(results: dict, clustering_results: dict, results_dir: Optional[Path] = None) -> None:
     """Create comprehensive visualizations of results."""
+
+    if not visualization_dependencies_available:
+        logger.warning("Visualization dependencies are not available. Skipping visualization.")
+        return None
+
     if results_dir is None:
         config = BacktestConfig()
         results_dir = config.results_dir

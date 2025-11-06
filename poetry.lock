@@ -192,6 +192,45 @@ files = [
 dev = ["backports.zoneinfo", "freezegun (>=1.0,<2.0)", "jinja2 (>=3.0)", "pytest (>=6.0)", "pytest-cov", "pytz", "setuptools", "tzdata"]
 
 [[package]]
+name = "backports-tarfile"
+version = "1.2.0"
+description = "Backport of CPython tarfile module"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "backports.tarfile-1.2.0-py3-none-any.whl", hash = "sha256:77e284d754527b01fb1e6fa8a1afe577858ebe4e9dad8919e34c862cb399bc34"},
+    {file = "backports_tarfile-1.2.0.tar.gz", hash = "sha256:d75e02c268746e1b8144c278978b6e98e85de6ad16f8e4b0844a154557eca991"},
+]
+
+[package.extras]
+docs = ["furo", "jaraco.packaging (>=9.3)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+testing = ["jaraco.test", "pytest (!=8.0.*)", "pytest (>=6,!=8.1.*)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)"]
+
+[[package]]
+name = "bandit"
+version = "1.8.6"
+description = "Security oriented static analyser for python code."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "bandit-1.8.6-py3-none-any.whl", hash = "sha256:3348e934d736fcdb68b6aa4030487097e23a501adf3e7827b63658df464dddd0"},
+    {file = "bandit-1.8.6.tar.gz", hash = "sha256:dbfe9c25fc6961c2078593de55fd19f2559f9e45b99f1272341f5b95dea4e56b"},
+]
+
+[package.dependencies]
+colorama = {version = ">=0.3.9", markers = "platform_system == \"Windows\""}
+PyYAML = ">=5.3.1"
+rich = "*"
+stevedore = ">=1.20.0"
+
+[package.extras]
+baseline = ["GitPython (>=3.1.30)"]
+sarif = ["jschema-to-python (>=1.2.3)", "sarif-om (>=1.0.4)"]
+test = ["beautifulsoup4 (>=4.8.0)", "coverage (>=4.5.4)", "fixtures (>=3.0.0)", "flake8 (>=4.0.0)", "pylint (==1.9.4)", "stestr (>=2.5.0)", "testscenarios (>=0.5.0)", "testtools (>=2.3.0)"]
+toml = ["tomli (>=1.1.0)"]
+yaml = ["PyYAML"]
+
+[[package]]
 name = "beautifulsoup4"
 version = "4.14.2"
 description = "Screen-scraping library"
@@ -957,69 +996,6 @@ testing = ["hypothesis", "pytest"]
 xpress = ["xpress (>=9.5)"]
 
 [[package]]
-name = "cvxpy-base"
-version = "1.7.3"
-description = "A domain-specific language for modeling convex optimization problems in Python."
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "cvxpy_base-1.7.3-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:97cd167a2a4155950ff9000420355e71795c4b585cd39b92d5d2e8fe545ef0ee"},
-    {file = "cvxpy_base-1.7.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:60919d7a578dbcde5d6a4c113ec2c36d34f3958ba856bee2f9c858e55767b98e"},
-    {file = "cvxpy_base-1.7.3-cp310-cp310-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:30b966faf7359442ebd208ef7df684ce5ce933186c1a346c0b860fa458f41c42"},
-    {file = "cvxpy_base-1.7.3-cp310-cp310-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:44e25a4b2827267a5b49fdd5f9ffd68c6054e2cef1fe5112862be9a2bff19f52"},
-    {file = "cvxpy_base-1.7.3-cp310-cp310-win_amd64.whl", hash = "sha256:9c09b05e1b8cbaa9e30d542bfa15ec9829d2ae748399f880be4392f1f0d88a8f"},
-    {file = "cvxpy_base-1.7.3-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:d1113c2e4fef3621c93dd8330295dd9607b6985ccb5d98a51283ad1b8fb1d94c"},
-    {file = "cvxpy_base-1.7.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:568ab409e71b680fb27ab9a7e80385d116b4c2c8e3344f39b5cfdf1a15fe767d"},
-    {file = "cvxpy_base-1.7.3-cp311-cp311-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:d31bf957e7c9dd3abd8d3f79b48cc1f75d6334d3d551ce0a18f5e15dbeb11e27"},
-    {file = "cvxpy_base-1.7.3-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d9ab6131734fba7488bfc5201ffd56e54c9f10e517cebf8eea1a4b5d4285e8a1"},
-    {file = "cvxpy_base-1.7.3-cp311-cp311-win_amd64.whl", hash = "sha256:2a12983813336987f2d05648e95a07aa78fd08ec395172876895044103b86878"},
-    {file = "cvxpy_base-1.7.3-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:35ebf74438ae9914593e1b0373defdc18800ff96ba3cbe29d751194d856d6679"},
-    {file = "cvxpy_base-1.7.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:dfd95ddf828e2a27e8d4117e7e0e6772defa46a28c5657baf069ed54df5792ad"},
-    {file = "cvxpy_base-1.7.3-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:151b72e44673e003f727247c3563503b1752a5ec9594f7b9cd0aa2b6feb193ec"},
-    {file = "cvxpy_base-1.7.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:435a4f591da1637aa231dcf5255631166921e65b561ecc512b6d9366369b69b5"},
-    {file = "cvxpy_base-1.7.3-cp312-cp312-win_amd64.whl", hash = "sha256:f8f06f4c9bb63e0b5a1bbb66459e4bec72a3b1bb1af51024a58c219be36f4436"},
-    {file = "cvxpy_base-1.7.3-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:889e4c8300189b4da7c9cd8076bd59cf01b3fbd797df8d12a6f47a4cf1bf62b7"},
-    {file = "cvxpy_base-1.7.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:956cd35fc054e87b99b7c120c876fe863059e18a9f72d4853a0fe6aeb748a0e4"},
-    {file = "cvxpy_base-1.7.3-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:51e36751be59cc389e986dce80dd816639eb874f25e3b45c8beef4ffabadcc96"},
-    {file = "cvxpy_base-1.7.3-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5b8e9d3a0ff9aa28c99af2ce6f07400cba198b6c8e83a9c9e9f6704f57ce1d4b"},
-    {file = "cvxpy_base-1.7.3-cp313-cp313-win_amd64.whl", hash = "sha256:1c6c0a35aa9bdbe913e7295efa827cfeac2a21b1e2790b9056b38aaba929792a"},
-    {file = "cvxpy_base-1.7.3-cp39-cp39-macosx_10_9_universal2.whl", hash = "sha256:5fd262d03775495eb4e7edd1a7867b2e37b1f2e5eec20a1e8687b4a4789149a5"},
-    {file = "cvxpy_base-1.7.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:d6b4121452f8099e584c0aac9cd2262521c39215eb3e63e088ca7751909c8fcd"},
-    {file = "cvxpy_base-1.7.3-cp39-cp39-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:2208a58b05c68c9715be57a5c5a0ae30bfe617c95f30754b741851107a3c3e07"},
-    {file = "cvxpy_base-1.7.3-cp39-cp39-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:f7a95fb86b6d5a748de29ba19300f48beff184969c98496ae7cdf386f8891ed7"},
-    {file = "cvxpy_base-1.7.3-cp39-cp39-win_amd64.whl", hash = "sha256:c9ca12640acd7e93762203148a135e209082cb7438e928a71bf8e881aa608cce"},
-    {file = "cvxpy_base-1.7.3.tar.gz", hash = "sha256:1c0f4f30b7b1ee5037c9d410ffd22e4af70673e8983e07792b78f33f58c88687"},
-]
-
-[package.dependencies]
-numpy = ">=1.22.4"
-scipy = ">=1.13.0"
-
-[package.extras]
-cbc = ["cylp (>=0.91.5)"]
-cuopt = ["cuopt-cu12 (>=25.5)", "nvidia-cuda-runtime-cu12 (>=12.8,<13.0)"]
-cvxopt = ["cvxopt"]
-daqp = ["daqp"]
-diffcp = ["diffcp"]
-doc = ["sphinx", "sphinx-design", "sphinx-immaterial (>=0.11.7)", "sphinx-inline-tabs", "sphinxcontrib.jquery"]
-ecos = ["ecos"]
-ecos-bb = ["ecos"]
-glop = ["ortools (>=9.7,<9.15)"]
-glpk = ["cvxopt"]
-glpk-mi = ["cvxopt"]
-gurobi = ["gurobipy"]
-highs = ["highspy"]
-mosek = ["Mosek"]
-pdlp = ["ortools (>=9.7,<9.15)"]
-piqp = ["piqp"]
-proxqp = ["proxsuite"]
-qoco = ["qoco"]
-scip = ["PySCIPOpt"]
-scipy = ["scipy"]
-testing = ["hypothesis", "pytest"]
-xpress = ["xpress (>=9.5)"]
-
-[[package]]
 name = "cycler"
 version = "0.12.1"
 description = "Composable style cycles"
@@ -1158,6 +1134,7 @@ files = [
 ]
 
 [package.dependencies]
+typing_extensions = {version = ">=4.6.0", markers = "python_version < \"3.12\""}
 urllib3 = ">=2.2.2"
 
 [package.extras]
@@ -1541,6 +1518,29 @@ files = [
 ]
 
 [[package]]
+name = "importlib-metadata"
+version = "8.7.0"
+description = "Read metadata from Python packages"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "importlib_metadata-8.7.0-py3-none-any.whl", hash = "sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd"},
+    {file = "importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000"},
+]
+
+[package.dependencies]
+zipp = ">=3.20"
+
+[package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)"]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+enabler = ["pytest-enabler (>=2.2)"]
+perf = ["ipython"]
+test = ["flufl.flake8", "importlib_resources (>=1.3)", "jaraco.test (>=5.4)", "packaging", "pyfakefs", "pytest (>=6,!=8.1.*)", "pytest-perf (>=0.9.2)"]
+type = ["pytest-mypy"]
+
+[[package]]
 name = "iniconfig"
 version = "2.3.0"
 description = "brain-dead simple config-ini parsing"
@@ -1617,6 +1617,7 @@ prompt_toolkit = ">=3.0.41,<3.1.0"
 pygments = ">=2.11.0"
 stack_data = ">=0.6.0"
 traitlets = ">=5.13.0"
+typing_extensions = {version = ">=4.6", markers = "python_version < \"3.12\""}
 
 [package.extras]
 all = ["ipython[doc,matplotlib,test,test-extra]"]
@@ -1703,6 +1704,9 @@ files = [
     {file = "jaraco.context-6.0.1-py3-none-any.whl", hash = "sha256:f797fc481b490edb305122c9181830a3a5b76d84ef6d1aef2fb9b47ab956f9e4"},
     {file = "jaraco_context-6.0.1.tar.gz", hash = "sha256:9bae4ea555cf0b14938dc0aee7c9f32ed303aa20a3b73e7dc80111628792d1b3"},
 ]
+
+[package.dependencies]
+"backports.tarfile" = {version = "*", markers = "python_version < \"3.12\""}
 
 [package.extras]
 doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
@@ -2006,6 +2010,7 @@ jupyter-events = ">=0.11.0"
 jupyter-server-terminals = ">=0.4.4"
 nbconvert = ">=6.4.4"
 nbformat = ">=5.3.0"
+overrides = {version = ">=5.0", markers = "python_version < \"3.12\""}
 packaging = ">=22.0"
 prometheus-client = ">=0.9"
 pywinpty = {version = ">=2.0.1", markers = "os_name == \"nt\""}
@@ -2131,6 +2136,7 @@ files = [
 ]
 
 [package.dependencies]
+importlib_metadata = {version = ">=4.11.4", markers = "python_version < \"3.12\""}
 "jaraco.classes" = "*"
 "jaraco.context" = "*"
 "jaraco.functools" = "*"
@@ -2318,6 +2324,29 @@ typing_extensions = {version = ">=4.8,<5.0", markers = "python_version < \"3.13\
 
 [package.extras]
 pandas = ["pandas (>=1.5)"]
+
+[[package]]
+name = "markdown-it-py"
+version = "4.0.0"
+description = "Python port of markdown-it. Markdown parsing, done right!"
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "markdown_it_py-4.0.0-py3-none-any.whl", hash = "sha256:87327c59b172c5011896038353a81343b6754500a08cd7a4973bb48c6d578147"},
+    {file = "markdown_it_py-4.0.0.tar.gz", hash = "sha256:cb0a2b4aa34f932c007117b194e945bd74e0ec24133ceb5bac59009cda1cb9f3"},
+]
+
+[package.dependencies]
+mdurl = ">=0.1,<1.0"
+
+[package.extras]
+benchmarking = ["psutil", "pytest", "pytest-benchmark"]
+compare = ["commonmark (>=0.9,<1.0)", "markdown (>=3.4,<4.0)", "markdown-it-pyrs", "mistletoe (>=1.0,<2.0)", "mistune (>=3.0,<4.0)", "panflute (>=2.3,<3.0)"]
+linkify = ["linkify-it-py (>=1,<3)"]
+plugins = ["mdit-py-plugins (>=0.5.0)"]
+profiling = ["gprof2dot"]
+rtd = ["ipykernel", "jupyter_sphinx", "mdit-py-plugins (>=0.5.0)", "myst-parser", "pyyaml", "sphinx", "sphinx-book-theme (>=1.0,<2.0)", "sphinx-copybutton", "sphinx-design"]
+testing = ["coverage", "pytest", "pytest-cov", "pytest-regressions", "requests"]
 
 [[package]]
 name = "markupsafe"
@@ -2511,6 +2540,17 @@ traitlets = "*"
 
 [package.extras]
 test = ["flake8", "nbdime", "nbval", "notebook", "pytest"]
+
+[[package]]
+name = "mdurl"
+version = "0.1.2"
+description = "Markdown URL utilities"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8"},
+    {file = "mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba"},
+]
 
 [[package]]
 name = "mistune"
@@ -2899,6 +2939,17 @@ dev = ["pre-commit", "pytest (>=6)", "scipy (!=1.12.0)", "torch"]
 mkl = ["osqp-mkl"]
 
 [[package]]
+name = "overrides"
+version = "7.7.0"
+description = "A decorator to automatically detect mismatch when overriding a method."
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "overrides-7.7.0-py3-none-any.whl", hash = "sha256:c7ed9d062f78b8e4c1a7b70bd8796b35ead4d9f510227ef9c5dc7626c60d7e49"},
+    {file = "overrides-7.7.0.tar.gz", hash = "sha256:55158fa3d93b98cc75299b1e67078ad9003ca27945c76162c1c0766d6f91820a"},
+]
+
+[[package]]
 name = "packaging"
 version = "25.0"
 description = "Core utilities for Python packages"
@@ -2989,7 +3040,10 @@ files = [
 ]
 
 [package.dependencies]
-numpy = {version = ">=1.26.0", markers = "python_version >= \"3.12\""}
+numpy = [
+    {version = ">=1.23.2", markers = "python_version == \"3.11\""},
+    {version = ">=1.26.0", markers = "python_version >= \"3.12\""},
+]
 python-dateutil = ">=2.8.2"
 pytz = ">=2020.1"
 tzdata = ">=2022.7"
@@ -3725,20 +3779,6 @@ files = [
 six = ">=1.5"
 
 [[package]]
-name = "python-dotenv"
-version = "1.2.1"
-description = "Read key-value pairs from a .env file and set them as environment variables"
-optional = false
-python-versions = ">=3.9"
-files = [
-    {file = "python_dotenv-1.2.1-py3-none-any.whl", hash = "sha256:b81ee9561e9ca4004139c6cbba3a238c32b03e4894671e181b671e8cb8425d61"},
-    {file = "python_dotenv-1.2.1.tar.gz", hash = "sha256:42667e897e16ab0d66954af0e60a9caa94f0fd4ecf3aaf6d2d260eec1aa36ad6"},
-]
-
-[package.extras]
-cli = ["click (>=5.0)"]
-
-[[package]]
 name = "python-json-logger"
 version = "4.0.0"
 description = "JSON Log Formatter for the Python Logging Package"
@@ -4158,6 +4198,24 @@ lark = ">=1.2.2"
 
 [package.extras]
 testing = ["pytest (>=8.3.5)"]
+
+[[package]]
+name = "rich"
+version = "14.2.0"
+description = "Render rich text, tables, progress bars, syntax highlighting, markdown and more to the terminal"
+optional = false
+python-versions = ">=3.8.0"
+files = [
+    {file = "rich-14.2.0-py3-none-any.whl", hash = "sha256:76bc51fe2e57d2b1be1f96c524b890b816e334ab4c1e45888799bfaab0021edd"},
+    {file = "rich-14.2.0.tar.gz", hash = "sha256:73ff50c7c0c1c77c8243079283f4edb376f0f6442433aecb8ce7e6d0b92d1fe4"},
+]
+
+[package.dependencies]
+markdown-it-py = ">=2.2.0"
+pygments = ">=2.13.0,<3.0.0"
+
+[package.extras]
+jupyter = ["ipywidgets (>=7.5.1,<9)"]
 
 [[package]]
 name = "roman-numerals-py"
@@ -4602,31 +4660,6 @@ files = [
 ]
 
 [[package]]
-name = "skfolio"
-version = "0.13.0"
-description = "Portfolio optimization built on top of scikit-learn"
-optional = false
-python-versions = ">=3.10"
-files = [
-    {file = "skfolio-0.13.0-py3-none-any.whl", hash = "sha256:0ffc55eeb41b1230663ae8fc382a35bb6c4168d18786ec4d66e88ba92a1854a2"},
-    {file = "skfolio-0.13.0.tar.gz", hash = "sha256:68a852da8abeef95ce7cf2985501863f8a6525f92bb7a0bb0b3b4f77772bf9f8"},
-]
-
-[package.dependencies]
-clarabel = ">=0.9.0"
-cvxpy-base = ">=1.5.0"
-joblib = ">=1.3.2"
-numpy = ">=1.23.4"
-pandas = ">=1.4.1"
-plotly = ">=5.22.0"
-scikit-learn = ">=1.6.0"
-scipy = ">=1.15.2"
-
-[package.extras]
-dev = ["PySCIPOpt", "pre-commit", "pytest", "pytest-cov", "ruff"]
-docs = ["PySCIPOpt", "Sphinx", "jupyterlite-pyodide-kernel", "jupyterlite-sphinx", "kaleido", "matplotlib", "nbformat", "numpydoc", "pydata-sphinx-theme (>=0.16,<1.0)", "sphinx-copybutton", "sphinx-favicon", "sphinx-gallery", "sphinx-last-updated-by-git", "sphinx-sitemap", "sphinxext.opengraph"]
-
-[[package]]
 name = "sniffio"
 version = "1.3.1"
 description = "Sniff out which async library your code is running under"
@@ -4857,6 +4890,17 @@ pure-eval = "*"
 
 [package.extras]
 tests = ["cython", "littleutils", "pygments", "pytest", "typeguard"]
+
+[[package]]
+name = "stevedore"
+version = "5.5.0"
+description = "Manage dynamic plugins for Python applications"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "stevedore-5.5.0-py3-none-any.whl", hash = "sha256:18363d4d268181e8e8452e71a38cd77630f345b2ef6b4a8d5614dac5ee0d18cf"},
+    {file = "stevedore-5.5.0.tar.gz", hash = "sha256:d31496a4f4df9825e1a1e4f1f74d19abb0154aff311c3b376fcc89dae8fccd73"},
+]
 
 [[package]]
 name = "tenacity"
@@ -5342,6 +5386,25 @@ nospam = ["requests_cache (>=1.0)", "requests_ratelimiter (>=0.3.1)"]
 repair = ["scipy (>=1.6.3)"]
 
 [[package]]
+name = "zipp"
+version = "3.23.0"
+description = "Backport of pathlib-compatible object wrapper for zip files"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "zipp-3.23.0-py3-none-any.whl", hash = "sha256:071652d6115ed432f5ce1d34c336c0adfd6a884660d1e9712a256d3d3bd4b14e"},
+    {file = "zipp-3.23.0.tar.gz", hash = "sha256:a07157588a12518c9d4034df3fbbee09c814741a33ff63c05fa29d26a2404166"},
+]
+
+[package.extras]
+check = ["pytest-checkdocs (>=2.4)", "pytest-ruff (>=0.2.1)"]
+cover = ["pytest-cov"]
+doc = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-lint"]
+enabler = ["pytest-enabler (>=2.2)"]
+test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more_itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
+type = ["pytest-mypy"]
+
+[[package]]
 name = "zstandard"
 version = "0.25.0"
 description = "Zstandard bindings for Python"
@@ -5454,5 +5517,5 @@ cffi = ["cffi (>=1.17,<2.0)", "cffi (>=2.0.0b)"]
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.12.0"
-content-hash = "3bd1d693c6125572ad55e0f7470642453e11043463aa8691ef2837a63485b583"
+python-versions = "^3.11.0"
+content-hash = "392972e9fea920289cd156ecc9fc08a9672f83cf4ef69a4fcb7af80dfe707a8d"

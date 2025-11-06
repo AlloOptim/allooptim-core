@@ -10,7 +10,6 @@ Key components:
 - OptimizerConfig: Individual optimizer settings with validation
 - Data source configuration and validation
 - Performance metric specifications
-- YAML configuration file support
 - Type-safe configuration management
 """
 
@@ -20,7 +19,6 @@ from functools import cached_property
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-import yaml
 from pydantic import BaseModel, Field, field_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
@@ -110,7 +108,7 @@ class BacktestConfig(BaseModel):
         default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
         min_length=1,
         description="List of optimizer configurations. Can be optimizer names (strings) or "
-                   "OptimizerConfig objects with custom parameters",
+        "OptimizerConfig objects with custom parameters",
     )
     transformer_names: List[str] = Field(
         default=["OracleCovarianceTransformer"],
@@ -122,7 +120,7 @@ class BacktestConfig(BaseModel):
     orchestration_type: OrchestratorType = Field(
         default=OrchestratorType.AUTO,
         description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or "
-                   "'auto' for automatic selection",
+        "'auto' for automatic selection",
     )
 
     store_results: bool = Field(
@@ -174,28 +172,6 @@ class BacktestConfig(BaseModel):
     def validate_orchestration_type(cls, v: str) -> OrchestratorType:
         """Validate that orchestration type is one of the allowed values."""
         return OrchestratorType(v)
-
-    @classmethod
-    def from_yaml(cls, yaml_path: str) -> "BacktestConfig":
-        """Load configuration from a YAML file."""
-        yaml_path = Path(yaml_path)
-        if not yaml_path.exists():
-            raise FileNotFoundError(f"Configuration file not found: {yaml_path}")
-
-        with open(yaml_path) as f:
-            data = yaml.safe_load(f)
-
-        # Convert string dates to datetime objects
-        if "start_date" in data and isinstance(data["start_date"], str):
-            data["start_date"] = datetime.fromisoformat(data["start_date"])
-        if "end_date" in data and isinstance(data["end_date"], str):
-            data["end_date"] = datetime.fromisoformat(data["end_date"])
-        if "debug_start_date" in data and isinstance(data["debug_start_date"], str):
-            data["debug_start_date"] = datetime.fromisoformat(data["debug_start_date"])
-        if "debug_end_date" in data and isinstance(data["debug_end_date"], str):
-            data["debug_end_date"] = datetime.fromisoformat(data["debug_end_date"])
-
-        return cls(**data)
 
     @cached_property
     def results_dir(self) -> Path:

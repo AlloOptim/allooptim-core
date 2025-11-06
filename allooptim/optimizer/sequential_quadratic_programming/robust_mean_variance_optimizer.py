@@ -140,9 +140,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         This results in a tractable quadratic program that can be solved efficiently.
 
     Examples:
-        >>> config = RobustMeanVarianceOptimizerConfig(
-        ...     mu_uncertainty_level=0.2, cov_uncertainty_level=0.1, allow_cash=True
-        ... )
+        >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2, cov_uncertainty_level=0.1, allow_cash=True)
         >>> optimizer = RobustMeanVarianceOptimizer(config)
         >>> optimizer.fit(df_prices)  # Estimate uncertainty from data
         >>> weights = optimizer.allocate(mu, cov)
@@ -359,8 +357,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
             weights = weights / total_weight
 
         logger.debug(
-            f"Robust optimization: total_weight={np.sum(weights):.4f}, "
-            f"eps_mu={eps_mu:.4f}, eps_cov={eps_cov:.4f}"
+            f"Robust optimization: total_weight={np.sum(weights):.4f}, " f"eps_mu={eps_mu:.4f}, eps_cov={eps_cov:.4f}"
         )
 
         # Log if holding significant cash

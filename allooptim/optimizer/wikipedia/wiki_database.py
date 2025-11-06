@@ -26,13 +26,17 @@ DATABASE_PATH = DATABASE_DIR / "market_data.db"
 
 def _get_date_range(
     table_name: str, database_path: Optional[Path] = None
-) -> tuple[Optional[datetime], Optional[datetime]]:
+def _get_date_range(table_name: str, database_path: Optional[Path] = None) -> tuple[datetime, datetime]:
     """Get the min and max dates from a table."""
+    # Validate table name to prevent SQL injection
+    if not table_name.replace("_", "").isalnum():
+        raise ValueError(f"Invalid table name: {table_name}")
+
     db_path = database_path or DATABASE_PATH
     db_path_str = str(db_path)
     try:
         with sqlite3.connect(db_path_str) as conn:
-            cursor = conn.execute(f"SELECT MIN(date), MAX(date) FROM {table_name}")
+            cursor = conn.execute(f"SELECT MIN(date), MAX(date) FROM `{table_name}`")  # nosec B608
             result = cursor.fetchone()
 
             if result[0] is None:
@@ -80,12 +84,16 @@ def _add_symbol_columns(table_name: str, new_symbols: list[str], database_path: 
 
 def _get_table_report(table_name: str, database_path: Optional[Path] = None) -> dict[str, Any]:
     """Get statistics for a table."""
+    # Validate table name to prevent SQL injection
+    if not table_name.replace("_", "").isalnum():
+        raise ValueError(f"Invalid table name: {table_name}")
+
     db_path = database_path or DATABASE_PATH
     db_path_str = str(db_path)
     try:
         with sqlite3.connect(db_path_str) as conn:
             # Get row count
-            cursor = conn.execute(f"SELECT COUNT(*) FROM {table_name}")
+            cursor = conn.execute(f"SELECT COUNT(*) FROM `{table_name}`")  # nosec B608
             row_count = cursor.fetchone()[0]
 
             # Get symbol count
@@ -321,6 +329,10 @@ def _load_from_database(
     database_path: Optional[Path] = None,
 ) -> pd.DataFrame:
     """Load data from database table."""
+    # Validate table name to prevent SQL injection
+    if not table_name.replace("_", "").isalnum():
+        raise ValueError(f"Invalid table name: {table_name}")
+
     db_path = database_path or DATABASE_PATH
     db_path_str = str(db_path)
     logger.info(f"Loading from database path: {db_path_str}")
@@ -332,10 +344,10 @@ def _load_from_database(
         symbol_columns = ", ".join([f"`{sym}`" for sym in symbols])
         query = f"""
             SELECT date, {symbol_columns}
-            FROM {table_name}
+            FROM `{table_name}`
             WHERE date BETWEEN ? AND ?
             ORDER BY date
-        """
+        """  # nosec B608
 
         with sqlite3.connect(db_path_str) as conn:
             df = pd.read_sql_query(
