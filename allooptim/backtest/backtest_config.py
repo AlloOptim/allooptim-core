@@ -2,16 +2,52 @@ import logging
 from datetime import datetime, timedelta
 from functools import cached_property
 from pathlib import Path
-from typing import List
+from typing import Dict, List, Optional, Union
 
 import yaml
 from pydantic import BaseModel, Field, field_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.covariance_transformer.transformer_list import get_all_transformers
+from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema, validate_optimizer_config
 from allooptim.optimizer.optimizer_list import get_all_optimizer_names
 
 logger = logging.getLogger(__name__)
+
+
+class OptimizerConfig(BaseModel):
+    """Configuration for a single optimizer with optional custom parameters."""
+
+    name: str = Field(..., description="Name of the optimizer")
+    config: Optional[Dict] = Field(default=None, description="Optional custom configuration parameters")
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def validate_optimizer_name(cls, v: str) -> str:
+        """Validate that the optimizer name exists."""
+        available_optimizers = get_all_optimizer_names()
+        if v not in available_optimizers:
+            raise ValueError(
+                f"Invalid optimizer name: {v}. " f"Available optimizers: {available_optimizers}"
+            )
+        return v
+
+    @field_validator("config", mode="before")
+    @classmethod
+    def validate_config(cls, v: Optional[Dict], info) -> Optional[Dict]:
+        """Validate the config against the optimizer's schema if provided."""
+        if v is None:
+            return v
+
+        # Get the optimizer name from the current values
+        name = info.data.get("name")
+        if name:
+            try:
+                validate_optimizer_config(name, v)
+            except Exception as e:
+                raise ValueError(f"Invalid config for optimizer {name}: {e}")
+
+        return v
 
 
 class BacktestConfig(BaseModel):
@@ -56,10 +92,16 @@ class BacktestConfig(BaseModel):
     )
 
     # Optimizer and transformer names
-    optimizer_names: List[str] = Field(
-        default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
+    optimizer_configs: List[Union[str, OptimizerConfig]] = Field(
+        default=[
+            "RiskParityOptimizer",
+            "NaiveOptimizer",
+            "MomentumOptimizer",
+            "HRPOptimizer",
+            "NCOSharpeOptimizer"
+        ],
         min_length=1,
-        description="List of optimizer names to include in the backtest",
+        description="List of optimizer configurations. Can be optimizer names (strings) or OptimizerConfig objects with custom parameters",
     )
     transformer_names: List[str] = Field(
         default=["OracleCovarianceTransformer"],
@@ -77,22 +119,28 @@ class BacktestConfig(BaseModel):
         default=True, description="Whether to create a results directory for storing backtest outputs"
     )
 
-    @field_validator("optimizer_names", mode="before")
+    @field_validator("optimizer_configs", mode="before")
     @classmethod
-    def validate_optimizer_names(cls, v: List[str]) -> List[str]:
-        """Validate that all optimizer names exist and at least one is present."""
+    def validate_optimizer_configs(cls, v: List[Union[str, Dict, OptimizerConfig]]) -> List[OptimizerConfig]:
+        """Validate that all optimizer configs are valid and convert strings to OptimizerConfig objects."""
         if not v:
-            raise ValueError("At least one optimizer name must be provided")
+            raise ValueError("At least one optimizer config must be provided")
 
-        available_optimizers = get_all_optimizer_names()
-        invalid_names = [name for name in v if name not in available_optimizers]
+        validated_configs = []
+        for item in v:
+            if isinstance(item, str):
+                # Convert string to OptimizerConfig
+                validated_configs.append(OptimizerConfig(name=item))
+            elif isinstance(item, dict):
+                # Convert dict to OptimizerConfig
+                validated_configs.append(OptimizerConfig(**item))
+            elif isinstance(item, OptimizerConfig):
+                # Already an OptimizerConfig
+                validated_configs.append(item)
+            else:
+                raise ValueError(f"Invalid optimizer config type: {type(item)}. Must be str, dict, or OptimizerConfig")
 
-        if invalid_names:
-            raise ValueError(
-                f"Invalid optimizer names: {invalid_names}. " f"Available optimizers: {available_optimizers}"
-            )
-
-        return v
+        return validated_configs
 
     @field_validator("transformer_names", mode="before")
     @classmethod
@@ -143,6 +191,27 @@ class BacktestConfig(BaseModel):
     def results_dir(self) -> Path:
         """Generate results directory path with timestamp."""
         return Path("backtest_results") / datetime.now().strftime("%Y%m%d_%H%M%S")
+
+    @property
+    def optimizer_names(self) -> List[str]:
+        """Get list of optimizer names for backward compatibility."""
+        return [config.name for config in self.optimizer_configs]
+
+    def get_optimizer_configs_dict(self) -> Dict[str, Optional[Dict]]:
+        """Get optimizer configs as a dict mapping names to config dicts."""
+        return {config.name: config.config for config in self.optimizer_configs}
+
+    def get_optimizer_config_schemas(self) -> Dict[str, Dict]:
+        """Get JSON schemas for all configured optimizers."""
+        schemas = {}
+        for config in self.optimizer_configs:
+            try:
+                schema = get_optimizer_config_schema(config.name)
+                schemas[config.name] = schema
+            except Exception as e:
+                logger.warning(f"Could not get schema for optimizer {config.name}: {e}")
+                schemas[config.name] = {"error": str(e)}
+        return schemas
 
     def get_report_date_range(self) -> tuple[datetime, datetime]:
         """Get start and end dates based on debug mode."""

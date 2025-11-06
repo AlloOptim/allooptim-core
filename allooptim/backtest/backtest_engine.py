@@ -60,7 +60,7 @@ class BacktestEngine:
 
         self.orchestrator = create_orchestrator(
             orchestrator_type=final_orchestrator_type,
-            optimizer_names=self.config_backtest.optimizer_names,
+            optimizer_configs=self.config_backtest.get_optimizer_configs_dict(),
             transformer_names=self.config_backtest.transformer_names,
             config=a2a_config,
             **orchestrator_kwargs,

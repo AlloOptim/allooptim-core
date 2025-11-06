@@ -49,9 +49,12 @@ def main():
             log_returns=True,
             benchmark="SPY",
             symbols=symbols,
-            optimizer_names=[
+            optimizer_configs=[
+                # Example with default config
                 "CMAMeanVariance",
-                "CMALMoments",
+                # Example with custom config
+                {"name": "CMALMoments", "config": {"target_return": 0.02}},
+                # More optimizers with defaults
                 "CMASortino",
                 "CMAMaxDrawdown",
                 "CMARobustSharpe",
