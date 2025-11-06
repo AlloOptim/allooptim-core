@@ -29,7 +29,8 @@ class LightGBMOptimizerConfig(BaseModel):
 
 
 class LightGBMOptimizerEngine:
-    """State-of-the-art portfolio optimizer using:
+    """State-of-the-art portfolio optimizer using.
+
     1. LightGBM for return prediction (fast training)
     2. Online covariance estimation with exponential weighting
     3. Risk-aware optimization with transaction costs.
@@ -41,7 +42,8 @@ class LightGBMOptimizerEngine:
         n_lookback: int,
         config: Optional[LightGBMOptimizerConfig] = None,
     ) -> None:
-        """Args:
+        """Args.
+
         n_assets: Number of assets in portfolio
         lookback: Historical window for feature engineering.
         """

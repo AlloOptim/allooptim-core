@@ -68,7 +68,8 @@ class SpectrumGenerator:
 
     @staticmethod
     def spiked_model(n: int, n_factors: int = None, factor_strength: tuple[float, float] = (5.0, 20.0)) -> np.ndarray:
-        """Spiked model: few large factors + noise
+        """Spiked model: few large factors + noise.
+
         Models market with strong factors (market, sector, etc.).
 
         Args:
@@ -93,7 +94,8 @@ class SpectrumGenerator:
 
     @staticmethod
     def hierarchical(n: int, n_levels: int = None) -> np.ndarray:
-        """Hierarchical spectrum: multiple scales of correlation
+        """Hierarchical spectrum: multiple scales of correlation.
+
         Models markets with sector structure.
 
         Args:
@@ -171,7 +173,8 @@ class CovarianceMatrixGenerator:
 
     @staticmethod
     def from_eigenvalues(eigenvalues: np.ndarray) -> np.ndarray:
-        """Generate correlation matrix from specified eigenvalues
+        """Generate correlation matrix from specified eigenvalues.
+
         Using Davies-Higham algorithm with Givens rotations.
 
         Args:

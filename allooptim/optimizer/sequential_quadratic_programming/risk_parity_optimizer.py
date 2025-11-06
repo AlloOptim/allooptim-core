@@ -57,7 +57,8 @@ class RiskParityOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """Gets position weights according to the risk parity method
+        """Gets position weights according to the risk parity method.
+
         :param cov: covariance matrix
         :param mu: vector of expected returns
         :return: list of position weights.

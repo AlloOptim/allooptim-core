@@ -1,4 +1,5 @@
-"""Patch for pageviewapi to ensure compatibility with Python 3.10+
+"""Patch for pageviewapi to ensure compatibility with Python 3.10+.
+
 The pageviewapi library relies on collections attributes that were
 moved in Python 3.10+. This patch adds the missing attributes back to
 the collections module.

@@ -33,7 +33,8 @@ def _exponential_decay_weights(
     n: int,
     decay_factor: float,
 ) -> np.ndarray:
-    """Create exponential decay weights where the most recent point has 'factor' times
+    """Create exponential decay weights where the most recent point has 'factor' times.
+
     higher weight than the oldest point.
 
     Args:
@@ -88,6 +89,7 @@ def _remove_outliers_iqr(
     iqr_factor: float,
 ) -> pd.DataFrame:
     """Remove outliers from specified columns using the IQR method.
+
     k is the IQR multiplier, typically 1.5 for outliers or 3 for extreme outliers.
     """
     for column in columns:

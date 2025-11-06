@@ -270,7 +270,8 @@ class NumpyOptimizerAdapter:
     """
 
     def __init__(self, numpy_optimizer):
-        """Args:
+        """Args.
+
         numpy_optimizer: Optimizer with numpy-based allocate method.
         """
         self.numpy_optimizer = numpy_optimizer

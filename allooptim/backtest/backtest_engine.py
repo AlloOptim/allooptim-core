@@ -277,8 +277,6 @@ class BacktestEngine:
             for opt_alloc in result.optimizer_allocations:
                 weights_history[opt_alloc.optimizer_name].append(opt_alloc.weights)
 
-
-
         # Calculate performance for each optimizer
         results = {}
         for optimizer_name in optimizer_names:

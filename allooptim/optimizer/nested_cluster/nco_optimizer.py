@@ -109,7 +109,8 @@ class NCOOptimizerConfig(BaseModel):
 
 
 class NCOSharpeOptimizer(AbstractOptimizer):
-    """optimal portfolio allocation using Nested Clustered Optimization algorithm
+    """Optimal portfolio allocation using Nested Clustered Optimization algorithm.
+
     (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3469961).
 
     Attributes:
@@ -271,7 +272,8 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         self._corr = compute_corr(cov)
 
     def _cluster_assets(self) -> None:
-        """Groups assets into clusters using k means, using silhoueete scores
+        """Groups assets into clusters using k means, using silhoueete scores.
+
         to find the optimal number of clusters.
 
         Args:

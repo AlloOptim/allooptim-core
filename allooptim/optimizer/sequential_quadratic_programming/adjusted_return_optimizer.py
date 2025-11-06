@@ -71,7 +71,8 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """Gets position weights according to the adjusted returns method
+        """Gets position weights according to the adjusted returns method.
+
         :param cov: covariance matrix
         :param mu: vector of expected returns
         :return: Series of position weights with asset names as index.

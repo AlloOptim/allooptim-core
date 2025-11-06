@@ -21,11 +21,13 @@ MIN_REPLAY_BUFFER_SIZE = 32
 
 class FractionalDifferentiator:
     """Fractional differentiation for preserving memory while achieving stationarity.
+
     Based on "Advances in Financial Machine Learning" by Marcos López de Prado.
     """
 
     def __init__(self, d=0.5, threshold=1e-5):
-        """Args:
+        """Args.
+
         d: Differentiation order (0 < d < 1)
            d=0: no differencing (original series)
            d=0.5: balance between memory and stationarity
@@ -93,6 +95,7 @@ class FractionalDifferentiator:
 
 class PortfolioNetInterface(ABC):
     """Abstract base class for portfolio optimization networks.
+
     All implementations must provide the same interface for seamless swapping.
     """
 
@@ -186,7 +189,8 @@ class LSTMCell:
         self.b_o = Tensor.zeros(hidden_dim)
 
     def __call__(self, x, h_prev, c_prev):
-        """Args:
+        """Args.
+
         x: (batch, input_dim)
         h_prev: (batch, hidden_dim)
         c_prev: (batch, hidden_dim).
@@ -226,7 +230,8 @@ class LSTM:
         self.cell = LSTMCell(input_dim, hidden_dim)
 
     def __call__(self, x):
-        """Args:
+        """Args.
+
             x: (batch, seq_len, input_dim).
 
         Returns:
@@ -293,7 +298,8 @@ class TemporalBlock:
 
 
 class LSTMAttentionPortfolioNet(PortfolioNetInterface):
-    """Advanced portfolio optimizer using:
+    """Advanced portfolio optimizer using LSTM + Attention.
+
     - Stacked LSTM with attention mechanisms
     - Cross-sectional features (relative strength across assets)
     - Multi-task learning (returns + volatility prediction)
@@ -343,7 +349,8 @@ class LSTMAttentionPortfolioNet(PortfolioNetInterface):
         ]
 
     def __call__(self, x, train=True):
-        """Args:
+        """Args.
+
             x: (batch, n_assets, seq_len, n_features).
 
         Returns:
@@ -412,7 +419,8 @@ class LSTMAttentionPortfolioNet(PortfolioNetInterface):
 
 
 class MambaBlock:
-    """Simplified Mamba/S4 block - Selective State Space Model
+    """Simplified Mamba/S4 block - Selective State Space Model.
+
     Based on "Mamba: Linear-Time Sequence Modeling with Selective State Spaces".
     """
 
@@ -448,7 +456,8 @@ class MambaBlock:
         self.D = Tensor.ones(self.d_inner)
 
     def __call__(self, x):
-        """Args:
+        """Args.
+
             x: (batch, seq_len, d_model).
 
         Returns:
@@ -515,7 +524,8 @@ class MambaBlock:
 
 
 class MambaPortfolioNet(PortfolioNetInterface):
-    """Portfolio network using Mamba (Selective State Space Model)
+    """Portfolio network using Mamba (Selective State Space Model).
+
     - Linear time complexity
     - Strong long-range dependency modeling
     - Input-dependent dynamics (selective mechanism).
@@ -638,7 +648,8 @@ class CausalConv1d:
         self.bias = Tensor.zeros(out_channels)
 
     def __call__(self, x):
-        """Args:
+        """Args.
+
             x: (batch, seq_len, in_channels).
 
         Returns:
@@ -697,7 +708,8 @@ class TemporalBlock_TCN:
         self.downsample = nn.Linear(n_inputs, n_outputs) if n_inputs != n_outputs else None
 
     def __call__(self, x, train=True):
-        """Args:
+        """Args.
+
         x: (batch, seq_len, n_inputs).
         """
         out = self.conv1(x).relu()
@@ -714,7 +726,8 @@ class TemporalBlock_TCN:
 
 
 class TCNPortfolioNet(PortfolioNetInterface):
-    """Portfolio network using Temporal Convolutional Network (TCN)
+    """Portfolio network using Temporal Convolutional Network (TCN).
+
     - Parallelizable (faster than RNNs)
     - Dilated convolutions for large receptive field
     - Causal (no future leakage)
@@ -842,6 +855,7 @@ class LSTMOptimizerConfig(BaseModel):
 
 class DeepLearningOptimizerEngine:
     """State-of-the-art portfolio optimizer with online learning.
+
     Supports multiple neural network architectures.
     """
 
@@ -853,7 +867,8 @@ class DeepLearningOptimizerEngine:
         n_lookback: int,
         config: Optional[LSTMOptimizerConfig] = None,
     ) -> None:
-        """Args:
+        """Args.
+
         n_assets: Number of assets in the portfolio
         model_type: str, one of ['lstm', 'mamba', 'tcn']
             - 'lstm': LSTM + Transformer (original, best for complex patterns)
@@ -918,7 +933,8 @@ class DeepLearningOptimizerEngine:
         self.feature_std = None
 
     def _engineer_features(self, prices: np.ndarray) -> np.ndarray:
-        """Create advanced features from price data
+        """Create advanced features from price data.
+
         Args:
             prices: (batch, n_assets, seq_len) or (n_assets, seq_len).
 
@@ -1090,7 +1106,8 @@ class DeepLearningOptimizerEngine:
         actual_returns,
         prev_weights,
     ):
-        """Multi-objective loss for long-only with cash:
+        """Multi-objective loss for long-only with cash.
+
         1. Return prediction accuracy
         2. Volatility prediction accuracy
         3. Portfolio return (negative)
@@ -1235,7 +1252,8 @@ class DeepLearningOptimizerEngine:
         self.trained = True
 
     def _online_update(self, new_prices, new_returns, n_steps=10):
-        """Fast online update with new data
+        """Fast online update with new data.
+
         Args:
             new_prices: (lookback+1, n_assets) recent prices
             new_returns: (1, n_assets) latest returns.
@@ -1279,7 +1297,8 @@ class DeepLearningOptimizerEngine:
                 self.optimizer.step()
 
     def _predict(self, prices, n_samples=10):
-        """Predict portfolio weights with uncertainty estimation
+        """Predict portfolio weights with uncertainty estimation.
+
         Args:
             prices: (lookback, n_assets) recent prices
             n_samples: Number of MC dropout samples

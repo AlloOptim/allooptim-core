@@ -1,4 +1,5 @@
-"""Pure Fundamental-Based Portfolio Allocation
+"""Pure Fundamental-Based Portfolio Allocation.
+
 Uses 5 key fundamental metrics to determine portfolio weights
 No price data, returns, or covariance analysis.
 """
