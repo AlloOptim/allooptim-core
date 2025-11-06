@@ -10,7 +10,5 @@ build:
       - curl -sSL https://install.python-poetry.org | python3 -
       - export PATH="$HOME/.local/bin:$PATH" && poetry config virtualenvs.create false
       - export PATH="$HOME/.local/bin:$PATH" && poetry install --with docs
-
-sphinx:
-  configuration: docs/source/conf.py
-  fail_on_warning: false
+  commands:
+    - export PATH="$HOME/.local/bin:$PATH" && poetry run sphinx-build -b html docs/source $READTHEDOCS_OUTPUT/html
