@@ -1,6 +1,7 @@
 # AlloOptim Core
 
 [![CI](https://github.com/AlloOptim/allooptim-core/workflows/CI/badge.svg)](https://github.com/AlloOptim/allooptim-core/actions)
+[![Documentation Status](https://readthedocs.org/projects/allooptim/badge/?version=latest)](https://allooptim.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/allo-optim.svg)](https://badge.fury.io/py/allo-optim)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
@@ -28,6 +29,8 @@ print(optimal_weights)
 ```
 
 ## 📚 Documentation
+
+📖 Full documentation available at [allooptim.readthedocs.io](https://allooptim.readthedocs.io)
 
 - [Getting Started Guide](docs/getting_started.md)
 - [Methodology Whitepaper](https://allooptim.io/whitepaper.pdf)

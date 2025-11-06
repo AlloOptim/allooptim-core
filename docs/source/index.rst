@@ -8,7 +8,6 @@ allocation strategies, advanced covariance transformations, and ensemble methods
    :maxdepth: 2
    :caption: Getting Started
 
-   installation
    quickstart
    architecture
 
@@ -16,26 +15,19 @@ allocation strategies, advanced covariance transformations, and ensemble methods
    :maxdepth: 2
    :caption: User Guide
 
-   optimizers/index
-   covariance/index
-   backtest/index
-   allocation_to_allocators/index
+   optimizers/comparison
 
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
 
    api/optimizers
-   api/covariance_transformers
-   api/backtest
-   api/config
 
 .. toctree::
    :maxdepth: 1
    :caption: Development
 
    contributing
-   changelog
 
 Indices and tables
 ==================
