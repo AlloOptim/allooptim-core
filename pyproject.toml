@@ -47,6 +47,14 @@ ruff = "^0.5.2"
 poetry-plugin-export = "^1.6.0"
 pytest-cov = "^7.0.0"
 
+[tool.poetry.group.docs]
+optional = true
+
+[tool.poetry.group.docs.dependencies]
+sphinx = "^8.2.3"
+sphinx-rtd-theme = "^3.0.2"
+sphinx-autodoc-typehints = "^3.5.2"
+
 [tool.ruff]
 line-length = 120
 indent-width = 4
