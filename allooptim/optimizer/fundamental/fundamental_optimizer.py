@@ -1,3 +1,17 @@
+"""Fundamental analysis-based portfolio allocation optimizer.
+
+This module provides portfolio optimization strategies based on fundamental
+company data and financial metrics. It implements various fundamental investing
+approaches including value investing, quality growth, and market cap weighting.
+
+Key features:
+- Value investing strategies
+- Quality and growth factor investing
+- Market capitalization weighting
+- Fundamental data integration
+- Long-term investment focus
+"""
+
 import logging
 from datetime import datetime, timedelta
 from typing import Optional

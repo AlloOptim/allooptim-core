@@ -1,3 +1,17 @@
+"""Base classes and utilities for deep learning portfolio optimization.
+
+This module provides the foundation for neural network-based portfolio
+optimization algorithms. It includes base classes for deep learning optimizers,
+neural network architectures, and training utilities using TinyGrad.
+
+Key components:
+- DeepLearningOptimizerEngine: Base class for neural optimizers
+- LSTM, Mamba, and TCN network architectures
+- Online learning capabilities for adapting to new data
+- Technical analysis feature engineering
+- Integration with TinyGrad for efficient computation
+"""
+
 import logging
 import time
 from abc import ABC, abstractmethod

@@ -51,7 +51,6 @@ class AbstractCovarianceTransformer(ABC):
         - :mod:`allooptim.covariance_transformer`: Available transformers
     """
 
-    @abstractmethod
     def fit(self, df_prices: pd.DataFrame) -> None:
         """Optional method to fit the transformer to the data.
 

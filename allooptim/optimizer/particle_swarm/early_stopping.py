@@ -1,3 +1,17 @@
+"""Early stopping utilities for optimization algorithms.
+
+This module provides early stopping functionality to prevent wasted computation
+in iterative optimization algorithms. It monitors convergence progress and
+terminates optimization when no significant improvement is observed.
+
+Key features:
+- Configurable tolerance for improvement detection
+- Stagnation limit to prevent infinite loops
+- Integration with objective function wrappers
+- Automatic convergence detection
+- Performance monitoring and logging
+"""
+
 import logging
 from typing import Callable
 

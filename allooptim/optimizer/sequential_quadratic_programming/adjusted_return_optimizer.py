@@ -1,3 +1,17 @@
+"""Adjusted return portfolio optimization using sequential quadratic programming.
+
+This module implements portfolio optimization with return adjustments using
+Sequential Quadratic Programming (SQP). It optimizes portfolios with custom
+return objectives while maintaining risk constraints.
+
+Key features:
+- Return-adjusted portfolio optimization
+- Sequential quadratic programming solver
+- Custom objective functions
+- Risk-constrained optimization
+- Higher-order moment considerations
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

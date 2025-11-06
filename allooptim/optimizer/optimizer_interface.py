@@ -70,7 +70,6 @@ class AbstractOptimizer(ABC):
         - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities
     """
 
-    @abstractmethod
     def fit(
         self,
         df_prices: Optional[pd.DataFrame] = None,
@@ -121,7 +120,6 @@ class AbstractOptimizer(ABC):
 class AbstractEnsembleOptimizer(ABC):
     """Abstract base class for ensemble portfolio optimization algorithms with pandas interface."""
 
-    @abstractmethod
     def fit(
         self,
         df_prices: Optional[pd.DataFrame] = None,

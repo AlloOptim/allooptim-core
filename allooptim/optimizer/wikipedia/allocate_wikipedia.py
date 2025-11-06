@@ -1,3 +1,17 @@
+"""Wikipedia-inspired portfolio allocation functions.
+
+This module contains portfolio allocation functions inspired by Wikipedia articles
+and financial literature. It provides various allocation strategies and utilities
+for implementing classic portfolio theory approaches.
+
+Key features:
+- Wikipedia-based allocation algorithms
+- Historical portfolio theory implementations
+- Statistical analysis of allocation results
+- Database integration for historical data
+- Performance metrics and validation
+"""
+
 import logging
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -339,7 +353,7 @@ def _process_and_filter_data_combined(  # noqa: PLR0913
     return True, df_merged, valid_symbols
 
 
-def allocate_wikipedia(  # noqa: PLR0913
+def allocate_wikipedia(  # noqa: PLR0913,PLR0911
     all_stocks: list[StockUniverse],
     time_today: datetime,
     n_historical_days: int = 30,
@@ -393,11 +407,11 @@ def allocate_wikipedia(  # noqa: PLR0913
                 f"Loaded {len(df_wiki_views)} wiki view records, {len(df_stock_prices)} price records, "
                 f"{len(df_stock_volumes)} volume records"
             )
-
         except Exception as error:
             logger.error(f"Failed to fetch data: {error}")
             return _get_failed_result(end_date, all_stocks)
 
+    # Process and filter data
     success, df_merged, valid_symbols = _process_and_filter_data_combined(
         df_wiki_views,
         df_stock_prices,
@@ -412,12 +426,14 @@ def allocate_wikipedia(  # noqa: PLR0913
     if not success:
         return _get_failed_result(end_date, all_stocks)
 
+    # Filter by correlations
     success, significant_positive_stocks = _filter_by_correlations(df_merged, p_threshold_significance)
     if not success:
         return _get_failed_result(end_date, all_stocks)
 
     df_significant = df_merged[df_merged["symbol"].isin(significant_positive_stocks)]
 
+    # Select top N stocks
     success, df_top = _select_top_n_stocks(
         df_significant,
         n_max_final_stocks,
@@ -425,10 +441,12 @@ def allocate_wikipedia(  # noqa: PLR0913
     if not success:
         return _get_failed_result(end_date, all_stocks)
 
+    # Create asset weights
     success, asset_weights = _create_asset_weights(df_top, all_stocks)
     if not success:
         return _get_failed_result(end_date, all_stocks)
 
+    # Estimate statistics
     success, wiki_statistics = _estimate_statistics(
         df_top,
         end_date,

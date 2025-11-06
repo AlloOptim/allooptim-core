@@ -1,3 +1,17 @@
+"""Classical efficient frontier portfolio optimization.
+
+This module implements traditional mean-variance portfolio optimization using
+the efficient frontier approach. It provides maximum Sharpe ratio, minimum
+volatility, and efficient risk portfolios based on modern portfolio theory.
+
+Key features:
+- Maximum Sharpe ratio optimization
+- Minimum volatility portfolios
+- Efficient risk portfolios with target returns
+- Integration with PyPortfolioOpt library
+- Risk-adjusted portfolio construction
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

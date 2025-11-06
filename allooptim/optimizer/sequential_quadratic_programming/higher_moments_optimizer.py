@@ -1,3 +1,18 @@
+"""Higher moments portfolio optimization using sequential quadratic programming.
+
+This module implements portfolio optimization strategies that incorporate higher-order moments
+(such as skewness and kurtosis) beyond traditional mean-variance optimization. The optimizer
+uses sequential quadratic programming with multi-start capabilities to find optimal portfolio
+weights that account for non-normal return distributions and investor preferences for
+asymmetric risk measures.
+
+Key features:
+- Skewness and kurtosis optimization
+- Multi-start SQP for global optimization
+- Higher moment risk-adjusted returns
+- Portfolio rebalancing with moment constraints
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

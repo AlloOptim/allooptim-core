@@ -1,3 +1,18 @@
+"""Risk parity portfolio optimization using sequential quadratic programming.
+
+This module implements risk parity optimization strategies that allocate portfolio weights
+such that each asset contributes equally to the overall portfolio risk. The optimizer uses
+sequential quadratic programming with multi-start capabilities to achieve risk parity across
+assets, ensuring balanced risk contribution regardless of asset volatility.
+
+Key features:
+- Equal risk contribution across assets
+- Sequential quadratic programming optimization
+- Multi-start global optimization
+- Risk-based portfolio construction
+- Volatility normalization for fair comparison
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

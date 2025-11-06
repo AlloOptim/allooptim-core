@@ -1,3 +1,18 @@
+"""Wikipedia-based portfolio optimization strategies.
+
+This module implements portfolio optimization strategies inspired by or derived from
+Wikipedia articles on portfolio theory and asset allocation. The optimizer provides
+implementations of various allocation methods described in financial literature and
+online resources, adapted for practical portfolio management.
+
+Key features:
+- Wikipedia-inspired allocation methods
+- Historical portfolio theory implementations
+- Educational allocation strategies
+- Reference implementations for comparison
+- Integration with stock universe data
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

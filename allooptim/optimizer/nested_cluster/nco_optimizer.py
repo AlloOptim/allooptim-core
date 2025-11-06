@@ -1,3 +1,18 @@
+"""Nested Clustered Optimization (NCO) for portfolio allocation.
+
+This module implements Nested Clustered Optimization, a hierarchical approach
+that combines clustering with optimization. Assets are grouped into clusters
+based on return correlations, and then optimized within and across clusters
+to achieve better risk-adjusted returns.
+
+Key features:
+- Hierarchical asset clustering using correlation matrices
+- Intra-cluster and inter-cluster optimization
+- Sharpe ratio maximization within nested structure
+- Silhouette analysis for cluster quality assessment
+- Integration with scikit-learn clustering algorithms
+"""
+
 import logging
 from dataclasses import dataclass
 from datetime import datetime

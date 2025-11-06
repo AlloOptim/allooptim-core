@@ -1,3 +1,18 @@
+"""Particle Swarm Optimization portfolio allocator.
+
+This module implements portfolio optimization using Particle Swarm Optimization
+(PSO), a population-based metaheuristic inspired by bird flocking behavior.
+PSO searches for optimal portfolio weights by having particles explore the
+solution space with social and cognitive learning components.
+
+Key features:
+- Population-based optimization with swarm intelligence
+- Velocity and position updates for particle movement
+- Social and cognitive learning from global and personal bests
+- Early stopping for convergence detection
+- Integration with PySwarms library
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

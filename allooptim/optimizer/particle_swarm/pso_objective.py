@@ -1,3 +1,17 @@
+"""Objective functions for Particle Swarm Optimization.
+
+This module defines objective functions used by Particle Swarm Optimization
+algorithms for portfolio allocation. These functions evaluate portfolio quality
+based on various risk-return metrics and constraints.
+
+Key features:
+- Price-based portfolio evaluation
+- Risk-adjusted return optimization
+- Higher-order moment considerations (skewness, kurtosis)
+- Constraint handling for portfolio weights
+- Integration with L-moments for robust statistics
+"""
+
 import logging
 
 import numpy as np

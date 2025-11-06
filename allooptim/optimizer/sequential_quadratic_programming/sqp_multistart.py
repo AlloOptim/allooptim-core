@@ -1,3 +1,17 @@
+"""Multi-start sequential quadratic programming utilities.
+
+This module provides utilities for performing global optimization using sequential quadratic
+programming (SQP) with multiple random starting points. The multi-start approach helps avoid
+getting stuck in local optima by exploring the solution space from various initial conditions.
+
+Key features:
+- Multi-start SQP optimization
+- Random initial weight generation
+- Local optima avoidance
+- Portfolio weight constraints handling
+- Solver failure detection and recovery
+"""
+
 import logging
 from typing import Callable, Optional
 

@@ -1,3 +1,18 @@
+"""Robust exponentially weighted moment estimation.
+
+This module provides robust estimation of statistical moments using exponentially
+weighted moving averages (EWMA). It includes outlier detection and blending
+with simple estimates to provide stable and reliable moment estimates for
+portfolio optimization.
+
+Key features:
+- Exponentially weighted moment estimation
+- Outlier detection and robust estimation
+- Blending of EMA and simple estimates
+- Reasonable bounds checking for returns
+- Integration with portfolio optimization workflows
+"""
+
 import logging
 
 import numpy as np

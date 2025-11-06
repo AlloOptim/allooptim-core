@@ -1,3 +1,18 @@
+"""Covariance Matrix Adaptation Evolution Strategy optimizer.
+
+This module implements portfolio optimization using CMA-ES (Covariance Matrix
+Adaptation Evolution Strategy), an evolutionary algorithm that adapts the
+covariance matrix of a multivariate normal distribution to efficiently search
+for optimal portfolio weights.
+
+Key features:
+- Adaptive covariance matrix learning from optimization history
+- Population-based evolutionary search
+- Robust convergence properties
+- Support for various risk measures (VaR, CVaR, drawdown)
+- Integration with cma library
+"""
+
 import logging
 from datetime import datetime
 from enum import Enum

@@ -1,3 +1,18 @@
+"""Hierarchical Risk Parity portfolio optimization.
+
+This module implements Hierarchical Risk Parity (HRP), a portfolio optimization
+technique that uses hierarchical clustering to group similar assets and then
+allocates risk equally across and within clusters. This approach provides
+better diversification than traditional risk parity methods.
+
+Key features:
+- Hierarchical clustering of assets
+- Equal risk contribution across clusters
+- Improved diversification through clustering
+- Robust to extreme correlations
+- Integration with PyPortfolioOpt HRP implementation
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional

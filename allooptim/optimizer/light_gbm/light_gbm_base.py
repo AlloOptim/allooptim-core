@@ -1,3 +1,18 @@
+"""LightGBM-based portfolio optimization using gradient boosting.
+
+This module implements portfolio optimization using LightGBM (Light Gradient
+Boosting Machine), a fast and efficient gradient boosting framework. The
+optimizer learns patterns in historical financial data to predict optimal
+portfolio weights.
+
+Key features:
+- Gradient boosting for portfolio weight prediction
+- Fast training and inference on large datasets
+- Feature importance analysis
+- Handling of high-dimensional financial data
+- Integration with LightGBM library
+"""
+
 import logging
 from typing import Optional
 

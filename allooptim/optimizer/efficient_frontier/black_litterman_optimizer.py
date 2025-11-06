@@ -1,3 +1,18 @@
+"""Black-Litterman portfolio optimization model.
+
+This module implements the Black-Litterman model for portfolio optimization,
+which combines market equilibrium returns with investor views to produce
+posterior expected returns. This approach allows incorporating subjective
+investment opinions into the optimization process.
+
+Key features:
+- Integration of investor views with market equilibrium
+- Bayesian updating of expected returns
+- Confidence intervals for investor views
+- Risk-adjusted portfolio optimization
+- PyPortfolioOpt integration
+"""
+
 import logging
 from datetime import datetime
 from typing import Optional
