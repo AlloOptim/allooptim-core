@@ -88,7 +88,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         mcos_result = simulate_optimizers_with_allocation_statistics(
             df_assets=data_provider.historical_prices,
             optimizer_list=self.optimizers,
-            n_data_observations=self.config.n_simulations,  # Use config instead of hardcoded
+            config=self.config,
         )
 
         # Validate MCOS result

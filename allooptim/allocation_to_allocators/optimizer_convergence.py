@@ -3,6 +3,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
@@ -26,6 +27,7 @@ def _simulate_optimization(
     n_optimizers: int,
     n_assets: int,
     use_optimal_observation: bool,
+    allow_partial_investment: bool,
 ) -> np.ndarray:
     """Run single optimization simulation with allocation tracking."""
     try:
@@ -52,7 +54,11 @@ def _simulate_optimization(
             alloc_result = optimizer.allocate(mu_hat, cov_hat, prices_hat, time_hat, l_moments_hat)
             # Ensure result is 1D array
             weights = np.array(alloc_result).flatten()
-            weights = weights / np.sum(weights)
+
+            # Normalize weights only if partial investment is allowed and sum > 0
+            weight_sum = np.sum(weights)
+            if allow_partial_investment and weight_sum > 0:
+                weights = weights / weight_sum
 
             allocation[i, :] = weights
             validate_no_nan(allocation, f"{optimizer.name} allocation")
@@ -85,9 +91,7 @@ def simulate_optimizers_with_convergence(
     n_optimizers: int,
     n_assets: int,
     n_time_steps: int,
-    convergence_threshold: float = 2.0,
-    min_points_fraction: float = 0.1,
-    run_all_steps: bool = True,
+    config: A2AConfig,
 ) -> np.ndarray:
     """Estimate expected returns with simple convergence detection.
 
@@ -99,15 +103,14 @@ def simulate_optimizers_with_convergence(
         n_optimizers: Total number of optimizers
         n_assets: Number of assets
         n_time_steps: Number of time steps to simulate
-        convergence_threshold: Statistical threshold in standard deviations
-        min_collected_points: Minimum points needed before checking convergence
+        config: A2A configuration containing convergence and simulation settings
 
     Returns:
         Array of expected returns for all time steps (n_time_steps, n_optimizers)
     """
     expected_return_all_time_steps = np.zeros((n_time_steps, n_optimizers))
 
-    if run_all_steps:
+    if config.run_all_steps:
         for k in range(n_time_steps):
             expected_returns = _simulate_optimization(
                 optimizer_list=optimizer_list,
@@ -117,6 +120,7 @@ def simulate_optimizers_with_convergence(
                 n_optimizers=len(optimizer_list),
                 n_assets=n_assets,
                 use_optimal_observation=False,
+                allow_partial_investment=config.allow_partial_investment,
             )
 
             expected_return_all_time_steps[k, :] = expected_returns
@@ -139,6 +143,7 @@ def simulate_optimizers_with_convergence(
         n_optimizers=len(active_optimizers),
         n_assets=n_assets,
         use_optimal_observation=True,
+        allow_partial_investment=config.allow_partial_investment,
     )
 
     steps_completed = 0
@@ -162,6 +167,7 @@ def simulate_optimizers_with_convergence(
             n_optimizers=len(active_optimizers),
             n_assets=n_assets,
             use_optimal_observation=False,
+            allow_partial_investment=config.allow_partial_investment,
         )
 
         # 2. Ensure arrays are proper shape
@@ -201,7 +207,7 @@ def simulate_optimizers_with_convergence(
 
         # 3 & 4. Check convergence for optimizers with enough data AFTER filling results
         newly_converged = []
-        min_collected_points = max(1, int(min_points_fraction * n_time_steps))
+        min_collected_points = max(1, int(config.min_points_fraction * n_time_steps))
 
         for i, optimizer_idx in enumerate(active_indices):
             if len(error_diffs[optimizer_idx]) >= min_collected_points:
@@ -212,7 +218,7 @@ def simulate_optimizers_with_convergence(
                 current_error = current_diffs[i]
                 z_score = abs(current_error - mean_error) / std_error
 
-                if z_score <= convergence_threshold:
+                if z_score <= config.convergence_threshold:
                     newly_converged.append(optimizer_idx)
                     converged_optimizers.add(optimizer_idx)
 

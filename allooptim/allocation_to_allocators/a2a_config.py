@@ -21,7 +21,16 @@ class A2AConfig(BaseModel):
     )
 
     # Orchestrator-specific params
-    n_simulations: int = Field(default=100, description="Number of simulations for Monte Carlo/Bootstrap")
+    # Simulation settings
+    n_simulations: int = Field(
+        default=20,
+        ge=1,
+        description="Number of Monte Carlo simulations to run",
+    )
+    n_data_observations: int = Field(
+        default=20,
+        description="Number of data observations per simulation (same as n_simulations)",
+    )
     n_particles: int = Field(default=30, description="Number of particles for PSO optimization")
     n_pso_iterations: int = Field(default=50, description="Number of PSO iterations")
     meta_model_type: str = Field(
@@ -35,6 +44,23 @@ class A2AConfig(BaseModel):
     allow_partial_investment: bool = Field(
         default=False,
         description="Allow partial investment (0 <= sum(asset_weights) <= 1)",
+    )
+
+    # Convergence settings
+    convergence_threshold: float = Field(
+        default=2.0,
+        ge=0.0,
+        description="Statistical threshold in standard deviations for convergence detection",
+    )
+    min_points_fraction: float = Field(
+        default=0.1,
+        ge=0.0,
+        le=1.0,
+        description="Minimum fraction of time steps needed before checking convergence",
+    )
+    run_all_steps: bool = Field(
+        default=True,
+        description="Run all simulation steps instead of using convergence detection",
     )
 
     model_config = ConfigDict(frozen=True)
