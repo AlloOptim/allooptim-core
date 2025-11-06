@@ -82,9 +82,8 @@ def _simulate_optimization(
         cov_hat_array = cov_hat.values if isinstance(cov_hat, pd.DataFrame) else cov_hat
         expected_returns = expected_return_classical(allocation, mu_hat_array, cov_hat_array)
 
-        assert expected_returns.shape == (
-            n_optimizers,
-        ), f"Expected shape ({n_optimizers},), got {expected_returns.shape}"
+        if expected_returns.shape != (n_optimizers,):
+            raise ValueError(f"Expected shape ({n_optimizers},), got {expected_returns.shape}")
 
         validate_no_nan(expected_returns, "error estimate for expected returns.")
 

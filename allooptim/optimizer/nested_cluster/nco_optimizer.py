@@ -282,7 +282,8 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         if self._previous_weights is None:
             self._previous_weights = np.ones(self._n_assets) / self._n_assets
         else:
-            assert len(self._previous_weights) == self._n_assets, "Initial weights length mismatch"
+            if len(self._previous_weights) != self._n_assets:
+                raise ValueError("Initial weights length mismatch")
 
         self._corr = compute_corr(cov)
 

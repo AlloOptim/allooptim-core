@@ -98,11 +98,13 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
 
         # Store df_prices if needed for semivariance calculation
         if self.enable_semi_variance:
-            assert df_prices is not None, "df_prices must be provided when enable_semi_variance is True"
+            if df_prices is None:
+                raise ValueError("df_prices must be provided when enable_semi_variance is True")
             self._df_prices = df_prices
 
         if self.enable_ema:
-            assert df_prices is not None, "df_prices must be provided when enable_ema is True"
+            if df_prices is None:
+                raise ValueError("df_prices must be provided when enable_ema is True")
 
             # Use df_prices directly to calculate EMA moments (independent of mu/cov parameters)
             # This avoids log/no-log return inconsistencies

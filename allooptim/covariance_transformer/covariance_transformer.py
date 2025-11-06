@@ -745,7 +745,9 @@ class DetoneCovarianceTransformer(AbstractCovarianceTransformer):
             self.n_remove = n_remove
             self.remove_fraction = None  # Will be computed dynamically
         elif remove_fraction is not None:
-            assert 0 < remove_fraction < 1, "remove_fraction must be between 0 and 1"
+            if not (0 < remove_fraction < 1):
+                raise ValueError("remove_fraction must be between 0 and 1")
+
             self.remove_fraction = remove_fraction
             self.n_remove = None
         else:

@@ -146,11 +146,14 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
         mu_array = np.asarray(ds_mu.values).flatten()
         cov_array = np.asarray(df_cov.values)
 
-        assert df_prices is not None, "Price data must be fitted before allocation."
+        if df_prices is None:
+            raise ValueError("Price data must be fitted before allocation.")
 
-        assert df_prices.shape[1] == len(mu_array), "Fitted price data asset count does not match mu/cov asset count"
+        if df_prices.shape[1] != len(mu_array):
+            raise ValueError("Fitted price data asset count does not match mu/cov asset count")
 
-        assert len(mu_array) == cov_array.shape[0] == cov_array.shape[1], "Inconsistent asset counts between mu and cov"
+        if len(mu_array) != cov_array.shape[0] != cov_array.shape[1]:
+            raise ValueError("Inconsistent asset counts between mu and cov")
 
         if self._n_assets is not None and self._n_assets != len(mu_array):
             logger.warning(

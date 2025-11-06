@@ -405,6 +405,6 @@ the S&P 500 benchmark
 
 ---
 *This report was generated automatically by the comprehensive backtest framework.*
-"""
+"""  # nosec B608
 
     return report

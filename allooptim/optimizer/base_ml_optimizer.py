@@ -160,9 +160,12 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
         asset_names = ds_mu.index.tolist()
         n_assets = len(asset_names)
 
-        assert self._df_prices is not None, "Optimizer has not been fitted with price data."
-        assert self._optimizer is not None, "Optimizer has not been initialized."
-        assert n_assets == self._df_prices.shape[1], "Number of assets does not match fitted data."
+        if self._df_prices is None:
+            raise ValueError("Optimizer has not been fitted with price data.")
+        if self._optimizer is None:
+            raise ValueError("Optimizer has not been initialized.")
+        if n_assets != self._df_prices.shape[1]:
+            raise ValueError("Number of assets does not match fitted data.")
 
         # Check if optimizer was successfully trained
         if not self._optimizer.trained:

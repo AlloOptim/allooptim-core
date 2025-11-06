@@ -147,7 +147,8 @@ class MultiHeadAttention:
         """
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
-        assert self.head_dim * num_heads == embed_dim
+        if self.head_dim * num_heads != embed_dim:
+            raise ValueError("embed_dim must be divisible by num_heads")
 
         self.q_proj = nn.Linear(embed_dim, embed_dim)
         self.k_proj = nn.Linear(embed_dim, embed_dim)

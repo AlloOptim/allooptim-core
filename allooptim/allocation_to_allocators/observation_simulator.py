@@ -71,7 +71,8 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
         self.mu = mean_historical_return(self.historical_prices_all).values
         self.cov = sample_cov(self.historical_prices_all).values
 
-        assert not self.historical_prices_all.isna().any().any()
+        if self.historical_prices_all.isna().any().any():
+            raise ValueError("Historical prices contain NaN values after backfilling.")
 
         # Pre-compute ground truth L-moments from full dataset
         returns_all = self.historical_prices_all.pct_change().dropna().values

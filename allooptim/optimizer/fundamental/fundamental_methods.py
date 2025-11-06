@@ -388,8 +388,11 @@ def allocate(
     logger.debug(f"{'='*60}\n")
 
     # Final validation
-    assert np.all(weights >= 0), "Negative weights detected!"
-    assert np.all(weights <= 1), "Weights exceed 1!"
-    assert np.isclose(weights.sum(), 1.0), f"Weights sum to {weights.sum()}, not 1!"
+    if not np.all(weights >= 0):
+        raise ValueError("Negative weights detected!")
+    if not np.all(weights <= 1):
+        raise ValueError("Weights exceed 1!")
+    if not np.isclose(weights.sum(), 1.0):
+        raise ValueError(f"Weights sum to {weights.sum()}, not 1!")
 
     return weights

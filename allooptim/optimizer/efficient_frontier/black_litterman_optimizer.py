@@ -83,8 +83,10 @@ class BlackLittermanOptimizer(AbstractOptimizer):
             logger.debug("No views provided, using HRP without Black-Litterman adjustment")
             view_dict = {name: 0.0 for name in asset_names}
         else:
-            assert len(self.config.view_dict) == len(asset_names), "View dictionary length must match number of assets"
-            assert all(name in asset_names for name in self.config.view_dict), "All view keys must match asset names"
+            if len(self.config.view_dict) != len(asset_names):
+                raise ValueError("View dictionary length must match number of assets")
+            if not all(name in asset_names for name in self.config.view_dict):
+                raise ValueError("All view keys must match asset names")
 
             view_dict = self.config.view_dict
 
@@ -93,7 +95,8 @@ class BlackLittermanOptimizer(AbstractOptimizer):
         bl = BlackLittermanModel(cov_matrix, pi=ds_mu, absolute_views=view_dict)
 
         if self.config.use_implied_market:
-            assert df_prices is not None, "Price data must be fitted before allocation"
+            if df_prices is None:
+                raise ValueError("Price data must be fitted before allocation")
 
             delta = black_litterman.market_implied_risk_aversion(df_prices)
             bl.bl_weights(delta)

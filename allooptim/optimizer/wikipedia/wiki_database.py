@@ -24,8 +24,6 @@ DATABASE_DIR = Path("generated_output/databases")
 DATABASE_PATH = DATABASE_DIR / "market_data.db"
 
 
-def _get_date_range(
-    table_name: str, database_path: Optional[Path] = None
 def _get_date_range(table_name: str, database_path: Optional[Path] = None) -> tuple[datetime, datetime]:
     """Get the min and max dates from a table."""
     # Validate table name to prevent SQL injection

@@ -124,7 +124,8 @@ def clean_price_data(
             )
 
         # Final validation
-        assert not df_prices.isna().any().any(), "DataFrame still contains NaN values after cleaning"
+        if df_prices.isna().any().any():
+            raise ValueError("DataFrame still contains NaN values after cleaning")
 
         logger.info(
             f"Clean price data shape: {df_prices.shape} (dropped {initial_shape[1] - df_prices.shape[1]} symbols)"

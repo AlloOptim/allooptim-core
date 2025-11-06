@@ -93,7 +93,8 @@ class WikipediaOptimizer(AbstractOptimizer):
         """
         # Validate inputs
         validate_asset_names(ds_mu, df_cov)
-        assert time is not None, "Time parameter must be provided"
+        if time is None:
+            raise ValueError("Time parameter must be provided")
 
         # Ensure time is timezone-aware (required by allocate_wikipedia)
         time = time.replace(tzinfo=pytz.UTC) if time.tzinfo is None else time.astimezone(pytz.UTC)
