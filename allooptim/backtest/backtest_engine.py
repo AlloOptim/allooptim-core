@@ -70,8 +70,9 @@ class BacktestEngine:
 
         self.transformers = get_transformer_by_names(self.config_backtest.transformer_names)
 
-        # Create results directory
-        self.config_backtest.results_dir.mkdir(exist_ok=True, parents=True)
+        # Create results directory (optional for notebook environments)
+        if self.config_backtest.store_results:
+            self.config_backtest.results_dir.mkdir(exist_ok=True, parents=True)
 
     def run_backtest(self) -> dict:
         """
@@ -186,9 +187,12 @@ class BacktestEngine:
             logger.warning("No A2A results to save")
             return
 
+        # Check if results directory exists (only save if it was created)
+        if not self.config_backtest.results_dir.exists():
+            logger.info("Results directory not created, skipping A2A allocation save")
+            return
+
         try:
-            # Ensure results directory exists
-            self.config_backtest.results_dir.mkdir(exist_ok=True, parents=True)
             # Create DataFrame with timestamps as index and asset symbols as columns
             final_allocations = []
             valid_indices = []

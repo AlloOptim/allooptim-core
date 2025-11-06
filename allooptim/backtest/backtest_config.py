@@ -73,6 +73,10 @@ class BacktestConfig(BaseModel):
         description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or 'auto' for automatic selection",
     )
 
+    store_results: bool = Field(
+        default=True, description="Whether to create a results directory for storing backtest outputs"
+    )
+
     @field_validator("optimizer_names", mode="before")
     @classmethod
     def validate_optimizer_names(cls, v: List[str]) -> List[str]:

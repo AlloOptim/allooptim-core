@@ -35,5 +35,9 @@ class A2AConfig(BaseModel):
     random_seed: Optional[int] = Field(default=42, description="Random seed for reproducibility")
     parallel: bool = Field(default=False, description="Enable parallel execution")
     n_jobs: int = Field(default=-1, description="Number of parallel jobs (-1 = all CPUs)")
-
+    allow_partial_investment: bool = Field(
+        default=False,
+        description="Allow partial investment (0 <= sum(asset_weights) <= 1)",
+    )
+    
     model_config = ConfigDict(frozen=True)

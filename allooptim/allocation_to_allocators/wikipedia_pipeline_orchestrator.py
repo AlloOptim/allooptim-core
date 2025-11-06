@@ -195,11 +195,8 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
 
             # Ensure weights sum to 1
             total_weight = final_allocation.sum()
-            if total_weight > 0:
+            if self.config.allow_partial_investment and total_weight > 0:
                 final_allocation = final_allocation / total_weight
-            else:
-                # Fallback to equal weights if all optimizers returned zero weights
-                final_allocation = pd.Series(1.0 / len(all_assets), index=all_assets)
 
             # Step 6: Pad optimizer allocations with zeros for non-selected assets
             padded_optimizer_allocations = []

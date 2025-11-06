@@ -8,7 +8,8 @@ import logging
 import time
 from datetime import datetime
 from typing import List, Optional
-
+import tracemalloc
+from timeit import default_timer as timer
 import numpy as np
 import pandas as pd
 
@@ -148,8 +149,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         Returns:
             Tuple of (final_allocation, optimizer_allocations_list, optimizer_weights_list, metrics, optimizer_errors)
         """
-        import tracemalloc
-        from timeit import default_timer as timer
+
 
         if len(self.optimizers) != len(allocator_weights):
             raise ValueError(f"Optimizer count {len(self.optimizers)} != weight count {len(allocator_weights)}")
@@ -180,8 +180,10 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 weights = optimizer.allocate(mu, cov_transformed, prices, time, l_moments)
                 if isinstance(weights, np.ndarray):
                     weights = weights.flatten()
+                
                 weights = np.array(weights)
-                weights = weights / np.sum(weights)  # Normalize
+                if self.config.allow_partial_investment and np.sum(weights) > 0:
+                    weights = weights / np.sum(weights)
 
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)

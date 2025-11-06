@@ -84,7 +84,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         optimizer_weights_list = []
 
         # Equal weights for all optimizers
-        equal_weight = 1.0 / len(self.optimizers)
+        a2a_weight = 1.0 / len(self.optimizers)
 
         # Call each optimizer once
         for optimizer in self.optimizers:
@@ -96,8 +96,12 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 weights = optimizer.allocate(mu, cov_transformed, prices, current_time, l_moments)
                 if isinstance(weights, np.ndarray):
                     weights = weights.flatten()
+
                 weights = np.array(weights)
-                weights = weights / np.sum(weights)  # Normalize
+                weights_sum = np.sum(weights)
+                if self.config.allow_partial_investment and weights_sum > 0:
+                    weights = weights / weights_sum  # Normalize
+
 
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
@@ -106,9 +110,9 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 )
 
                 # Store optimizer weight
-                optimizer_weights_list.append(OptimizerWeight(optimizer_name=optimizer.name, weight=equal_weight))
+                optimizer_weights_list.append(OptimizerWeight(optimizer_name=optimizer.name, weight=a2a_weight))
 
-                asset_weights += equal_weight * weights
+                asset_weights += a2a_weight * weights
 
             except Exception as error:
                 logger.warning(f"Allocation failed for {optimizer.name}: {str(error)}")
@@ -120,13 +124,18 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
                 )
 
-                optimizer_weights_list.append(OptimizerWeight(optimizer_name=optimizer.name, weight=equal_weight))
+                optimizer_weights_list.append(OptimizerWeight(optimizer_name=optimizer.name, weight=a2a_weight))
 
-                asset_weights += equal_weight * equal_weights
+                asset_weights += a2a_weight * equal_weights
 
         # Normalize final asset weights
         final_allocation = pd.Series(asset_weights, index=mu.index)
-        final_allocation = final_allocation / final_allocation.sum()
+        final_allocation_sum = final_allocation.sum()
+        if final_allocation_sum > 0:
+            final_allocation = final_allocation / final_allocation_sum
+        else:
+            # Fallback to equal weights if all optimizers returned zero weights
+            final_allocation = pd.Series(1.0 / len(mu), index=mu.index)
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()
