@@ -284,7 +284,21 @@
            <div itemprop="articleBody">
              
   <h1>Source code for allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span></span><span class="sd">&quot;&quot;&quot;Adjusted return portfolio optimization using sequential quadratic programming.</span>
+
+<span class="sd">This module implements portfolio optimization with return adjustments using</span>
+<span class="sd">Sequential Quadratic Programming (SQP). It optimizes portfolios with custom</span>
+<span class="sd">return objectives while maintaining risk constraints.</span>
+
+<span class="sd">Key features:</span>
+<span class="sd">- Return-adjusted portfolio optimization</span>
+<span class="sd">- Sequential quadratic programming solver</span>
+<span class="sd">- Custom objective functions</span>
+<span class="sd">- Risk-constrained optimization</span>
+<span class="sd">- Higher-order moment considerations</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
@@ -377,11 +391,13 @@
 
         <span class="c1"># Store df_prices if needed for semivariance calculation</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_semi_variance</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">df_prices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;df_prices must be provided when enable_semi_variance is True&quot;</span>
+            <span class="k">if</span> <span class="n">df_prices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;df_prices must be provided when enable_semi_variance is True&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_df_prices</span> <span class="o">=</span> <span class="n">df_prices</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_ema</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="n">df_prices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;df_prices must be provided when enable_ema is True&quot;</span>
+            <span class="k">if</span> <span class="n">df_prices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;df_prices must be provided when enable_ema is True&quot;</span><span class="p">)</span>
 
             <span class="c1"># Use df_prices directly to calculate EMA moments (independent of mu/cov parameters)</span>
             <span class="c1"># This avoids log/no-log return inconsistencies</span>

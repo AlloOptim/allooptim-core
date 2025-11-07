@@ -290,6 +290,18 @@
 <h1>Optimizers<a class="headerlink" href="#optimizers" title="Link to this heading"></a></h1>
 <section id="module-allooptim.optimizer.optimizer_interface">
 <span id="core-interface"></span><h2>Core Interface<a class="headerlink" href="#module-allooptim.optimizer.optimizer_interface" title="Link to this heading"></a></h2>
+<p>Portfolio optimizer interfaces and abstract base classes.</p>
+<p>This module defines the core interfaces for portfolio optimization algorithms
+in AlloOptim. It provides abstract base classes that ensure consistent APIs
+across different optimization strategies including traditional mean-variance
+optimization, risk parity, hierarchical risk parity, and machine learning-based
+approaches.</p>
+<p>The interfaces support:
+- Standard pandas DataFrame inputs for price/return data
+- Flexible risk metric specifications (variance, CVaR, drawdown, L-moments)
+- Ensemble optimization combining multiple strategies
+- Warm-start capabilities for iterative optimization
+- Consistent error handling and validation</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractOptimizer">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.optimizer_interface.</span></span><span class="sig-name descname"><span class="pre">AbstractOptimizer</span></span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer" title="Link to this definition"></a></dt>
@@ -374,13 +386,11 @@ interface across different optimization strategies.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>mu</strong> – Expected return vector as pandas Series with asset names as index</p></li>
-<li><p><strong>cov</strong> – Expected covariance matrix as pandas DataFrame with asset names as both index and columns</p></li>
+<li><p><strong>ds_mu</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span>) – Expected return vector as pandas Series with asset names as index</p></li>
+<li><p><strong>df_cov</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>) – Expected covariance matrix as pandas DataFrame with asset names as both index and columns</p></li>
+<li><p><strong>df_prices</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span>) – Optional historical prices DataFrame</p></li>
 <li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>]</span>) – Optional timestamp for time-dependent optimizers</p></li>
 <li><p><strong>l_moments</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LMoments</span></code>]</span>) – Optional L-moments for advanced risk modeling</p></li>
-<li><p><strong>df_allocations</strong> – Optional DataFrame with previous optimizer allocations.
-Rows are optimizer names, columns are asset names, values are allocation weights.
-Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
@@ -399,15 +409,6 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
 <li><p>Individual optimizers typically ignore df_allocations; ensemble optimizers use it for efficiency</p></li>
 </ul>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ds_mu</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span>)</p></li>
-<li><p><strong>df_cov</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>)</p></li>
-<li><p><strong>df_prices</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span>)</p></li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -454,9 +455,16 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
 <dd><p>Create an optimal portfolio allocation given the expected returns vector and covariance matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>df_allocations</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span>) – Optional DataFrame with previous optimizer allocations.
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds_mu</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span>) – Expected return vector as pandas Series with asset names as index</p></li>
+<li><p><strong>df_cov</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>) – Expected covariance matrix as pandas DataFrame with asset names as both index and columns</p></li>
+<li><p><strong>df_prices</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span>) – Optional historical prices DataFrame</p></li>
+<li><p><strong>df_allocations</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span>) – Optional DataFrame with previous optimizer allocations.
 Rows are optimizer names, columns are asset names, values are allocation weights.
-Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p>
+Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>]</span>) – Optional timestamp for time-dependent optimizers</p></li>
+<li><p><strong>l_moments</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LMoments</span></code>]</span>) – Optional L-moments for advanced risk modeling</p></li>
+</ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span></p>
@@ -474,17 +482,6 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p>
 <li><p>Individual optimizers typically ignore df_allocations; ensemble optimizers use it for efficiency</p></li>
 </ul>
 </div>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ds_mu</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span>)</p></li>
-<li><p><strong>df_cov</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span>)</p></li>
-<li><p><strong>df_prices</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a>]</span>)</p></li>
-<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/datetime.html#datetime.datetime" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">datetime</span></code></a>]</span>)</p></li>
-<li><p><strong>l_moments</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">LMoments</span></code>]</span>)</p></li>
-</ul>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -600,6 +597,17 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p>
 </section>
 <section id="module-allooptim.optimizer.covariance_matrix_adaption.cma_optimizer">
 <span id="cma-es-optimizers"></span><h2>CMA-ES Optimizers<a class="headerlink" href="#module-allooptim.optimizer.covariance_matrix_adaption.cma_optimizer" title="Link to this heading"></a></h2>
+<p>Covariance Matrix Adaptation Evolution Strategy optimizer.</p>
+<p>This module implements portfolio optimization using CMA-ES (Covariance Matrix
+Adaptation Evolution Strategy), an evolutionary algorithm that adapts the
+covariance matrix of a multivariate normal distribution to efficiently search
+for optimal portfolio weights.</p>
+<p>Key features:
+- Adaptive covariance matrix learning from optimization history
+- Population-based evolutionary search
+- Robust convergence properties
+- Support for various risk measures (VaR, CVaR, drawdown)
+- Integration with cma library</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.</span></span><span class="sig-name descname"><span class="pre">RiskMetric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/covariance_matrix_adaption/cma_optimizer.html#RiskMetric"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric" title="Link to this definition"></a></dt>

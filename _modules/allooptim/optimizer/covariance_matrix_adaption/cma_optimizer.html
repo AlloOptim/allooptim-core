@@ -284,7 +284,22 @@
            <div itemprop="articleBody">
              
   <h1>Source code for allooptim.optimizer.covariance_matrix_adaption.cma_optimizer</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span></span><span class="sd">&quot;&quot;&quot;Covariance Matrix Adaptation Evolution Strategy optimizer.</span>
+
+<span class="sd">This module implements portfolio optimization using CMA-ES (Covariance Matrix</span>
+<span class="sd">Adaptation Evolution Strategy), an evolutionary algorithm that adapts the</span>
+<span class="sd">covariance matrix of a multivariate normal distribution to efficiently search</span>
+<span class="sd">for optimal portfolio weights.</span>
+
+<span class="sd">Key features:</span>
+<span class="sd">- Adaptive covariance matrix learning from optimization history</span>
+<span class="sd">- Population-based evolutionary search</span>
+<span class="sd">- Robust convergence properties</span>
+<span class="sd">- Support for various risk measures (VaR, CVaR, drawdown)</span>
+<span class="sd">- Integration with cma library</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
@@ -433,11 +448,14 @@
         <span class="n">mu_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">ds_mu</span><span class="o">.</span><span class="n">values</span><span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
         <span class="n">cov_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">df_cov</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">df_prices</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Price data must be fitted before allocation.&quot;</span>
+        <span class="k">if</span> <span class="n">df_prices</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Price data must be fitted before allocation.&quot;</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="n">df_prices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu_array</span><span class="p">),</span> <span class="s2">&quot;Fitted price data asset count does not match mu/cov asset count&quot;</span>
+        <span class="k">if</span> <span class="n">df_prices</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu_array</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Fitted price data asset count does not match mu/cov asset count&quot;</span><span class="p">)</span>
 
-        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu_array</span><span class="p">)</span> <span class="o">==</span> <span class="n">cov_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">cov_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;Inconsistent asset counts between mu and cov&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu_array</span><span class="p">)</span> <span class="o">!=</span> <span class="n">cov_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">cov_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Inconsistent asset counts between mu and cov&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_assets</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_n_assets</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">mu_array</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
