@@ -3,7 +3,7 @@
 Creates 30,000 diverse covariance matrices and saves them for autoencoder training.
 """
 
-import pickle
+import pickle  # nosec B403 - trusted data serialization for generated training data
 import sys
 import time
 from pathlib import Path

@@ -1191,7 +1191,7 @@ def unfiltered_large_stock_universe() -> list[StockUniverse]:
     return filtered_list
 
 
-def large_stock_universte() -> list[StockUniverse]:
+def large_stock_universe() -> list[StockUniverse]:
     """Returns a subset of everything_in_the_universe that are available on Alpaca.
 
     Excludes German stocks (.DE) and other known unavailable symbols.

@@ -37,7 +37,7 @@ jobs:
       - name: Run bandit security check
         run: |
           pip install bandit[toml]
-          bandit -r allooptim -f json -o bandit-report.json || true
+          bandit -r allooptim --config pyproject.toml -f json -o bandit-report.json || true
           bandit -r allooptim
 
       - name: Run Trivy vulnerability scanner

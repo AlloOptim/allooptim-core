@@ -21,7 +21,7 @@ from allooptim.backtest.backtest_engine import BacktestEngine
 from allooptim.backtest.backtest_report import generate_report
 from allooptim.backtest.backtest_visualizer import create_visualizations
 from allooptim.backtest.cluster_analyzer import ClusterAnalyzer
-from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universte
+from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universe
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -36,7 +36,7 @@ def main():
     logger.info("Starting comprehensive allocation algorithm backtest")
 
     try:
-        symbols = extract_symbols_from_list(large_stock_universte())
+        symbols = extract_symbols_from_list(large_stock_universe())
 
         config_backtest = BacktestConfig(
             start_date=datetime(2014, 12, 31),
