@@ -24,11 +24,10 @@ logger = logging.getLogger(__name__)
 SOLVER_FAILURE_WEIGHT_SUM_THRESHOLD = 1.05
 
 
-def minimize_with_multistart(
+def minimize_given_initial(
     objective_function: Callable,
-    n_assets: int,
     allow_cash: bool,
-    previous_best_weights: Optional[np.ndarray],
+    x0: np.ndarray,
 ) -> np.ndarray:
     """Perform optimization with multiple starting points to avoid local minima.
 
@@ -44,21 +43,45 @@ def minimize_with_multistart(
     else:
         constraints = ({"type": "eq", "fun": lambda x: 1.0 - np.sum(x)},)  # sum == 1
 
+    n_assets = len(x0)
     bounds = [(0, 1) for _ in range(n_assets)]
 
+    res_equal = minimize(
+        objective_function,
+        x0=x0,
+        method="SLSQP",
+        constraints=constraints,
+        bounds=bounds,
+        options={"disp": False},
+    )
+
+    return res_equal
+
+
+def minimize_with_multistart(
+    objective_function: Callable,
+    n_assets: int,
+    allow_cash: bool,
+    previous_best_weights: Optional[np.ndarray],
+) -> np.ndarray:
+    """Perform optimization with multiple starting points to avoid local minima.
+
+    Tries:
+    1. Equal weights (1/n for each asset)
+    2. Previous best weights (if available)
+
+    Returns the best result.
+    """
     best_weights = None
     best_cost = np.inf
 
     # Starting point 1: Equal weights
     x0_equal = np.ones(n_assets) / n_assets
 
-    res_equal = minimize(
+    res_equal = minimize_given_initial(
         objective_function,
+        allow_cash=allow_cash,
         x0=x0_equal,
-        method="SLSQP",
-        constraints=constraints,
-        bounds=bounds,
-        options={"disp": False},
     )
 
     if res_equal.success and res_equal.fun < best_cost:
@@ -67,13 +90,10 @@ def minimize_with_multistart(
 
     # Starting point 2: Previous best weights (if available)
     if previous_best_weights is not None and len(previous_best_weights) == n_assets:
-        res_prev = minimize(
+        res_prev = minimize_given_initial(
             objective_function,
+            allow_cash=allow_cash,
             x0=previous_best_weights,
-            method="SLSQP",
-            constraints=constraints,
-            bounds=bounds,
-            options={"disp": False},
         )
 
         if res_prev.success and res_prev.fun < best_cost:

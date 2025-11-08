@@ -60,6 +60,13 @@ from allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimi
 from allooptim.optimizer.sequential_quadratic_programming.higher_moments_optimizer import (
     HigherMomentOptimizer,
 )
+from allooptim.optimizer.sequential_quadratic_programming.monte_carlo_robust_optimizer import (
+    MonteCarloMaxDiversificationOptimizer,
+    MonteCarloMaxDrawdownOptimizer,
+    MonteCarloMaxSortinoOptimizer,
+    MonteCarloMinCVAROptimizer,
+    MonteCarloMinVarianceOptimizer,
+)
 from allooptim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import (
     RiskParityOptimizer,
 )
@@ -107,6 +114,11 @@ OPTIMIZER_LIST: list[type[AbstractOptimizer]] = [
     MAMBAOptimizer,
     LSTMOptimizer,
     TCNOptimizer,
+    MonteCarloMinVarianceOptimizer,
+    MonteCarloMaxDrawdownOptimizer,
+    MonteCarloMaxDiversificationOptimizer,
+    MonteCarloMaxSortinoOptimizer,
+    MonteCarloMinCVAROptimizer,
 ]
 
 

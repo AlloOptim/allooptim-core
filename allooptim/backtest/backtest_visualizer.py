@@ -36,7 +36,6 @@ except ImportError:
 
 def create_visualizations(results: dict, clustering_results: dict, results_dir: Optional[Path] = None) -> None:
     """Create comprehensive visualizations of results."""
-
     if not visualization_dependencies_available:
         logger.warning("Visualization dependencies are not available. Skipping visualization.")
         return None

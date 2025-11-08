@@ -165,7 +165,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         self.estimated_cov_uncertainty: Optional[float] = None
         self._previous_best_weights: Optional[np.ndarray] = None
 
-    def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
+    def _update_uncertainties(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """Estimate uncertainty levels from historical price data.
 
         Uses bootstrap resampling or historical standard deviation to estimate
@@ -289,25 +289,15 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         # Validate inputs
         validate_asset_names(ds_mu, df_cov)
         asset_names = get_asset_names(mu=ds_mu)
+        
+        self._update_uncertainties(df_prices)
 
         # Convert to numpy
         mu_array, cov_array, _ = convert_pandas_to_numpy(ds_mu, df_cov)
 
-        # Fit if needed
-        if df_prices is not None and self.estimated_mu_uncertainty is None:
-            self.fit(df_prices)
-
         # Use estimated uncertainty if available, otherwise use config
-        eps_mu = (
-            self.estimated_mu_uncertainty
-            if self.estimated_mu_uncertainty is not None
-            else self.config.mu_uncertainty_level
-        )
-        eps_cov = (
-            self.estimated_cov_uncertainty
-            if self.estimated_cov_uncertainty is not None
-            else self.config.cov_uncertainty_level
-        )
+        eps_mu = self.estimated_mu_uncertainty
+        eps_cov = self.estimated_cov_uncertainty
 
         # Handle edge cases
         if len(asset_names) == 0:
@@ -394,3 +384,4 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
     def name(self) -> str:
         """Return optimizer name."""
         return "RobustMeanVarianceOptimizer"
+
