@@ -289,7 +289,7 @@ def calculate_quantstats_metrics(
 
 def create_quantstats_reports(
     results: dict,
-    results_dir: Path,
+    output_dir: Path,
     generate_individual: bool = True,
     generate_top_n: int = 5,
     benchmark: str = "SPY"
@@ -300,7 +300,7 @@ def create_quantstats_reports(
     
     Args:
         results: Backtest results from BacktestEngine
-        results_dir: Directory to save reports
+        output_dir: Directory to save reports
         generate_individual: Generate tearsheet for each optimizer
         generate_top_n: Generate comparative analysis for top N performers
         benchmark: Benchmark ticker or strategy name
@@ -310,9 +310,15 @@ def create_quantstats_reports(
         logger.info("Install with: poetry install --with visualizations")
         return
 
-    logger.info("Generating QuantStats reports...")
+    # Check if we have sufficient data for meaningful QuantStats analysis
+    sample_optimizer = next(iter(results.keys()))
+    if sample_optimizer in results and "returns" in results[sample_optimizer]:
+        sample_returns = results[sample_optimizer]["returns"]
+        if sample_returns is not None and len(sample_returns.dropna()) < 5:
+            logger.info("Insufficient data points for QuantStats analysis. Skipping reports.")
+            return
 
-    # Generate individual tearsheets
+    logger.info("Generating QuantStats reports...")    # Generate individual tearsheets
     if generate_individual:
         for optimizer_name in results.keys():
             if optimizer_name == benchmark:
@@ -322,7 +328,7 @@ def create_quantstats_reports(
                 results,
                 optimizer_name,
                 benchmark=benchmark,
-                output_path=results_dir
+                output_path=output_dir
                 / f"{optimizer_name.replace(' ', '_')}_tearsheet.html",
                 mode="full",
             )
@@ -331,7 +337,7 @@ def create_quantstats_reports(
     if generate_top_n > 0:
         logger.info(f"Generating comparative analysis for top {generate_top_n} optimizers")
         generate_comparative_tearsheets(
-            results, benchmark=benchmark, output_dir=results_dir, top_n=generate_top_n
+            results, benchmark=benchmark, output_dir=output_dir, top_n=generate_top_n
         )
 
     # Generate A2A vs Benchmark comparison
@@ -341,8 +347,8 @@ def create_quantstats_reports(
             results,
             "A2AEnsemble",
             benchmark=benchmark,
-            output_path=results_dir / "A2A_vs_Benchmark_tearsheet.html",
+            output_path=output_dir / "A2A_vs_Benchmark_tearsheet.html",
             mode="full",
         )
 
-    logger.info(f"QuantStats reports saved to {results_dir}")
+    logger.info(f"QuantStats reports saved to {output_dir}")
