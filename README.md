@@ -10,6 +10,16 @@
 
 AlloOptim is a comprehensive portfolio optimization library providing **35+ allocation strategies**, advanced covariance transformations, and ensemble methods. Built for institutional investors seeking scientific, reproducible, and transparent allocation decisions.
 
+## ✨ Key Features
+
+- **35+ Portfolio Optimizers**: From classic Markowitz to advanced ensemble methods
+- **Advanced Risk Management**: Covariance transformations, shrinkage estimators, and robust statistics  
+- **Professional Reporting**: HTML tearsheets with QuantStats integration for institutional-grade analysis
+- **Ensemble Methods**: Combine multiple strategies for improved out-of-sample performance
+- **Backtesting Framework**: Comprehensive historical testing with performance metrics
+- **Visualization Tools**: Interactive charts and performance analysis (matplotlib/seaborn)
+- **Extensible Architecture**: Easy to add custom optimizers and transformations
+
 ## � Installation
 
 ```bash

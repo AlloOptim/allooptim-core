@@ -22,6 +22,7 @@ from allooptim.backtest.backtest_report import generate_report
 from allooptim.backtest.backtest_visualizer import create_visualizations
 from allooptim.backtest.cluster_analyzer import ClusterAnalyzer
 from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universe
+from allooptim.backtest.backtest_quantstats import create_quantstats_reports
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -95,6 +96,15 @@ def main():
         # Create visualizations
         create_visualizations(results, clustering_results, results_dir)
 
+        # Generate QuantStats reports
+        create_quantstats_reports(
+                results,
+                results_dir,
+                generate_individual=config_backtest.quantstats_individual,
+                generate_top_n=config_backtest.quantstats_top_n,
+                quantstats_dir=config_backtest.quantstats_dir
+            )
+
         # Generate report
         report = generate_report(results, clustering_results, config_backtest)
 
@@ -124,14 +134,19 @@ def main():
         logger.info(f"Backtest completed successfully. Results saved to {results_dir}")
         logger.info(f"Report available at: {report_path}")
 
-        # Print summary
-        print(f"\n{'='*80}")
-        print("BACKTEST COMPLETED SUCCESSFULLY")
-        print(f"{'='*80}")
-        print(f"Period: {config_backtest.get_report_date_range()[0]} to {config_backtest.get_report_date_range()[1]}")
-        print(f"Optimizers tested: {len(results)}")
-        print(f"Results directory: {results_dir}")
-        print(f"{'='*80}\n")
+        # Check QuantStats reports
+        qs_dir = results_dir / config_backtest.quantstats_dir
+        if qs_dir.exists():
+            logger.info(f"QuantStats reports generated in {qs_dir}")
+            logger.info(f"Open HTML files in a web browser for interactive analysis")
+
+        logger.info(f"\n{'='*80}")
+        logger.info("BACKTEST COMPLETED SUCCESSFULLY")
+        logger.info(f"{'='*80}")
+        logger.info(f"Period: {config_backtest.get_report_date_range()[0]} to {config_backtest.get_report_date_range()[1]}")
+        logger.info(f"Optimizers tested: {len(results)}")
+        logger.info(f"Results directory: {results_dir}")
+        logger.info(f"{'='*80}\n")
 
     except Exception as e:
         logger.error(f"Backtest failed: {e}")

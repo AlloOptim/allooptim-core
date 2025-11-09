@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- QuantStats integration for professional HTML tearsheets and advanced performance analytics
+- Comprehensive risk metrics (VaR, CVaR, Sortino, Calmar ratios)
+- Benchmark-relative performance analysis (alpha, beta, information ratio)
+- Interactive HTML reports with charts and statistics
+- Optional dependency handling for QuantStats library
+
 ## [0.3.0] - 2025-11-06
 
 ### Added

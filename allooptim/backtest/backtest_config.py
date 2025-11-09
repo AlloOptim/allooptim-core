@@ -127,6 +127,28 @@ class BacktestConfig(BaseModel):
         default=True, description="Whether to create a results directory for storing backtest outputs"
     )
 
+    # QuantStats reporting options
+    generate_quantstats_reports: bool = Field(
+        default=True, description="Whether to generate QuantStats HTML tearsheets"
+    )
+    quantstats_mode: str = Field(
+        default="full",
+        description="QuantStats tearsheet mode: 'basic' or 'full'"
+    )
+    quantstats_top_n: int = Field(
+        default=5,
+        ge=1,
+        le=20,
+        description="Number of top-performing optimizers to analyze in comparative tearsheets"
+    )
+    quantstats_individual: bool = Field(
+        default=True, description="Whether to generate individual tearsheets for each optimizer"
+    )
+    quantstats_dir: str = Field(
+        default="quantstats_reports",
+        description="Directory name for QuantStats reports within results directory"
+    )
+
     @field_validator("optimizer_configs", mode="before")
     @classmethod
     def validate_optimizer_configs(cls, v: List[Union[str, Dict, OptimizerConfig]]) -> List[OptimizerConfig]:
