@@ -21,6 +21,9 @@ logger = logging.getLogger(__name__)
 
 try:
     import quantstats as qs
+    import matplotlib
+    matplotlib.use('Agg')
+    
     QUANTSTATS_AVAILABLE = True
 except ImportError:
     logger.info("QuantStats not available. Install with: pip install quantstats")
@@ -58,7 +61,7 @@ def prepare_returns_for_quantstats(
     # Remove any NaN values
     returns_clean = returns.dropna()
     
-    if len(returns_clean) < 10:
+    if len(returns_clean) < 2:
         logger.warning(f"Insufficient data points ({len(returns_clean)}) for {optimizer_name}")
         return None
         
@@ -113,24 +116,39 @@ def generate_tearsheet(
             benchmark_returns = prepare_returns_for_quantstats(results, benchmark)
             if benchmark_returns is not None:
                 benchmark_arg = benchmark_returns
-        elif benchmark:  # If benchmark is provided but not in results, pass it as ticker
-            benchmark_arg = benchmark
         
+        if benchmark_arg is None:
+            logger.warning(f"No benchmark available for {optimizer_name}, generating without benchmark")
+
         # Generate report
         if mode == "basic":
-            qs.reports.basic(
-                returns,
-                benchmark=benchmark_arg,
-                output=str(output_path),
-                title=f"{optimizer_name} Performance Analysis"
-            )
+            if benchmark_arg is not None:
+                qs.reports.basic(
+                    returns,
+                    benchmark=benchmark_arg,
+                    output=str(output_path),
+                    title=f"{optimizer_name} Performance Analysis"
+                )
+            else:
+                qs.reports.basic(
+                    returns,
+                    output=str(output_path),
+                    title=f"{optimizer_name} Performance Analysis"
+                )
         else:  # full
-            qs.reports.html(
-                returns,
-                benchmark=benchmark_arg,
-                output=str(output_path),
-                title=f"{optimizer_name} Performance Analysis"
-            )
+            if benchmark_arg is not None:
+                qs.reports.html(
+                    returns,
+                    benchmark=benchmark_arg,
+                    output=str(output_path),
+                    title=f"{optimizer_name} Performance Analysis"
+                )
+            else:
+                qs.reports.html(
+                    returns,
+                    output=str(output_path),
+                    title=f"{optimizer_name} Performance Analysis"
+                )
             
         logger.info(f"Tearsheet saved to {output_path}")
         return True
@@ -251,13 +269,16 @@ def calculate_quantstats_metrics(
         }
         
         # Benchmark-relative metrics (if available)
-        if benchmark_returns is not None:
-            metrics.update({
-                "alpha": qs.stats.greeks(returns, benchmark_returns).get("alpha", None),
-                "beta": qs.stats.greeks(returns, benchmark_returns).get("beta", None),
-                "information_ratio": qs.stats.information_ratio(returns, benchmark_returns),
-                "r_squared": qs.stats.r_squared(returns, benchmark_returns),
-            })
+        if benchmark_returns is not None and len(benchmark_returns) > 0:
+            try:
+                metrics.update({
+                    "alpha": qs.stats.greeks(returns, benchmark_returns).get("alpha", None),
+                    "beta": qs.stats.greeks(returns, benchmark_returns).get("beta", None),
+                    "information_ratio": qs.stats.information_ratio(returns, benchmark_returns),
+                    "r_squared": qs.stats.r_squared(returns, benchmark_returns),
+                })
+            except Exception as e:
+                logger.warning(f"Failed to calculate benchmark-relative metrics for {optimizer_name}: {e}")
             
         return metrics
         
@@ -271,7 +292,6 @@ def create_quantstats_reports(
     results_dir: Path,
     generate_individual: bool = True,
     generate_top_n: int = 5,
-    quantstats_dir: str = "quantstats_reports",
     benchmark: str = "SPY"
 ) -> None:
     """Create QuantStats reports as part of backtesting pipeline.
@@ -283,42 +303,46 @@ def create_quantstats_reports(
         results_dir: Directory to save reports
         generate_individual: Generate tearsheet for each optimizer
         generate_top_n: Generate comparative analysis for top N performers
-        quantstats_dir: Directory name for QuantStats reports within results directory
         benchmark: Benchmark ticker or strategy name
     """
     if not QUANTSTATS_AVAILABLE:
         logger.info("QuantStats not installed. Skipping QuantStats reports.")
         logger.info("Install with: poetry install --with visualizations")
         return
-        
+
     logger.info("Generating QuantStats reports...")
-    
-    # Create QuantStats subdirectory
-    qs_dir = results_dir / quantstats_dir
-    qs_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Generate individual tearsheets
     if generate_individual:
         for optimizer_name in results.keys():
             if optimizer_name == benchmark:
                 continue  # Skip benchmark itself
-                
+
             generate_tearsheet(
                 results,
                 optimizer_name,
                 benchmark=benchmark,
-                output_path=qs_dir / f"{optimizer_name.replace(' ', '_')}_tearsheet.html",
-                mode="full"
+                output_path=results_dir
+                / f"{optimizer_name.replace(' ', '_')}_tearsheet.html",
+                mode="full",
             )
-    
+
     # Generate comparative analysis
     if generate_top_n > 0:
         logger.info(f"Generating comparative analysis for top {generate_top_n} optimizers")
         generate_comparative_tearsheets(
-            results,
-            benchmark=benchmark,
-            output_dir=qs_dir,
-            top_n=generate_top_n
+            results, benchmark=benchmark, output_dir=results_dir, top_n=generate_top_n
         )
-        
-    logger.info(f"QuantStats reports saved to {qs_dir}")
+
+    # Generate A2A vs Benchmark comparison
+    if "A2AEnsemble" in results:
+        logger.info("Generating A2A vs Benchmark comparison tearsheet")
+        generate_tearsheet(
+            results,
+            "A2AEnsemble",
+            benchmark=benchmark,
+            output_path=results_dir / "A2A_vs_Benchmark_tearsheet.html",
+            mode="full",
+        )
+
+    logger.info(f"QuantStats reports saved to {results_dir}")

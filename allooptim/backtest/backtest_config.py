@@ -138,7 +138,7 @@ class BacktestConfig(BaseModel):
     quantstats_top_n: int = Field(
         default=5,
         ge=1,
-        le=20,
+        le=50,
         description="Number of top-performing optimizers to analyze in comparative tearsheets"
     )
     quantstats_individual: bool = Field(
@@ -149,6 +149,15 @@ class BacktestConfig(BaseModel):
         description="Directory name for QuantStats reports within results directory"
     )
 
+    @field_validator("quantstats_mode", mode="before")
+    @classmethod
+    def validate_quantstats_mode(cls, v: str) -> str:
+        """Validate that quantstats_mode is either 'basic' or 'full'."""
+        allowed_modes = {"basic", "full"}
+        if v not in allowed_modes:
+            raise ValueError(f"Invalid quantstats_mode: {v}. Must be one of {allowed_modes}")
+        return v
+    
     @field_validator("optimizer_configs", mode="before")
     @classmethod
     def validate_optimizer_configs(cls, v: List[Union[str, Dict, OptimizerConfig]]) -> List[OptimizerConfig]:

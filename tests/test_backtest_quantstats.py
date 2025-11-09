@@ -137,7 +137,6 @@ class TestTearsheetGeneration:
         success = generate_tearsheet(
             results,
             "TestOptimizer",
-            benchmark="SPY",
             output_path=output_path,
             mode="basic"
         )

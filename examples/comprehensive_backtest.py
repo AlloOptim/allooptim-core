@@ -98,13 +98,12 @@ def main():
 
         # Generate QuantStats reports
         create_quantstats_reports(
-                results,
-                results_dir,
-                generate_individual=config_backtest.quantstats_individual,
-                generate_top_n=config_backtest.quantstats_top_n,
-                quantstats_dir=config_backtest.quantstats_dir,
-                benchmark=config_backtest.benchmark
-            )
+            results=results,
+            output_dir=results_dir,
+            generate_individual=config_backtest.quantstats_individual,
+            generate_top_n=config_backtest.quantstats_top_n,
+            benchmark=config_backtest.benchmark,
+        )
 
         # Generate report
         report = generate_report(results, clustering_results, config_backtest)
@@ -136,10 +135,8 @@ def main():
         logger.info(f"Report available at: {report_path}")
 
         # Check QuantStats reports
-        qs_dir = results_dir / config_backtest.quantstats_dir
-        if qs_dir.exists():
-            logger.info(f"QuantStats reports generated in {qs_dir}")
-            logger.info(f"Open HTML files in a web browser for interactive analysis")
+        logger.info(f"QuantStats reports generated in {results_dir}")
+        logger.info(f"Open HTML files in a web browser for interactive analysis")
 
         logger.info(f"\n{'='*80}")
         logger.info("BACKTEST COMPLETED SUCCESSFULLY")
