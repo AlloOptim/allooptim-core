@@ -52,7 +52,7 @@ def main():
                 # Example with default config
                 "CMAMeanVariance",
                 # Example with custom config
-                {"name": "CMALMoments", "config": {"target_return": 0.02}},
+                {"name": "CMALMoments", "config": {"budget": 2000}},
                 # More optimizers with defaults
                 "CMASortino",
                 "CMAMaxDrawdown",
@@ -102,7 +102,8 @@ def main():
                 results_dir,
                 generate_individual=config_backtest.quantstats_individual,
                 generate_top_n=config_backtest.quantstats_top_n,
-                quantstats_dir=config_backtest.quantstats_dir
+                quantstats_dir=config_backtest.quantstats_dir,
+                benchmark=config_backtest.benchmark
             )
 
         # Generate report

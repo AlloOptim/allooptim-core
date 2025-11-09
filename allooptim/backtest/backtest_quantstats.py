@@ -271,7 +271,8 @@ def create_quantstats_reports(
     results_dir: Path,
     generate_individual: bool = True,
     generate_top_n: int = 5,
-    quantstats_dir: str = "quantstats_reports"
+    quantstats_dir: str = "quantstats_reports",
+    benchmark: str = "SPY"
 ) -> None:
     """Create QuantStats reports as part of backtesting pipeline.
     
@@ -283,6 +284,7 @@ def create_quantstats_reports(
         generate_individual: Generate tearsheet for each optimizer
         generate_top_n: Generate comparative analysis for top N performers
         quantstats_dir: Directory name for QuantStats reports within results directory
+        benchmark: Benchmark ticker or strategy name
     """
     if not QUANTSTATS_AVAILABLE:
         logger.info("QuantStats not installed. Skipping QuantStats reports.")
@@ -298,13 +300,13 @@ def create_quantstats_reports(
     # Generate individual tearsheets
     if generate_individual:
         for optimizer_name in results.keys():
-            if optimizer_name == "SPYBenchmark":
-                continue  # Skip benchmark
+            if optimizer_name == benchmark:
+                continue  # Skip benchmark itself
                 
             generate_tearsheet(
                 results,
                 optimizer_name,
-                benchmark="SPYBenchmark",
+                benchmark=benchmark,
                 output_path=qs_dir / f"{optimizer_name.replace(' ', '_')}_tearsheet.html",
                 mode="full"
             )
@@ -314,7 +316,7 @@ def create_quantstats_reports(
         logger.info(f"Generating comparative analysis for top {generate_top_n} optimizers")
         generate_comparative_tearsheets(
             results,
-            benchmark="SPYBenchmark",
+            benchmark=benchmark,
             output_dir=qs_dir,
             top_n=generate_top_n
         )
