@@ -102,7 +102,7 @@ def main():
             output_dir=results_dir,
             generate_individual=config_backtest.quantstats_individual,
             generate_top_n=config_backtest.quantstats_top_n,
-            benchmark="SPYBenchmark",
+            benchmark=config_backtest.benchmark,
         )
 
         # Generate report
