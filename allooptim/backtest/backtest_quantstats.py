@@ -16,13 +16,14 @@ import logging
 from pathlib import Path
 from typing import Optional, Dict
 import pandas as pd
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 try:
-    import quantstats as qs
     import matplotlib
     matplotlib.use('Agg')
+    import quantstats as qs
     
     QUANTSTATS_AVAILABLE = True
 except ImportError:
@@ -58,13 +59,21 @@ def prepare_returns_for_quantstats(
         logger.warning(f"Returns index is not DatetimeIndex for {optimizer_name}")
         return None
         
-    # Remove any NaN values
-    returns_clean = returns.dropna()
+    # Remove any NaN and inf values
+    returns_clean = returns.replace([np.inf, -np.inf], np.nan).dropna()
     
     if len(returns_clean) < 2:
-        logger.warning(f"Insufficient data points ({len(returns_clean)}) for {optimizer_name}")
+        logger.warning(f"Insufficient data points ({len(returns_clean)}) for {optimizer_name} after cleaning")
         return None
         
+    # Ensure index is unique and sorted
+    returns_clean = returns_clean[~returns_clean.index.duplicated(keep='first')]
+    returns_clean = returns_clean.sort_index()
+    
+    # Remove timezone info if present
+    if hasattr(returns_clean.index, 'tz') and returns_clean.index.tz is not None:
+        returns_clean.index = returns_clean.index.tz_localize(None)
+    
     return returns_clean
 
 
@@ -120,37 +129,46 @@ def generate_tearsheet(
         if benchmark_arg is None:
             logger.warning(f"No benchmark available for {optimizer_name}, generating without benchmark")
 
-        # Generate report
-        if mode == "basic":
-            if benchmark_arg is not None:
+        # Generate report - try with benchmark first, then without if it fails
+        success = False
+        
+        if benchmark_arg is not None:
+            try:
+                if mode == "basic":
+                    qs.reports.basic(
+                        returns,
+                        benchmark=benchmark_arg,
+                        output=str(output_path),
+                        title=f"{optimizer_name} Performance Analysis"
+                    )
+                else:  # full
+                    qs.reports.html(
+                        returns,
+                        benchmark=benchmark_arg,
+                        output=str(output_path),
+                        title=f"{optimizer_name} Performance Analysis"
+                    )
+                logger.info(f"Tearsheet saved to {output_path} (with benchmark)")
+                success = True
+            except Exception as e:
+                logger.warning(f"Failed to generate tearsheet with benchmark for {optimizer_name}: {e}. Trying without benchmark.")
+        
+        if not success:
+            # Generate without benchmark
+            if mode == "basic":
                 qs.reports.basic(
                     returns,
-                    benchmark=benchmark_arg,
                     output=str(output_path),
                     title=f"{optimizer_name} Performance Analysis"
                 )
-            else:
-                qs.reports.basic(
-                    returns,
-                    output=str(output_path),
-                    title=f"{optimizer_name} Performance Analysis"
-                )
-        else:  # full
-            if benchmark_arg is not None:
-                qs.reports.html(
-                    returns,
-                    benchmark=benchmark_arg,
-                    output=str(output_path),
-                    title=f"{optimizer_name} Performance Analysis"
-                )
-            else:
+            else:  # full
                 qs.reports.html(
                     returns,
                     output=str(output_path),
                     title=f"{optimizer_name} Performance Analysis"
                 )
-            
-        logger.info(f"Tearsheet saved to {output_path}")
+            logger.info(f"Tearsheet saved to {output_path} (without benchmark)")
+            success = True
         return True
         
     except Exception as e:
