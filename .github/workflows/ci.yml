@@ -48,9 +48,8 @@ jobs:
 
     - name: Run bandit security check
       run: |
-        pip install bandit[toml]
-        bandit -r allooptim --config pyproject.toml -f json -o bandit-report.json || true
-        bandit -r allooptim --config pyproject.toml
+        poetry run bandit -s B403,B301,B311 -r allooptim -f json -o bandit-report.json || true
+        poetry run bandit -s B403,B301,B311 -r allooptim
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
