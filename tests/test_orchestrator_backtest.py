@@ -5,7 +5,6 @@ into the backtesting framework and that df_allocation is properly populated.
 """
 
 import warnings
-
 from datetime import datetime
 from unittest.mock import patch
 

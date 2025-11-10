@@ -33,6 +33,7 @@ except ImportError:
     QUANTSTATS_AVAILABLE = False
 
 MAX_NAN_VALUES = 5
+MIN_DATA_LENGTH = 2
 
 
 def prepare_returns_for_quantstats(results: dict, optimizer_name: str) -> Optional[pd.Series]:
@@ -63,7 +64,7 @@ def prepare_returns_for_quantstats(results: dict, optimizer_name: str) -> Option
     # Remove any NaN and inf values
     returns_clean = returns.replace([np.inf, -np.inf], np.nan).dropna()
 
-    if len(returns_clean) < 2:
+    if len(returns_clean) < MIN_DATA_LENGTH:
         logger.warning(f"Insufficient data points ({len(returns_clean)}) for {optimizer_name} after cleaning")
         return None
 
@@ -159,7 +160,6 @@ def generate_tearsheet(
             else:  # full
                 qs.reports.html(returns, output=str(output_path), title=f"{optimizer_name} Performance Analysis")
             logger.info(f"Tearsheet saved to {output_path} (without benchmark)")
-            success = True
         return True
 
     except Exception as e:

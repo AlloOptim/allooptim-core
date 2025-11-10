@@ -123,8 +123,8 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
                 weights = np.array(weights)
                 weights_sum = np.sum(weights)
-                if self.config.allow_partial_investment and weights_sum > 0:
-                    weights = weights / weights_sum  # Normalize
+                if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
+                    weights = weights / weights_sum
 
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
@@ -146,10 +146,12 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         match self.combined_weight_type:
             case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN:
                 # Equal weights for all optimizers
-                a2a_weights = {opt.optimizer_name: 1.0 / len(self.optimizers) for opt in optimizer_allocations_list}
+                # For median, this is the best approximation
+                a2a_weights = {
+                    opt.optimizer_name: 1.0 / len(optimizer_allocations_list) for opt in optimizer_allocations_list
+                }
 
             case CombinedWeightType.CUSTOM:
-                # Use custom weights from config
                 a2a_weights = self.config.custom_a2a_weights.copy()
 
             case _:
@@ -172,6 +174,10 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             case _:
                 raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
 
+        sum_asset_weights = np.sum(asset_weights)
+        if sum_asset_weights > 0 and (not self.config.allow_partial_investment or sum_asset_weights > 1.0):
+            asset_weights = asset_weights / sum_asset_weights
+
         # Store optimizer weights
         for opt_alloc in optimizer_allocations_list:
             optimizer_weights_list.append(
@@ -185,10 +191,12 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         final_allocation = pd.Series(asset_weights, index=mu.index)
         final_allocation_sum = final_allocation.sum()
         if final_allocation_sum > 0:
-            final_allocation = final_allocation / final_allocation_sum
+            if not self.config.allow_partial_investment or final_allocation_sum > 1.0:
+                final_allocation = final_allocation / final_allocation_sum
+
         else:
-            # Fallback to equal weights if all optimizers returned zero weights
-            final_allocation = pd.Series(1.0 / len(mu), index=mu.index)
+            logger.warning("Final allocation sums to zero; returning zero weights.")
+            final_allocation = pd.Series(0.0, index=mu.index)
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()
