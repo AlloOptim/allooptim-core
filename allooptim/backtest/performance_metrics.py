@@ -104,8 +104,13 @@ class PerformanceMetrics:
             prev_weights = weights_history.iloc[i - 1]
             curr_weights = weights_history.iloc[i]
 
-            # Calculate change rate as sum of absolute weight changes
-            weight_changes = (curr_weights - prev_weights) / prev_weights
+            # Calculate change rate, handling division by zero gracefully
+            # When prev_weight is 0: treat 0→non-zero as 100% change, 0→0 as no change
+            weight_changes = np.where(
+                prev_weights != 0,
+                (curr_weights - prev_weights) / prev_weights,  # Normal percentage change
+                np.where(curr_weights != 0, 1.0, 0.0),  # 0→x = 100% increase, 0→0 = no change
+            )
             change_rate.append(weight_changes.mean())
 
         return pd.Series(change_rate, index=weights_history.index[1:])
