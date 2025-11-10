@@ -1,0 +1,738 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QuantStats Integration &mdash; AlloOptim 0.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=01f34227"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Optimizer Comparison" href="optimizers/comparison.html" />
+    <link rel="prev" title="Architecture Overview" href="architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            AlloOptim
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick Start</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#basic-usage">Basic Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#simple-optimization">Simple Optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#running-a-backtest">Running a Backtest</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quickstart.html#advanced-usage">Advanced Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#covariance-transformation">Covariance Transformation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quickstart.html#ensemble-optimization">Ensemble Optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#core-components">Core Components</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#data-flow">Data Flow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#key-design-principles">Key Design Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="architecture.html#component-details">Component Details</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#abstractoptimizer">AbstractOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#abstractcovariancetransformer">AbstractCovarianceTransformer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#a2aorchestrator">A2AOrchestrator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="architecture.html#backtestengine">BacktestEngine</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">QuantStats Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#standalone-usage">Standalone Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-options">Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#report-types">Report Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#markdown-reports-default">Markdown Reports (Default)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#html-tearsheets-quantstats">HTML Tearsheets (QuantStats)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#when-to-use-each">When to Use Each</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#available-metrics">Available Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#risk-adjusted-returns">Risk-Adjusted Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#risk-metrics">Risk Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#return-metrics">Return Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#win-loss-analysis">Win/Loss Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#benchmark-relative-metrics">Benchmark-Relative Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-metrics">Advanced Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#quantstats-not-available">QuantStats Not Available</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#report-generation-errors">Report Generation Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-existing-workflow">Integration with Existing Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#example-output-structure">Example Output Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#module-allooptim.backtest.backtest_quantstats">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats"><code class="docutils literal notranslate"><span class="pre">prepare_returns_for_quantstats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.generate_tearsheet"><code class="docutils literal notranslate"><span class="pre">generate_tearsheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets"><code class="docutils literal notranslate"><span class="pre">generate_comparative_tearsheets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics"><code class="docutils literal notranslate"><span class="pre">calculate_quantstats_metrics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.create_quantstats_reports"><code class="docutils literal notranslate"><span class="pre">create_quantstats_reports()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="optimizers/comparison.html">Optimizer Comparison</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#performance-characteristics">Performance Characteristics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#when-to-use-each-optimizer">When to Use Each Optimizer</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#production-daily-rebalancing">Production/Daily Rebalancing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#research-monthly-rebalancing">Research/Monthly Rebalancing</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#implementation-considerations">Implementation Considerations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#speed-vs-accuracy-tradeoffs">Speed vs. Accuracy Tradeoffs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#data-requirements">Data Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="optimizers/comparison.html#stability-considerations">Stability Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#best-practices">Best Practices</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/optimizers.html">Optimizers</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#module-allooptim.optimizer.optimizer_interface">Core Interface</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#mean-variance-optimizers">Mean-Variance Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_l_moments"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_l_moments</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_ema"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_ema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.enable_semi_variance"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.enable_semi_variance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#module-allooptim.optimizer.covariance_matrix_adaption.cma_optimizer">CMA-ES Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric"><code class="docutils literal notranslate"><span class="pre">RiskMetric</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MEAN_VARIANCE"><code class="docutils literal notranslate"><span class="pre">RiskMetric.MEAN_VARIANCE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.SORTINO"><code class="docutils literal notranslate"><span class="pre">RiskMetric.SORTINO</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.CVAR"><code class="docutils literal notranslate"><span class="pre">RiskMetric.CVAR</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.MAX_DRAWDOWN"><code class="docutils literal notranslate"><span class="pre">RiskMetric.MAX_DRAWDOWN</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.ROBUST_SHARPE"><code class="docutils literal notranslate"><span class="pre">RiskMetric.ROBUST_SHARPE</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.L_MOMENTS"><code class="docutils literal notranslate"><span class="pre">RiskMetric.L_MOMENTS</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState"><code class="docutils literal notranslate"><span class="pre">CMAState</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.model_config"><code class="docutils literal notranslate"><span class="pre">CMAState.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.sigma"><code class="docutils literal notranslate"><span class="pre">CMAState.sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.mean"><code class="docutils literal notranslate"><span class="pre">CMAState.mean</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.C"><code class="docutils literal notranslate"><span class="pre">CMAState.C</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.model_config"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.model_config</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_simple_warm_start"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.enable_simple_warm_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.enable_full_warm_start"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.enable_full_warm_start</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.budget</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.budget_warm"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.budget_warm</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.n_popsize"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.n_popsize</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_aversion"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.risk_aversion</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.sigma"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.sigma</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.patience"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.patience</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.min_improvement_threshold"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.min_improvement_threshold</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.alpha_cvar"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.alpha_cvar</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.target_return_sortino"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.target_return_sortino</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.risk_penalty_max_drawdown"><code class="docutils literal notranslate"><span class="pre">CMAOptimizerConfig.risk_penalty_max_drawdown</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.risk_metric</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MeanVarianceCMAOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceCMAOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">CVARCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CVARCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">CVARCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">LMomentsCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.LMomentsCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">LMomentsCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">RobustSharpeCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RobustSharpeCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">RobustSharpeCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">SortinoCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">SortinoCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer"><code class="docutils literal notranslate"><span class="pre">MaxDrawdownCMAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.MaxDrawdownCMAOptimizer.risk_metric"><code class="docutils literal notranslate"><span class="pre">MaxDrawdownCMAOptimizer.risk_metric</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#hierarchical-risk-parity">Hierarchical Risk Parity</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.allocate()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.name"><code class="docutils literal notranslate"><span class="pre">HRPOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#module-allooptim.optimizer.light_gbm.light_gbm_optimizer">Machine Learning Optimizers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">LightGBMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AugmentedLightGBMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer.name"><code class="docutils literal notranslate"><span class="pre">LSTMOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MAMBAOptimizer.name</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.model_type"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer.model_type</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer.name"><code class="docutils literal notranslate"><span class="pre">TCNOptimizer.name</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Development</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#development-setup">Development Setup</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#installation">Installation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#coding-standards">Coding Standards</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#code-style">Code Style</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#docstrings">Docstrings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#type-hints">Type Hints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#testing">Testing</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#unit-tests">Unit Tests</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#integration-tests">Integration Tests</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#documentation">Documentation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#build-documentation">Build Documentation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="contributing.html#update-documentation">Update Documentation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#contribution-workflow">Contribution Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#pull-request-guidelines">Pull Request Guidelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#adding-new-optimizers">Adding New Optimizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#adding-covariance-transformers">Adding Covariance Transformers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#reporting-issues">Reporting Issues</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#code-of-conduct">Code of Conduct</a></li>
+<li class="toctree-l2"><a class="reference internal" href="contributing.html#license">License</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AlloOptim</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">QuantStats Integration</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/AlloOptim/allooptim-core/blob/main/docs/source/quantstats.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="quantstats-integration">
+<span id="id1"></span><h1>QuantStats Integration<a class="headerlink" href="#quantstats-integration" title="Link to this heading"></a></h1>
+<p>AlloOptim integrates with <a class="reference external" href="https://github.com/ranaroussi/quantstats">QuantStats</a> to provide professional-grade portfolio performance analysis and reporting. QuantStats generates comprehensive HTML tearsheets that are widely used in the quantitative finance industry.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>QuantStats provides:</p>
+<ul class="simple">
+<li><p><strong>50+ Performance Metrics</strong>: Beyond the standard Sharpe, Sortino, and Calmar ratios</p></li>
+<li><p><strong>Risk Analysis</strong>: Value-at-Risk (VaR), Conditional VaR (CVaR), maximum drawdown analysis</p></li>
+<li><p><strong>Benchmark Comparison</strong>: Alpha, beta, information ratio, and tracking error</p></li>
+<li><p><strong>Interactive Visualizations</strong>: Monthly returns heatmaps, rolling statistics, drawdown periods</p></li>
+<li><p><strong>Professional Reports</strong>: HTML tearsheets suitable for institutional presentations</p></li>
+</ul>
+</section>
+<section id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Link to this heading"></a></h2>
+<p>QuantStats is an optional dependency. Install it with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using Poetry</span>
+poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>visualizations
+
+<span class="c1"># Or using pip</span>
+pip<span class="w"> </span>install<span class="w"> </span>quantstats
+</pre></div>
+</div>
+</section>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<section id="basic-usage">
+<h3>Basic Usage<a class="headerlink" href="#basic-usage" title="Link to this heading"></a></h3>
+<p>QuantStats reports are automatically generated when running backtests:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.backtest</span><span class="w"> </span><span class="kn">import</span> <span class="n">BacktestEngine</span><span class="p">,</span> <span class="n">BacktestConfig</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">BacktestConfig</span><span class="p">(</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">,</span>
+    <span class="n">end_date</span><span class="o">=</span><span class="s2">&quot;2024-01-01&quot;</span><span class="p">,</span>
+    <span class="n">generate_quantstats_reports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Enable QuantStats</span>
+    <span class="n">quantstats_mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>             <span class="c1"># &quot;basic&quot; or &quot;full&quot;</span>
+    <span class="n">quantstats_top_n</span><span class="o">=</span><span class="mi">5</span>                  <span class="c1"># Top N performers to analyze</span>
+<span class="p">)</span>
+
+<span class="n">engine</span> <span class="o">=</span> <span class="n">BacktestEngine</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">engine</span><span class="o">.</span><span class="n">run_backtest</span><span class="p">()</span>
+
+<span class="c1"># QuantStats reports are saved to:</span>
+<span class="c1"># backtest_results/{timestamp}/quantstats_reports/</span>
+</pre></div>
+</div>
+</section>
+<section id="standalone-usage">
+<h3>Standalone Usage<a class="headerlink" href="#standalone-usage" title="Link to this heading"></a></h3>
+<p>You can also generate QuantStats reports programmatically:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.backtest.backtest_quantstats</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">generate_tearsheet</span><span class="p">,</span>
+    <span class="n">calculate_quantstats_metrics</span><span class="p">,</span>
+    <span class="n">QUANTSTATS_AVAILABLE</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">QUANTSTATS_AVAILABLE</span><span class="p">:</span>
+    <span class="c1"># Generate HTML tearsheet</span>
+    <span class="n">generate_tearsheet</span><span class="p">(</span>
+        <span class="n">results</span><span class="p">,</span>
+        <span class="n">optimizer_name</span><span class="o">=</span><span class="s2">&quot;MaxSharpeOptimizer&quot;</span><span class="p">,</span>
+        <span class="n">benchmark</span><span class="o">=</span><span class="s2">&quot;SPY&quot;</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;reports/max_sharpe.html&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Get metrics programmatically</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">calculate_quantstats_metrics</span><span class="p">(</span>
+        <span class="n">results</span><span class="p">,</span>
+        <span class="s2">&quot;MaxSharpeOptimizer&quot;</span><span class="p">,</span>
+        <span class="n">benchmark</span><span class="o">=</span><span class="s2">&quot;SPY&quot;</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sharpe: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;sharpe&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;VaR 95%: </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;var_95&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="configuration-options">
+<h2>Configuration Options<a class="headerlink" href="#configuration-options" title="Link to this heading"></a></h2>
+<p>The following configuration options control QuantStats behavior:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">config</span> <span class="o">=</span> <span class="n">BacktestConfig</span><span class="p">(</span>
+    <span class="c1"># Enable/disable QuantStats reports</span>
+    <span class="n">generate_quantstats_reports</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+
+    <span class="c1"># Report mode: &quot;basic&quot; or &quot;full&quot;</span>
+    <span class="n">quantstats_mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
+
+    <span class="c1"># Number of top performers to analyze</span>
+    <span class="n">quantstats_top_n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+
+    <span class="c1"># Generate individual tearsheets for each optimizer</span>
+    <span class="n">quantstats_individual</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="report-types">
+<h2>Report Types<a class="headerlink" href="#report-types" title="Link to this heading"></a></h2>
+<section id="markdown-reports-default">
+<h3>Markdown Reports (Default)<a class="headerlink" href="#markdown-reports-default" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Generated by default</p></li>
+<li><p>Text-based tables and summaries</p></li>
+<li><p>Fast generation</p></li>
+<li><p>Suitable for quick analysis and documentation</p></li>
+</ul>
+</section>
+<section id="html-tearsheets-quantstats">
+<h3>HTML Tearsheets (QuantStats)<a class="headerlink" href="#html-tearsheets-quantstats" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Professional interactive reports</p></li>
+<li><p>50+ performance metrics</p></li>
+<li><p>Interactive charts and visualizations</p></li>
+<li><p>Benchmark comparison</p></li>
+<li><p>Institutional-grade presentation</p></li>
+<li><p>Slower generation due to HTML rendering</p></li>
+</ul>
+</section>
+<section id="when-to-use-each">
+<h3>When to Use Each<a class="headerlink" href="#when-to-use-each" title="Link to this heading"></a></h3>
+<p><strong>Use Markdown Reports when:</strong>
+* You need quick results
+* You’re doing exploratory analysis
+* You want to include results in documentation
+* Performance is critical</p>
+<p><strong>Use HTML Tearsheets when:</strong>
+* You need professional presentation
+* You’re analyzing for institutional clients
+* You want comprehensive risk analysis
+* Interactive exploration is valuable</p>
+</section>
+</section>
+<section id="available-metrics">
+<h2>Available Metrics<a class="headerlink" href="#available-metrics" title="Link to this heading"></a></h2>
+<p>QuantStats provides extensive performance metrics:</p>
+<section id="risk-adjusted-returns">
+<h3>Risk-Adjusted Returns<a class="headerlink" href="#risk-adjusted-returns" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Sharpe Ratio</strong>: Risk-adjusted return using standard deviation</p></li>
+<li><p><strong>Sortino Ratio</strong>: Risk-adjusted return using downside deviation</p></li>
+<li><p><strong>Calmar Ratio</strong>: Return relative to maximum drawdown</p></li>
+<li><p><strong>Omega Ratio</strong>: Probability-weighted ratio of gains vs losses</p></li>
+</ul>
+</section>
+<section id="risk-metrics">
+<h3>Risk Metrics<a class="headerlink" href="#risk-metrics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Value at Risk (VaR)</strong>: Maximum expected loss over a period</p></li>
+<li><p><strong>Conditional VaR (CVaR)</strong>: Expected loss beyond VaR</p></li>
+<li><p><strong>Maximum Drawdown</strong>: Largest peak-to-trough decline</p></li>
+<li><p><strong>Ulcer Index</strong>: Measure of downside volatility</p></li>
+</ul>
+</section>
+<section id="return-metrics">
+<h3>Return Metrics<a class="headerlink" href="#return-metrics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Compound Annual Growth Rate (CAGR)</strong>: Geometric annualized return</p></li>
+<li><p><strong>Total Return</strong>: Cumulative return over the period</p></li>
+<li><p><strong>Best/Worst Day</strong>: Single-day extreme returns</p></li>
+<li><p><strong>Recovery Factor</strong>: Return relative to maximum drawdown</p></li>
+</ul>
+</section>
+<section id="win-loss-analysis">
+<h3>Win/Loss Analysis<a class="headerlink" href="#win-loss-analysis" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Win Rate</strong>: Percentage of positive return periods</p></li>
+<li><p><strong>Profit Factor</strong>: Gross profits divided by gross losses</p></li>
+<li><p><strong>Payoff Ratio</strong>: Average win divided by average loss</p></li>
+</ul>
+</section>
+<section id="benchmark-relative-metrics">
+<h3>Benchmark-Relative Metrics<a class="headerlink" href="#benchmark-relative-metrics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Alpha</strong>: Excess return relative to benchmark</p></li>
+<li><p><strong>Beta</strong>: Market sensitivity/volatility relative to benchmark</p></li>
+<li><p><strong>Information Ratio</strong>: Risk-adjusted active return</p></li>
+<li><p><strong>R-Squared</strong>: Proportion of variance explained by benchmark</p></li>
+</ul>
+</section>
+<section id="advanced-metrics">
+<h3>Advanced Metrics<a class="headerlink" href="#advanced-metrics" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Tail Ratio</strong>: Ratio of positive to negative tail returns</p></li>
+<li><p><strong>Common Sense Ratio</strong>: Comprehensive risk-adjusted measure</p></li>
+<li><p><strong>Kappa</strong>: Generalized Sharpe ratio</p></li>
+<li><p><strong>Gain-to-Pain Ratio</strong>: Return relative to absolute drawdown</p></li>
+</ul>
+</section>
+</section>
+<section id="troubleshooting">
+<h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="quantstats-not-available">
+<h3>QuantStats Not Available<a class="headerlink" href="#quantstats-not-available" title="Link to this heading"></a></h3>
+<p>If QuantStats reports are not generated:</p>
+<ol class="arabic">
+<li><p>Check installation:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>poetry<span class="w"> </span>install<span class="w"> </span>--with<span class="w"> </span>visualizations
+</pre></div>
+</div>
+</li>
+<li><p>Verify import:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.backtest.backtest_quantstats</span><span class="w"> </span><span class="kn">import</span> <span class="n">QUANTSTATS_AVAILABLE</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">QUANTSTATS_AVAILABLE</span><span class="p">)</span>  <span class="c1"># Should be True</span>
+</pre></div>
+</div>
+</li>
+<li><p>Check logs for import errors</p></li>
+</ol>
+</section>
+<section id="report-generation-errors">
+<h3>Report Generation Errors<a class="headerlink" href="#report-generation-errors" title="Link to this heading"></a></h3>
+<p>Common issues:</p>
+<ul class="simple">
+<li><p><strong>Insufficient data</strong>: QuantStats needs at least 10 data points</p></li>
+<li><p><strong>Invalid returns</strong>: Check for NaN values or incorrect datetime index</p></li>
+<li><p><strong>Benchmark issues</strong>: Ensure benchmark data is available or use valid ticker</p></li>
+</ul>
+</section>
+<section id="performance-considerations">
+<h3>Performance Considerations<a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>HTML generation is slower than Markdown reports</p></li>
+<li><p>Large backtests may take several seconds per optimizer</p></li>
+<li><p>Consider disabling for quick debugging runs</p></li>
+</ul>
+</section>
+</section>
+<section id="integration-with-existing-workflow">
+<h2>Integration with Existing Workflow<a class="headerlink" href="#integration-with-existing-workflow" title="Link to this heading"></a></h2>
+<p>QuantStats integrates seamlessly with AlloOptim’s existing backtesting:</p>
+<ol class="arabic simple">
+<li><p><strong>Automatic Generation</strong>: Reports are created alongside existing Markdown reports</p></li>
+<li><p><strong>Optional Dependency</strong>: No impact if QuantStats is not installed</p></li>
+<li><p><strong>Configuration Control</strong>: Easy to enable/disable via BacktestConfig</p></li>
+<li><p><strong>Directory Structure</strong>: Reports saved in <code class="docutils literal notranslate"><span class="pre">quantstats_reports/</span></code> subdirectory</p></li>
+</ol>
+<section id="example-output-structure">
+<h3>Example Output Structure<a class="headerlink" href="#example-output-structure" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>backtest_results/
+├── 20251109_143000/           # Timestamped results directory
+│   ├── backtest_results.csv   # CSV summary
+│   ├── comprehensive_backtest_report.md  # Markdown report
+│   └── quantstats_reports/    # QuantStats HTML reports
+│       ├── MaxSharpeOptimizer_tearsheet.html
+│       ├── HRPOptimizer_tearsheet.html
+│       ├── RiskParityOptimizer_tearsheet.html
+│       └── comparative_analysis.html
+</pre></div>
+</div>
+</section>
+</section>
+<section id="module-allooptim.backtest.backtest_quantstats">
+<span id="api-reference"></span><h2>API Reference<a class="headerlink" href="#module-allooptim.backtest.backtest_quantstats" title="Link to this heading"></a></h2>
+<p>QuantStats integration for professional portfolio analytics and reporting.</p>
+<p>This module provides enhanced visualization and reporting capabilities using
+the QuantStats library for institutional-grade performance analysis.</p>
+<p>Key features:
+- HTML tearsheet generation with interactive charts
+- Advanced risk metrics (VaR, CVaR, Sortino, Calmar)
+- Benchmark-relative performance analysis
+- Rolling statistics visualization
+- Monthly returns heatmaps
+- Automated report generation</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats">
+<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">prepare_returns_for_quantstats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#prepare_returns_for_quantstats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats" title="Link to this definition"></a></dt>
+<dd><p>Extract and validate returns series for QuantStats analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
+<li><p><strong>optimizer_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Name of optimizer to extract returns for</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Daily returns as pd.Series with datetime index, or None if unavailable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.generate_tearsheet">
+<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">generate_tearsheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#generate_tearsheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.generate_tearsheet" title="Link to this definition"></a></dt>
+<dd><p>Generate QuantStats HTML tearsheet for a single optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
+<li><p><strong>optimizer_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Name of optimizer to analyze</p></li>
+<li><p><strong>benchmark</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Benchmark ticker or returns series (default: “SPY”)</p></li>
+<li><p><strong>output_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span>) – Path to save HTML file (None = auto-generate)</p></li>
+<li><p><strong>mode</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – “basic” or “full” tearsheet (default: “full”)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if successful, False otherwise</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets">
+<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">generate_comparative_tearsheets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#generate_comparative_tearsheets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets" title="Link to this definition"></a></dt>
+<dd><p>Generate tearsheets for top N performing optimizers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
+<li><p><strong>benchmark</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Benchmark strategy name or ticker</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span>) – Directory to save reports</p></li>
+<li><p><strong>top_n</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Number of top performers to analyze</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict mapping optimizer names to generation success status</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics">
+<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">calculate_quantstats_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#calculate_quantstats_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics" title="Link to this definition"></a></dt>
+<dd><p>Calculate QuantStats metrics without generating full tearsheet.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
+<li><p><strong>optimizer_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Name of optimizer</p></li>
+<li><p><strong>benchmark</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Benchmark ticker or returns</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary of QuantStats metrics, or None if unavailable</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.create_quantstats_reports">
+<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">create_quantstats_reports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_individual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#create_quantstats_reports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.create_quantstats_reports" title="Link to this definition"></a></dt>
+<dd><p>Create QuantStats reports as part of backtesting pipeline.</p>
+<p>This function integrates with existing backtest_engine.py workflow.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results from BacktestEngine</p></li>
+<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span>) – Directory to save reports</p></li>
+<li><p><strong>generate_individual</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span>) – Generate tearsheet for each optimizer</p></li>
+<li><p><strong>generate_top_n</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Generate comparative analysis for top N performers</p></li>
+<li><p><strong>benchmark</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Benchmark ticker or strategy name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="architecture.html" class="btn btn-neutral float-left" title="Architecture Overview" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="optimizers/comparison.html" class="btn btn-neutral float-right" title="Optimizer Comparison" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, AlloOptim Team.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

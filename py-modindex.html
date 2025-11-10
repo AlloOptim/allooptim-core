@@ -74,6 +74,50 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="quantstats.html">QuantStats Integration</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#basic-usage">Basic Usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#standalone-usage">Standalone Usage</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#configuration-options">Configuration Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#report-types">Report Types</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#markdown-reports-default">Markdown Reports (Default)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#html-tearsheets-quantstats">HTML Tearsheets (QuantStats)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#when-to-use-each">When to Use Each</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#available-metrics">Available Metrics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#risk-adjusted-returns">Risk-Adjusted Returns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#risk-metrics">Risk Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#return-metrics">Return Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#win-loss-analysis">Win/Loss Analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#benchmark-relative-metrics">Benchmark-Relative Metrics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#advanced-metrics">Advanced Metrics</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#quantstats-not-available">QuantStats Not Available</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#report-generation-errors">Report Generation Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#integration-with-existing-workflow">Integration with Existing Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#example-output-structure">Example Output Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="quantstats.html#module-allooptim.backtest.backtest_quantstats">API Reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats"><code class="docutils literal notranslate"><span class="pre">prepare_returns_for_quantstats()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#allooptim.backtest.backtest_quantstats.generate_tearsheet"><code class="docutils literal notranslate"><span class="pre">generate_tearsheet()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets"><code class="docutils literal notranslate"><span class="pre">generate_comparative_tearsheets()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics"><code class="docutils literal notranslate"><span class="pre">calculate_quantstats_metrics()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="quantstats.html#allooptim.backtest.backtest_quantstats.create_quantstats_reports"><code class="docutils literal notranslate"><span class="pre">create_quantstats_reports()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="optimizers/comparison.html">Optimizer Comparison</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#performance-characteristics">Performance Characteristics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="optimizers/comparison.html#when-to-use-each-optimizer">When to Use Each Optimizer</a><ul>
@@ -301,6 +345,11 @@
               id="toggle-1" style="display: none" alt="-" /></td>
        <td>
        <code class="xref">allooptim</code></td><td>
+       <em></em></td></tr>
+     <tr class="cg-1">
+       <td></td>
+       <td>&#160;&#160;&#160;
+       <a href="quantstats.html#module-allooptim.backtest.backtest_quantstats"><code class="xref">allooptim.backtest.backtest_quantstats</code></a></td><td>
        <em></em></td></tr>
      <tr class="cg-1">
        <td></td>

@@ -15,6 +15,7 @@ allocation strategies, advanced covariance transformations, and ensemble methods
    :maxdepth: 2
    :caption: User Guide
 
+   quantstats
    optimizers/comparison
 
 .. toctree::
