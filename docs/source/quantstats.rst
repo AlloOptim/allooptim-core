@@ -73,7 +73,7 @@ You can also generate QuantStats reports programmatically:
         generate_tearsheet(
             results,
             optimizer_name="MaxSharpeOptimizer",
-            benchmark="SPYBenchmark",
+            benchmark="SPY",
             output_path="reports/max_sharpe.html"
         )
 
@@ -81,7 +81,7 @@ You can also generate QuantStats reports programmatically:
         metrics = calculate_quantstats_metrics(
             results,
             "MaxSharpeOptimizer",
-            benchmark="SPYBenchmark"
+            benchmark="SPY"
         )
         print(f"Sharpe: {metrics['sharpe']:.2f}")
         print(f"VaR 95%: {metrics['var_95']:.2%}")

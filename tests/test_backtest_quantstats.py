@@ -139,18 +139,18 @@ class TestComparativeAnalysis:
         dates = pd.date_range("2023-01-01", periods=100, freq="D")
 
         results = {}
-        for i, name in enumerate(["Optimizer1", "Optimizer2", "SPYBenchmark"]):
+        for i, name in enumerate(["Optimizer1", "Optimizer2", "SPY"]):
             returns = pd.Series(np.random.normal(0.001 + i * 0.0005, 0.02, 100), index=dates)
             results[name] = {
                 "returns": returns,
                 "metrics": {"sharpe_ratio": 1.5 - i * 0.2},  # Optimizer1: 1.5, Optimizer2: 1.3, SPYBenchmark: 1.1
             }
 
-        status = generate_comparative_tearsheets(results, benchmark="SPYBenchmark", output_dir=tmp_path, top_n=2)
+        status = generate_comparative_tearsheets(results, benchmark="SPY", output_dir=tmp_path, top_n=2)
 
         assert isinstance(status, dict)
         # Should have 2 results (Optimizer1 and Optimizer2, excluding SPYBenchmark)
-        assert len([k for k in status if k != "SPYBenchmark"]) == 2
+        assert len([k for k in status if k != "SPY"]) == 2
 
 
 class TestMetricsCalculation:
@@ -164,9 +164,9 @@ class TestMetricsCalculation:
         returns = pd.Series(np.random.normal(0.001, 0.02, 100), index=dates)
         benchmark_returns = pd.Series(np.random.normal(0.0008, 0.015, 100), index=dates)
 
-        results = {"TestOptimizer": {"returns": returns}, "SPYBenchmark": {"returns": benchmark_returns}}
+        results = {"TestOptimizer": {"returns": returns}, "SPY": {"returns": benchmark_returns}}
 
-        metrics = calculate_quantstats_metrics(results, "TestOptimizer", benchmark="SPYBenchmark")
+        metrics = calculate_quantstats_metrics(results, "TestOptimizer", benchmark="SPY")
 
         assert metrics is not None
         assert isinstance(metrics, dict)
@@ -201,7 +201,7 @@ class TestReportOrchestration:
         dates = pd.date_range("2023-01-01", periods=100, freq="D")
 
         results = {}
-        for name in ["Optimizer1", "Optimizer2", "SPYBenchmark"]:
+        for name in ["Optimizer1", "Optimizer2", "SPY"]:
             returns = pd.Series(np.random.normal(0.001, 0.02, 100), index=dates)
             results[name] = {"returns": returns, "metrics": {"sharpe_ratio": 1.0}}
 

@@ -168,7 +168,7 @@ def generate_tearsheet(
 
 
 def generate_comparative_tearsheets(
-    results: dict, benchmark: str = "SPYBenchmark", output_dir: Optional[Path] = None, top_n: int = 5
+    results: dict, benchmark: str = "SPY", output_dir: Optional[Path] = None, top_n: int = 5
 ) -> Dict[str, bool]:
     """Generate tearsheets for top N performing optimizers.
 
