@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.data_provider_factory import (
     get_data_provider_factory,
@@ -11,11 +12,16 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
     create_orchestrator,
 )
 from allooptim.config.stock_universe import list_of_dax_stocks
+from tests.conftest import (
+    FAST_TEST_ITERATIONS,
+    FAST_TEST_OBSERVATIONS,
+    FAST_TEST_PARTICLES,
+)
 
 
 @pytest.mark.parametrize("optimizer_names", [["NaiveOptimizer"], ["NaiveOptimizer", "MomentumOptimizer"]])
 @pytest.mark.parametrize("orchestrator_type", OrchestratorType)
-def test_a2a(orchestrator_type, optimizer_names, fast_a2a_config):
+def test_a2a(orchestrator_type, optimizer_names):
     """Test that all A2A allocators work correctly."""
     # Create sample price data for optimizers that need it
     all_stocks = list_of_dax_stocks()[:5]
@@ -23,6 +29,18 @@ def test_a2a(orchestrator_type, optimizer_names, fast_a2a_config):
     dates = pd.date_range("2025-09-05", periods=50, freq="D")
     price_data = np.random.randn(50, len(assets)).cumsum(axis=0) + 100
     prices = pd.DataFrame(price_data, index=dates, columns=assets)
+
+    if len(optimizer_names) > 1:
+        custom_a2a_weights = {"NaiveOptimizer": 0.7, "MomentumOptimizer": 0.3}
+    else:
+        custom_a2a_weights = {"NaiveOptimizer": 1.0}
+
+    fast_a2a_config = A2AConfig(
+        n_simulations=FAST_TEST_OBSERVATIONS,
+        n_particles=FAST_TEST_PARTICLES,
+        n_pso_iterations=FAST_TEST_ITERATIONS,
+        custom_a2a_weights=custom_a2a_weights,
+    )
 
     # For Wikipedia pipeline, add specific kwargs
     kwargs = {}

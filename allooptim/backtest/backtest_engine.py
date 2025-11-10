@@ -76,6 +76,7 @@ class BacktestEngine:
         self.data_loader = DataLoader(
             benchmark=self.config_backtest.benchmark,
             symbols=self.config_backtest.symbols,
+            interval=self.config_backtest.data_interval,
         )
 
         # Create orchestrator using factory
@@ -498,7 +499,7 @@ class BacktestEngine:
                     **spy_change_rate_stats,
                 }
 
-                results["SPYBenchmark"] = {
+                results[self.config_backtest.benchmark] = {
                     "metrics": spy_all_metrics,
                     "portfolio_values": spy_portfolio_values,
                     "returns": spy_returns,

@@ -32,15 +32,18 @@ class DataLoader:
         self,
         benchmark: str,
         symbols: list[str],
+        interval: str,
     ) -> None:
         """Initialize the data loader.
 
         Args:
             benchmark: Benchmark symbol (e.g., 'SPY') to include in the universe.
             symbols: List of stock symbols to load data for.
+            interval: Data interval (e.g., '1d', '1wk', '1mo').
         """
         self.stock_universe = get_stocks_by_symbols(symbols)
         self.symbols = symbols
+        self.interval = interval
 
         # Add SPY for benchmark
         if benchmark not in self.symbols:
@@ -66,7 +69,13 @@ class DataLoader:
 
             try:
                 batch_data = yf.download(
-                    batch_symbols, start=start_date, end=end_date, progress=False, group_by="ticker", auto_adjust=False
+                    batch_symbols,
+                    start=start_date,
+                    end=end_date,
+                    progress=False,
+                    group_by="ticker",
+                    auto_adjust=False,
+                    interval=self.interval,
                 )
 
                 # Handle single vs multiple symbols

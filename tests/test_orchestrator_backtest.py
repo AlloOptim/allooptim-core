@@ -4,6 +4,7 @@ This test verifies that the orchestrator works correctly when integrated
 into the backtesting framework and that df_allocation is properly populated.
 """
 
+import warnings
 from datetime import datetime
 from unittest.mock import patch
 
@@ -27,23 +28,37 @@ from allooptim.config.allocation_dataclasses import (
 )
 def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     """Test orchestrator integration with backtest engine."""
-    # Create a minimal backtest configuration using orchestrator
+    # Suppress numpy and pandas warnings that can occur during statistical calculations
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", message="invalid value encountered", category=RuntimeWarning)
+        warnings.filterwarnings("ignore", message="divide by zero encountered", category=RuntimeWarning)
+
+        # Create a minimal backtest configuration using orchestrator
     config = BacktestConfig(
         start_date=datetime(2023, 1, 1),
         end_date=datetime(2023, 1, 10),
         rebalance_frequency=5,
         lookback_days=5,  # Minimal lookback
-        optimizer_configs=["NaiveOptimizer"],
+        optimizer_configs=["NaiveOptimizer", "MomentumOptimizer"],
         transformer_names=["OracleCovarianceTransformer"],
         orchestration_type=OrchestratorType.AUTO,
+        benchmark="SPY",
     )
 
     # Create A2A config with fast test parameters
-    a2a_config = A2AConfig(
-        n_simulations=10,  # Fast for testing
-        n_pso_iterations=5,
-        n_particles=10,
-    )
+    if orchestrator_type == OrchestratorType.CUSTOM_WEIGHT:
+        a2a_config = A2AConfig(
+            n_simulations=10,  # Fast for testing
+            n_pso_iterations=5,
+            n_particles=10,
+            custom_a2a_weights={"NaiveOptimizer": 0.5, "MomentumOptimizer": 0.5},  # Custom weights for each optimizer
+        )
+    else:
+        a2a_config = A2AConfig(
+            n_simulations=10,  # Fast for testing
+            n_pso_iterations=5,
+            n_particles=10,
+        )
 
     # Create and run backtest with specified orchestrator type
     engine = BacktestEngine(
@@ -59,9 +74,16 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     # Create synthetic price data
     dates = pd.date_range("2022-12-20", "2023-01-15", freq="D")  # Cover the backtest period
     symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "SPY"]  # Include SPY for benchmark
-    np.random.seed(42)  # For reproducible results
-    price_data = np.random.randn(len(dates), len(symbols)).cumsum(axis=0) + 100
+    np.random.seed(123)  # For reproducible results
+    # Generate more stable price data to avoid NaN/inf issues
+    price_changes = np.random.normal(0.001, 0.02, (len(dates), len(symbols)))  # Small daily returns
+    price_data = 100 * np.exp(np.cumsum(price_changes, axis=0))  # Geometric Brownian motion
     synthetic_prices = pd.DataFrame(price_data, index=dates, columns=symbols)
+
+    # Ensure no NaN or inf values in the synthetic data
+    synthetic_prices = synthetic_prices.replace([np.inf, -np.inf], np.nan).dropna()
+    assert not synthetic_prices.isna().any().any(), "Synthetic prices contain NaN values"
+    assert not np.isinf(synthetic_prices.values).any(), "Synthetic prices contain infinite values"
 
     # Mock the data loader and Wikipedia allocation for speed
     with patch.object(engine.data_loader, "load_price_data", return_value=synthetic_prices):
@@ -98,7 +120,7 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     assert len(results) > 0
 
     # Check that we have the expected result keys
-    expected_keys = ["NaiveOptimizer", "SPYBenchmark", "A2AEnsemble"]
+    expected_keys = ["NaiveOptimizer", "MomentumOptimizer", "SPY", "A2AEnsemble"]
     for key in expected_keys:
         assert key in results, f"Missing expected result key: {key}"
         assert "metrics" in results[key], f"Missing metrics for {key}"

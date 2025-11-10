@@ -9,7 +9,9 @@ from typing import Dict, List, Optional
 from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
+    CustomWeightOrchestrator,
     EqualWeightOrchestrator,
+    MedianWeightOrchestrator,
 )
 from allooptim.allocation_to_allocators.optimized_orchestrator import (
     OptimizedOrchestrator,
@@ -26,6 +28,8 @@ class OrchestratorType(str, Enum):
 
     AUTO = "auto"
     EQUAL_WEIGHT = "equal_weight"
+    MEDIAN_WEIGHT = "median_weight"
+    CUSTOM_WEIGHT = "custom_weight"
     OPTIMIZED = "optimized"
     WIKIPEDIA_PIPELINE = "wikipedia_pipeline"
 
@@ -67,36 +71,49 @@ def create_orchestrator(
     if orchestrator_type == OrchestratorType.AUTO:
         orchestrator_type = get_default_orchestrator_type()
 
-    if orchestrator_type == OrchestratorType.EQUAL_WEIGHT:
-        return EqualWeightOrchestrator(
-            optimizers=optimizers,
-            covariance_transformers=transformers,
-            config=config,
-        )
+    match orchestrator_type:
+        case OrchestratorType.EQUAL_WEIGHT:
+            return EqualWeightOrchestrator(
+                optimizers=optimizers,
+                covariance_transformers=transformers,
+                config=config,
+            )
+        case OrchestratorType.MEDIAN_WEIGHT:
+            return MedianWeightOrchestrator(
+                optimizers=optimizers,
+                covariance_transformers=transformers,
+                config=config,
+            )
+        case OrchestratorType.CUSTOM_WEIGHT:
+            return CustomWeightOrchestrator(
+                optimizers=optimizers,
+                covariance_transformers=transformers,
+                config=config,
+            )
 
-    elif orchestrator_type == OrchestratorType.OPTIMIZED:
-        return OptimizedOrchestrator(
-            optimizers=optimizers,
-            covariance_transformers=transformers,
-            config=config,
-        )
+        case OrchestratorType.OPTIMIZED:
+            return OptimizedOrchestrator(
+                optimizers=optimizers,
+                covariance_transformers=transformers,
+                config=config,
+            )
 
-    elif orchestrator_type == OrchestratorType.WIKIPEDIA_PIPELINE:
-        # Extract wikipedia pipeline specific parameters
-        n_historical_days = kwargs.get("n_historical_days", 60)
-        use_wiki_database = kwargs.get("use_wiki_database", False)
-        wiki_database_path = kwargs.get("wiki_database_path", None)
-        return WikipediaPipelineOrchestrator(
-            optimizers=optimizers,
-            covariance_transformers=transformers,
-            config=config,
-            n_historical_days=n_historical_days,
-            use_wiki_database=use_wiki_database,
-            wiki_database_path=wiki_database_path,
-        )
+        case OrchestratorType.WIKIPEDIA_PIPELINE:
+            # Extract wikipedia pipeline specific parameters
+            n_historical_days = kwargs.get("n_historical_days", 60)
+            use_wiki_database = kwargs.get("use_wiki_database", False)
+            wiki_database_path = kwargs.get("wiki_database_path", None)
+            return WikipediaPipelineOrchestrator(
+                optimizers=optimizers,
+                covariance_transformers=transformers,
+                config=config,
+                n_historical_days=n_historical_days,
+                use_wiki_database=use_wiki_database,
+                wiki_database_path=wiki_database_path,
+            )
 
-    else:
-        raise ValueError(f"Unknown orchestrator type: {orchestrator_type}")
+        case _:
+            raise ValueError(f"Unknown orchestrator type: {orchestrator_type}")
 
 
 def get_default_orchestrator_type() -> OrchestratorType:

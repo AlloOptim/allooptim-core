@@ -27,9 +27,8 @@ from allooptim.config.allocation_dataclasses import (
     WikipediaStatistics,
     validate_asset_weights_length,
 )
-
-# Old complex caching imports removed - now using simple_sql_cache
 from allooptim.config.stock_dataclasses import StockUniverse
+from allooptim.config.stock_universe import get_stocks_by_symbols
 from allooptim.optimizer.wikipedia.wiki_database import load_data
 
 logger = logging.getLogger(__name__)
@@ -353,6 +352,26 @@ def _process_and_filter_data_combined(  # noqa: PLR0913
     return True, df_merged, valid_symbols
 
 
+def _check_all_stocks_list(all_stocks: list[StockUniverse]) -> list[StockUniverse]:
+    """Ensure all_stocks is a list of StockUniverse objects."""
+    any_wiki_name_is_missing = any(stock.wikipedia_name is None for stock in all_stocks)
+
+    if not any_wiki_name_is_missing:
+        return all_stocks
+
+    for stock in all_stocks:
+        if stock.wikipedia_name is None:
+            stock_list = get_stocks_by_symbols([stock.symbol])
+            if len(stock_list) == 1:
+                stock.wikipedia_name = stock_list[0].wikipedia_name
+                continue
+
+            stock.wikipedia_name = stock.symbol  # Fallback to symbol if wiki name is missing
+            logger.warning(f"Stock {stock.symbol} missing wikipedia_name, defaulting to symbol.")
+
+    return all_stocks
+
+
 def allocate_wikipedia(  # noqa: PLR0913,PLR0911
     all_stocks: list[StockUniverse],
     time_today: datetime,
@@ -392,6 +411,8 @@ def allocate_wikipedia(  # noqa: PLR0913,PLR0911
     - df_stock_volumes: Optional pre-loaded stock volumes DataFrame (for testing)
     - database_path: Optional path to SQL database file (for testing with custom database)
     """
+    all_stocks = _check_all_stocks_list(all_stocks)
+
     end_date = time_today.astimezone(pytz.UTC)
     start_date = end_date - n_lag_days * ONE_DAY - n_historical_days * ONE_DAY - n_weeks_difference * ONE_WEEK
 

@@ -289,7 +289,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         # Validate inputs
         validate_asset_names(ds_mu, df_cov)
         asset_names = get_asset_names(mu=ds_mu)
-        
+
         self._update_uncertainties(df_prices)
 
         # Convert to numpy
@@ -384,4 +384,3 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
     def name(self) -> str:
         """Return optimizer name."""
         return "RobustMeanVarianceOptimizer"
-

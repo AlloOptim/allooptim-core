@@ -62,6 +62,8 @@ from allooptim.optimizer.sequential_quadratic_programming.sqp_multistart import 
 logger = logging.getLogger(__name__)
 
 # Constants
+MIN_VOLATILITY_THRESHOLD = 1e-10
+MIN_DOWNSIDE_DEVIATION_THRESHOLD = 1e-10
 MIN_OBSERVATIONS_REQUIRED = 10
 WEIGHT_CLIPPING_THRESHOLD = 1e-6
 WEIGHT_SUM_TOLERANCE = 1e-6
@@ -69,6 +71,7 @@ DEFAULT_BLOCK_SIZE = 5
 REGULARIZATION_EPSILON = 1e-8
 MIN_BLOCK_SIZE = 2
 MAX_BLOCK_SIZE = 20
+HALF_CHANCE_VALUE = 0.5
 
 
 class SamplingMethod(str, Enum):
@@ -410,7 +413,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         w = np.random.dirichlet(np.ones(n_assets))
 
         # Randomly scale down to allow for cash position
-        if self.config.allow_cash and np.random.rand() > 0.5:
+        if self.config.allow_cash and np.random.rand() > HALF_CHANCE_VALUE:
             scale = np.random.uniform(self.config.min_total_weight, 1.0)
             w = w * scale
 
@@ -438,27 +441,34 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         # Select objective function
         if self.objective_function == ObjectiveFunction.MIN_VARIANCE:
+
             def objective(w):
                 return w.T @ cov_matrix @ w
+
             allow_cash = False
 
         elif self.objective_function == ObjectiveFunction.MIN_CVAR:
+
             def objective(w):
                 return self._cvar_objective(w, returns)
 
         elif self.objective_function == ObjectiveFunction.MAX_SORTINO:
+
             def objective(w):
                 return -self._sortino_objective(w, returns, mu)
 
         elif self.objective_function == ObjectiveFunction.MAX_DIVERSIFICATION:
+
             def objective(w):
                 return -self._diversification_objective(w, cov_matrix)
 
         elif self.objective_function == ObjectiveFunction.MIN_MAX_DRAWDOWN:
+
             def objective(w):
                 return self._max_drawdown_objective(w, returns)
+
             allow_cash = False
-            
+
         else:
             raise ValueError(f"Unsupported objective function: {self.objective_function}")
 
@@ -523,7 +533,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         downside_returns = portfolio_returns - target
         downside_deviation = np.sqrt(np.mean(np.minimum(downside_returns, 0) ** 2))
 
-        if downside_deviation < 1e-10:
+        if downside_deviation < MIN_DOWNSIDE_DEVIATION_THRESHOLD:
             return -1e10  # Very high Sortino if no downside
 
         sortino = (expected_return - target) / downside_deviation
@@ -550,7 +560,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         # Portfolio volatility
         portfolio_vol = np.sqrt(w.T @ cov_matrix @ w)
 
-        if portfolio_vol < 1e-10:
+        if portfolio_vol < MIN_VOLATILITY_THRESHOLD:
             return -1e10  # Maximum diversification if no volatility
 
         diversification_ratio = weighted_vol_sum / portfolio_vol

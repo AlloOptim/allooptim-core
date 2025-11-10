@@ -302,7 +302,7 @@ Based on the underlying optimization approaches, we can group the algorithms the
 
     if results:
         # Calculate some insights
-        spy_performance = results.get("SPYBenchmark", {}).get("metrics", {})
+        spy_performance = results.get("SPY", {}).get("metrics", {})
         a2a_performance = results.get("A2AEnsemble", {}).get("metrics", {})
 
         if spy_performance and a2a_performance:

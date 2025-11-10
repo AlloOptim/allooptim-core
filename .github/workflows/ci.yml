@@ -43,6 +43,29 @@ jobs:
       run: |
         poetry run pytest --cov=allooptim --cov-report=xml
 
+    - name: Run ruff check
+      run: poetry run ruff check allooptim
+
+    - name: Run bandit security check
+      run: |
+        pip install bandit[toml]
+        bandit -r allooptim --config pyproject.toml -f json -o bandit-report.json || true
+        bandit -r allooptim --config pyproject.toml
+
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+
+    - name: Upload Trivy scan results to GitHub Security tab
+      uses: github/codeql-action/upload-sarif@v3
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:

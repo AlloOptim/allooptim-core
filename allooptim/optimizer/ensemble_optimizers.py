@@ -179,7 +179,7 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
         Returns:
             Optimizer name string
         """
-        return "SPYBenchmark"
+        return "SPY"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """No fitting needed for benchmark."""
