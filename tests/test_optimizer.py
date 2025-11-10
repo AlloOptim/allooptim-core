@@ -155,7 +155,7 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
     ]
 
     if optimizer.name in skip_optimizers:
-        pytest.skip(f"Skipping {optimizer.name} as it requires special setup or has known issues")
+        pytest.skip(f"Skipping {optimizer.name} as it requires special setup")
 
     optimizer.fit(df_prices=prices)
 
