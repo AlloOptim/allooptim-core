@@ -9,9 +9,9 @@ from typing import Dict, List, Optional
 from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
+    CustomWeightOrchestrator,
     EqualWeightOrchestrator,
     MedianWeightOrchestrator,
-    CustomWeightOrchestrator,
 )
 from allooptim.allocation_to_allocators.optimized_orchestrator import (
     OptimizedOrchestrator,
@@ -93,10 +93,10 @@ def create_orchestrator(
 
         case OrchestratorType.OPTIMIZED:
             return OptimizedOrchestrator(
-            optimizers=optimizers,
-            covariance_transformers=transformers,
-            config=config,
-        )
+                optimizers=optimizers,
+                covariance_transformers=transformers,
+                config=config,
+            )
 
         case OrchestratorType.WIKIPEDIA_PIPELINE:
             # Extract wikipedia pipeline specific parameters

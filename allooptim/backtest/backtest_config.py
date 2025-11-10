@@ -98,6 +98,8 @@ class BacktestConfig(BaseModel):
     )
     lookback_days: int = Field(default=60, ge=1, description="Number of days to look back for historical data")
 
+    data_interval: str = Field(default="1d", description="Data interval for price data (e.g., '1d', '1wk', '1mo')")
+
     # Fallback behavior
     use_equal_weights_fallback: bool = Field(
         default=True, description="Whether to use equal weights as fallback when optimization fails"
@@ -131,22 +133,15 @@ class BacktestConfig(BaseModel):
     generate_quantstats_reports: bool = Field(
         default=True, description="Whether to generate QuantStats HTML tearsheets"
     )
-    quantstats_mode: str = Field(
-        default="full",
-        description="QuantStats tearsheet mode: 'basic' or 'full'"
-    )
+    quantstats_mode: str = Field(default="full", description="QuantStats tearsheet mode: 'basic' or 'full'")
     quantstats_top_n: int = Field(
-        default=5,
-        ge=1,
-        le=50,
-        description="Number of top-performing optimizers to analyze in comparative tearsheets"
+        default=5, ge=1, le=50, description="Number of top-performing optimizers to analyze in comparative tearsheets"
     )
     quantstats_individual: bool = Field(
         default=True, description="Whether to generate individual tearsheets for each optimizer"
     )
     quantstats_dir: str = Field(
-        default="quantstats_reports",
-        description="Directory name for QuantStats reports within results directory"
+        default="quantstats_reports", description="Directory name for QuantStats reports within results directory"
     )
 
     @field_validator("quantstats_mode", mode="before")
@@ -157,7 +152,7 @@ class BacktestConfig(BaseModel):
         if v not in allowed_modes:
             raise ValueError(f"Invalid quantstats_mode: {v}. Must be one of {allowed_modes}")
         return v
-    
+
     @field_validator("optimizer_configs", mode="before")
     @classmethod
     def validate_optimizer_configs(cls, v: List[Union[str, Dict, OptimizerConfig]]) -> List[OptimizerConfig]:

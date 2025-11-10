@@ -6,6 +6,7 @@ Simplest orchestrator that calls each optimizer once and combines results with e
 import logging
 import time
 from datetime import datetime
+from enum import Enum
 from typing import List, Optional
 
 import numpy as np
@@ -28,7 +29,6 @@ from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
-from enum import Enum
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +39,7 @@ class CombinedWeightType(str, Enum):
     EQUAL = "equal"
     CUSTOM = "custom"
     MEDIAN = "median"
+
 
 class EqualWeightOrchestrator(BaseOrchestrator):
     """Configurable Weight Allocation-to-Allocators orchestrator.
@@ -145,10 +146,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         match self.combined_weight_type:
             case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN:
                 # Equal weights for all optimizers
-                a2a_weights = {
-                    opt.optimizer_name: 1.0 / len(self.optimizers)
-                    for opt in optimizer_allocations_list
-                }
+                a2a_weights = {opt.optimizer_name: 1.0 / len(self.optimizers) for opt in optimizer_allocations_list}
 
             case CombinedWeightType.CUSTOM:
                 # Use custom weights from config
@@ -168,8 +166,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
             case CombinedWeightType.MEDIAN:
                 # Take median across optimizer allocations for each asset
-                alloc_df = pd.DataFrame({opt.optimizer_name: opt.weights 
-                                       for opt in optimizer_allocations_list})
+                alloc_df = pd.DataFrame({opt.optimizer_name: opt.weights for opt in optimizer_allocations_list})
                 asset_weights = alloc_df.median(axis=1).values
 
             case _:
@@ -267,7 +264,7 @@ class MedianWeightOrchestrator(BaseOrchestrator):
     """
 
     combined_weight_type = CombinedWeightType.MEDIAN
-    
+
     @property
     def name(self) -> str:
         """Get the orchestrator name identifier.
@@ -276,6 +273,7 @@ class MedianWeightOrchestrator(BaseOrchestrator):
             String identifier for this orchestrator type.
         """
         return "MedianWeight_A2A"
+
 
 class CustomWeightOrchestrator(BaseOrchestrator):
     """Custom Weight Allocation-to-Allocators orchestrator.

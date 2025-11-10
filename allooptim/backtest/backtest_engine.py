@@ -76,6 +76,7 @@ class BacktestEngine:
         self.data_loader = DataLoader(
             benchmark=self.config_backtest.benchmark,
             symbols=self.config_backtest.symbols,
+            interval=self.config_backtest.data_interval,
         )
 
         # Create orchestrator using factory

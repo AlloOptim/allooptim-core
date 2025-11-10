@@ -18,11 +18,11 @@ import pandas as pd
 from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.backtest.backtest_config import BacktestConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
+from allooptim.backtest.backtest_quantstats import create_quantstats_reports
 from allooptim.backtest.backtest_report import generate_report
 from allooptim.backtest.backtest_visualizer import create_visualizations
 from allooptim.backtest.cluster_analyzer import ClusterAnalyzer
 from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universe
-from allooptim.backtest.backtest_quantstats import create_quantstats_reports
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings("ignore")
@@ -136,12 +136,14 @@ def main():
 
         # Check QuantStats reports
         logger.info(f"QuantStats reports generated in {results_dir}")
-        logger.info(f"Open HTML files in a web browser for interactive analysis")
+        logger.info("Open HTML files in a web browser for interactive analysis")
 
         logger.info(f"\n{'='*80}")
         logger.info("BACKTEST COMPLETED SUCCESSFULLY")
         logger.info(f"{'='*80}")
-        logger.info(f"Period: {config_backtest.get_report_date_range()[0]} to {config_backtest.get_report_date_range()[1]}")
+        logger.info(
+            f"Period: {config_backtest.get_report_date_range()[0]} to {config_backtest.get_report_date_range()[1]}"
+        )
         logger.info(f"Optimizers tested: {len(results)}")
         logger.info(f"Results directory: {results_dir}")
         logger.info(f"{'='*80}\n")

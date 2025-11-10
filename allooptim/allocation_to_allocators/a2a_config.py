@@ -62,10 +62,7 @@ class A2AConfig(BaseModel):
         default=True,
         description="Run all simulation steps instead of using convergence detection",
     )
-    
-    custom_a2a_weights: Optional[dict] = Field(
-        default=None,
-        description="Custom A2A weights for each optimizer"
-    )
+
+    custom_a2a_weights: Optional[dict] = Field(default=None, description="Custom A2A weights for each optimizer")
 
     model_config = ConfigDict(frozen=True)
