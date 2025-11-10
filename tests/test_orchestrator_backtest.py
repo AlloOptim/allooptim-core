@@ -33,17 +33,26 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
         end_date=datetime(2023, 1, 10),
         rebalance_frequency=5,
         lookback_days=5,  # Minimal lookback
-        optimizer_configs=["NaiveOptimizer"],
+        optimizer_configs=["NaiveOptimizer", "MomentumOptimizer"],
         transformer_names=["OracleCovarianceTransformer"],
         orchestration_type=OrchestratorType.AUTO,
+        benchmark="SPY",
     )
 
     # Create A2A config with fast test parameters
-    a2a_config = A2AConfig(
-        n_simulations=10,  # Fast for testing
-        n_pso_iterations=5,
-        n_particles=10,
-    )
+    if orchestrator_type == OrchestratorType.CUSTOM_WEIGHT:
+        a2a_config = A2AConfig(
+            n_simulations=10,  # Fast for testing
+            n_pso_iterations=5,
+            n_particles=10,
+            custom_a2a_weights={"NaiveOptimizer": 0.5, "MomentumOptimizer": 0.5},  # Custom weights for each optimizer
+        )
+    else:
+        a2a_config = A2AConfig(
+            n_simulations=10,  # Fast for testing
+            n_pso_iterations=5,
+            n_particles=10,
+        )
 
     # Create and run backtest with specified orchestrator type
     engine = BacktestEngine(
@@ -98,7 +107,7 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
     assert len(results) > 0
 
     # Check that we have the expected result keys
-    expected_keys = ["NaiveOptimizer", "SPYBenchmark", "A2AEnsemble"]
+    expected_keys = ["NaiveOptimizer", "MomentumOptimizer", "SPY", "A2AEnsemble"]
     for key in expected_keys:
         assert key in results, f"Missing expected result key: {key}"
         assert "metrics" in results[key], f"Missing metrics for {key}"

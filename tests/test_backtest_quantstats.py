@@ -73,7 +73,7 @@ class TestReturnsPreparation:
     def test_prepare_returns_insufficient_data(self):
         """Test returns preparation with insufficient data points."""
         dates = pd.date_range("2023-01-01", periods=5, freq="D")
-        returns = pd.Series([0.01, 0.02, 0.03, 0.01, 0.02], index=dates)
+        returns = pd.Series([0.01, np.nan, np.nan, np.nan, np.nan], index=dates)
 
         results = {"TestOptimizer": {"returns": returns}}
         result = prepare_returns_for_quantstats(results, "TestOptimizer")
@@ -208,9 +208,9 @@ class TestReportOrchestration:
         # Should not raise exception
         create_quantstats_reports(results, tmp_path, generate_individual=True, generate_top_n=2)
 
-        # Check that quantstats_reports directory was created
-        qs_dir = tmp_path / "quantstats_reports"
-        assert qs_dir.exists()
+        # Check that HTML files were created in the output directory
+        html_files = list(tmp_path.glob("*.html"))
+        assert len(html_files) > 0  # Should have created some HTML files
 
     def test_create_quantstats_reports_without_quantstats(self, tmp_path):
         """Test report creation when QuantStats is not available."""
@@ -222,6 +222,6 @@ class TestReportOrchestration:
         # Should not raise exception
         create_quantstats_reports(results, tmp_path)
 
-        # Should not create quantstats_reports directory
-        qs_dir = tmp_path / "quantstats_reports"
-        assert not qs_dir.exists()
+        # Should not create any HTML files
+        html_files = list(tmp_path.glob("*.html"))
+        assert len(html_files) == 0

@@ -251,16 +251,10 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         return "EqualWeight_A2A"
 
 
-class MedianWeightOrchestrator(BaseOrchestrator):
-    """Equal Weight Allocation-to-Allocators orchestrator.
+class MedianWeightOrchestrator(EqualWeightOrchestrator):
+    """Median Weight Allocation-to-Allocators orchestrator.
 
-    Process:
-    1. Call each optimizer once with ground truth parameters
-    2. Combine optimizer allocations using equal weights
-    3. Return final portfolio allocation
-
-    This is the simplest orchestrator - no Monte Carlo sampling,
-    no optimization of optimizer weights.
+    Takes the median allocation across all optimizers for each asset.
     """
 
     combined_weight_type = CombinedWeightType.MEDIAN
@@ -275,15 +269,10 @@ class MedianWeightOrchestrator(BaseOrchestrator):
         return "MedianWeight_A2A"
 
 
-class CustomWeightOrchestrator(BaseOrchestrator):
+class CustomWeightOrchestrator(EqualWeightOrchestrator):
     """Custom Weight Allocation-to-Allocators orchestrator.
 
-    Process:
-    1. Call each optimizer once with ground truth parameters
-    2. Combine optimizer allocations using custom weights
-    3. Return final portfolio allocation
-
-    This orchestrator allows for more flexibility in combining optimizer weights.
+    Uses custom weights specified in config to combine optimizer allocations.
     """
 
     combined_weight_type = CombinedWeightType.CUSTOM

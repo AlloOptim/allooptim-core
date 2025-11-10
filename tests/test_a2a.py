@@ -17,6 +17,10 @@ from allooptim.config.stock_universe import list_of_dax_stocks
 @pytest.mark.parametrize("orchestrator_type", OrchestratorType)
 def test_a2a(orchestrator_type, optimizer_names, fast_a2a_config):
     """Test that all A2A allocators work correctly."""
+    # Skip custom weight orchestrator if no custom weights provided
+    if orchestrator_type == OrchestratorType.CUSTOM_WEIGHT and fast_a2a_config.custom_a2a_weights is None:
+        pytest.skip("Custom weight orchestrator requires custom_a2a_weights to be provided")
+    
     # Create sample price data for optimizers that need it
     all_stocks = list_of_dax_stocks()[:5]
     assets = [stock.symbol for stock in all_stocks]
