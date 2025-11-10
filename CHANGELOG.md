@@ -7,12 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.1] - 2025-11-10
+
 ### Added
 - QuantStats integration for professional HTML tearsheets and advanced performance analytics
 - Comprehensive risk metrics (VaR, CVaR, Sortino, Calmar ratios)
 - Benchmark-relative performance analysis (alpha, beta, information ratio)
 - Interactive HTML reports with charts and statistics
 - Optional dependency handling for QuantStats library
+
+### Fixed
+- RuntimeWarnings in portfolio performance calculations due to division by zero
+- Improved error handling in backtest engine
+- Enhanced test coverage and reliability
+
+### Infrastructure
+- Global ruff linting exceptions for common code patterns
+- Updated CI/CD pipeline with improved linting rules
 
 ## [0.3.0] - 2025-11-06
 
@@ -62,5 +73,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ruff for linting and formatting
 - Poetry for dependency management
 
-[Unreleased]: https://github.com/AlloOptim/allooptim-core/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/AlloOptim/allooptim-core/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/AlloOptim/allooptim-core/releases/tag/v0.3.1
 [0.3.0]: https://github.com/AlloOptim/allooptim-core/releases/tag/v0.3.0
