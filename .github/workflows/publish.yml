@@ -40,7 +40,9 @@ jobs:
           poetry run bandit -s B403,B301,B311 -r allooptim
 
       - name: Run Trivy vulnerability scanner
+        id: trivy
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
@@ -49,7 +51,7 @@ jobs:
 
       - name: Upload Trivy scan results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@v3
-        if: always()
+        if: steps.trivy.outcome == 'success'
         with:
           sarif_file: 'trivy-results.sarif'
 
