@@ -239,7 +239,6 @@ def _generate_tearsheet(
                         f"Not enough common dates between portfolio ({len(returns)}) and benchmark ({len(benchmark_arg)})"
                     )
                     logger.warning(f"Common dates: {len(common_dates)}")
-                    benchmark_arg = None
                 else:
                     returns_aligned = returns.loc[common_dates]
                     benchmark_aligned = benchmark_arg.loc[common_dates]
@@ -276,8 +275,6 @@ def _generate_tearsheet(
                 import traceback
 
                 logger.debug(traceback.format_exc())
-                # Clear benchmark_arg to trigger fallback
-                benchmark_arg = None
 
         if not success:
             # Generate without benchmark

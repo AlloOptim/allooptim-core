@@ -98,7 +98,7 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     n_monte_carlo_samples: int = Field(
-        default=20,
+        default=100,
         ge=1,
         description="Number of Monte Carlo samples",
     )
