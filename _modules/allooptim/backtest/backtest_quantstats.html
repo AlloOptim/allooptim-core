@@ -106,10 +106,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../../../quantstats.html#module-allooptim.backtest.backtest_quantstats">API Reference</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats"><code class="docutils literal notranslate"><span class="pre">prepare_returns_for_quantstats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.generate_tearsheet"><code class="docutils literal notranslate"><span class="pre">generate_tearsheet()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets"><code class="docutils literal notranslate"><span class="pre">generate_comparative_tearsheets()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics"><code class="docutils literal notranslate"><span class="pre">calculate_quantstats_metrics()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.create_quantstats_reports"><code class="docutils literal notranslate"><span class="pre">create_quantstats_reports()</span></code></a></li>
 </ul>
 </li>
@@ -348,6 +344,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">yfinance</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">yf</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -366,9 +363,7 @@
 <span class="n">MIN_DATA_LENGTH</span> <span class="o">=</span> <span class="mi">2</span>
 
 
-<div class="viewcode-block" id="prepare_returns_for_quantstats">
-<a class="viewcode-back" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract and validate returns series for QuantStats analysis.</span>
 
 <span class="sd">    Args:</span>
@@ -384,13 +379,21 @@
 
     <span class="n">returns</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">optimizer_name</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;returns&quot;</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">returns</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">returns</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No returns data for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">returns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returns value is None for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">)):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returns is a scalar (</span><span class="si">{</span><span class="n">returns</span><span class="si">}</span><span class="s2">) for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">, not a series&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">returns</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returns series is empty for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="c1"># Validate datetime index</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returns index is not DatetimeIndex for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Returns index is not DatetimeIndex for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="c1"># Remove any NaN and inf values</span>
@@ -408,14 +411,80 @@
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">returns_clean</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;tz&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">returns_clean</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">returns_clean</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">returns_clean</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">returns_clean</span></div>
+    <span class="k">return</span> <span class="n">returns_clean</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_benchmark_returns</span><span class="p">(</span>
+    <span class="n">benchmark</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">start_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">end_date</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch benchmark returns from yfinance.</span>
 
-<div class="viewcode-block" id="generate_tearsheet">
-<a class="viewcode-back" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.generate_tearsheet">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_tearsheet</span><span class="p">(</span>
-    <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SPY&quot;</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span>
+<span class="sd">    Args:</span>
+<span class="sd">        benchmark: Benchmark ticker (e.g., &quot;SPY&quot;)</span>
+<span class="sd">        start_date: Start date for benchmark data</span>
+<span class="sd">        end_date: End date for benchmark data</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Daily returns as pd.Series with datetime index, or None if unavailable</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetching benchmark data for </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">end_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Download price data</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">yf</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="n">benchmark</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end_date</span><span class="p">,</span> <span class="n">progress</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No data downloaded for benchmark </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span><span class="si">}</span><span class="s2"> rows of data for </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Columns available: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Calculate returns from adjusted close prices</span>
+        <span class="c1"># Handle both Series (single ticker) and DataFrame (multiple tickers)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">prices</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="k">elif</span> <span class="s2">&quot;Adj Close&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">prices</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Adj Close&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">prices</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Take first column if multiple</span>
+        <span class="k">elif</span> <span class="s2">&quot;Close&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">prices</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Close&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prices</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+                <span class="n">prices</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># Take first column if multiple</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No price column found in downloaded data for </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Available columns: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Calculate returns</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="n">prices</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_DATA_LENGTH</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Insufficient data points for benchmark </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Ensure the returns Series has the benchmark name</span>
+        <span class="k">if</span> <span class="n">returns</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">returns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">benchmark</span>
+
+        <span class="c1"># Remove timezone info if present</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;tz&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">returns</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Successfully fetched </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="si">}</span><span class="s2"> days of benchmark returns for </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">returns</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to fetch benchmark data for </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_tearsheet</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;full&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate QuantStats HTML tearsheet for a single optimizer.</span>
 
@@ -434,7 +503,7 @@
         <span class="k">return</span> <span class="kc">False</span>
 
     <span class="c1"># Prepare returns</span>
-    <span class="n">returns</span> <span class="o">=</span> <span class="n">prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">)</span>
+    <span class="n">returns</span> <span class="o">=</span> <span class="n">_prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">returns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">False</span>
 
@@ -447,7 +516,7 @@
 
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Generate tearsheet</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> tearsheet for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating </span><span class="si">{</span><span class="n">mode</span><span class="si">}</span><span class="s2"> tearsheet for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Extend pandas with QuantStats methods</span>
         <span class="n">qs</span><span class="o">.</span><span class="n">extend_pandas</span><span class="p">()</span>
@@ -455,9 +524,26 @@
         <span class="c1"># Get benchmark returns if needed</span>
         <span class="n">benchmark_arg</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">benchmark</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-            <span class="n">benchmark_returns</span> <span class="o">=</span> <span class="n">prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">)</span>
+            <span class="c1"># Benchmark is in results (another optimizer or strategy)</span>
+            <span class="n">benchmark_returns</span> <span class="o">=</span> <span class="n">_prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">benchmark_returns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">benchmark_arg</span> <span class="o">=</span> <span class="n">benchmark_returns</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Using benchmark from results: </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Try to fetch benchmark from yfinance</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Benchmark &#39;</span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">&#39; not in results, fetching from yfinance&quot;</span><span class="p">)</span>
+            <span class="c1"># Infer date range from returns index</span>
+            <span class="k">if</span> <span class="n">returns</span><span class="o">.</span><span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">start_date</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">end_date</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetching </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2"> from </span><span class="si">{</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">end_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">benchmark_arg</span> <span class="o">=</span> <span class="n">_fetch_benchmark_returns</span><span class="p">(</span><span class="n">benchmark</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="n">end_date</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Cannot infer date range from returns index&quot;</span><span class="p">)</span>
+                <span class="n">benchmark_arg</span> <span class="o">=</span> <span class="n">_fetch_benchmark_returns</span><span class="p">(</span><span class="n">benchmark</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">benchmark_arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to fetch benchmark </span><span class="si">{</span><span class="n">benchmark</span><span class="si">}</span><span class="s2">, will generate tearsheet without it&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">benchmark_arg</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No benchmark available for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">, generating without benchmark&quot;</span><span class="p">)</span>
@@ -467,26 +553,54 @@
 
         <span class="k">if</span> <span class="n">benchmark_arg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">try</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;basic&quot;</span><span class="p">:</span>
-                    <span class="n">qs</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">basic</span><span class="p">(</span>
-                        <span class="n">returns</span><span class="p">,</span>
-                        <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark_arg</span><span class="p">,</span>
-                        <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
-                        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2"> Performance Analysis&quot;</span><span class="p">,</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Passing benchmark to QuantStats: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">benchmark_arg</span><span class="p">)</span><span class="si">}</span><span class="s2">, len=</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">benchmark_arg</span><span class="p">)</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">hasattr</span><span class="p">(</span><span class="n">benchmark_arg</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;__len__&#39;</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Align benchmark returns with portfolio returns</span>
+                <span class="c1"># Ensure they have the same dates</span>
+                <span class="n">common_dates</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">benchmark_arg</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_dates</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">MIN_DATA_LENGTH</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Not enough common dates between portfolio (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">returns</span><span class="p">)</span><span class="si">}</span><span class="s2">) and benchmark (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">benchmark_arg</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
                     <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>  <span class="c1"># full</span>
-                    <span class="n">qs</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">html</span><span class="p">(</span>
-                        <span class="n">returns</span><span class="p">,</span>
-                        <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark_arg</span><span class="p">,</span>
-                        <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
-                        <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2"> Performance Analysis&quot;</span><span class="p">,</span>
-                    <span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tearsheet saved to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2"> (with benchmark)&quot;</span><span class="p">)</span>
-                <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Common dates: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">common_dates</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">returns_aligned</span> <span class="o">=</span> <span class="n">returns</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">common_dates</span><span class="p">]</span>
+                    <span class="n">benchmark_aligned</span> <span class="o">=</span> <span class="n">benchmark_arg</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">common_dates</span><span class="p">]</span>
+
+                    <span class="c1"># Ensure benchmark has a name for QuantStats (defensive fix)</span>
+                    <span class="k">if</span> <span class="n">benchmark_aligned</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">benchmark_aligned</span> <span class="o">=</span> <span class="n">benchmark_aligned</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="n">benchmark_aligned</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">benchmark</span>
+
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Aligned returns and benchmark to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">common_dates</span><span class="p">)</span><span class="si">}</span><span class="s2"> common dates&quot;</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;basic&quot;</span><span class="p">:</span>
+                        <span class="n">qs</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">basic</span><span class="p">(</span>
+                            <span class="n">returns_aligned</span><span class="p">,</span>
+                            <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark_aligned</span><span class="p">,</span>
+                            <span class="n">benchmark_title</span><span class="o">=</span><span class="n">benchmark</span><span class="p">,</span>  <span class="c1"># Explicitly set benchmark title</span>
+                            <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
+                            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2"> Performance Analysis&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>  <span class="c1"># full</span>
+                        <span class="n">qs</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">html</span><span class="p">(</span>
+                            <span class="n">returns_aligned</span><span class="p">,</span>
+                            <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark_aligned</span><span class="p">,</span>
+                            <span class="n">benchmark_title</span><span class="o">=</span><span class="n">benchmark</span><span class="p">,</span>  <span class="c1"># Explicitly set benchmark title</span>
+                            <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
+                            <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2"> Performance Analysis&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tearsheet saved to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2"> (with benchmark)&quot;</span><span class="p">)</span>
+                    <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;Failed to generate tearsheet with benchmark for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Trying without benchmark.&quot;</span>
                 <span class="p">)</span>
+                <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
             <span class="c1"># Generate without benchmark</span>
@@ -494,19 +608,16 @@
                 <span class="n">qs</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">basic</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2"> Performance Analysis&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>  <span class="c1"># full</span>
                 <span class="n">qs</span><span class="o">.</span><span class="n">reports</span><span class="o">.</span><span class="n">html</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2"> Performance Analysis&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tearsheet saved to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2"> (without benchmark)&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tearsheet saved to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2"> (without benchmark)&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to generate tearsheet for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="k">return</span> <span class="kc">False</span>
 
 
-
-<div class="viewcode-block" id="generate_comparative_tearsheets">
-<a class="viewcode-back" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_comparative_tearsheets</span><span class="p">(</span>
-    <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SPY&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_comparative_tearsheets</span><span class="p">(</span>
+    <span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">top_n</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate tearsheets for top N performing optimizers.</span>
 
@@ -538,7 +649,7 @@
             <span class="n">safe_name</span> <span class="o">=</span> <span class="n">optimizer_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
             <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">safe_name</span><span class="si">}</span><span class="s2">_tearsheet.html&quot;</span>
 
-        <span class="n">success</span> <span class="o">=</span> <span class="n">generate_tearsheet</span><span class="p">(</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">_generate_tearsheet</span><span class="p">(</span>
             <span class="n">results</span><span class="p">,</span>
             <span class="n">optimizer_name</span><span class="p">,</span>
             <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark</span><span class="p">,</span>  <span class="c1"># Pass benchmark name, not returns</span>
@@ -547,82 +658,7 @@
         <span class="p">)</span>
         <span class="n">status</span><span class="p">[</span><span class="n">optimizer_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">success</span>
 
-    <span class="k">return</span> <span class="n">status</span></div>
-
-
-
-<div class="viewcode-block" id="calculate_quantstats_metrics">
-<a class="viewcode-back" href="../../../quantstats.html#allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">calculate_quantstats_metrics</span><span class="p">(</span><span class="n">results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SPY&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate QuantStats metrics without generating full tearsheet.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        results: Backtest results dictionary</span>
-<span class="sd">        optimizer_name: Name of optimizer</span>
-<span class="sd">        benchmark: Benchmark ticker or returns</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        Dictionary of QuantStats metrics, or None if unavailable</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">QUANTSTATS_AVAILABLE</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="n">returns</span> <span class="o">=</span> <span class="n">prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">optimizer_name</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">returns</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="kc">None</span>
-
-    <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Get benchmark returns</span>
-        <span class="n">benchmark_returns</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">benchmark</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-            <span class="n">benchmark_returns</span> <span class="o">=</span> <span class="n">prepare_returns_for_quantstats</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">benchmark</span><span class="p">)</span>
-
-        <span class="c1"># Calculate metrics</span>
-        <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="c1"># Risk-adjusted returns</span>
-            <span class="s2">&quot;sharpe&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sharpe</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;sortino&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">sortino</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;calmar&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">calmar</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="c1"># Risk metrics</span>
-            <span class="s2">&quot;max_drawdown&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">max_drawdown</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;var_95&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="mf">0.95</span><span class="p">),</span>
-            <span class="s2">&quot;cvar_95&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">cvar</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">confidence</span><span class="o">=</span><span class="mf">0.95</span><span class="p">),</span>
-            <span class="s2">&quot;volatility&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">volatility</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="c1"># Return metrics</span>
-            <span class="s2">&quot;cagr&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">cagr</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;total_return&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">comp</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;best_day&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">best</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;worst_day&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">worst</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="c1"># Win/Loss</span>
-            <span class="s2">&quot;win_rate&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">win_rate</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;profit_factor&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">profit_factor</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;payoff_ratio&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">payoff_ratio</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="c1"># Advanced</span>
-            <span class="s2">&quot;ulcer_index&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">ulcer_index</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;tail_ratio&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">tail_ratio</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-            <span class="s2">&quot;common_sense_ratio&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">common_sense_ratio</span><span class="p">(</span><span class="n">returns</span><span class="p">),</span>
-        <span class="p">}</span>
-
-        <span class="c1"># Benchmark-relative metrics (if available)</span>
-        <span class="k">if</span> <span class="n">benchmark_returns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">benchmark_returns</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">metrics</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">greeks</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark_returns</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                        <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">greeks</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark_returns</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
-                        <span class="s2">&quot;information_ratio&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">information_ratio</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark_returns</span><span class="p">),</span>
-                        <span class="s2">&quot;r_squared&quot;</span><span class="p">:</span> <span class="n">qs</span><span class="o">.</span><span class="n">stats</span><span class="o">.</span><span class="n">r_squared</span><span class="p">(</span><span class="n">returns</span><span class="p">,</span> <span class="n">benchmark_returns</span><span class="p">),</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate benchmark-relative metrics for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">metrics</span>
-
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to calculate QuantStats metrics for </span><span class="si">{</span><span class="n">optimizer_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span></div>
-
+    <span class="k">return</span> <span class="n">status</span>
 
 
 <div class="viewcode-block" id="create_quantstats_reports">
@@ -654,13 +690,13 @@
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Insufficient data points for QuantStats analysis. Skipping reports.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating QuantStats reports...&quot;</span><span class="p">)</span>  <span class="c1"># Generate individual tearsheets</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating QuantStats reports...&quot;</span><span class="p">)</span>  <span class="c1"># Generate individual tearsheets</span>
     <span class="k">if</span> <span class="n">generate_individual</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">optimizer_name</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">optimizer_name</span> <span class="o">==</span> <span class="n">benchmark</span><span class="p">:</span>
                 <span class="k">continue</span>  <span class="c1"># Skip benchmark itself</span>
 
-            <span class="n">generate_tearsheet</span><span class="p">(</span>
+            <span class="n">_generate_tearsheet</span><span class="p">(</span>
                 <span class="n">results</span><span class="p">,</span>
                 <span class="n">optimizer_name</span><span class="p">,</span>
                 <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark</span><span class="p">,</span>
@@ -670,13 +706,13 @@
 
     <span class="c1"># Generate comparative analysis</span>
     <span class="k">if</span> <span class="n">generate_top_n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating comparative analysis for top </span><span class="si">{</span><span class="n">generate_top_n</span><span class="si">}</span><span class="s2"> optimizers&quot;</span><span class="p">)</span>
-        <span class="n">generate_comparative_tearsheets</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="n">generate_top_n</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating comparative analysis for top </span><span class="si">{</span><span class="n">generate_top_n</span><span class="si">}</span><span class="s2"> optimizers&quot;</span><span class="p">)</span>
+        <span class="n">_generate_comparative_tearsheets</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">top_n</span><span class="o">=</span><span class="n">generate_top_n</span><span class="p">)</span>
 
     <span class="c1"># Generate A2A vs Benchmark comparison</span>
     <span class="k">if</span> <span class="s2">&quot;A2AEnsemble&quot;</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating A2A vs Benchmark comparison tearsheet&quot;</span><span class="p">)</span>
-        <span class="n">generate_tearsheet</span><span class="p">(</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating A2A vs Benchmark comparison tearsheet&quot;</span><span class="p">)</span>
+        <span class="n">_generate_tearsheet</span><span class="p">(</span>
             <span class="n">results</span><span class="p">,</span>
             <span class="s2">&quot;A2AEnsemble&quot;</span><span class="p">,</span>
             <span class="n">benchmark</span><span class="o">=</span><span class="n">benchmark</span><span class="p">,</span>
@@ -684,7 +720,7 @@
             <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QuantStats reports saved to </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;QuantStats reports saved to </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

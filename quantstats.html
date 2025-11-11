@@ -109,10 +109,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#module-allooptim.backtest.backtest_quantstats">API Reference</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats"><code class="docutils literal notranslate"><span class="pre">prepare_returns_for_quantstats()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.generate_tearsheet"><code class="docutils literal notranslate"><span class="pre">generate_tearsheet()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets"><code class="docutils literal notranslate"><span class="pre">generate_comparative_tearsheets()</span></code></a></li>
-<li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics"><code class="docutils literal notranslate"><span class="pre">calculate_quantstats_metrics()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="#allooptim.backtest.backtest_quantstats.create_quantstats_reports"><code class="docutils literal notranslate"><span class="pre">create_quantstats_reports()</span></code></a></li>
 </ul>
 </li>
@@ -594,92 +590,6 @@ the QuantStats library for institutional-grade performance analysis.</p>
 - Rolling statistics visualization
 - Monthly returns heatmaps
 - Automated report generation</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats">
-<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">prepare_returns_for_quantstats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#prepare_returns_for_quantstats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.prepare_returns_for_quantstats" title="Link to this definition"></a></dt>
-<dd><p>Extract and validate returns series for QuantStats analysis.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
-<li><p><strong>optimizer_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Name of optimizer to extract returns for</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v2.3.3)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Daily returns as pd.Series with datetime index, or None if unavailable</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.generate_tearsheet">
-<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">generate_tearsheet</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'full'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#generate_tearsheet"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.generate_tearsheet" title="Link to this definition"></a></dt>
-<dd><p>Generate QuantStats HTML tearsheet for a single optimizer.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
-<li><p><strong>optimizer_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Name of optimizer to analyze</p></li>
-<li><p><strong>benchmark</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Benchmark ticker or returns series (default: “SPY”)</p></li>
-<li><p><strong>output_path</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span>) – Path to save HTML file (None = auto-generate)</p></li>
-<li><p><strong>mode</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – “basic” or “full” tearsheet (default: “full”)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a></span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>True if successful, False otherwise</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets">
-<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">generate_comparative_tearsheets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#generate_comparative_tearsheets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.generate_comparative_tearsheets" title="Link to this definition"></a></dt>
-<dd><p>Generate tearsheets for top N performing optimizers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
-<li><p><strong>benchmark</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Benchmark strategy name or ticker</p></li>
-<li><p><strong>output_dir</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a>]</span>) – Directory to save reports</p></li>
-<li><p><strong>top_n</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a></span>) – Number of top performers to analyze</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></a>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict mapping optimizer names to generation success status</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics">
-<span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">calculate_quantstats_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimizer_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#calculate_quantstats_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.calculate_quantstats_metrics" title="Link to this definition"></a></dt>
-<dd><p>Calculate QuantStats metrics without generating full tearsheet.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>results</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a></span>) – Backtest results dictionary</p></li>
-<li><p><strong>optimizer_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Name of optimizer</p></li>
-<li><p><strong>benchmark</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Benchmark ticker or returns</p></li>
-</ul>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Dict</span></code></a>]</span></p>
-</dd>
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dictionary of QuantStats metrics, or None if unavailable</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py function">
 <dt class="sig sig-object py" id="allooptim.backtest.backtest_quantstats.create_quantstats_reports">
 <span class="sig-prename descclassname"><span class="pre">allooptim.backtest.backtest_quantstats.</span></span><span class="sig-name descname"><span class="pre">create_quantstats_reports</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">results</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_individual</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">generate_top_n</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benchmark</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'SPY'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/allooptim/backtest/backtest_quantstats.html#create_quantstats_reports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.backtest.backtest_quantstats.create_quantstats_reports" title="Link to this definition"></a></dt>
