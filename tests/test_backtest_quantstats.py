@@ -6,11 +6,10 @@ import pytest
 
 from allooptim.backtest.backtest_quantstats import (
     QUANTSTATS_AVAILABLE,
-    calculate_quantstats_metrics,
+    _generate_comparative_tearsheets,
+    _generate_tearsheet,
+    _prepare_returns_for_quantstats,
     create_quantstats_reports,
-    generate_comparative_tearsheets,
-    generate_tearsheet,
-    prepare_returns_for_quantstats,
 )
 
 
@@ -40,7 +39,7 @@ class TestReturnsPreparation:
 
         results = {"TestOptimizer": {"returns": returns}}
 
-        result = prepare_returns_for_quantstats(results, "TestOptimizer")
+        result = _prepare_returns_for_quantstats(results, "TestOptimizer")
         assert result is not None
         assert isinstance(result, pd.Series)
         assert isinstance(result.index, pd.DatetimeIndex)
@@ -48,26 +47,26 @@ class TestReturnsPreparation:
     def test_prepare_returns_missing_optimizer(self):
         """Test returns preparation with missing optimizer."""
         results = {}
-        result = prepare_returns_for_quantstats(results, "MissingOptimizer")
+        result = _prepare_returns_for_quantstats(results, "MissingOptimizer")
         assert result is None
 
     def test_prepare_returns_no_returns_data(self):
         """Test returns preparation with no returns data."""
         results = {"TestOptimizer": {"metrics": {}}}
-        result = prepare_returns_for_quantstats(results, "TestOptimizer")
+        result = _prepare_returns_for_quantstats(results, "TestOptimizer")
         assert result is None
 
     def test_prepare_returns_empty_returns(self):
         """Test returns preparation with empty returns."""
         results = {"TestOptimizer": {"returns": pd.Series([], dtype=float)}}
-        result = prepare_returns_for_quantstats(results, "TestOptimizer")
+        result = _prepare_returns_for_quantstats(results, "TestOptimizer")
         assert result is None
 
     def test_prepare_returns_wrong_index_type(self):
         """Test returns preparation with wrong index type."""
         returns = pd.Series([0.01, 0.02, 0.03], index=[1, 2, 3])
         results = {"TestOptimizer": {"returns": returns}}
-        result = prepare_returns_for_quantstats(results, "TestOptimizer")
+        result = _prepare_returns_for_quantstats(results, "TestOptimizer")
         assert result is None
 
     def test_prepare_returns_insufficient_data(self):
@@ -76,7 +75,7 @@ class TestReturnsPreparation:
         returns = pd.Series([0.01, np.nan, np.nan, np.nan, np.nan], index=dates)
 
         results = {"TestOptimizer": {"returns": returns}}
-        result = prepare_returns_for_quantstats(results, "TestOptimizer")
+        result = _prepare_returns_for_quantstats(results, "TestOptimizer")
         assert result is None
 
     def test_prepare_returns_with_nans(self):
@@ -87,7 +86,7 @@ class TestReturnsPreparation:
 
         results = {"TestOptimizer": {"returns": returns}}
 
-        result = prepare_returns_for_quantstats(results, "TestOptimizer")
+        result = _prepare_returns_for_quantstats(results, "TestOptimizer")
         assert result is not None
         assert not result.isna().any()  # Should have no NaN values
         assert len(result) >= 10  # Should have sufficient data after cleaning
@@ -106,7 +105,7 @@ class TestTearsheetGeneration:
         results = {"TestOptimizer": {"returns": returns}}
 
         output_path = tmp_path / "test_tearsheet.html"
-        success = generate_tearsheet(results, "TestOptimizer", output_path=output_path, mode="basic")
+        success = _generate_tearsheet(results, "TestOptimizer", benchmark="SPY", output_path=output_path, mode="basic")
 
         assert success is True
         # Note: QuantStats may not create file in test environment, just check success
@@ -119,13 +118,13 @@ class TestTearsheetGeneration:
 
         results = {"TestOptimizer": {"returns": pd.Series([0.01, 0.02, 0.03])}}
 
-        success = generate_tearsheet(results, "TestOptimizer")
+        success = _generate_tearsheet(results, "TestOptimizer", benchmark="SPY")
         assert success is False
 
     def test_generate_tearsheet_invalid_optimizer(self):
         """Test tearsheet generation with invalid optimizer."""
         results = {}
-        success = generate_tearsheet(results, "InvalidOptimizer")
+        success = _generate_tearsheet(results, "InvalidOptimizer", benchmark="SPY")
         assert success is False
 
 
@@ -146,49 +145,11 @@ class TestComparativeAnalysis:
                 "metrics": {"sharpe_ratio": 1.5 - i * 0.2},  # Optimizer1: 1.5, Optimizer2: 1.3, SPYBenchmark: 1.1
             }
 
-        status = generate_comparative_tearsheets(results, benchmark="SPY", output_dir=tmp_path, top_n=2)
+        status = _generate_comparative_tearsheets(results, benchmark="SPY", output_dir=tmp_path, top_n=2)
 
         assert isinstance(status, dict)
         # Should have 2 results (Optimizer1 and Optimizer2, excluding SPYBenchmark)
         assert len([k for k in status if k != "SPY"]) == 2
-
-
-class TestMetricsCalculation:
-    """Test QuantStats metrics calculation."""
-
-    @pytest.mark.skipif(not QUANTSTATS_AVAILABLE, reason="QuantStats not available")
-    def test_calculate_quantstats_metrics(self):
-        """Test QuantStats metrics calculation."""
-        # Create sample data
-        dates = pd.date_range("2023-01-01", periods=100, freq="D")
-        returns = pd.Series(np.random.normal(0.001, 0.02, 100), index=dates)
-        benchmark_returns = pd.Series(np.random.normal(0.0008, 0.015, 100), index=dates)
-
-        results = {"TestOptimizer": {"returns": returns}, "SPY": {"returns": benchmark_returns}}
-
-        metrics = calculate_quantstats_metrics(results, "TestOptimizer", benchmark="SPY")
-
-        assert metrics is not None
-        assert isinstance(metrics, dict)
-        assert "sharpe" in metrics
-        assert "sortino" in metrics
-        assert "max_drawdown" in metrics
-        assert "cagr" in metrics
-
-        # Check benchmark-relative metrics
-        assert "alpha" in metrics
-        assert "beta" in metrics
-        assert "information_ratio" in metrics
-
-    def test_calculate_quantstats_metrics_without_quantstats(self):
-        """Test metrics calculation when QuantStats is not available."""
-        if QUANTSTATS_AVAILABLE:
-            pytest.skip("QuantStats is available")
-
-        results = {"TestOptimizer": {"returns": pd.Series([0.01, 0.02, 0.03])}}
-
-        metrics = calculate_quantstats_metrics(results, "TestOptimizer")
-        assert metrics is None
 
 
 class TestReportOrchestration:

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/AlloOptim/allooptim-core/workflows/CI/badge.svg)](https://github.com/AlloOptim/allooptim-core/actions)
 [![Documentation Status](https://readthedocs.org/projects/allooptim/badge/?version=latest)](https://allooptim.readthedocs.io/en/latest/?badge=latest)
-[![PyPI version](https://badge.fury.io/py/allo-optim.svg)](https://badge.fury.io/py/allo-optim)
+[![PyPI version](https://badge.fury.io/py/allooptim.svg)](https://badge.fury.io/py/allooptim)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 
