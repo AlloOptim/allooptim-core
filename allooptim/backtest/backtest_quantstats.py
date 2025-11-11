@@ -20,7 +20,6 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 
-
 logger = logging.getLogger(__name__)
 
 try:
@@ -57,8 +56,8 @@ def _prepare_returns_for_quantstats(results: dict, optimizer_name: str) -> Optio
     if returns is None:
         logger.warning(f"Returns value is None for {optimizer_name}")
         return None
-    
-    if isinstance(returns, float) or isinstance(returns, int):
+
+    if isinstance(returns, (float, int)):
         logger.warning(f"Returns is a scalar ({returns}) for {optimizer_name}, not a series")
         return None
 
@@ -89,7 +88,9 @@ def _prepare_returns_for_quantstats(results: dict, optimizer_name: str) -> Optio
     return returns_clean
 
 
-def _fetch_benchmark_returns(benchmark: str, start_date: Optional[pd.Timestamp] = None, end_date: Optional[pd.Timestamp] = None) -> Optional[pd.Series]:
+def _fetch_benchmark_returns(
+    benchmark: str, start_date: Optional[pd.Timestamp] = None, end_date: Optional[pd.Timestamp] = None
+) -> Optional[pd.Series]:
     """Fetch benchmark returns from yfinance.
 
     Args:
@@ -137,18 +138,21 @@ def _fetch_benchmark_returns(benchmark: str, start_date: Optional[pd.Timestamp] 
             logger.warning(f"Insufficient data points for benchmark {benchmark}: {len(returns)}")
             return None
 
+        # Ensure the returns Series has the benchmark name
+        if returns.name is None:
+            returns.name = benchmark
+
         # Remove timezone info if present
         if hasattr(returns.index, "tz") and returns.index.tz is not None:
             returns.index = returns.index.tz_localize(None)
 
-        logger.debug(
-            f"Successfully fetched {len(returns)} days of benchmark returns for {benchmark}"
-        )
+        logger.debug(f"Successfully fetched {len(returns)} days of benchmark returns for {benchmark}")
         return returns
 
     except Exception as e:
         logger.warning(f"Failed to fetch benchmark data for {benchmark}: {e}")
         import traceback
+
         logger.debug(traceback.format_exc())
         return None
 
@@ -209,7 +213,7 @@ def _generate_tearsheet(
                 logger.debug(f"Fetching {benchmark} from {start_date} to {end_date}")
                 benchmark_arg = _fetch_benchmark_returns(benchmark, start_date=start_date, end_date=end_date)
             else:
-                logger.warning(f"Cannot infer date range from returns index")
+                logger.warning("Cannot infer date range from returns index")
                 benchmark_arg = _fetch_benchmark_returns(benchmark)
 
             if benchmark_arg is None:
@@ -231,20 +235,27 @@ def _generate_tearsheet(
                 # Ensure they have the same dates
                 common_dates = returns.index.intersection(benchmark_arg.index)
                 if len(common_dates) < MIN_DATA_LENGTH:
-                    logger.warning(f"Not enough common dates between portfolio ({len(returns)}) and benchmark ({len(benchmark_arg)})")
+                    logger.warning(
+                        f"Not enough common dates between portfolio ({len(returns)}) and benchmark ({len(benchmark_arg)})"
+                    )
                     logger.warning(f"Common dates: {len(common_dates)}")
                     benchmark_arg = None
                 else:
                     returns_aligned = returns.loc[common_dates]
                     benchmark_aligned = benchmark_arg.loc[common_dates]
-                    logger.debug(
-                        f"Aligned returns and benchmark to {len(common_dates)} common dates"
-                    )
+
+                    # Ensure benchmark has a name for QuantStats (defensive fix)
+                    if benchmark_aligned.name is None:
+                        benchmark_aligned = benchmark_aligned.copy()
+                        benchmark_aligned.name = benchmark
+
+                    logger.debug(f"Aligned returns and benchmark to {len(common_dates)} common dates")
 
                     if mode == "basic":
                         qs.reports.basic(
                             returns_aligned,
                             benchmark=benchmark_aligned,
+                            benchmark_title=benchmark,  # Explicitly set benchmark title
                             output=str(output_path),
                             title=f"{optimizer_name} Performance Analysis",
                         )
@@ -252,6 +263,7 @@ def _generate_tearsheet(
                         qs.reports.html(
                             returns_aligned,
                             benchmark=benchmark_aligned,
+                            benchmark_title=benchmark,  # Explicitly set benchmark title
                             output=str(output_path),
                             title=f"{optimizer_name} Performance Analysis",
                         )
@@ -262,6 +274,7 @@ def _generate_tearsheet(
                     f"Failed to generate tearsheet with benchmark for {optimizer_name}: {e}. Trying without benchmark."
                 )
                 import traceback
+
                 logger.debug(traceback.format_exc())
                 # Clear benchmark_arg to trigger fallback
                 benchmark_arg = None
@@ -324,6 +337,7 @@ def _generate_comparative_tearsheets(
 
     return status
 
+
 def create_quantstats_reports(
     results: dict, output_dir: Path, generate_individual: bool = True, generate_top_n: int = 5, benchmark: str = "SPY"
 ) -> None:
@@ -367,9 +381,7 @@ def create_quantstats_reports(
 
     # Generate comparative analysis
     if generate_top_n > 0:
-        logger.debug(
-            f"Generating comparative analysis for top {generate_top_n} optimizers"
-        )
+        logger.debug(f"Generating comparative analysis for top {generate_top_n} optimizers")
         _generate_comparative_tearsheets(results, benchmark=benchmark, output_dir=output_dir, top_n=generate_top_n)
 
     # Generate A2A vs Benchmark comparison

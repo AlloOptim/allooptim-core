@@ -7,10 +7,10 @@ import pytest
 from allooptim.backtest.backtest_quantstats import (
     QUANTSTATS_AVAILABLE,
     _calculate_quantstats_metrics,
-    create_quantstats_reports,
     _generate_comparative_tearsheets,
     _generate_tearsheet,
     _prepare_returns_for_quantstats,
+    create_quantstats_reports,
 )
 
 
