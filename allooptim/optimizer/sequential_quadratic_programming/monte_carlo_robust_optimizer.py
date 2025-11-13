@@ -58,6 +58,7 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.sqp_multistart import (
     minimize_given_initial,
 )
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -72,6 +73,18 @@ REGULARIZATION_EPSILON = 1e-8
 MIN_BLOCK_SIZE = 2
 MAX_BLOCK_SIZE = 20
 HALF_CHANCE_VALUE = 0.5
+
+
+@dataclass
+class SamplingResult:
+    """Result of a clustering operation for NCO algorithm.
+
+    Stores the outcome of attempting to cluster assets with K-means,
+    including quality metrics and success status.
+    """
+
+    age: int
+    weights: np.ndarray
 
 
 class SamplingMethod(str, Enum):
@@ -101,6 +114,19 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         default=100,
         ge=1,
         description="Number of Monte Carlo samples",
+    )
+
+    max_result_age : int = Field(
+        default=10,
+        ge=1,
+        description="Maximum age of sampling results to keep",
+    )
+
+    random_prune_fraction: float = Field(
+        default=0.1,
+        ge=0.0,
+        le=1.0,
+        description="Fraction of samples to randomly prune",
     )
 
     sampling_method: SamplingMethod = Field(
@@ -201,8 +227,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             config: Configuration parameters. If None, uses default config.
         """
         self.config = config or MonteCarloRobustOptimizerConfig()
-        self._all_sample_weights: Optional[np.ndarray] = None
-        self._sample_metrics: Optional[np.ndarray] = None
+        self._all_sample_results: Optional[SamplingResult] = None
 
     def allocate(
         self,
@@ -256,26 +281,69 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         mu_array, _, _ = convert_pandas_to_numpy(ds_mu, df_cov)
         _, n_assets = returns.shape
 
+        self._prune_too_old_results()
+        self._prune_random_samples()
+
+        if self._all_sample_results is None:
+            n_existing_samples = 0
+        else:
+            n_existing_samples = len(self._all_sample_results)
+
+        n_new_samples = self.config.n_monte_carlo_samples - n_existing_samples
+
         # Sample covariance matrices and optimize
         if self.config.sampling_method == SamplingMethod.BOOTSTRAP:
-            w_samples = self._monte_carlo_bootstrap(returns, mu_array, n_assets)
+            w_samples = self._monte_carlo_bootstrap(returns, mu_array, n_assets, n_new_samples)
         elif self.config.sampling_method == SamplingMethod.BLOCK_BOOTSTRAP:
-            w_samples = self._monte_carlo_block_bootstrap(returns, mu_array, n_assets)
+            w_samples = self._monte_carlo_block_bootstrap(returns, mu_array, n_assets, n_new_samples)
         else:  # WISHART
-            w_samples = self._monte_carlo_wishart(returns, mu_array, n_assets)
+            w_samples = self._monte_carlo_wishart(returns, mu_array, n_assets, n_new_samples)
 
         # Store for analysis
-        self._all_sample_weights = w_samples
+        if self._all_sample_results is None:
+            self._all_sample_results = [SamplingResult(age=0, weights=w) for w in w_samples]
+
+        else:
+            self._all_sample_results = [SamplingResult(age=res.age + 1, weights=res.weights) for res in self._all_sample_results]
+            self._all_sample_results.extend([SamplingResult(age=0, weights=w) for w in w_samples])
+
+        # Aggregate results
+        w_matrix = np.array([res.weights for res in self._all_sample_results])
 
         # Always aggregate with median (robust against outliers)
-        w_final = np.median(w_samples, axis=0)
+        w_final = np.median(w_matrix, axis=0)
 
         # Post-processing
         w_final = self._postprocess_weights(w_final)
 
         return create_weights_series(w_final, asset_names)
 
-    def _monte_carlo_bootstrap(self, returns: np.ndarray, mu: np.ndarray, n_assets: int) -> np.ndarray:
+    def _prune_too_old_results(self) -> None:
+        """Prune old sampling results to save memory."""
+        if self._all_sample_results is None:
+            return None
+
+        self._all_sample_results = [res for res in self._all_sample_results if res.age < self.config.max_result_age]
+
+    def _prune_random_samples(self) -> None:
+        """Prune random samples to save memory."""
+        if self._all_sample_weights is None:
+            return None
+
+        current_size = len(self._all_sample_weights)
+        keep_size = int(self.config.random_prune_fraction * current_size)
+        if keep_size == 0:
+            return None
+
+        keep_index = np.random.choice(
+            current_size,
+            size=keep_size,
+            replace=False,
+        )
+
+        self._all_sample_weights = self._all_sample_weights[keep_index]
+
+    def _monte_carlo_bootstrap(self, returns: np.ndarray, mu: np.ndarray, n_assets: int, n_new_samples: int,) -> list[np.ndarray]:
         """Standard bootstrap sampling (i.i.d. resampling with replacement).
 
         Args:
@@ -289,7 +357,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         n_days = len(returns)
         w_samples = []
 
-        for _ in range(self.config.n_monte_carlo_samples):
+        for _ in range(n_new_samples):
             # Resample with replacement
             idx = np.random.choice(n_days, size=n_days, replace=True)
             bootstrap_returns = returns[idx, :]
@@ -309,9 +377,9 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
             w_samples.append(w_opt)
 
-        return np.array(w_samples)
+        return w_samples
 
-    def _monte_carlo_block_bootstrap(self, returns: np.ndarray, mu: np.ndarray, n_assets: int) -> np.ndarray:
+    def _monte_carlo_block_bootstrap(self, returns: np.ndarray, mu: np.ndarray, n_assets: int, n_new_samples: int,) -> list[np.ndarray]:
         """Block bootstrap sampling (preserves temporal structure).
 
         Recommended method when returns exhibit autocorrelation or volatility clustering.
@@ -330,7 +398,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         w_samples = []
 
-        for _ in range(self.config.n_monte_carlo_samples):
+        for _ in range(n_new_samples):
             # Sample entire blocks to preserve temporal structure
             bootstrap_returns = []
             for _ in range(n_blocks):
@@ -355,9 +423,9 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
             w_samples.append(w_opt)
 
-        return np.array(w_samples)
+        return w_samples
 
-    def _monte_carlo_wishart(self, returns: np.ndarray, mu: np.ndarray, n_assets: int) -> np.ndarray:
+    def _monte_carlo_wishart(self, returns: np.ndarray, mu: np.ndarray, n_assets: int, n_new_samples: int,) -> list[np.ndarray]:
         """Wishart distribution sampling (guarantees positive semi-definite matrices).
 
         The Wishart distribution is the natural distribution for covariance matrices,
@@ -380,7 +448,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         w_samples = []
 
-        for _ in range(self.config.n_monte_carlo_samples):
+        for _ in range(n_new_samples):
             # Sample from Wishart distribution
             # scale parameter is normalized by df to keep mean = emp_cov
             sampled_cov = wishart.rvs(df=df, scale=emp_cov / df)
@@ -396,7 +464,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
             w_samples.append(w_opt)
 
-        return np.array(w_samples)
+        return w_samples
 
     def _random_initial_weights(self, n_assets: int) -> np.ndarray:
         """Generate random initial weights for optimization.
