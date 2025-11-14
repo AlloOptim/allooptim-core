@@ -7,23 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.3.1] - 2025-11-10
+## [0.3.1] - 2025-11-11
 
 ### Added
-- QuantStats integration for professional HTML tearsheets and advanced performance analytics
-- Comprehensive risk metrics (VaR, CVaR, Sortino, Calmar ratios)
-- Benchmark-relative performance analysis (alpha, beta, information ratio)
-- Interactive HTML reports with charts and statistics
-- Optional dependency handling for QuantStats library
+
+- Type-safe dataclass-based return values for backtest results (`BacktestResultMetrics`, `BacktestResults`)
+- Improved code structure and maintainability in backtest engine
 
 ### Fixed
-- RuntimeWarnings in portfolio performance calculations due to division by zero
-- Improved error handling in backtest engine
-- Enhanced test coverage and reliability
 
-### Infrastructure
-- Global ruff linting exceptions for common code patterns
-- Updated CI/CD pipeline with improved linting rules
+- QuantStats "'NoneType' object has no attribute 'upper'" error during tearsheet generation
+- Defensive benchmark naming to prevent None benchmark titles in QuantStats reports
+- Updated test suite to match refactored API signatures
+- Removed obsolete test references and function calls
+
+### Changed
+
+- `run_backtest()` method now returns structured dataclasses instead of dictionaries
+- Enhanced QuantStats integration with explicit benchmark title handling
 
 ## [0.3.0] - 2025-11-06
 
