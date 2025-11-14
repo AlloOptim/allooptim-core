@@ -40,7 +40,7 @@ def main():
         symbols = extract_symbols_from_list(large_stock_universe())
 
         config_backtest = BacktestConfig(
-            start_date=datetime(2014, 12, 31),
+            start_date=datetime(2019, 12, 31),
             end_date=datetime(2024, 12, 31),
             rebalance_frequency=10,
             lookback_days=90,
@@ -69,11 +69,6 @@ def main():
                 "EfficientReturn",
                 "EfficientRisk",
                 "MaxSharpe",
-                "MonteCarloMinVarianceOptimizer",
-                # "MonteCarloMaxDrawdownOptimizer",
-                # "MonteCarloMaxDiversificationOptimizer",
-                "MonteCarloMaxSortinoOptimizer",
-                "MonteCarloMinCVAROptimizer",
             ],
             transformer_names=["OracleCovarianceTransformer"],
             orchestration_type="equal_weight",

@@ -37,6 +37,7 @@ References:
 """
 
 import logging
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from typing import Optional
@@ -58,7 +59,6 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.sqp_multistart import (
     minimize_given_initial,
 )
-from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -141,7 +141,12 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         description="Block size for block bootstrap",
     )
 
-    allow_cash: bool = Field(
+    allow_cash_by_optimizer: bool = Field(
+        default=True,
+        description="Allow partial portfolio allocation (sum(weights) < 1)",
+    )
+
+    allow_cash_by_variance: bool = Field(
         default=True,
         description="Allow partial portfolio allocation (sum(weights) < 1)",
     )
@@ -183,6 +188,11 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
             logger.warning(f"Block size {v} too large, using {MAX_BLOCK_SIZE}")
             return MAX_BLOCK_SIZE
         return v
+    
+    @property
+    def allow_cash(self) -> bool:
+        """Determine if cash is allowed based on both settings."""
+        return self.allow_cash_by_optimizer or self.allow_cash_by_variance
 
 
 class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
@@ -284,10 +294,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         self._prune_too_old_results()
         self._prune_random_samples()
 
-        if self._all_sample_results is None:
-            n_existing_samples = 0
-        else:
-            n_existing_samples = len(self._all_sample_results)
+        n_existing_samples = 0 if self._all_sample_results is None else len(self._all_sample_results)
 
         n_new_samples = self.config.n_monte_carlo_samples - n_existing_samples
 
@@ -309,6 +316,8 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         # Aggregate results
         w_matrix = np.array([res.weights for res in self._all_sample_results])
+
+        w_matrix = self._scale_weights_by_variance(w_matrix)
 
         # Always aggregate with median (robust against outliers)
         w_final = np.median(w_matrix, axis=0)
@@ -505,7 +514,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         Returns:
             Optimal weights
         """
-        allow_cash = self.config.allow_cash
+        allow_cash = self.config.allow_cash_by_optimizer
 
         # Select objective function
         if self.objective_function == ObjectiveFunction.MIN_VARIANCE:
@@ -661,6 +670,28 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         max_dd = np.max(drawdown)
 
         return max_dd
+
+    def _scale_weights_by_variance(self, w_matrix: np.ndarray) -> np.ndarray:
+        """Post-process weights: clip small values and normalize if needed.
+
+        Args:
+            w_matrix: Raw optimized weights
+
+        Returns:
+            Processed weights
+        """
+        if not self.config.allow_cash_by_variance:
+            return w_matrix
+
+        std_per_asset_squared = np.std(w_matrix) ** 2
+
+        # each weight per asset must be between 0 and 1
+        # if std_per_asset_squared == 1, asset weight should be 0
+        # if std_per_asset_squared == 0, asset weight should be previous value
+        # if std_per_asset_squared is between 0 and 1, asset weight should be scaled down accordingly
+        w_matrix = w_matrix * (1 - std_per_asset_squared)
+
+        return w_matrix
 
     def _postprocess_weights(self, weights: np.ndarray) -> np.ndarray:
         """Post-process weights: clip small values and normalize if needed.

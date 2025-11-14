@@ -54,8 +54,8 @@ def minimize_given_initial(
         bounds=bounds,
         options={
             "disp": False,
-            "maxiter": 50,
-            "ftol": 1e-4,
+            "maxiter": 100,
+            "ftol": 1e-6,
         },
     )
 
