@@ -116,7 +116,7 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         description="Number of Monte Carlo samples",
     )
 
-    max_result_age : int = Field(
+    max_result_age: int = Field(
         default=10,
         ge=1,
         description="Maximum age of sampling results to keep",
