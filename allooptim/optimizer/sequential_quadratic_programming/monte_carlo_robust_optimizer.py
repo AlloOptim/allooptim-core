@@ -686,7 +686,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         if not self.config.allow_cash_by_variance:
             return w_matrix
 
-        std_per_asset_squared = np.std(w_matrix) ** 2
+        std_per_asset_squared = np.std(w_matrix, axis=0) ** 2
 
         # each weight per asset must be between 0 and 1
         # if std_per_asset_squared == 1, asset weight should be 0
