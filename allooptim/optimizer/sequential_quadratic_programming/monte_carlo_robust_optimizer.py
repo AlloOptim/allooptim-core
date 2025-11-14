@@ -359,6 +359,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             returns: Return matrix (n_days, n_assets)
             mu: Expected returns
             n_assets: Number of assets
+            n_new_samples: Number of bootstrap samples to generate
 
         Returns:
             Tuple of (sample_weights, sample_metrics)
@@ -397,6 +398,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             returns: Return matrix (n_days, n_assets)
             mu: Expected returns
             n_assets: Number of assets
+            n_new_samples: Number of bootstrap samples to generate
 
         Returns:
             sample_weights
@@ -444,6 +446,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             returns: Return matrix (n_days, n_assets)
             mu: Expected returns
             n_assets: Number of assets
+            n_new_samples: Number of samples to generate from Wishart distribution
 
         Returns:
             sample_weights
