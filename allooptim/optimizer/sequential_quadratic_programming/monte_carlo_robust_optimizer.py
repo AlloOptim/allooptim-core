@@ -237,7 +237,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             config: Configuration parameters. If None, uses default config.
         """
         self.config = config or MonteCarloRobustOptimizerConfig()
-        self._all_sample_results: Optional[SamplingResult] = None
+        self._all_sample_results: Optional[list[SamplingResult]] = None
 
     def allocate(
         self,
