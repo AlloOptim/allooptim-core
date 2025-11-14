@@ -52,7 +52,11 @@ def minimize_given_initial(
         method="SLSQP",
         constraints=constraints,
         bounds=bounds,
-        options={"disp": False},
+        options={
+            "disp": False,
+            "maxiter": 50,
+            "ftol": 1e-4,
+        },
     )
 
     return res_equal
@@ -101,7 +105,9 @@ def minimize_with_multistart(
             best_cost = res_prev.fun
 
     elif previous_best_weights is not None:
-        logger.warning("Previous best weights length does not match number of assets, skipping that start point.")
+        logger.warning(
+            "Previous best weights length does not match number of assets, skipping that start point."
+        )
 
     # Return best result, or equal weights start if all failed
     if best_weights is None:

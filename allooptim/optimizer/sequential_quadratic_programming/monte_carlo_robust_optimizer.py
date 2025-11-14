@@ -111,7 +111,7 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     n_monte_carlo_samples: int = Field(
-        default=100,
+        default=50,
         ge=1,
         description="Number of Monte Carlo samples",
     )
@@ -327,11 +327,11 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
     def _prune_random_samples(self) -> None:
         """Prune random samples to save memory."""
-        if self._all_sample_weights is None:
+        if self._all_sample_results is None:
             return None
 
-        current_size = len(self._all_sample_weights)
-        keep_size = int(self.config.random_prune_fraction * current_size)
+        current_size = len(self._all_sample_results)
+        keep_size = int((1 - self.config.random_prune_fraction) * current_size)
         if keep_size == 0:
             return None
 
@@ -341,7 +341,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             replace=False,
         )
 
-        self._all_sample_weights = self._all_sample_weights[keep_index]
+        self._all_sample_results = [self._all_sample_results[i] for i in keep_index]
 
     def _monte_carlo_bootstrap(self, returns: np.ndarray, mu: np.ndarray, n_assets: int, n_new_samples: int,) -> list[np.ndarray]:
         """Standard bootstrap sampling (i.i.d. resampling with replacement).
