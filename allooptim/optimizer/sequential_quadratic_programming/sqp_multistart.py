@@ -59,6 +59,9 @@ def minimize_given_initial(
         },
     )
 
+    if not res_equal.success:
+        logger.warning(f"SQP optimization failed: {res_equal.message}")
+
     return res_equal
 
 
