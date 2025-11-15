@@ -329,6 +329,8 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
             n_assets=n_assets,
             allow_cash=self.config.allow_cash,
             previous_best_weights=self._previous_best_weights,
+            jacobian=self._objective_jacobian,
+            hessian=self._objective_hessian,
         )
 
         # Store best weights for next optimization warm start
@@ -380,7 +382,52 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         # Minimize negative of this
         return -(portfolio_return - uncertainty_penalty - self.config.risk_aversion * portfolio_variance)
 
+    def _objective_jacobian(self, w: np.ndarray) -> np.ndarray:
+        """Analytical gradient of robust mean-variance objective.
+        
+        Objective: -(w'μ - ε_μ||w||₂ - λw'Σw)
+        """
+        # Gradient of return term: μ
+        grad_return = self._mu_array
+        
+        # Gradient of L2 norm penalty: ε_μ * w / ||w||
+        norm_w = np.linalg.norm(w)
+        if norm_w > 1e-10:
+            grad_uncertainty = self._eps_mu * w / norm_w
+        else:
+            grad_uncertainty = np.zeros_like(w)  # Subdifferential at origin
+        
+        # Gradient of variance term: 2λΣw
+        grad_variance = 2 * self.config.risk_aversion * self._cov_robust @ w
+        
+        # Combine (note the negative sign for minimization)
+        return -(grad_return - grad_uncertainty - grad_variance)
+
+    def _objective_hessian(self, w: np.ndarray) -> np.ndarray:
+        """Analytical Hessian of robust mean-variance objective."""
+        n = len(w)
+        norm_w = np.linalg.norm(w)
+        
+        if norm_w > 1e-10:
+            # Hessian of L2 norm: ε_μ * (I/||w|| - ww'/||w||³)
+            I = np.eye(n)
+            ww = np.outer(w, w)
+            H_uncertainty = self._eps_mu * (I / norm_w - ww / norm_w**3)
+        else:
+            # Hessian undefined at origin, use zero
+            H_uncertainty = np.zeros((n, n))
+        
+        # Hessian of variance: 2λΣ (constant)
+        H_variance = 2 * self.config.risk_aversion * self._cov_robust
+        
+        # Combine (note the negative sign)
+        return -(-H_uncertainty - H_variance)
+
     @property
     def name(self) -> str:
-        """Return optimizer name."""
+        """Get the name of the robust mean-variance optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "RobustMeanVarianceOptimizer"

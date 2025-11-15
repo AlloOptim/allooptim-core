@@ -160,6 +160,8 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
         # Run optimization with multi-start to avoid local minima
         optimal_weights = minimize_with_multistart(
             objective_function=self._objective_function,
+            jacobian=self._objective_jacobian if not self.enable_l_moments else None,
+            hessian=self._objective_hessian if not self.enable_l_moments else None,
             n_assets=n_assets,
             allow_cash=True,
             previous_best_weights=self._previous_best_weights,
@@ -227,6 +229,34 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
 
         return cost.item() if hasattr(cost, "item") else float(cost)
 
+    def _objective_jacobian(self, x: np.ndarray) -> np.ndarray:
+        """Analytical gradient for mean-variance objective.
+        
+        Objective: -(w'μ - λ*0.5*w'Σw)
+        """
+        x = x[np.newaxis, :] if x.ndim == 1 else x
+        
+        # Gradient of mean term: μ
+        grad_mean = self._mu
+        
+        # Gradient of variance term: λΣw
+        grad_variance = self.config.risk_aversion * (self._cov @ x.T).T
+        
+        # Combine and negate (for minimization)
+        grad = -(grad_mean - grad_variance)
+        
+        return grad.flatten() if grad.shape[0] == 1 else grad
+
+    def _objective_hessian(self, x: np.ndarray) -> np.ndarray:
+        """Analytical Hessian for mean-variance objective.
+        
+        Hessian is constant: λΣ
+        """
+        # Hessian of mean term: 0
+        # Hessian of variance term: λΣ
+        # Negate for minimization
+        return self.config.risk_aversion * self._cov
+        
     @property
     def name(self) -> str:
         """Get the name of the mean-variance adjusted returns optimizer.

@@ -537,6 +537,9 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         Returns:
             Optimal weights
         """
+        
+        jacobian = None
+        hessian = None
         allow_cash = self.config.allow_cash_by_optimizer
 
         # Select objective function
@@ -544,6 +547,12 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
             def objective(w):
                 return w.T @ cov_matrix @ w
+
+            def jacobian(w):
+                return 2 * cov_matrix @ w
+
+            def hessian(w):
+                return 2 * cov_matrix
 
             allow_cash = False
 
@@ -562,6 +571,9 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             def objective(w):
                 return -self._diversification_objective(w, cov_matrix)
 
+            def jacobian(w):
+                return -self._diversification_jacobian(w, cov_matrix)
+
         elif self.objective_function == ObjectiveFunction.MIN_MAX_DRAWDOWN:
 
             def objective(w):
@@ -577,6 +589,8 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             objective_function=objective,
             allow_cash=allow_cash,
             x0=w0,
+            jacobian=jacobian,
+            hessian=hessian,
         )
 
         if not result.success:
@@ -665,6 +679,32 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         diversification_ratio = weighted_vol_sum / portfolio_vol
         return diversification_ratio  # Return positive (we negate in objective)
+
+    def _diversification_jacobian(self, w: np.ndarray, cov_matrix: np.ndarray) -> np.ndarray:
+        """Analytical gradient of diversification ratio objective.
+        
+        DR = (w · σ) / sqrt(w'Σw)
+        dDR/dw = [σ / sqrt(w'Σw)] - [(w · σ) / (w'Σw)^{3/2}] * Σw
+        """
+        individual_vols = np.sqrt(np.diag(cov_matrix))
+        portfolio_vol = np.sqrt(w.T @ cov_matrix @ w)
+        weighted_vol_sum = np.dot(w, individual_vols)
+        
+        if portfolio_vol < MIN_VOLATILITY_THRESHOLD:
+            return np.zeros_like(w)
+        
+        # d(weighted_vol_sum)/dw = individual_vols
+        d_weighted_vol = individual_vols
+        
+        # d(portfolio_vol)/dw = (Σw) / (2 * portfolio_vol)
+        d_portfolio_vol = (cov_matrix @ w) / (2 * portfolio_vol)
+        
+        # Quotient rule: d(a/b)/dw = (a' * b - a * b') / b^2
+        # a = weighted_vol_sum, b = portfolio_vol
+        # dDR/dw = (d_weighted_vol * portfolio_vol - weighted_vol_sum * d_portfolio_vol) / portfolio_vol^2
+        grad = (d_weighted_vol * portfolio_vol - weighted_vol_sum * d_portfolio_vol) / (portfolio_vol ** 2)
+        
+        return grad
 
     def _max_drawdown_objective(self, w: np.ndarray, returns: np.ndarray) -> float:
         """Calculate maximum drawdown for portfolio.

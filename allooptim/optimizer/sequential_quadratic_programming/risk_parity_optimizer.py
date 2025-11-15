@@ -123,9 +123,48 @@ class RiskParityOptimizer(AbstractOptimizer):
         cost = sum(np.square(asset_risk_contribution - risk_target.T))[0]  # sum of squared error
         return cost
 
-    def _total_weight_constraint(self, x: np.array) -> float:
-        # sum of weights less than 1.0
-        return 1.0 - np.sum(x)
+    def _risk_budget_jacobian(self, x: np.ndarray) -> np.ndarray:
+        """Analytical gradient of risk budget objective."""
+        n = len(x)
+        sigma_p = np.sqrt(self._calculate_portfolio_var(x, self._cov))  # Portfolio volatility
+        
+        # Marginal risk contributions
+        mrc = self._cov @ x  # Shape: (n,)
+        
+        # Risk contributions: RC_i = w_i * MRC_i / sigma_p
+        rc = (x * mrc) / sigma_p
+        
+        # Target risk contributions
+        target_rc = sigma_p * self._target_risk
+        
+        # Residuals: e_i = RC_i - target_RC_i
+        residuals = rc - target_rc
+        
+        # Compute gradient using chain rule
+        # d(sigma_p)/dw = mrc / sigma_p
+        d_sigma_p = mrc / sigma_p
+        
+        # d(RC_i)/dw_j - complex due to ratio and product
+        # For each asset i, gradient w.r.t. all weights w_j:
+        grad = np.zeros(n)
+        for j in range(n):
+            # Derivative of RC_i w.r.t. w_j
+            d_rc_j = np.zeros(n)
+            for i in range(n):
+                if i == j:
+                    # Self-derivative: product rule + quotient rule
+                    d_rc_j[i] = (mrc[i] + x[i] * self._cov[i, j]) / sigma_p - (x[i] * mrc[i] * d_sigma_p[j]) / sigma_p**2
+                else:
+                    # Cross-derivative: only quotient rule
+                    d_rc_j[i] = (x[i] * self._cov[i, j]) / sigma_p - (x[i] * mrc[i] * d_sigma_p[j]) / sigma_p**2
+            
+            # d(target_RC_i)/dw_j = target_risk_i * d_sigma_p[j]
+            d_target_rc_j = self._target_risk * d_sigma_p[j]
+            
+            # Sum over all residuals: 2 * sum_i (e_i * de_i/dw_j)
+            grad[j] = 2 * np.sum(residuals * (d_rc_j - d_target_rc_j))
+        
+        return grad
 
     def _solve_optimization(self, cov: np.array) -> np.ndarray:
         # Store covariance for objective function
@@ -139,6 +178,7 @@ class RiskParityOptimizer(AbstractOptimizer):
             n_assets=n_assets,
             allow_cash=True,
             previous_best_weights=self._previous_weights,
+            jacobian=self._risk_budget_jacobian,
         )
 
         # Store best weights for next optimization warm start

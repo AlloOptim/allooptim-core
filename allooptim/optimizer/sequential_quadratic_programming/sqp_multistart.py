@@ -28,6 +28,8 @@ def minimize_given_initial(
     objective_function: Callable,
     allow_cash: bool,
     x0: np.ndarray,
+    jacobian: Optional[Callable] = None,
+    hessian: Optional[Callable] = None,
 ) -> np.ndarray:
     """Perform optimization with multiple starting points to avoid local minima.
 
@@ -52,6 +54,8 @@ def minimize_given_initial(
         method="SLSQP",
         constraints=constraints,
         bounds=bounds,
+        jac=jacobian,
+        hess=hessian,
         options={
             "disp": False,
             "maxiter": 100,
@@ -70,6 +74,8 @@ def minimize_with_multistart(
     n_assets: int,
     allow_cash: bool,
     previous_best_weights: Optional[np.ndarray],
+    jacobian: Optional[Callable] = None,
+    hessian: Optional[Callable] = None,
 ) -> np.ndarray:
     """Perform optimization with multiple starting points to avoid local minima.
 
@@ -89,6 +95,8 @@ def minimize_with_multistart(
         objective_function,
         allow_cash=allow_cash,
         x0=x0_equal,
+        jacobian=jacobian,
+        hessian=hessian,
     )
 
     if res_equal.success and res_equal.fun < best_cost:
@@ -101,6 +109,8 @@ def minimize_with_multistart(
             objective_function,
             allow_cash=allow_cash,
             x0=previous_best_weights,
+            jacobian=jacobian,
+            hessian=hessian,
         )
 
         if res_prev.success and res_prev.fun < best_cost:
