@@ -184,7 +184,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
             Downside covariance matrix (n_assets, n_assets)
         """
         # Calculate returns
-        returns = df_prices.pct_change().dropna()
+        returns = df_prices.pct_change(fill_method=None).dropna()
 
         # Calculate excess returns relative to target
         excess_returns = returns - target_return

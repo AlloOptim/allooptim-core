@@ -13,6 +13,7 @@ Key simulators:
 - Integration with PyPortfolioOpt for standard calculations
 """
 
+import logging
 from datetime import datetime
 from typing import Tuple
 
@@ -25,6 +26,8 @@ from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 from allooptim.optimizer.allocation_metric import LMoments, estimate_linear_moments
+
+logger = logging.getLogger(__name__)
 
 # Constants for minimum observations
 MIN_OBSERVATIONS = 10
@@ -121,6 +124,12 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
 
             mu = mean_historical_return(partial_df).values
             cov = sample_cov(partial_df).values
+            
+            if np.any(np.isnan(mu)) or np.any(np.isnan(cov)):
+                logger.warning(
+                    f"NaN detected in mu/cov from window [{start}:{end}]"
+                )
+
 
             x_all[k, :] = np.random.multivariate_normal(mu, cov)
 
