@@ -122,15 +122,25 @@ def test_transformers(transformer_class):
     if transformer.name == "AutoencoderCovarianceTransformer":
         pytest.skip("Skipping AutoencoderCovarianceTransformer test here due to long training")
 
-    transformer.fit(
-        df_prices,
-    )
+    # Check that fit and transform don't raise warnings
+    with pytest.warns(None) as warning_list:
+        transformer.fit(
+            df_prices,
+        )
 
-    transformed_cov = transformer.transform(
-        df_cov=df_cov,
-        n_observations=n_periods,
-    )
+        transformed_cov = transformer.transform(
+            df_cov=df_cov,
+            n_observations=n_periods,
+        )
+
+    # Fail the test if any warnings were raised
+    if warning_list:
+        warning_messages = [str(w.message) for w in warning_list]
+        pytest.fail(
+            f"Transformer {transformer.name} raised warnings during fit/transform: {warning_messages}"
+        )
 
     assert isinstance(transformed_cov, pd.DataFrame)
     assert transformed_cov.shape == (n_assets, n_assets)
+    assert not transformed_cov.isna().any().any()
     assert isinstance(transformer.name, str)

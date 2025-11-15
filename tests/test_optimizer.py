@@ -157,15 +157,22 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
     if optimizer.name in skip_optimizers:
         pytest.skip(f"Skipping {optimizer.name} as it requires special setup")
 
-    optimizer.fit(df_prices=prices)
+    # Check that fit and allocate don't raise warnings
+    with pytest.warns(None) as warning_list:
+        optimizer.fit(df_prices=prices)
 
-    weights = optimizer.allocate(
-        ds_mu=mu,
-        df_cov=cov,
-        df_prices=prices,
-        time=datetime.now(),
-        l_moments=l_moments,
-    )
+        weights = optimizer.allocate(
+            ds_mu=mu,
+            df_cov=cov,
+            df_prices=prices,
+            time=datetime.now(),
+            l_moments=l_moments,
+        )
+
+    # Fail the test if any warnings were raised
+    if warning_list:
+        warning_messages = [str(w.message) for w in warning_list]
+        pytest.fail(f"Optimizer {optimizer.name} raised warnings during fit/allocate: {warning_messages}")
 
     # Restore original database path for WikipediaOptimizer
     if optimizer.name == "WikipediaOptimizer":
