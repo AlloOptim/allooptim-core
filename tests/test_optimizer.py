@@ -158,7 +158,9 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
         pytest.skip(f"Skipping {optimizer.name} as it requires special setup")
 
     # Check that fit and allocate don't raise warnings
-    with pytest.warns(None) as warning_list:
+    import warnings
+    with warnings.catch_warnings(record=True) as warning_list:
+        warnings.simplefilter("always")
         optimizer.fit(df_prices=prices)
 
         weights = optimizer.allocate(

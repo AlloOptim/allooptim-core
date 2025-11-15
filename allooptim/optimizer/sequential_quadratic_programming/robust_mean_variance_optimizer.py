@@ -110,6 +110,23 @@ class RobustMeanVarianceOptimizerConfig(BaseModel):
         ge=10,
         description="Number of bootstrap samples for uncertainty estimation",
     )
+    
+    maxiter: int = Field(
+        default=100,
+        ge=1,
+        description="Maximum number of iterations for the optimizer",
+    )
+
+    ftol: float = Field(
+        default=1e-6,
+        ge=0.0,
+        description="Function tolerance for termination",
+    )
+
+    optimizer_name: str = Field(
+        default="SLSQP",
+        description="Name of the optimizer to use",
+    )
 
 
 class RobustMeanVarianceOptimizer(AbstractOptimizer):
@@ -331,6 +348,9 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
             previous_best_weights=self._previous_best_weights,
             jacobian=self._objective_jacobian,
             hessian=self._objective_hessian,
+            maxiter=self.config.maxiter,
+            ftol=self.config.ftol,
+            optimizer_name=self.config.optimizer_name,
         )
 
         # Store best weights for next optimization warm start

@@ -176,6 +176,38 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         default=None,
         description="Target return for Sortino ratio (if None, uses mean return)",
     )
+    
+    maxiter: int = 100,
+    ftol: float = 1e-6,
+    optimizer_name: str = "SLSQP",
+    
+    maxiter: int = Field(
+        default=100,
+        ge=1,
+        description="Maximum number of iterations for the optimizer",
+    )
+    
+    ftol: float = Field(
+        default=1e-6,
+        ge=1e-12,
+        le=1e-2,
+        description="Function tolerance for the optimizer",
+    )
+
+    optimizer_name: str = Field(
+        default="SLSQP",
+        description="Name of the optimizer to use",
+    )
+    
+    @field_validator("optimizer_name")
+    @classmethod
+    def validate_optimizer_name(cls, v: str, info) -> str:
+        """Ensure optimizer name is valid."""
+        valid_optimizers = ["SLSQP", "trust-constr", "Newton-CG", "L-BFGS-B"]
+        if v not in valid_optimizers:
+            logger.warning(f"Optimizer '{v}' not recognized. Using 'SLSQP' instead.")
+            return "SLSQP"
+        return v
 
     @field_validator("block_size")
     @classmethod
@@ -537,7 +569,6 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         Returns:
             Optimal weights
         """
-        
         jacobian = None
         hessian = None
         allow_cash = self.config.allow_cash_by_optimizer
@@ -591,6 +622,9 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             x0=w0,
             jacobian=jacobian,
             hessian=hessian,
+            optimizer_name=self.config.optimizer_name,
+            maxiter=self.config.maxiter,
+            ftol=self.config.ftol,
         )
 
         if not result.success:

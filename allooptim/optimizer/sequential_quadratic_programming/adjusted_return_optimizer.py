@@ -54,6 +54,10 @@ class MeanVarianceAdjustedReturnsOptimizerConfig(BaseModel):
     reduce_l_moments_to_diagonal: bool = True
     ema_span: int = 90
     target_return: float = 0.0  # Target return for semivariance (downside threshold)
+    
+    maxiter: int = 100
+    ftol: float = 1e-6
+    optimizer_name: str = "SLSQP"
 
 
 class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
@@ -165,6 +169,9 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
             n_assets=n_assets,
             allow_cash=True,
             previous_best_weights=self._previous_best_weights,
+                maxiter=self.config.maxiter,
+                ftol=self.config.ftol,
+                optimizer_name=self.config.optimizer_name,
         )
 
         # Store best weights for next optimization warm start

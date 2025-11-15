@@ -123,7 +123,9 @@ def test_transformers(transformer_class):
         pytest.skip("Skipping AutoencoderCovarianceTransformer test here due to long training")
 
     # Check that fit and transform don't raise warnings
-    with pytest.warns(None) as warning_list:
+    import warnings
+    with warnings.catch_warnings(record=True) as warning_list:
+        warnings.simplefilter("always")
         transformer.fit(
             df_prices,
         )

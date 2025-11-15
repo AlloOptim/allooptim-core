@@ -30,6 +30,9 @@ def minimize_given_initial(
     x0: np.ndarray,
     jacobian: Optional[Callable] = None,
     hessian: Optional[Callable] = None,
+    maxiter: int = 100,
+    ftol: float = 1e-6,
+    optimizer_name: str = "SLSQP",
 ) -> np.ndarray:
     """Perform optimization with multiple starting points to avoid local minima.
 
@@ -47,24 +50,31 @@ def minimize_given_initial(
 
     n_assets = len(x0)
     bounds = [(0, 1) for _ in range(n_assets)]
+    
+    if hessian is not None and optimizer_name not in ["trust-constr", "Newton-CG"]:
+        logger.debug(
+            f"Hessian provided but optimizer '{optimizer_name}' may not support it. "
+            "Consider using 'trust-constr' or 'Newton-CG' for Hessian support."
+        )
+        hessian = None
 
     res_equal = minimize(
         objective_function,
         x0=x0,
-        method="SLSQP",
+        method=optimizer_name,
         constraints=constraints,
         bounds=bounds,
         jac=jacobian,
         hess=hessian,
         options={
             "disp": False,
-            "maxiter": 100,
-            "ftol": 1e-6,
+            "maxiter": maxiter,
+            "ftol": ftol,
         },
     )
 
     if not res_equal.success:
-        logger.warning(f"SQP optimization failed: {res_equal.message}")
+        logger.warning(f"Optimization {optimizer_name} failed: {res_equal.message}")
 
     return res_equal
 
@@ -76,6 +86,9 @@ def minimize_with_multistart(
     previous_best_weights: Optional[np.ndarray],
     jacobian: Optional[Callable] = None,
     hessian: Optional[Callable] = None,
+    maxiter: int = 100,
+    ftol: float = 1e-6,
+    optimizer_name: str = "SLSQP",
 ) -> np.ndarray:
     """Perform optimization with multiple starting points to avoid local minima.
 
@@ -97,6 +110,9 @@ def minimize_with_multistart(
         x0=x0_equal,
         jacobian=jacobian,
         hessian=hessian,
+        maxiter=maxiter,
+        ftol=ftol,
+        optimizer_name=optimizer_name,
     )
 
     if res_equal.success and res_equal.fun < best_cost:
@@ -111,6 +127,9 @@ def minimize_with_multistart(
             x0=previous_best_weights,
             jacobian=jacobian,
             hessian=hessian,
+            maxiter=maxiter,
+            ftol=ftol,
+            optimizer_name=optimizer_name,
         )
 
         if res_prev.success and res_prev.fun < best_cost:

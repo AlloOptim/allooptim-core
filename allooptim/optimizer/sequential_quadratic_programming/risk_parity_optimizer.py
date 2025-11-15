@@ -44,11 +44,11 @@ class RiskParityOptimizerConfig(BaseModel):
     for future extensibility.
     """
 
+    maxiter: int = 100
+    ftol: float = 1e-6
+    optimizer_name: str = "SLSQP"
+    
     model_config = DEFAULT_PYDANTIC_CONFIG
-
-    # Risk parity uses equal risk contribution by default, but can be customized
-    # target_risk will be None by default and set to equal weights in __init__
-    pass
 
 
 class RiskParityOptimizer(AbstractOptimizer):
@@ -179,6 +179,9 @@ class RiskParityOptimizer(AbstractOptimizer):
             allow_cash=True,
             previous_best_weights=self._previous_weights,
             jacobian=self._risk_budget_jacobian,
+            maxiter=self.config.maxiter,
+            ftol=self.config.ftol,
+            optimizer_name=self.config.optimizer_name,
         )
 
         # Store best weights for next optimization warm start
