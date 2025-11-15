@@ -696,8 +696,8 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         # d(weighted_vol_sum)/dw = individual_vols
         d_weighted_vol = individual_vols
         
-        # d(portfolio_vol)/dw = (Σw) / (2 * portfolio_vol)
-        d_portfolio_vol = (cov_matrix @ w) / (2 * portfolio_vol)
+        # d(portfolio_vol)/dw = (Σw) / portfolio_vol
+        d_portfolio_vol = (cov_matrix @ w) / portfolio_vol
         
         # Quotient rule: d(a/b)/dw = (a' * b - a * b') / b^2
         # a = weighted_vol_sum, b = portfolio_vol

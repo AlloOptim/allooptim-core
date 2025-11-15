@@ -169,10 +169,16 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
             l_moments=l_moments,
         )
 
-    # Fail the test if any warnings were raised
-    if warning_list:
-        warning_messages = [str(w.message) for w in warning_list]
-        pytest.fail(f"Optimizer {optimizer.name} raised warnings during fit/allocate: {warning_messages}")
+    # Filter out expected warnings (SLSQP doesn't use Hessian)
+    filtered_warnings = [
+        w for w in warning_list 
+        if "Method SLSQP does not use Hessian information" not in str(w.message)
+    ]
+
+    # Fail the test if any unexpected warnings were raised
+    if filtered_warnings:
+        warning_messages = [str(w.message) for w in filtered_warnings]
+        pytest.fail(f"Optimizer {optimizer.name} raised unexpected warnings during fit/allocate: {warning_messages}")
 
     # Restore original database path for WikipediaOptimizer
     if optimizer.name == "WikipediaOptimizer":
