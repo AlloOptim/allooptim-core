@@ -114,7 +114,7 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
             return pd.Series(weights_array, index=asset_names)
 
         # Check if L-moments are empty/invalid
-        if (self.enable_l_moments and l_moments.is_empty):
+        if self.enable_l_moments and l_moments.is_empty:
             logger.warning("L-moments contain empty arrays, falling back to classical optimization")
             self.enable_l_moments = False
 

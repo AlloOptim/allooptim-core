@@ -124,12 +124,9 @@ class MuCovPartialObservationSimulator(AbstractObservationSimulator):
 
             mu = mean_historical_return(partial_df).values
             cov = sample_cov(partial_df).values
-            
-            if np.any(np.isnan(mu)) or np.any(np.isnan(cov)):
-                logger.warning(
-                    f"NaN detected in mu/cov from window [{start}:{end}]"
-                )
 
+            if np.any(np.isnan(mu)) or np.any(np.isnan(cov)):
+                logger.warning(f"NaN detected in mu/cov from window [{start}:{end}]")
 
             x_all[k, :] = np.random.multivariate_normal(mu, cov)
 

@@ -47,6 +47,7 @@ PENALTY_INVALID_FITNESS = 1e10
 MIN_OBSERVATIONS_RISK_METRICS = 30
 MAX_FITNESS_NAN_PERCENTAGE = 0.5
 
+
 class RiskMetric(Enum):
     """Enumeration of available risk metrics for CMA-ES optimization."""
 

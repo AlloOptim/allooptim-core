@@ -188,7 +188,7 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
             logger.warning(f"Block size {v} too large, using {MAX_BLOCK_SIZE}")
             return MAX_BLOCK_SIZE
         return v
-    
+
     @property
     def allow_cash(self) -> bool:
         """Determine if cash is allowed based on both settings."""
@@ -311,7 +311,9 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             self._all_sample_results = [SamplingResult(age=0, weights=w) for w in w_samples]
 
         else:
-            self._all_sample_results = [SamplingResult(age=res.age + 1, weights=res.weights) for res in self._all_sample_results]
+            self._all_sample_results = [
+                SamplingResult(age=res.age + 1, weights=res.weights) for res in self._all_sample_results
+            ]
             self._all_sample_results.extend([SamplingResult(age=0, weights=w) for w in w_samples])
 
         # Aggregate results
@@ -352,7 +354,13 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         self._all_sample_results = [self._all_sample_results[i] for i in keep_index]
 
-    def _monte_carlo_bootstrap(self, returns: np.ndarray, mu: np.ndarray, n_assets: int, n_new_samples: int,) -> list[np.ndarray]:
+    def _monte_carlo_bootstrap(
+        self,
+        returns: np.ndarray,
+        mu: np.ndarray,
+        n_assets: int,
+        n_new_samples: int,
+    ) -> list[np.ndarray]:
         """Standard bootstrap sampling (i.i.d. resampling with replacement).
 
         Args:
@@ -389,7 +397,13 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         return w_samples
 
-    def _monte_carlo_block_bootstrap(self, returns: np.ndarray, mu: np.ndarray, n_assets: int, n_new_samples: int,) -> list[np.ndarray]:
+    def _monte_carlo_block_bootstrap(
+        self,
+        returns: np.ndarray,
+        mu: np.ndarray,
+        n_assets: int,
+        n_new_samples: int,
+    ) -> list[np.ndarray]:
         """Block bootstrap sampling (preserves temporal structure).
 
         Recommended method when returns exhibit autocorrelation or volatility clustering.
@@ -436,7 +450,13 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
         return w_samples
 
-    def _monte_carlo_wishart(self, returns: np.ndarray, mu: np.ndarray, n_assets: int, n_new_samples: int,) -> list[np.ndarray]:
+    def _monte_carlo_wishart(
+        self,
+        returns: np.ndarray,
+        mu: np.ndarray,
+        n_assets: int,
+        n_new_samples: int,
+    ) -> list[np.ndarray]:
         """Wishart distribution sampling (guarantees positive semi-definite matrices).
 
         The Wishart distribution is the natural distribution for covariance matrices,

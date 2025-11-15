@@ -105,7 +105,13 @@ def _fetch_benchmark_returns(
         logger.debug(f"Fetching benchmark data for {benchmark} from {start_date} to {end_date}")
 
         # Download price data
-        data = yf.download(benchmark, start=start_date, end=end_date, progress=False)
+        data = yf.download(
+            benchmark,
+            start=start_date,
+            end=end_date,
+            progress=False,
+            auto_adjust=True,
+        )
 
         if data is None or data.empty:
             logger.warning(f"No data downloaded for benchmark {benchmark}")
