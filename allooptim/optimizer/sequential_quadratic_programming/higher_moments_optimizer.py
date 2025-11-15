@@ -210,25 +210,25 @@ class HigherMomentOptimizer(AbstractOptimizer):
 
     def _objective_jacobian(self, x: np.ndarray) -> np.ndarray:
         """Analytical gradient for mean-variance component and classical moments.
-        
+
         For L-moments case, returns partial gradient (MV component only).
         For classical moments, includes skew and kurtosis derivatives.
-        
+
         Args:
             x: Portfolio weights
-            
+
         Returns:
             Gradient of objective function
         """
         x = np.array(x)
-        
+
         # Mean-variance gradient (always computable)
         # d/dx[mu'x - lambda*x'Cx] = mu - 2*lambda*Cx
         grad_mv = self._mu - 2 * self.config.risk_aversion * self._cov @ x
-        
+
         if self._l_moments is not None:
             # L-moments case: only MV component implemented
-            # TODO: Implement quotient rule for L-skewness (lambda_3/lambda_2) 
+            # TODO: Implement quotient rule for L-skewness (lambda_3/lambda_2)
             # TODO: Implement quotient rule for L-kurtosis (lambda_4/lambda_2)
             logger.debug("L-moments gradient not implemented, returning MV component only")
             full_grad = grad_mv
@@ -239,7 +239,7 @@ class HigherMomentOptimizer(AbstractOptimizer):
             grad_skew = self.config.alpha_skew * self._skew_vec
             grad_kurt = -self.config.beta_kurt * self._kurt_vec
             full_grad = grad_mv + grad_skew + grad_kurt
-        
+
         # Negate for minimization (objective = -utility)
         return -full_grad
 

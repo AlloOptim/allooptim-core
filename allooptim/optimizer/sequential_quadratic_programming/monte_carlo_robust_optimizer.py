@@ -176,17 +176,17 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         default=None,
         description="Target return for Sortino ratio (if None, uses mean return)",
     )
-    
-    maxiter: int = 100,
-    ftol: float = 1e-6,
-    optimizer_name: str = "SLSQP",
-    
+
+    maxiter: int = (100,)
+    ftol: float = (1e-6,)
+    optimizer_name: str = ("SLSQP",)
+
     maxiter: int = Field(
         default=100,
         ge=1,
         description="Maximum number of iterations for the optimizer",
     )
-    
+
     ftol: float = Field(
         default=1e-6,
         ge=1e-12,
@@ -198,7 +198,7 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         default="SLSQP",
         description="Name of the optimizer to use",
     )
-    
+
     @field_validator("optimizer_name")
     @classmethod
     def validate_optimizer_name(cls, v: str, info) -> str:
@@ -716,28 +716,28 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
     def _diversification_jacobian(self, w: np.ndarray, cov_matrix: np.ndarray) -> np.ndarray:
         """Analytical gradient of diversification ratio objective.
-        
+
         DR = (w · σ) / sqrt(w'Σw)
         dDR/dw = [σ / sqrt(w'Σw)] - [(w · σ) / (w'Σw)^{3/2}] * Σw
         """
         individual_vols = np.sqrt(np.diag(cov_matrix))
         portfolio_vol = np.sqrt(w.T @ cov_matrix @ w)
         weighted_vol_sum = np.dot(w, individual_vols)
-        
+
         if portfolio_vol < MIN_VOLATILITY_THRESHOLD:
             return np.zeros_like(w)
-        
+
         # d(weighted_vol_sum)/dw = individual_vols
         d_weighted_vol = individual_vols
-        
+
         # d(portfolio_vol)/dw = (Σw) / portfolio_vol
         d_portfolio_vol = (cov_matrix @ w) / portfolio_vol
-        
+
         # Quotient rule: d(a/b)/dw = (a' * b - a * b') / b^2
         # a = weighted_vol_sum, b = portfolio_vol
         # dDR/dw = (d_weighted_vol * portfolio_vol - weighted_vol_sum * d_portfolio_vol) / portfolio_vol^2
-        grad = (d_weighted_vol * portfolio_vol - weighted_vol_sum * d_portfolio_vol) / (portfolio_vol ** 2)
-        
+        grad = (d_weighted_vol * portfolio_vol - weighted_vol_sum * d_portfolio_vol) / (portfolio_vol**2)
+
         return grad
 
     def _max_drawdown_objective(self, w: np.ndarray, returns: np.ndarray) -> float:

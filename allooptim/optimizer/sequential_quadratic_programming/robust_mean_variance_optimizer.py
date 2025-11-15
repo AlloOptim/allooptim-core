@@ -61,6 +61,7 @@ MIN_OBSERVATIONS_FOR_UNCERTAINTY_ESTIMATION = 30
 WEIGHT_CLIPPING_THRESHOLD = 1e-6
 WEIGHT_SUM_TOLERANCE = 1e-6
 CASH_POSITION_WARNING_THRESHOLD = 0.1
+NORM_ZERO_THRESHOLD = 1e-10
 
 
 class RobustMeanVarianceOptimizerConfig(BaseModel):
@@ -110,7 +111,7 @@ class RobustMeanVarianceOptimizerConfig(BaseModel):
         ge=10,
         description="Number of bootstrap samples for uncertainty estimation",
     )
-    
+
     maxiter: int = Field(
         default=100,
         ge=1,
@@ -404,22 +405,19 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
 
     def _objective_jacobian(self, w: np.ndarray) -> np.ndarray:
         """Analytical gradient of robust mean-variance objective.
-        
+
         Objective: -(w'μ - ε_μ||w||₂ - λw'Σw)
         """
         # Gradient of return term: μ
         grad_return = self._mu_array
-        
+
         # Gradient of L2 norm penalty: ε_μ * w / ||w||
         norm_w = np.linalg.norm(w)
-        if norm_w > 1e-10:
-            grad_uncertainty = self._eps_mu * w / norm_w
-        else:
-            grad_uncertainty = np.zeros_like(w)  # Subdifferential at origin
-        
+        grad_uncertainty = self._eps_mu * w / norm_w if norm_w > NORM_ZERO_THRESHOLD else np.zeros_like(w)
+
         # Gradient of variance term: 2λΣw
         grad_variance = 2 * self.config.risk_aversion * self._cov_robust @ w
-        
+
         # Combine (note the negative sign for minimization)
         return -(grad_return - grad_uncertainty - grad_variance)
 
@@ -427,19 +425,19 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         """Analytical Hessian of robust mean-variance objective."""
         n = len(w)
         norm_w = np.linalg.norm(w)
-        
-        if norm_w > 1e-10:
+
+        if norm_w > NORM_ZERO_THRESHOLD:
             # Hessian of L2 norm: ε_μ * (I/||w|| - ww'/||w||³)
-            I = np.eye(n)
+            identity_matrix = np.eye(n)
             ww = np.outer(w, w)
-            H_uncertainty = self._eps_mu * (I / norm_w - ww / norm_w**3)
+            H_uncertainty = self._eps_mu * (identity_matrix / norm_w - ww / norm_w**3)
         else:
             # Hessian undefined at origin, use zero
             H_uncertainty = np.zeros((n, n))
-        
+
         # Hessian of variance: 2λΣ (constant)
         H_variance = 2 * self.config.risk_aversion * self._cov_robust
-        
+
         # Combine (note the negative sign)
         return -(-H_uncertainty - H_variance)
 

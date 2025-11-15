@@ -54,7 +54,7 @@ class MeanVarianceAdjustedReturnsOptimizerConfig(BaseModel):
     reduce_l_moments_to_diagonal: bool = True
     ema_span: int = 90
     target_return: float = 0.0  # Target return for semivariance (downside threshold)
-    
+
     maxiter: int = 100
     ftol: float = 1e-6
     optimizer_name: str = "SLSQP"
@@ -169,9 +169,9 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
             n_assets=n_assets,
             allow_cash=True,
             previous_best_weights=self._previous_best_weights,
-                maxiter=self.config.maxiter,
-                ftol=self.config.ftol,
-                optimizer_name=self.config.optimizer_name,
+            maxiter=self.config.maxiter,
+            ftol=self.config.ftol,
+            optimizer_name=self.config.optimizer_name,
         )
 
         # Store best weights for next optimization warm start
@@ -238,32 +238,32 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
 
     def _objective_jacobian(self, x: np.ndarray) -> np.ndarray:
         """Analytical gradient for mean-variance objective.
-        
+
         Objective: -(w'μ - λ*0.5*w'Σw)
         """
         x = x[np.newaxis, :] if x.ndim == 1 else x
-        
+
         # Gradient of mean term: μ
         grad_mean = self._mu
-        
+
         # Gradient of variance term: λΣw
         grad_variance = self.config.risk_aversion * (self._cov @ x.T).T
-        
+
         # Combine and negate (for minimization)
         grad = -(grad_mean - grad_variance)
-        
+
         return grad.flatten() if grad.shape[0] == 1 else grad
 
     def _objective_hessian(self, x: np.ndarray) -> np.ndarray:
         """Analytical Hessian for mean-variance objective.
-        
+
         Hessian is constant: λΣ
         """
         # Hessian of mean term: 0
         # Hessian of variance term: λΣ
         # Negate for minimization
         return self.config.risk_aversion * self._cov
-        
+
     @property
     def name(self) -> str:
         """Get the name of the mean-variance adjusted returns optimizer.

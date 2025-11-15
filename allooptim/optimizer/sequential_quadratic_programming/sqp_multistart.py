@@ -50,7 +50,7 @@ def minimize_given_initial(
 
     n_assets = len(x0)
     bounds = [(0, 1) for _ in range(n_assets)]
-    
+
     if hessian is not None and optimizer_name not in ["trust-constr", "Newton-CG"]:
         logger.debug(
             f"Hessian provided but optimizer '{optimizer_name}' may not support it. "
