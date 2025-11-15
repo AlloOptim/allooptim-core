@@ -116,7 +116,7 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         description="Number of Monte Carlo samples",
     )
 
-    max_result_age : int = Field(
+    max_result_age: int = Field(
         default=10,
         ge=1,
         description="Maximum age of sampling results to keep",
@@ -237,7 +237,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
             config: Configuration parameters. If None, uses default config.
         """
         self.config = config or MonteCarloRobustOptimizerConfig()
-        self._all_sample_results: Optional[SamplingResult] = None
+        self._all_sample_results: Optional[list[SamplingResult]] = None
 
     def allocate(
         self,
@@ -686,7 +686,7 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
         if not self.config.allow_cash_by_variance:
             return w_matrix
 
-        std_per_asset_squared = np.std(w_matrix) ** 2
+        std_per_asset_squared = np.std(w_matrix, axis=0) ** 2
 
         # each weight per asset must be between 0 and 1
         # if std_per_asset_squared == 1, asset weight should be 0
