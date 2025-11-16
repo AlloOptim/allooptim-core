@@ -1,19 +1,27 @@
 """Unit tests for analytical Jacobian/Hessian implementations."""
 
 import numpy as np
-import pytest
 from scipy.optimize import check_grad, approx_fprime
 
 from allooptim.optimizer.sequential_quadratic_programming.risk_parity_optimizer import RiskParityOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import RobustMeanVarianceOptimizer
-from allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer import LMomentsAdjustedReturnsOptimizer
-from allooptim.optimizer.sequential_quadratic_programming.monte_carlo_robust_optimizer import (
-    MonteCarloMinVarianceOptimizer,
-    MonteCarloMaxDiversificationOptimizer,
-)
 from allooptim.optimizer.sequential_quadratic_programming.higher_moments_optimizer import HigherMomentOptimizer
-
-
+from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
+            RobustMeanVarianceOptimizerConfig,
+        )
+from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
+            RobustMeanVarianceOptimizerConfig,
+        )
+from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
+            RobustMeanVarianceOptimizerConfig,
+        )       
+from allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer import (
+            LMomentsAdjustedReturnsOptimizer,
+            MeanVarianceAdjustedReturnsOptimizerConfig,
+        )        
+from allooptim.optimizer.sequential_quadratic_programming.monte_carlo_robust_optimizer import (
+            MonteCarloMaxDiversificationOptimizer,
+        )
 class TestRiskParityJacobian:
     """Test Risk Parity optimizer Jacobian."""
 
@@ -77,9 +85,6 @@ class TestRobustMeanVarianceDerivatives:
 
     def test_jacobian_accuracy(self):
         """Verify analytical Jacobian matches numerical."""
-        from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
-            RobustMeanVarianceOptimizerConfig,
-        )
 
         config = RobustMeanVarianceOptimizerConfig(
             risk_aversion=1.0,
@@ -110,9 +115,6 @@ class TestRobustMeanVarianceDerivatives:
 
     def test_hessian_accuracy(self):
         """Verify analytical Hessian matches numerical."""
-        from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
-            RobustMeanVarianceOptimizerConfig,
-        )
 
         config = RobustMeanVarianceOptimizerConfig(risk_aversion=1.0)
         optimizer = RobustMeanVarianceOptimizer(config)
@@ -139,9 +141,6 @@ class TestRobustMeanVarianceDerivatives:
 
     def test_jacobian_near_zero(self):
         """Test gradient behavior near zero weights (edge case)."""
-        from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_optimizer import (
-            RobustMeanVarianceOptimizerConfig,
-        )
 
         config = RobustMeanVarianceOptimizerConfig()
         optimizer = RobustMeanVarianceOptimizer(config)
@@ -164,10 +163,7 @@ class TestAdjustedReturnsDerivatives:
 
     def test_mean_variance_jacobian(self):
         """Test MV jacobian for non-L-moments case."""
-        from allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer import (
-            LMomentsAdjustedReturnsOptimizer,
-            MeanVarianceAdjustedReturnsOptimizerConfig,
-        )
+
 
         config = MeanVarianceAdjustedReturnsOptimizerConfig(risk_aversion=2.0)
         optimizer = LMomentsAdjustedReturnsOptimizer(config)
@@ -251,9 +247,7 @@ class TestMonteCarloDerivatives:
 
     def test_diversification_jacobian(self):
         """Test MAX_DIVERSIFICATION jacobian."""
-        from allooptim.optimizer.sequential_quadratic_programming.monte_carlo_robust_optimizer import (
-            MonteCarloMaxDiversificationOptimizer,
-        )
+
 
         optimizer = MonteCarloMaxDiversificationOptimizer()
 
@@ -311,23 +305,3 @@ class TestHigherMomentsDerivatives:
         assert np.allclose(num_grad, ana_grad, rtol=1e-4, atol=1e-6), \
             f"Higher Moments Jacobian mismatch: num={num_grad}, ana={ana_grad}"
 
-
-# Parametrized test for all optimizers
-@pytest.mark.parametrize("optimizer_class,has_jacobian,has_hessian", [
-    (RiskParityOptimizer, True, False),
-    (RobustMeanVarianceOptimizer, True, True),
-    (MonteCarloMinVarianceOptimizer, True, True),
-    (MonteCarloMaxDiversificationOptimizer, True, False),
-    (HigherMomentOptimizer, True, False),
-])
-def test_optimizer_has_derivatives(optimizer_class, has_jacobian, has_hessian):
-    """Verify optimizers have the expected derivative methods."""
-    optimizer = optimizer_class()
-
-    if has_jacobian:
-        # Check has jacobian method or implementation
-        assert True, f"{optimizer_class.__name__} should have Jacobian"
-
-    if has_hessian:
-        # Check has hessian method or implementation
-        assert True, f"{optimizer_class.__name__} should have Hessian"

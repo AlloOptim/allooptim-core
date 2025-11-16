@@ -52,7 +52,7 @@ from allooptim.optimizer.asset_name_utils import (
     validate_asset_names,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
-from allooptim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
+from allooptim.optimizer.sequential_quadratic_programming.minimize_multistart import minimize_with_multistart
 
 logger = logging.getLogger(__name__)
 

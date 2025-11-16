@@ -36,7 +36,7 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.estimate_robust_ema_moments import (
     calculate_robust_ema_moments,
 )
-from allooptim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
+from allooptim.optimizer.sequential_quadratic_programming.minimize_multistart import minimize_with_multistart
 
 logger = logging.getLogger(__name__)
 
