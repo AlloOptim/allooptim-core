@@ -13,6 +13,7 @@ Key transformers:
 - Integration with scikit-learn covariance estimators
 """
 
+import warnings
 from typing import Optional, Union
 
 import numpy as np
@@ -191,6 +192,16 @@ class EllipticEnvelopeShrinkageCovarianceTransformer(AbstractCovarianceTransform
     This is useful for handling outliers in the data.
     """
 
+    def __init__(self, support_fraction: float = 1.0):
+        """Initialize the elliptic envelope covariance transformer.
+
+        Args:
+            support_fraction: The proportion of points to be included in the support
+                of the robust location and covariance estimate. Default is 1.0 to
+                avoid numerical issues with small datasets.
+        """
+        self.support_fraction = support_fraction
+
     def transform(self, df_cov: Union[np.ndarray, pd.DataFrame], n_observations: Optional[int] = None) -> pd.DataFrame:
         """Apply elliptic envelope transformation to the covariance matrix.
 
@@ -208,8 +219,9 @@ class EllipticEnvelopeShrinkageCovarianceTransformer(AbstractCovarianceTransform
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
-        # Apply elliptic envelope transformation
-        transformed_cov = EllipticEnvelope().fit(cov_array).covariance_
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Determinant has increased", category=RuntimeWarning)
+            transformed_cov = EllipticEnvelope(support_fraction=self.support_fraction).fit(cov_array).covariance_
         transformed_cov = _ensure_symmetric(transformed_cov)
 
         # Return as pandas DataFrame with preserved asset names

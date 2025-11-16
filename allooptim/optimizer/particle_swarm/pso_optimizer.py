@@ -113,6 +113,11 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
             weights_array = np.ones(n_assets) / n_assets
             return pd.Series(weights_array, index=asset_names)
 
+        # Check if L-moments are empty/invalid
+        if self.enable_l_moments and l_moments.is_empty:
+            logger.warning("L-moments contain empty arrays, falling back to classical optimization")
+            self.enable_l_moments = False
+
         # Dimensions: [scale] + [weight1, weight2, ..., weightn]
         dimensions = n_assets + 1
 

@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 EPSILON_WEIGHTS_SUM = 1e-10
 PENALTY_INVALID_FITNESS = 1e10
 MIN_OBSERVATIONS_RISK_METRICS = 30
+MAX_FITNESS_NAN_PERCENTAGE = 0.5
 
 
 class RiskMetric(Enum):
@@ -248,13 +249,32 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
             eval_count += n_candidates
 
             # Check for invalid fitness values
-            if not np.all(np.isfinite(fitness_values)):
-                logger.warning(f"Invalid fitness values detected: {fitness_values}")
-                # Replace invalid values with a large penalty
-                fitness_values = np.where(np.isfinite(fitness_values), fitness_values, PENALTY_INVALID_FITNESS)
-                # If all values are invalid, skip this iteration
+            invalid_count = np.sum(~np.isfinite(fitness_values))
+            if invalid_count > 0:
+                logger.warning(
+                    f"Invalid fitness values detected: {invalid_count}/{n_candidates} candidates. "
+                    f"Sample values: {fitness_values[:5]}"
+                )
+
+                # If more than MAX_FITNESS_NAN_PERCENTAGE are invalid and using L-moments, fall back to mean-variance
+                if (
+                    invalid_count > n_candidates * MAX_FITNESS_NAN_PERCENTAGE
+                    and self.risk_metric == RiskMetric.L_MOMENTS
+                ):
+                    logger.error(
+                        f"Excessive invalid fitness ({invalid_count}/{n_candidates}), "
+                        f"switching from L_MOMENTS to MEAN_VARIANCE for this optimization"
+                    )
+                    self.risk_metric = RiskMetric.MEAN_VARIANCE
+                    # Recompute fitness with new metric
+                    fitness_values = self._objective_matrix(X)
+                else:
+                    # Replace invalid values with a large penalty
+                    fitness_values = np.where(np.isfinite(fitness_values), fitness_values, PENALTY_INVALID_FITNESS)
+
+                # If all values are still invalid, skip this iteration
                 if not np.any(np.isfinite(fitness_values)):
-                    logger.error("All fitness values are invalid, skipping iteration")
+                    logger.error("All fitness values are invalid even after fallback, skipping iteration")
                     iterations_without_improvement += 1
                     continue
 

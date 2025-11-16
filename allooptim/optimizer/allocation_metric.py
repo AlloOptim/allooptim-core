@@ -57,6 +57,34 @@ class LMoments:
     lt_comoment_3: np.ndarray
     lt_comoment_4: np.ndarray
 
+    @property
+    def is_empty(self) -> bool:
+        """Check if any of the L-comoments are empty arrays."""
+        return (
+            self.lt_comoment_1.size == 0
+            or self.lt_comoment_2.size == 0
+            or self.lt_comoment_3.size == 0
+            or self.lt_comoment_4.size == 0
+        )
+
+    @property
+    def has_nan(self) -> bool:
+        """Check if any of the L-comoments contain NaN values."""
+        return (
+            np.any(np.isnan(self.lt_comoment_1))
+            or np.any(np.isnan(self.lt_comoment_2))
+            or np.any(np.isnan(self.lt_comoment_3))
+            or np.any(np.isnan(self.lt_comoment_4))
+        )
+
+
+EMPTY_L_MOMENTS = LMoments(
+    lt_comoment_1=np.array([]),
+    lt_comoment_2=np.array([]),
+    lt_comoment_3=np.array([]),
+    lt_comoment_4=np.array([]),
+)
+
 
 def validate_no_nan(data: np.ndarray, name: str) -> None:
     """Validate array contains no NaN values."""
@@ -88,6 +116,18 @@ def expected_return_moments(
     if weights.ndim == 1:
         # Single weight vector case: (n_assets,)
         weights = weights.reshape(1, -1)
+
+    # Validate L-moments have correct dimensions
+    if l_moments.is_empty:
+        logger.warning("L-moments contain empty arrays, returning zero utility")
+        n_particles = weights.shape[0]
+        return np.zeros(n_particles)
+
+    # Check for NaN values in L-moments
+    if l_moments.has_nan:
+        logger.warning("L-moments contain NaN values, returning zero utility to prevent propagation")
+        n_particles = weights.shape[0]
+        return np.zeros(n_particles)
 
     # Batch matrix multiplication for portfolio L-comoments
     # weights shape: (n_particles, n_assets)
@@ -184,7 +224,32 @@ def estimate_linear_moments(
     returns: np.ndarray,
     trim: Optional[float] = DEFAULT_TRIM,
 ) -> LMoments:
-    """Estimate L-comoments from return samples."""
+    """Estimate L-comoments from return samples.
+
+    Args:
+        returns: Return data array of shape (n_observations, n_assets)
+        trim: Trimming parameter for robust estimation
+
+    Returns:
+        LMoments container with L-comoment matrices
+
+    Raises:
+        ValueError: If returns contain NaN or insufficient observations
+    """
+    # Check for NaN in input data
+    if np.any(np.isnan(returns)):
+        logger.error("Input returns contain NaN values, cannot compute L-moments")
+        return EMPTY_L_MOMENTS
+
+    # Check for sufficient observations (increased from MIN_OBSERVATIONS=10)
+    min_required = 20  # Need more observations for reliable L-moments
+    if returns.shape[0] < min_required:
+        logger.warning(
+            f"Insufficient observations ({returns.shape[0]}) for reliable L-moments, "
+            f"minimum {min_required} required"
+        )
+        return EMPTY_L_MOMENTS
+
     # Compute L-comoments
     l_comom_1 = lmo.l_comoment(returns, 1, rowvar=False, trim=trim)
     l_comom_2 = lmo.l_comoment(returns, 2, rowvar=False, trim=trim)
@@ -197,6 +262,11 @@ def estimate_linear_moments(
         lt_comoment_3=l_comom_3,
         lt_comoment_4=l_comom_4,
     )
+
+    # Validate computed L-moments don't contain NaN
+    if l_moments.has_nan:
+        logger.error("Computed L-moments contain NaN values, input data may be corrupted")
+        return EMPTY_L_MOMENTS
 
     return l_moments
 

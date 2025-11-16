@@ -52,7 +52,7 @@ from allooptim.optimizer.asset_name_utils import (
     validate_asset_names,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
-from allooptim.optimizer.sequential_quadratic_programming.sqp_multistart import minimize_with_multistart
+from allooptim.optimizer.sequential_quadratic_programming.minimize_multistart import minimize_with_multistart
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +61,7 @@ MIN_OBSERVATIONS_FOR_UNCERTAINTY_ESTIMATION = 30
 WEIGHT_CLIPPING_THRESHOLD = 1e-6
 WEIGHT_SUM_TOLERANCE = 1e-6
 CASH_POSITION_WARNING_THRESHOLD = 0.1
+NORM_ZERO_THRESHOLD = 1e-10
 
 
 class RobustMeanVarianceOptimizerConfig(BaseModel):
@@ -109,6 +110,23 @@ class RobustMeanVarianceOptimizerConfig(BaseModel):
         default=100,
         ge=10,
         description="Number of bootstrap samples for uncertainty estimation",
+    )
+
+    maxiter: int = Field(
+        default=100,
+        ge=1,
+        description="Maximum number of iterations for the optimizer",
+    )
+
+    ftol: float = Field(
+        default=1e-6,
+        ge=0.0,
+        description="Function tolerance for termination",
+    )
+
+    optimizer_name: str = Field(
+        default="SLSQP",
+        description="Name of the optimizer to use",
     )
 
 
@@ -329,6 +347,11 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
             n_assets=n_assets,
             allow_cash=self.config.allow_cash,
             previous_best_weights=self._previous_best_weights,
+            jacobian=self._objective_jacobian,
+            hessian=self._objective_hessian,
+            maxiter=self.config.maxiter,
+            ftol=self.config.ftol,
+            optimizer_name=self.config.optimizer_name,
         )
 
         # Store best weights for next optimization warm start
@@ -380,7 +403,49 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         # Minimize negative of this
         return -(portfolio_return - uncertainty_penalty - self.config.risk_aversion * portfolio_variance)
 
+    def _objective_jacobian(self, w: np.ndarray) -> np.ndarray:
+        """Analytical gradient of robust mean-variance objective.
+
+        Objective: -(w'μ - ε_μ||w||₂ - λw'Σw)
+        """
+        # Gradient of return term: μ
+        grad_return = self._mu_array
+
+        # Gradient of L2 norm penalty: ε_μ * w / ||w||
+        norm_w = np.linalg.norm(w)
+        grad_uncertainty = self._eps_mu * w / norm_w if norm_w > NORM_ZERO_THRESHOLD else np.zeros_like(w)
+
+        # Gradient of variance term: 2λΣw
+        grad_variance = 2 * self.config.risk_aversion * self._cov_robust @ w
+
+        # Combine (note the negative sign for minimization)
+        return -(grad_return - grad_uncertainty - grad_variance)
+
+    def _objective_hessian(self, w: np.ndarray) -> np.ndarray:
+        """Analytical Hessian of robust mean-variance objective."""
+        n = len(w)
+        norm_w = np.linalg.norm(w)
+
+        if norm_w > NORM_ZERO_THRESHOLD:
+            # Hessian of L2 norm: ε_μ * (I/||w|| - ww'/||w||³)
+            identity_matrix = np.eye(n)
+            ww = np.outer(w, w)
+            H_uncertainty = self._eps_mu * (identity_matrix / norm_w - ww / norm_w**3)
+        else:
+            # Hessian undefined at origin, use zero
+            H_uncertainty = np.zeros((n, n))
+
+        # Hessian of variance: 2λΣ (constant)
+        H_variance = 2 * self.config.risk_aversion * self._cov_robust
+
+        # Combine (note the negative sign)
+        return -(-H_uncertainty - H_variance)
+
     @property
     def name(self) -> str:
-        """Return optimizer name."""
+        """Get the name of the robust mean-variance optimizer.
+
+        Returns:
+            Optimizer name string
+        """
         return "RobustMeanVarianceOptimizer"
