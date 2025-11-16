@@ -362,7 +362,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.optimizer.sequential_quadratic_programming.estimate_robust_ema_moments</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">calculate_robust_ema_moments</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.optimizer.sequential_quadratic_programming.sqp_multistart</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize_with_multistart</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.optimizer.sequential_quadratic_programming.minimize_multistart</span><span class="w"> </span><span class="kn">import</span> <span class="n">minimize_with_multistart</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -380,6 +380,10 @@
     <span class="n">reduce_l_moments_to_diagonal</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">ema_span</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">90</span>
     <span class="n">target_return</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># Target return for semivariance (downside threshold)</span>
+
+    <span class="n">maxiter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="n">ftol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1e-6</span>
+    <span class="n">optimizer_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;SLSQP&quot;</span>
 
 
 <div class="viewcode-block" id="MeanVarianceAdjustedReturnsOptimizer">
@@ -493,9 +497,14 @@
         <span class="c1"># Run optimization with multi-start to avoid local minima</span>
         <span class="n">optimal_weights</span> <span class="o">=</span> <span class="n">minimize_with_multistart</span><span class="p">(</span>
             <span class="n">objective_function</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_objective_function</span><span class="p">,</span>
+            <span class="n">jacobian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_objective_jacobian</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_l_moments</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">hessian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_objective_hessian</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_l_moments</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">n_assets</span><span class="o">=</span><span class="n">n_assets</span><span class="p">,</span>
             <span class="n">allow_cash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
             <span class="n">previous_best_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_previous_best_weights</span><span class="p">,</span>
+            <span class="n">maxiter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">maxiter</span><span class="p">,</span>
+            <span class="n">ftol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ftol</span><span class="p">,</span>
+            <span class="n">optimizer_name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">optimizer_name</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Store best weights for next optimization warm start</span>
@@ -518,7 +527,7 @@
 <span class="sd">            Downside covariance matrix (n_assets, n_assets)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Calculate returns</span>
-        <span class="n">returns</span> <span class="o">=</span> <span class="n">df_prices</span><span class="o">.</span><span class="n">pct_change</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+        <span class="n">returns</span> <span class="o">=</span> <span class="n">df_prices</span><span class="o">.</span><span class="n">pct_change</span><span class="p">(</span><span class="n">fill_method</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
 
         <span class="c1"># Calculate excess returns relative to target</span>
         <span class="n">excess_returns</span> <span class="o">=</span> <span class="n">returns</span> <span class="o">-</span> <span class="n">target_return</span>
@@ -560,6 +569,34 @@
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">cost</span><span class="o">.</span><span class="n">item</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cost</span><span class="p">,</span> <span class="s2">&quot;item&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">cost</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_objective_jacobian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Analytical gradient for mean-variance objective.</span>
+
+<span class="sd">        Objective: -(w&#39;μ - λ*0.5*w&#39;Σw)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">newaxis</span><span class="p">,</span> <span class="p">:]</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">x</span>
+
+        <span class="c1"># Gradient of mean term: μ</span>
+        <span class="n">grad_mean</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mu</span>
+
+        <span class="c1"># Gradient of variance term: λΣw</span>
+        <span class="n">grad_variance</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">risk_aversion</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cov</span> <span class="o">@</span> <span class="n">x</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># Combine and negate (for minimization)</span>
+        <span class="n">grad</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">grad_mean</span> <span class="o">-</span> <span class="n">grad_variance</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">grad</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span> <span class="k">if</span> <span class="n">grad</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">grad</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_objective_hessian</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Analytical Hessian for mean-variance objective.</span>
+
+<span class="sd">        Hessian is constant: λΣ</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Hessian of mean term: 0</span>
+        <span class="c1"># Hessian of variance term: λΣ</span>
+        <span class="c1"># Negate for minimization</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">risk_aversion</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cov</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
