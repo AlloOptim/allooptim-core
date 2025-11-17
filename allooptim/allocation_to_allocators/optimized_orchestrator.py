@@ -192,12 +192,12 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(instance_id=getattr(optimizer, '_display_name', optimizer.name), weights=weights_series)
+                    OptimizerAllocation(instance_id=optimizer.display_name, weights=weights_series)
                 )
 
                 # Store optimizer weight
                 optimizer_weights_list.append(
-                    OptimizerWeight(instance_id=getattr(optimizer, '_display_name', optimizer.name), weight=float(allocator_weights[k]))
+                    OptimizerWeight(instance_id=optimizer.display_name, weight=float(allocator_weights[k]))
                 )
 
             except Exception as error:
@@ -214,7 +214,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             # Create optimizer error (simplified - in future this should use error estimators)
             optimizer_errors.append(
                 OptimizerError(
-                    instance_id=getattr(optimizer, '_display_name', optimizer.name),
+                    instance_id=optimizer.display_name,
                     error=0.0,  # Placeholder - should compute actual error
                     error_components=[],
                 )

@@ -41,12 +41,14 @@ logger = logging.getLogger(__name__)
 class BalancedFundamentalOptimizer(AbstractOptimizer):
     """Balanced fundamental optimizer using fundamental analysis for portfolio allocation."""
 
-    def __init__(self, config: Optional[BalancedFundamentalConfig] = None) -> None:
+    def __init__(self, config: Optional[BalancedFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize balanced fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or BalancedFundamentalConfig()
 
         self._weights_today: Optional[np.ndarray] = None
@@ -118,13 +120,14 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
 class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Quality and growth focused fundamental optimizer."""
 
-    def __init__(self, config: Optional[QualityGrowthFundamentalConfig] = None) -> None:
+    def __init__(self, config: Optional[QualityGrowthFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize quality growth fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
-        super().__init__()
+        super().__init__(config, display_name)
         self.config = config or QualityGrowthFundamentalConfig()
 
     @property
@@ -140,13 +143,14 @@ class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
 class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Value investing focused fundamental optimizer."""
 
-    def __init__(self, config: Optional[ValueInvestingFundamentalConfig] = None) -> None:
+    def __init__(self, config: Optional[ValueInvestingFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize value investing fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
-        super().__init__()
+        super().__init__(config, display_name)
         self.config = config or ValueInvestingFundamentalConfig()
 
     @property
@@ -162,13 +166,14 @@ class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
 class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Market capitalization based fundamental optimizer."""
 
-    def __init__(self, config: Optional[OnlyMarketCapFundamentalConfig] = None) -> None:
+    def __init__(self, config: Optional[OnlyMarketCapFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize market cap fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
-        super().__init__()
+        super().__init__(config, display_name)
         self.config = config or OnlyMarketCapFundamentalConfig()
 
     @property
@@ -179,3 +184,4 @@ class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
             Optimizer name string
         """
         return "MarketCapFundamentalOptimizer"
+        

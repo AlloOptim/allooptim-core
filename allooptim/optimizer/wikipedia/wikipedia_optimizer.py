@@ -59,12 +59,14 @@ class WikipediaOptimizer(AbstractOptimizer):
     function to compute weights based on online attention metrics.
     """
 
-    def __init__(self, config: Optional[WikipediaOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[WikipediaOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the Wikipedia optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or WikipediaOptimizerConfig()
 
     def allocate(
@@ -153,3 +155,4 @@ class WikipediaOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "WikipediaOptimizer"
+        

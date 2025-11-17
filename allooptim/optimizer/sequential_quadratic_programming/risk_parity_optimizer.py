@@ -54,12 +54,14 @@ class RiskParityOptimizerConfig(BaseModel):
 class RiskParityOptimizer(AbstractOptimizer):
     """Risk Parity Optimizer."""
 
-    def __init__(self, config: Optional[RiskParityOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[RiskParityOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the risk parity optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or RiskParityOptimizerConfig()
         self._previous_weights: Optional[np.ndarray] = None
         self._target_risk: Optional[np.ndarray] = None
@@ -199,3 +201,4 @@ class RiskParityOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "RiskParityOptimizer"
+        

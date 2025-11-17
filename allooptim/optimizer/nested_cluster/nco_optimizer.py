@@ -140,12 +140,14 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 
     objective_type = ObjectiveType.SHARPE
 
-    def __init__(self, config: Optional[NCOOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[NCOOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the Nested Clustered Optimization Sharpe optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or NCOOptimizerConfig()
 
         self._previous_weights = None
@@ -472,3 +474,4 @@ class NCOVarianceOptimizer(NCOSharpeOptimizer):
             Optimizer name string
         """
         return "NCOVarianceOptimizer"
+        

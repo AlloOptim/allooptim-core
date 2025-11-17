@@ -59,12 +59,14 @@ class HRPOptimizer(AbstractOptimizer):
     optimization.
     """
 
-    def __init__(self, config: Optional[HRPOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[HRPOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the Hierarchical Risk Parity optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or HRPOptimizerConfig()
 
     def allocate(
@@ -113,3 +115,4 @@ class HRPOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "HRPOptimizer"
+        

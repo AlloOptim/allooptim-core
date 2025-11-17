@@ -69,12 +69,14 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
     - name: Property returning the optimizer name
     """
 
-    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the base ML optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or BaseMLOptimizerConfig()
         self._optimizer = None
         self._df_prices: Optional[pd.DataFrame] = None
@@ -225,3 +227,4 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
         augmented_prices = starting_prices * np.exp(np.cumsum(all_returns, axis=0))
 
         return augmented_prices, augmented_returns
+        

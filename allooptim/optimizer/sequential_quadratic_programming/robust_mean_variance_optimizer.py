@@ -172,12 +172,14 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         estimated_cov_uncertainty: Estimated uncertainty level for Σ from historical data
     """
 
-    def __init__(self, config: Optional[RobustMeanVarianceOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[RobustMeanVarianceOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the robust mean-variance optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or RobustMeanVarianceOptimizerConfig()
         self.estimated_mu_uncertainty: Optional[float] = None
         self.estimated_cov_uncertainty: Optional[float] = None
@@ -449,3 +451,4 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "RobustMeanVarianceOptimizer"
+        

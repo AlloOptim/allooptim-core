@@ -70,6 +70,15 @@ class AbstractOptimizer(ABC):
         - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities
     """
 
+    def __init__(self, display_name: Optional[str] = None):
+        """Initialize the optimizer.
+        
+        Args:
+            display_name: Optional display name for this optimizer instance.
+                         If None, defaults to the optimizer's name property.
+        """
+        self._display_name = display_name
+
     def fit(
         self,
         df_prices: Optional[pd.DataFrame] = None,
@@ -79,7 +88,7 @@ class AbstractOptimizer(ABC):
 
     def reset(self) -> None:
         """Optional method to reset any internal state of the optimizer."""
-        self.__init__()
+        self.__init__(self._display_name)
 
     @abstractmethod
     def allocate(
@@ -117,13 +126,22 @@ class AbstractOptimizer(ABC):
         pass
     
     @property
-    @abstractmethod
     def display_name(self) -> str:
         """Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist."""
+        return self._display_name if self._display_name is not None else self.name
 
 
 class AbstractEnsembleOptimizer(ABC):
     """Abstract base class for ensemble portfolio optimization algorithms with pandas interface."""
+
+    def __init__(self, display_name: Optional[str] = None):
+        """Initialize the ensemble optimizer.
+        
+        Args:
+            display_name: Optional display name for this optimizer instance.
+                         If None, defaults to the optimizer's name property.
+        """
+        self._display_name = display_name
 
     def fit(
         self,
@@ -134,7 +152,7 @@ class AbstractEnsembleOptimizer(ABC):
 
     def reset(self) -> None:
         """Optional method to reset any internal state of the optimizer."""
-        self.__init__()
+        self.__init__(self._display_name)
 
     @abstractmethod
     def allocate(  # noqa: PLR0913
@@ -174,3 +192,8 @@ class AbstractEnsembleOptimizer(ABC):
     def name(self) -> str:
         """Name of this optimizer. The name will be displayed in the MCOS results DataFrame."""
         pass
+
+    @property
+    def display_name(self) -> str:
+        """Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist."""
+        return self._display_name if self._display_name is not None else self.name

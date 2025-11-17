@@ -52,3 +52,4 @@ class AugmentedLightGBMOptimizer(LightGBMOptimizer):
     def name(self) -> str:
         """Return the name of this optimizer."""
         return "AugmentedLightGBMOptimizer"
+        

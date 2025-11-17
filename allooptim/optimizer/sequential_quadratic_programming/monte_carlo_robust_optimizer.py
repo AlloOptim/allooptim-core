@@ -262,12 +262,14 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
     objective_function: ObjectiveFunction = ObjectiveFunction.MIN_VARIANCE
 
-    def __init__(self, config: Optional[MonteCarloRobustOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[MonteCarloRobustOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the Monte Carlo robust optimizer.
 
         Args:
             config: Configuration parameters. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or MonteCarloRobustOptimizerConfig()
         self._all_sample_results: Optional[list[SamplingResult]] = None
 
@@ -881,3 +883,4 @@ class MonteCarloMinCVAROptimizer(MonteCarloMinVarianceOptimizer):
     def name(self) -> str:
         """Return optimizer name."""
         return "MonteCarloMinCVAROptimizer"
+        

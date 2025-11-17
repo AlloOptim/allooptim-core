@@ -130,7 +130,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(instance_id=getattr(optimizer, '_display_name', optimizer.name), weights=weights_series)
+                    OptimizerAllocation(instance_id=optimizer.display_name, weights=weights_series)
                 )
 
             except Exception as error:
@@ -140,7 +140,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 weights_series = pd.Series(equal_weights, index=mu.index)
 
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(instance_id=getattr(optimizer, '_display_name', optimizer.name), weights=weights_series)
+                    OptimizerAllocation(instance_id=optimizer.display_name, weights=weights_series)
                 )
 
         # Second pass: determine A2A weights based on combination method

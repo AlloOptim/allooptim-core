@@ -98,12 +98,15 @@ class MaxSharpeOptimizer(AbstractOptimizer):
     def __init__(
         self,
         config: Optional[MaxSharpeOptimizerConfig] = None,
+        display_name: Optional[str] = None,
     ) -> None:
         """Initialize maximum Sharpe ratio optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or MaxSharpeOptimizerConfig()
 
     def allocate(
@@ -205,12 +208,14 @@ class EfficientRiskOptimizerConfig(BaseModel):
 class EfficientRiskOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'."""
 
-    def __init__(self, config: Optional[EfficientRiskOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[EfficientRiskOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize efficient risk optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or EfficientRiskOptimizerConfig()
 
     def allocate(
@@ -282,12 +287,14 @@ class EfficientReturnOptimizerConfig(BaseModel):
 class EfficientReturnOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'."""
 
-    def __init__(self, config: Optional[EfficientReturnOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[EfficientReturnOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize efficient return optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or EfficientReturnOptimizerConfig()
 
     def allocate(

@@ -49,20 +49,17 @@ def get_optimizer_by_names_with_configs(
         # Create with config
         if opt_config.config:
             config = validate_optimizer_config(opt_config.name, opt_config.config)
-            optimizer = optimizer_class(config=config)
+            optimizer = optimizer_class(config=config, display_name=opt_config.display_name)
             logger.info(
                 f"Created {opt_config.name} as '{opt_config.display_name}' "
                 f"with config: {opt_config.config}"
             )
         else:
-            optimizer = optimizer_class()
+            optimizer = optimizer_class(display_name=opt_config.display_name)
             logger.debug(
                 f"Created {opt_config.name} as '{opt_config.display_name}' "
                 f"with default config"
             )
-        
-        # Store display_name for later use
-        optimizer._display_name = opt_config.display_name
         
         optimizers.append(optimizer)
     

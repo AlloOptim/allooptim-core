@@ -67,12 +67,14 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
     enable_ema: bool = False
     enable_semi_variance: bool = False
 
-    def __init__(self, config: Optional[MeanVarianceAdjustedReturnsOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[MeanVarianceAdjustedReturnsOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the mean-variance adjusted returns optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or MeanVarianceAdjustedReturnsOptimizerConfig()
 
         self._mu: Optional[np.ndarray] = None
@@ -329,3 +331,4 @@ class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer)
             Optimizer name string
         """
         return "SemiVarianceAdjustedReturnsOptimizer"
+        
