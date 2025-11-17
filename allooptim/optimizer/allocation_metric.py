@@ -140,7 +140,7 @@ def expected_return_moments(
 
     for k in range(n_particles):
         w = weights[k, :]
-        port_lt_comom_1[k] = (w @ l_moments.lt_comoment_1).item()
+        port_lt_comom_1[k] = w @ l_moments.lt_comoment_1
         port_lt_comom_2[k] = (w @ l_moments.lt_comoment_2 @ w).item()
         port_lt_comom_3[k] = (w @ l_moments.lt_comoment_3 @ w).item()
         port_lt_comom_4[k] = (w @ l_moments.lt_comoment_4 @ w).item()
@@ -251,7 +251,7 @@ def estimate_linear_moments(
         return EMPTY_L_MOMENTS
 
     # Compute L-comoments
-    l_comom_1 = lmo.l_comoment(returns, 1, rowvar=False, trim=trim)
+    l_comom_1 = np.mean(returns, axis=0)  # L-mean is approximately the mean
     l_comom_2 = lmo.l_comoment(returns, 2, rowvar=False, trim=trim)
     l_comom_3 = lmo.l_comoment(returns, 3, rowvar=False, trim=trim)
     l_comom_4 = lmo.l_comoment(returns, 4, rowvar=False, trim=trim)
