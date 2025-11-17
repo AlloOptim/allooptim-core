@@ -213,7 +213,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                 # Update with actual weights for selected assets
                 full_weights.update(opt_alloc.weights)
                 padded_optimizer_allocations.append(
-                    OptimizerAllocation(optimizer_name=opt_alloc.optimizer_name, weights=full_weights)
+                    OptimizerAllocation(instance_id=opt_alloc.instance_id, weights=full_weights)
                 )
 
             runtime_seconds = time.time() - start_time

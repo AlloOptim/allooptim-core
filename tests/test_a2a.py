@@ -11,6 +11,7 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
 )
+from allooptim.config.optimizer_config import OptimizerConfig
 from allooptim.config.stock_universe import list_of_dax_stocks
 from tests.conftest import (
     FAST_TEST_ITERATIONS,
@@ -23,6 +24,9 @@ from tests.conftest import (
 @pytest.mark.parametrize("orchestrator_type", OrchestratorType)
 def test_a2a(orchestrator_type, optimizer_names):
     """Test that all A2A allocators work correctly."""
+    # Convert optimizer names to OptimizerConfig objects
+    optimizer_configs = [OptimizerConfig(name=name) for name in optimizer_names]
+    
     # Create sample price data for optimizers that need it
     all_stocks = list_of_dax_stocks()[:5]
     assets = [stock.symbol for stock in all_stocks]
@@ -52,7 +56,7 @@ def test_a2a(orchestrator_type, optimizer_names):
 
     orchestrator = create_orchestrator(
         orchestrator_type=orchestrator_type,
-        optimizer_names=optimizer_names,
+        optimizer_configs=optimizer_configs,
         transformer_names=["OracleCovarianceTransformer"],
         config=fast_a2a_config,
         **kwargs,

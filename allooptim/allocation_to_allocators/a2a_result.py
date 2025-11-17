@@ -16,8 +16,14 @@ from allooptim.config.a2a_config import A2AConfig
 class OptimizerAllocation(BaseModel):
     """Single optimizer's allocation result."""
 
-    optimizer_name: str = Field(description="Name of the optimizer")
+    instance_id: str = Field(description="Unique identifier of the optimizer instance")
     weights: pd.Series = Field(description="Asset weights (asset_name -> weight)")
+
+    # Backward compatibility alias
+    @property
+    def optimizer_name(self) -> str:
+        """Deprecated: Use instance_id instead."""
+        return self.instance_id
 
     model_config = ConfigDict(arbitrary_types_allowed=True)  # Allow pandas Series
 
@@ -25,8 +31,14 @@ class OptimizerAllocation(BaseModel):
 class OptimizerWeight(BaseModel):
     """Weight assigned to an optimizer in ensemble."""
 
-    optimizer_name: str = Field(description="Name of the optimizer")
+    instance_id: str = Field(description="Unique identifier of the optimizer instance")
     weight: float = Field(description="Contribution weight (all weights sum to 1)")
+
+    # Backward compatibility alias
+    @property
+    def optimizer_name(self) -> str:
+        """Deprecated: Use instance_id instead."""
+        return self.instance_id
 
 
 class PerformanceMetrics(BaseModel):
@@ -45,9 +57,15 @@ class PerformanceMetrics(BaseModel):
 class OptimizerError(BaseModel):
     """Error metric for an optimizer."""
 
-    optimizer_name: str = Field(description="Name of the optimizer")
+    instance_id: str = Field(description="Unique identifier of the optimizer instance")
     error: float = Field(description="Error metric value")
     error_components: List[float] = Field(default_factory=list, description="Individual error estimator values")
+
+    # Backward compatibility alias
+    @property
+    def optimizer_name(self) -> str:
+        """Deprecated: Use instance_id instead."""
+        return self.instance_id
 
 
 class A2AResult(BaseModel):
@@ -88,7 +106,7 @@ class A2AResult(BaseModel):
         Returns:
             DataFrame with optimizers as columns, assets as rows
         """
-        alloc_dict = {alloc.optimizer_name: alloc.weights for alloc in self.optimizer_allocations}
+        alloc_dict = {alloc.instance_id: alloc.weights for alloc in self.optimizer_allocations}
         return pd.DataFrame(alloc_dict)
 
     def get_optimizer_weights_series(self) -> pd.Series:
@@ -97,7 +115,7 @@ class A2AResult(BaseModel):
         Returns:
             Series with optimizer names as index, weights as values
         """
-        return pd.Series({w.optimizer_name: w.weight for w in self.optimizer_weights})
+        return pd.Series({w.instance_id: w.weight for w in self.optimizer_weights})
 
 
 # Rebuild model to resolve forward references

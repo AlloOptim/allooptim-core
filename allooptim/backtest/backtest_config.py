@@ -19,14 +19,137 @@ from functools import cached_property
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
-from allooptim.config.optimizer_config import OptimizerConfig
 from allooptim.covariance_transformer.transformer_list import get_all_transformers
-from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
+from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema, validate_optimizer_config
+from allooptim.optimizer.optimizer_list import get_all_optimizer_names
 
 logger = logging.getLogger(__name__)
+
+
+class OptimizerConfig(BaseModel):
+    """Configuration for a single optimizer with optional custom parameters."""
+
+    name: str = Field(..., description="Optimizer class name for instantiation")
+    display_name: Optional[str] = Field(
+        default=None,
+        description="Unique identifier for results and reporting. "
+                    "Auto-generated from config if not provided."
+    )
+    config: Optional[Dict] = Field(
+        default=None, 
+        description="Optional custom configuration parameters"
+    )
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def validate_optimizer_name(cls, v: str) -> str:
+        """Validate that the optimizer name exists."""
+        available_optimizers = get_all_optimizer_names()
+        if v not in available_optimizers:
+            raise ValueError(f"Invalid optimizer name: {v}. " f"Available optimizers: {available_optimizers}")
+        return v
+
+    @field_validator("config", mode="before")
+    @classmethod
+    def validate_config(cls, v: Optional[Dict], info) -> Optional[Dict]:
+        """Validate the config against the optimizer's schema if provided."""
+        if v is None:
+            return v
+
+        # Get the optimizer name from the current values
+        name = info.data.get("name")
+        if name:
+            try:
+                validate_optimizer_config(name, v)
+            except Exception as e:
+                raise ValueError(f"Invalid config for optimizer {name}: {e}") from e
+
+        return v
+
+    @field_validator("display_name", mode="after")
+    @classmethod
+    def generate_display_name(cls, v: Optional[str], info) -> str:
+        """Auto-generate display name if not provided.
+        
+        Generation strategy:
+        1. If display_name provided explicitly, use it
+        2. If no config, use class name
+        3. If config exists, append key parameters to class name
+        """
+        if v is not None:
+            return v
+        
+        name = info.data.get("name")
+        config = info.data.get("config")
+        
+        if not config:
+            return name
+        
+        # Generate suffix from config
+        suffix = cls._generate_config_suffix(config)
+        if suffix:
+            return f"{name}[{suffix}]"
+        
+        return name
+
+    @model_validator(mode="after")
+    def ensure_display_name_set(self) -> "OptimizerConfig":
+        """Ensure display_name is set after model construction."""
+        if self.display_name is None:
+            if not self.config:
+                self.display_name = self.name
+            else:
+                # Generate suffix from config
+                suffix = self._generate_config_suffix(self.config)
+                if suffix:
+                    self.display_name = f"{self.name}[{suffix}]"
+                else:
+                    self.display_name = self.name
+        return self
+
+    @staticmethod
+    def _generate_config_suffix(config: Dict, max_params: int = 2) -> str:
+        """Generate compact suffix from config parameters.
+        
+        Args:
+            config: Configuration dictionary
+            max_params: Maximum number of parameters to include
+            
+        Returns:
+            Suffix string like "param1=value1-param2=value2"
+        """
+        if not config:
+            return ""
+        
+        # Filter to serializable primitive values
+        simple_params = {
+            k: v for k, v in config.items()
+            if isinstance(v, (str, int, float, bool))
+        }
+        
+        if not simple_params:
+            return ""
+        
+        # Take first max_params, sorted for consistency
+        items = sorted(simple_params.items())[:max_params]
+        
+        # Format values
+        parts = []
+        for key, value in items:
+            if isinstance(value, float):
+                value_str = f"{value:.2g}"  # Compact float representation
+            elif isinstance(value, bool):
+                value_str = str(value).lower()
+            else:
+                value_str = str(value)
+            
+            parts.append(f"{key}={value_str}")
+        
+        return "-".join(parts)
+
 
 class BacktestConfig(BaseModel):
     """Pydantic configuration model for backtest parameters."""
@@ -119,18 +242,6 @@ class BacktestConfig(BaseModel):
             raise ValueError(f"Invalid quantstats_mode: {v}. Must be one of {allowed_modes}")
         return v
 
-    @field_validator("optimizer_configs", mode="before")
-    @classmethod
-    def convert_strings_to_optimizer_configs(cls, v: List[Union[str, OptimizerConfig]]) -> List[OptimizerConfig]:
-        """Convert string optimizer names to OptimizerConfig objects."""
-        result = []
-        for item in v:
-            if isinstance(item, str):
-                result.append(OptimizerConfig(name=item))
-            else:
-                result.append(item)
-        return result
-
     @field_validator("optimizer_configs", mode="after")
     @classmethod
     def validate_unique_display_names(
@@ -186,8 +297,8 @@ class BacktestConfig(BaseModel):
         return [config.name for config in self.optimizer_configs]
 
     def get_optimizer_configs_dict(self) -> Dict[str, Optional[Dict]]:
-        """Get optimizer configs as a dict mapping display_names to config dicts."""
-        return {config.display_name: config.config for config in self.optimizer_configs}
+        """Get optimizer configs as a dict mapping names to config dicts."""
+        return {config.name: config.config for config in self.optimizer_configs}
 
     def get_optimizer_config_schemas(self) -> Dict[str, Dict]:
         """Get JSON schemas for all configured optimizers."""

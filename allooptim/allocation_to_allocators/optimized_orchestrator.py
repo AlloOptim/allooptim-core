@@ -192,12 +192,12 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
+                    OptimizerAllocation(instance_id=getattr(optimizer, '_display_name', optimizer.name), weights=weights_series)
                 )
 
                 # Store optimizer weight
                 optimizer_weights_list.append(
-                    OptimizerWeight(optimizer_name=optimizer.name, weight=float(allocator_weights[k]))
+                    OptimizerWeight(instance_id=getattr(optimizer, '_display_name', optimizer.name), weight=float(allocator_weights[k]))
                 )
 
             except Exception as error:
@@ -214,7 +214,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             # Create optimizer error (simplified - in future this should use error estimators)
             optimizer_errors.append(
                 OptimizerError(
-                    optimizer_name=optimizer.name,
+                    instance_id=getattr(optimizer, '_display_name', optimizer.name),
                     error=0.0,  # Placeholder - should compute actual error
                     error_components=[],
                 )
@@ -231,7 +231,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
 
         # Compute diversity score (1 - mean correlation)
-        optimizer_alloc_df = pd.DataFrame({alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list})
+        optimizer_alloc_df = pd.DataFrame({alloc.instance_id: alloc.weights for alloc in optimizer_allocations_list})
         corr_matrix = optimizer_alloc_df.corr()
         n = len(corr_matrix)
         if n <= 1:

@@ -17,6 +17,7 @@ import pandas as pd
 
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
+from allooptim.config.optimizer_config import OptimizerConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
 from allooptim.backtest.backtest_quantstats import create_quantstats_reports
 from allooptim.backtest.backtest_report import generate_report
@@ -50,25 +51,25 @@ def main():
             symbols=symbols,
             optimizer_configs=[
                 # Example with default config
-                "CMAMeanVariance",
+                OptimizerConfig(name="CMAMeanVariance"),
                 # Example with custom config
-                {"name": "CMALMoments", "config": {"budget": 2000}},
+                OptimizerConfig(name="CMALMoments", config={"budget": 2000}),
                 # More optimizers with defaults
-                "CMASortino",
-                "CMAMaxDrawdown",
-                "CMARobustSharpe",
-                "CMACvar",
-                "PSOMeanVariance",
-                "PSOLMoments",
-                "NCOSharpeOptimizer",
-                "NaiveOptimizer",
-                "MomentumOptimizer",
-                "MeanVarianceAdjustedReturnsOptimizer",
-                "SemiVarianceAdjustedReturnsOptimizer",
-                "HigherMomentOptimizer",
-                "EfficientReturn",
-                "EfficientRisk",
-                "MaxSharpe",
+                OptimizerConfig(name="CMASortino"),
+                OptimizerConfig(name="CMAMaxDrawdown"),
+                OptimizerConfig(name="CMARobustSharpe"),
+                OptimizerConfig(name="CMACvar"),
+                OptimizerConfig(name="PSOMeanVariance"),
+                OptimizerConfig(name="PSOLMoments"),
+                OptimizerConfig(name="NCOSharpeOptimizer"),
+                OptimizerConfig(name="NaiveOptimizer"),
+                OptimizerConfig(name="MomentumOptimizer"),
+                OptimizerConfig(name="MeanVarianceAdjustedReturnsOptimizer"),
+                OptimizerConfig(name="SemiVarianceAdjustedReturnsOptimizer"),
+                OptimizerConfig(name="HigherMomentOptimizer"),
+                OptimizerConfig(name="EfficientReturn"),
+                OptimizerConfig(name="EfficientRisk"),
+                OptimizerConfig(name="MaxSharpe"),
             ],
             transformer_names=["OracleCovarianceTransformer"],
             orchestration_type="equal_weight",

@@ -113,8 +113,13 @@ class AbstractOptimizer(ABC):
     @property
     @abstractmethod
     def name(self) -> str:
-        """Name of this optimizer. The name will be displayed in the MCOS results DataFrame."""
+        """Unique name of this optimizer class."""
         pass
+    
+    @property
+    @abstractmethod
+    def display_name(self) -> str:
+        """Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist."""
 
 
 class AbstractEnsembleOptimizer(ABC):

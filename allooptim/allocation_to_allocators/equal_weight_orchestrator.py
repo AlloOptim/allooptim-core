@@ -130,7 +130,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
+                    OptimizerAllocation(instance_id=getattr(optimizer, '_display_name', optimizer.name), weights=weights_series)
                 )
 
             except Exception as error:
@@ -140,7 +140,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 weights_series = pd.Series(equal_weights, index=mu.index)
 
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
+                    OptimizerAllocation(instance_id=getattr(optimizer, '_display_name', optimizer.name), weights=weights_series)
                 )
 
         # Second pass: determine A2A weights based on combination method
@@ -149,7 +149,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Equal weights for all optimizers
                 # For median, this is the best approximation
                 a2a_weights = {
-                    opt.optimizer_name: 1.0 / len(optimizer_allocations_list) for opt in optimizer_allocations_list
+                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list) for opt_alloc in optimizer_allocations_list
                 }
 
             case CombinedWeightType.CUSTOM:
@@ -164,12 +164,12 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Weighted combination of optimizer allocations
                 asset_weights = np.zeros(len(mu))
                 for opt_alloc in optimizer_allocations_list:
-                    weight = a2a_weights[opt_alloc.optimizer_name]
+                    weight = a2a_weights[opt_alloc.instance_id]
                     asset_weights += weight * opt_alloc.weights.values
 
             case CombinedWeightType.MEDIAN:
                 # Take median across optimizer allocations for each asset
-                alloc_df = pd.DataFrame({opt.optimizer_name: opt.weights for opt in optimizer_allocations_list})
+                alloc_df = pd.DataFrame({opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list})
                 asset_weights = alloc_df.median(axis=1).values
 
             case _:
@@ -183,8 +183,8 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         for opt_alloc in optimizer_allocations_list:
             optimizer_weights_list.append(
                 OptimizerWeight(
-                    optimizer_name=opt_alloc.optimizer_name,
-                    weight=a2a_weights[opt_alloc.optimizer_name],
+                    instance_id=opt_alloc.instance_id,
+                    weight=a2a_weights[opt_alloc.instance_id],
                 )
             )
 
@@ -214,7 +214,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
 
         # Compute diversity score (1 - mean correlation)
-        optimizer_alloc_df = pd.DataFrame({alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list})
+        optimizer_alloc_df = pd.DataFrame({alloc.instance_id: alloc.weights for alloc in optimizer_allocations_list})
         corr_matrix = optimizer_alloc_df.corr()
         n = len(corr_matrix)
         if n <= 1:
@@ -233,7 +233,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         # Create optimizer errors (empty for equal weight)
         optimizer_errors = [
             OptimizerError(
-                optimizer_name=opt.optimizer_name,
+                instance_id=opt.instance_id,
                 error=0.0,  # No error estimation for equal weight
                 error_components=[],
             )

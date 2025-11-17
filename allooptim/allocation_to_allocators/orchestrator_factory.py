@@ -4,7 +4,7 @@ Factory for creating allocation-to-allocators orchestrators based on configurati
 """
 
 from enum import Enum
-from typing import Dict, List, Optional
+from typing import List
 
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
@@ -21,6 +21,7 @@ from allooptim.allocation_to_allocators.wikipedia_pipeline_orchestrator import (
 )
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
 from allooptim.optimizer.optimizer_factory import get_optimizer_by_names_with_configs
+from allooptim.config.optimizer_config import OptimizerConfig
 
 
 class OrchestratorType(str, Enum):
@@ -36,8 +37,7 @@ class OrchestratorType(str, Enum):
 
 def create_orchestrator(
     orchestrator_type: str,
-    optimizer_names: Optional[List[str]] = None,
-    optimizer_configs: Optional[Dict[str, Optional[Dict]]] = None,
+    optimizer_configs: List["OptimizerConfig"],  # Changed signature
     transformer_names: List[str] = None,
     config: A2AConfig = None,
     **kwargs,
@@ -46,8 +46,7 @@ def create_orchestrator(
 
     Args:
         orchestrator_type: Type of orchestrator to create
-        optimizer_names: List of optimizer names to use (deprecated, use optimizer_configs)
-        optimizer_configs: Dict mapping optimizer names to optional config dicts
+        optimizer_configs: List of OptimizerConfig objects
         transformer_names: List of covariance transformer names to use
         config: A2AConfig for orchestrator configuration
         **kwargs: Additional arguments specific to orchestrator type
@@ -58,12 +57,6 @@ def create_orchestrator(
     Raises:
         ValueError: If orchestrator_type is not recognized
     """
-    # Handle backward compatibility
-    if optimizer_names is not None and optimizer_configs is None:
-        optimizer_configs = {name: None for name in optimizer_names}
-    elif optimizer_configs is None:
-        raise ValueError("Either optimizer_names (deprecated) or optimizer_configs must be provided")
-
     # Get optimizers and transformers
     optimizers = get_optimizer_by_names_with_configs(optimizer_configs)
     transformers = get_transformer_by_names(transformer_names)
