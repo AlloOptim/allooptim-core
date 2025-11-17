@@ -21,6 +21,7 @@ from allooptim.allocation_to_allocators.a2a_result import (
     OptimizerWeight,
     PerformanceMetrics,
 )
+from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
@@ -197,6 +198,14 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         else:
             logger.warning("Final allocation sums to zero; returning zero weights.")
             final_allocation = pd.Series(0.0, index=mu.index)
+
+        # Apply allocation constraints
+        final_allocation = AllocationConstraints.apply_all_constraints(
+            weights=final_allocation,
+            n_max_active_assets=self.config.n_max_active_assets,
+            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
+            n_min_active_assets=self.config.n_min_active_assets,
+        )
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()
