@@ -271,7 +271,7 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
         Returns:
             Optimizer name string
         """
-        return "AdjustedReturnsMeanVariance"
+        return "MeanVarianceAdjustedReturnsOptimizer"
 
 
 class LMomentsAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
@@ -287,7 +287,7 @@ class LMomentsAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
         Returns:
             Optimizer name string
         """
-        return "AdjustedReturnsLMoments"
+        return "LMomentsAdjustedReturnsOptimizer"
 
 
 class EMAAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
@@ -303,7 +303,7 @@ class EMAAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
         Returns:
             Optimizer name string
         """
-        return "AdjustedReturnsEMA"
+        return "EMAAdjustedReturnsOptimizer"
 
 
 class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer):
@@ -328,4 +328,4 @@ class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer)
         Returns:
             Optimizer name string
         """
-        return "AdjustedReturnsSemiVariance"
+        return "SemiVarianceAdjustedReturnsOptimizer"

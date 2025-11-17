@@ -403,14 +403,31 @@ class BacktestEngine:
                         }
                     )
 
-            # Computation and memory statistics (not available in new architecture)
-            computation_stats = {
-                "avg_computation_time": 0,  # Not tracked in new architecture
-                "max_computation_time": 0,
-                "min_computation_time": 0,
-                "avg_memory_usage_mb": 0,
-                "max_memory_usage_mb": 0,
-            }
+            # Computation and memory statistics
+            # Extract computation times from A2AResult objects
+            computation_times = []
+            for result in allocation_results:
+                if result.runtime_seconds > 0:
+                    # Since runtime_seconds is for all optimizers combined, divide by number of optimizers
+                    per_optimizer_time = result.runtime_seconds / len(result.optimizer_allocations)
+                    computation_times.append(per_optimizer_time)
+            
+            if computation_times:
+                computation_stats = {
+                    "avg_computation_time": np.mean(computation_times),
+                    "max_computation_time": np.max(computation_times),
+                    "min_computation_time": np.min(computation_times),
+                    "avg_memory_usage_mb": 0,  # Memory usage not tracked
+                    "max_memory_usage_mb": 0,
+                }
+            else:
+                computation_stats = {
+                    "avg_computation_time": 0,
+                    "max_computation_time": 0,
+                    "min_computation_time": 0,
+                    "avg_memory_usage_mb": 0,
+                    "max_memory_usage_mb": 0,
+                }
 
             # Combine all metrics
             all_metrics = {
