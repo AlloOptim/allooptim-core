@@ -8,7 +8,7 @@ from datetime import datetime
 
 import pytest
 
-from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config_registry import (
     get_all_optimizer_configs,
     get_optimizer_config_class,

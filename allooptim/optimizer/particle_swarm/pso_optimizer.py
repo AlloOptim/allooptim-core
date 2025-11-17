@@ -155,14 +155,18 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
             Returns:
                 Negative risk-adjusted returns for minimization
             """
-            return risk_adjusted_returns_objective(
-                x,
+            # Reshape to 2D for batch processing
+            x_2d = np.atleast_2d(x)
+            result = risk_adjusted_returns_objective(
+                x_2d,
                 enable_l_moments=self.enable_l_moments,
                 l_moments=l_moments,
                 risk_aversion=self.config.risk_aversion,
                 mu=mu_array,
                 cov=cov_array,
             )
+            # Return scalar value for single particle evaluation
+            return result[0]
 
         objective_with_early_stopping = EarlyStopObjective(
             objective_function=objective_function,

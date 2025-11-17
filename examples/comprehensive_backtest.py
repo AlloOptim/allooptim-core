@@ -15,8 +15,8 @@ from datetime import datetime
 
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
-from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.backtest_config import BacktestConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
 from allooptim.backtest.backtest_quantstats import create_quantstats_reports
 from allooptim.backtest.backtest_report import generate_report
@@ -44,7 +44,7 @@ def main():
             end_date=datetime(2024, 12, 31),
             rebalance_frequency=10,
             lookback_days=90,
-            quick_test=False,
+            quick_test=True,
             log_returns=True,
             benchmark="SPY",
             symbols=symbols,
@@ -63,8 +63,8 @@ def main():
                 "NCOSharpeOptimizer",
                 "NaiveOptimizer",
                 "MomentumOptimizer",
-                "AdjustedReturnsMeanVariance",
-                "AdjustedReturnsSemiVariance",
+                "MeanVarianceAdjustedReturnsOptimizer",
+                "SemiVarianceAdjustedReturnsOptimizer",
                 "HigherMomentOptimizer",
                 "EfficientReturn",
                 "EfficientRisk",

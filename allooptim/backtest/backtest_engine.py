@@ -22,7 +22,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
@@ -31,7 +31,7 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.config.backtest_config import BacktestConfig
 from allooptim.backtest.data_loader import DataLoader
 from allooptim.backtest.performance_metrics import PerformanceMetrics
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names

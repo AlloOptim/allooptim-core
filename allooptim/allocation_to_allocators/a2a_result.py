@@ -10,7 +10,7 @@ from typing import List, Optional
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.config.a2a_config import A2AConfig
 
 
 class OptimizerAllocation(BaseModel):

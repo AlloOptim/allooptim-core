@@ -17,7 +17,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )

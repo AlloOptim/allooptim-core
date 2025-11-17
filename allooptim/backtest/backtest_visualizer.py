@@ -20,7 +20,7 @@ from typing import Optional
 
 from scipy.cluster.hierarchy import dendrogram
 
-from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.config.backtest_config import BacktestConfig
 
 logger = logging.getLogger(__name__)
 

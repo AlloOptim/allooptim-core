@@ -6,7 +6,7 @@ Factory for creating allocation-to-allocators orchestrators based on configurati
 from enum import Enum
 from typing import Dict, List, Optional
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
     CustomWeightOrchestrator,

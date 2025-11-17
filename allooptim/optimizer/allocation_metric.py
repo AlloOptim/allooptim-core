@@ -140,10 +140,10 @@ def expected_return_moments(
 
     for k in range(n_particles):
         w = weights[k, :]
-        port_lt_comom_1[k] = w @ l_moments.lt_comoment_1 @ w
-        port_lt_comom_2[k] = w @ l_moments.lt_comoment_2 @ w
-        port_lt_comom_3[k] = w @ l_moments.lt_comoment_3 @ w
-        port_lt_comom_4[k] = w @ l_moments.lt_comoment_4 @ w
+        port_lt_comom_1[k] = (w @ l_moments.lt_comoment_1).item()
+        port_lt_comom_2[k] = (w @ l_moments.lt_comoment_2 @ w).item()
+        port_lt_comom_3[k] = (w @ l_moments.lt_comoment_3 @ w).item()
+        port_lt_comom_4[k] = (w @ l_moments.lt_comoment_4 @ w).item()
 
     # Compute ratios for portfolio using the appropriate L-comoment scale
     # Handle division by zero element-wise
@@ -151,7 +151,7 @@ def expected_return_moments(
     port_lt_cokurt = np.where(np.abs(port_lt_comom_2) > EPSILON_DIVISION, port_lt_comom_4 / port_lt_comom_2, 0.0)
 
     # Expected returns using L-comoments
-    expected_return_lt_co_mv = port_lt_comom_1 - 0.5 * risk_aversion * port_lt_comom_2**2
+    expected_return_lt_co_mv = port_lt_comom_1 - 0.5 * risk_aversion * port_lt_comom_2
     expected_return_lt_co_mvs = (
         expected_return_lt_co_mv + (1 / 6) * risk_aversion * (risk_aversion + 1) * port_lt_coskew * port_lt_comom_2**3
     )

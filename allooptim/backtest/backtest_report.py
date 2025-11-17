@@ -19,7 +19,7 @@ import logging
 from datetime import datetime
 from typing import Optional
 
-from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.config.backtest_config import BacktestConfig
 
 logger = logging.getLogger(__name__)
 
