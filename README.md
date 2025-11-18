@@ -75,21 +75,19 @@ for name in optimizers:
 
 ## 📚 Documentation
 
-📖 Full documentation available at [allooptim.readthedocs.io](https://allooptim.readthedocs.io)
+📖 Full documentation available at
 
-- [Getting Started Guide](docs/getting_started.md)
-- [Methodology Whitepaper](https://allooptim.io/whitepaper.pdf)
-- [API Reference](docs/api.md)
+- [allooptim.readthedocs.io](https://allooptim.readthedocs.io)
+- [Getting Started Notebooks](https://github.com/AlloOptim/allooptim-core/blob/main/examples/single_optimizer_example.ipynb)
+- [Methodology Whitepaper](https://github.com/AlloOptim/allooptim-whitepaper)
 
 ## 🤝 For Institutional Users
 
 AlloOptim offers a professional SaaS platform built on this open-source core:
 - Web-based UI with no coding required
 - Integration with custodian banks
-- Compliance-ready reporting
+- Enhanced reporting
 - Dedicated support
-
-→ **Learn more:** [allooptim.com](https://allooptim.com)
 
 ## 📖 Citation
 
@@ -109,7 +107,6 @@ MIT License - see [LICENSE](LICENSE) file
 
 ## 🙋 Contact
 
-- Website: [allooptim.com](https://allooptim.com)
 - Email: jonas.tenhaaf@mail.de
 - LinkedIn: [Jonas ten Haaf](https://de.linkedin.com/in/jonas-ten-haaf-geb-weigand-9854b0198/en)
 
