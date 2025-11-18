@@ -70,7 +70,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         Args:
             optimizers: List of portfolio optimization algorithms to orchestrate.
             covariance_transformers: List of covariance matrix transformations to apply.
-            config: Configuration object with A2A orchestration parameters.
+            a2a_config: Configuration object with A2A orchestration parameters.
         """
         super().__init__(optimizers, covariance_transformers, a2a_config)
 

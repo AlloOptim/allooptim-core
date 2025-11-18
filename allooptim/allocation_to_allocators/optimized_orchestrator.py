@@ -61,7 +61,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         Args:
             optimizers: List of portfolio optimization algorithms to orchestrate.
             covariance_transformers: List of covariance matrix transformations to apply.
-            config: Configuration object with A2A orchestration parameters including
+            a2a_config: Configuration object with A2A orchestration parameters including
                 Monte Carlo simulation count and PSO optimization settings.
         """
         super().__init__(optimizers, covariance_transformers, a2a_config)
@@ -201,9 +201,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             ]
 
             # Store optimizer weight (1.0 for single optimizer)
-            optimizer_weights_list = [
-                OptimizerWeight(instance_id=optimizer.display_name, weight=1.0)
-            ]
+            optimizer_weights_list = [OptimizerWeight(instance_id=optimizer.display_name, weight=1.0)]
 
         except Exception as error:
             tracemalloc.stop()
