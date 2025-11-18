@@ -88,6 +88,11 @@ class OptimizedOrchestrator(BaseOrchestrator):
             logger.debug("time_today not provided, using current datetime.")
             time_today = datetime.now()
 
+        # Special case: single optimizer doesn't need optimization
+        if len(self.optimizers) == 1:
+            logger.info("Single optimizer detected, skipping MCOS + PSO optimization")
+            return self._allocate_single_optimizer(data_provider, time_today)
+
         # Step 1: Run enhanced MCOS simulation
         mcos_result = simulate_optimizers_with_allocation_statistics(
             df_assets=data_provider.historical_prices,
@@ -142,6 +147,115 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
         return result
 
+    def _allocate_single_optimizer(
+        self,
+        data_provider: AbstractObservationSimulator,
+        time_today: datetime,
+    ) -> A2AResult:
+        """Handle allocation for single optimizer case (no optimization needed)."""
+        start_time = time.time()
+
+        # Get ground truth parameters
+        mu, cov, prices, current_time, l_moments = data_provider.get_ground_truth()
+
+        # Apply covariance transformations
+        cov_transformed = self._apply_covariance_transformers(cov, data_provider.n_observations)
+
+        optimizer = self.optimizers[0]
+
+        # Track memory and time
+        tracemalloc.start()
+        runtime_start = time.time()
+
+        try:
+            logger.info(f"Computing allocation for {optimizer.name}...")
+
+            optimizer.fit(prices)
+
+            weights = optimizer.allocate(mu, cov_transformed, prices, current_time, l_moments)
+            if isinstance(weights, np.ndarray):
+                weights = weights.flatten()
+
+            weights = np.array(weights)
+            weights_sum = np.sum(weights)
+            if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
+                weights = weights / weights_sum
+
+            # Track memory and time
+            runtime_end = time.time()
+            _, peak = tracemalloc.get_traced_memory()
+            tracemalloc.stop()
+
+            runtime_seconds = runtime_end - runtime_start
+            memory_usage_mb = peak / (1024 * 1024)  # Convert bytes to MB
+
+            # Store optimizer allocation
+            weights_series = pd.Series(weights, index=mu.index)
+            optimizer_allocations_list = [
+                OptimizerAllocation(
+                    instance_id=optimizer.display_name,
+                    weights=weights_series,
+                    runtime_seconds=runtime_seconds,
+                    memory_usage_mb=memory_usage_mb,
+                )
+            ]
+
+            # Store optimizer weight (1.0 for single optimizer)
+            optimizer_weights_list = [
+                OptimizerWeight(instance_id=optimizer.display_name, weight=1.0)
+            ]
+
+        except Exception as error:
+            tracemalloc.stop()
+            optimizer.reset()
+            raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}") from error
+
+        # Create optimizer errors
+        optimizer_errors = [
+            OptimizerError(
+                instance_id=optimizer.display_name,
+                error=0.0,
+                error_components=[],
+            )
+        ]
+
+        # Final allocation is just the optimizer's weights
+        final_allocation = weights_series
+
+        # Compute performance metrics
+        portfolio_return = (final_allocation * mu).sum()
+        portfolio_variance = final_allocation.values @ cov_transformed.values @ final_allocation.values
+        portfolio_volatility = np.sqrt(portfolio_variance)
+        sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
+
+        # Diversity score is 0 for single optimizer
+        diversity_score = 0.0
+
+        metrics = PerformanceMetrics(
+            expected_return=float(portfolio_return),
+            volatility=float(portfolio_volatility),
+            sharpe_ratio=float(sharpe_ratio),
+            diversity_score=float(diversity_score),
+        )
+
+        runtime_seconds = time.time() - start_time
+
+        # Create A2AResult
+        result = A2AResult(
+            final_allocation=final_allocation,
+            optimizer_allocations=optimizer_allocations_list,
+            optimizer_weights=optimizer_weights_list,
+            metrics=metrics,
+            runtime_seconds=runtime_seconds,
+            n_simulations=1,  # Single optimizer uses ground truth only
+            optimizer_errors=optimizer_errors,
+            orchestrator_name=self.name,
+            timestamp=time_today,
+            config=self.config,
+        )
+
+        return result
+
     def _compute_final_asset_weights_and_metrics(
         self,
         data_provider: AbstractObservationSimulator,
@@ -184,13 +298,14 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
                 optimizer.fit(prices)
 
-                weights = optimizer.allocate(mu, cov_transformed, prices, time, l_moments)
+                weights = optimizer.allocate(mu, cov_transformed, prices, current_time, l_moments)
                 if isinstance(weights, np.ndarray):
                     weights = weights.flatten()
 
                 weights = np.array(weights)
-                if self.config.allow_partial_investment and np.sum(weights) > 0:
-                    weights = weights / np.sum(weights)
+                weights_sum = np.sum(weights)
+                if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
+                    weights = weights / weights_sum
 
                 # Track memory and time
                 runtime_end = time.time()
@@ -199,6 +314,9 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
                 runtime_seconds = runtime_end - runtime_start
                 memory_usage_mb = peak / (1024 * 1024)  # Convert bytes to MB
+
+                # Add weighted contribution to final allocation
+                asset_weights += allocator_weights[k] * weights
 
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
