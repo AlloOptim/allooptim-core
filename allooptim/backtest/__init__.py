@@ -23,7 +23,7 @@ See Also:
     - :mod:`allooptim.backtest.performance_metrics`: Performance calculation utilities
 """
 
-from allooptim.config.backtest_config import BacktestConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
+from allooptim.config.backtest_config import BacktestConfig
 
 __all__ = ["BacktestConfig", "BacktestEngine"]

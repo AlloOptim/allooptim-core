@@ -208,7 +208,9 @@ class EfficientRiskOptimizerConfig(BaseModel):
 class EfficientRiskOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'."""
 
-    def __init__(self, config: Optional[EfficientRiskOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[EfficientRiskOptimizerConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize efficient risk optimizer.
 
         Args:
@@ -287,7 +289,9 @@ class EfficientReturnOptimizerConfig(BaseModel):
 class EfficientReturnOptimizer(AbstractOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'."""
 
-    def __init__(self, config: Optional[EfficientReturnOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[EfficientReturnOptimizerConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize efficient return optimizer.
 
         Args:

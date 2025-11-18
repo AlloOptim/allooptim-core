@@ -71,7 +71,7 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
 
     def __init__(self, display_name: Optional[str] = None) -> None:
         """Initialize A2A ensemble optimizer.
-        
+
         Args:
             display_name: Optional display name for this optimizer instance.
         """
@@ -175,7 +175,7 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
 
     def __init__(self, display_name: Optional[str] = None) -> None:
         """Initialize SPY 500 benchmark optimizer.
-        
+
         Args:
             display_name: Optional display name for this optimizer instance.
         """

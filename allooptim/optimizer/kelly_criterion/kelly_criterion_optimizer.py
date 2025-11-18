@@ -340,4 +340,3 @@ class KellyCriterionOptimizer(AbstractOptimizer):
     def name(self) -> str:
         """Return optimizer name."""
         return "KellyCriterionOptimizer"
-        

@@ -28,6 +28,7 @@ from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_s
 
 logger = logging.getLogger(__name__)
 
+
 class BacktestConfig(BaseModel):
     """Pydantic configuration model for backtest parameters."""
 
@@ -133,23 +134,18 @@ class BacktestConfig(BaseModel):
 
     @field_validator("optimizer_configs", mode="after")
     @classmethod
-    def validate_unique_display_names(
-        cls, configs: List[OptimizerConfig]
-    ) -> List[OptimizerConfig]:
+    def validate_unique_display_names(cls, configs: List[OptimizerConfig]) -> List[OptimizerConfig]:
         """Ensure all display names are unique."""
         display_names = [c.display_name for c in configs]
-        duplicates = [
-            name for name in set(display_names) 
-            if display_names.count(name) > 1
-        ]
-        
+        duplicates = [name for name in set(display_names) if display_names.count(name) > 1]
+
         if duplicates:
             raise ValueError(
                 f"Duplicate display names found: {duplicates}. "
                 f"Each optimizer instance must have a unique display_name. "
                 f"Provide explicit display_name values to resolve conflicts."
             )
-        
+
         return configs
 
     @field_validator("transformer_names", mode="before")

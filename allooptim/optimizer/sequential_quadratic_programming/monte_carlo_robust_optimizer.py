@@ -262,7 +262,9 @@ class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
 
     objective_function: ObjectiveFunction = ObjectiveFunction.MIN_VARIANCE
 
-    def __init__(self, config: Optional[MonteCarloRobustOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[MonteCarloRobustOptimizerConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize the Monte Carlo robust optimizer.
 
         Args:
@@ -883,4 +885,3 @@ class MonteCarloMinCVAROptimizer(MonteCarloMinVarianceOptimizer):
     def name(self) -> str:
         """Return optimizer name."""
         return "MonteCarloMinCVAROptimizer"
-        

@@ -5,9 +5,7 @@ Supports both default configs and custom parameter overrides.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
-
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List
 
 from allooptim.optimizer.optimizer_config_registry import (
     NAME_TO_OPTIMIZER_CLASS,
@@ -24,45 +22,38 @@ logger = logging.getLogger(__name__)
 
 
 def get_optimizer_by_names_with_configs(
-    configs: List["OptimizerConfig"]  # Changed from Dict
+    configs: List["OptimizerConfig"],  # Changed from Dict
 ) -> List[AbstractOptimizer]:
     """Create optimizers from OptimizerConfig objects.
-    
+
     Args:
         configs: List of OptimizerConfig objects with class names and display names
-        
+
     Returns:
         List of configured optimizer instances
     """
     optimizers = []
-    
+
     for opt_config in configs:
         # Use opt_config.name for class lookup
         optimizer_class = NAME_TO_OPTIMIZER_CLASS.get(opt_config.name)
         if optimizer_class is None:
             available = list(NAME_TO_OPTIMIZER_CLASS.keys())
-            raise ValueError(
-                f"Unknown optimizer '{opt_config.name}'. "
-                f"Available optimizers: {available}"
-            )
-        
+            raise ValueError(f"Unknown optimizer '{opt_config.name}'. " f"Available optimizers: {available}")
+
         # Create with config
         if opt_config.config:
             config = validate_optimizer_config(opt_config.name, opt_config.config)
             optimizer = optimizer_class(config=config, display_name=opt_config.display_name)
             logger.info(
-                f"Created {opt_config.name} as '{opt_config.display_name}' "
-                f"with config: {opt_config.config}"
+                f"Created {opt_config.name} as '{opt_config.display_name}' " f"with config: {opt_config.config}"
             )
         else:
             optimizer = optimizer_class(display_name=opt_config.display_name)
-            logger.debug(
-                f"Created {opt_config.name} as '{opt_config.display_name}' "
-                f"with default config"
-            )
-        
+            logger.debug(f"Created {opt_config.name} as '{opt_config.display_name}' " f"with default config")
+
         optimizers.append(optimizer)
-    
+
     return optimizers
 
 

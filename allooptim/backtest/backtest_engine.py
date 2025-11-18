@@ -22,7 +22,6 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
@@ -31,9 +30,10 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allooptim.config.backtest_config import BacktestConfig
 from allooptim.backtest.data_loader import DataLoader
 from allooptim.backtest.performance_metrics import PerformanceMetrics
+from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.backtest_config import BacktestConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
 from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
 from allooptim.optimizer.wikipedia.wiki_database import download_data
@@ -407,14 +407,14 @@ class BacktestEngine:
             # Extract per-optimizer computation times and memory usage from A2AResult objects
             computation_times = []
             memory_usages = []
-            
+
             for result in allocation_results:
                 for opt_alloc in result.optimizer_allocations:
                     if opt_alloc.runtime_seconds is not None:
                         computation_times.append(opt_alloc.runtime_seconds)
                     if opt_alloc.memory_usage_mb is not None:
                         memory_usages.append(opt_alloc.memory_usage_mb)
-            
+
             if computation_times:
                 computation_stats = {
                     "avg_computation_time": np.mean(computation_times),

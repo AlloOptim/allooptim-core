@@ -159,6 +159,7 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
 
     # Check that fit and allocate don't raise warnings
     import warnings
+
     with warnings.catch_warnings(record=True) as warning_list:
         warnings.simplefilter("always")
         optimizer.fit(df_prices=prices)
@@ -173,8 +174,7 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
 
     # Filter out expected warnings (SLSQP doesn't use Hessian)
     filtered_warnings = [
-        w for w in warning_list 
-        if "Method SLSQP does not use Hessian information" not in str(w.message)
+        w for w in warning_list if "Method SLSQP does not use Hessian information" not in str(w.message)
     ]
 
     # Fail the test if any unexpected warnings were raised

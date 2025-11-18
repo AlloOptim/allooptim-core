@@ -224,4 +224,3 @@ class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
             Optimizer name string
         """
         return "PSOLMoments"
-        

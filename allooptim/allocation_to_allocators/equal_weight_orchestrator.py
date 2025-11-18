@@ -5,14 +5,14 @@ Simplest orchestrator that calls each optimizer once and combines results with e
 
 import logging
 import time
+import tracemalloc
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
 
 import numpy as np
 import pandas as pd
-import tracemalloc
-from allooptim.config.a2a_config import A2AConfig
+
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import (
     A2AResult,
@@ -25,6 +25,7 @@ from allooptim.allocation_to_allocators.allocation_constraints import Allocation
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -134,7 +135,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 runtime_end = time.time()
                 _, peak = tracemalloc.get_traced_memory()
                 tracemalloc.stop()
-                
+
                 runtime_seconds = runtime_end - runtime_start
                 memory_usage_mb = peak / (1024 * 1024)  # Convert bytes to MB
 
@@ -142,10 +143,10 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
                     OptimizerAllocation(
-                        instance_id=optimizer.display_name, 
+                        instance_id=optimizer.display_name,
                         weights=weights_series,
                         runtime_seconds=runtime_seconds,
-                        memory_usage_mb=memory_usage_mb
+                        memory_usage_mb=memory_usage_mb,
                     )
                 )
 
@@ -158,10 +159,10 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
                 optimizer_allocations_list.append(
                     OptimizerAllocation(
-                        instance_id=optimizer.display_name, 
+                        instance_id=optimizer.display_name,
                         weights=weights_series,
                         runtime_seconds=None,
-                        memory_usage_mb=None
+                        memory_usage_mb=None,
                     )
                 )
 
@@ -171,7 +172,8 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Equal weights for all optimizers
                 # For median, this is the best approximation
                 a2a_weights = {
-                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list) for opt_alloc in optimizer_allocations_list
+                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
+                    for opt_alloc in optimizer_allocations_list
                 }
 
             case CombinedWeightType.CUSTOM:
@@ -191,7 +193,9 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
             case CombinedWeightType.MEDIAN:
                 # Take median across optimizer allocations for each asset
-                alloc_df = pd.DataFrame({opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list})
+                alloc_df = pd.DataFrame(
+                    {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
+                )
                 asset_weights = alloc_df.median(axis=1).values
 
             case _:

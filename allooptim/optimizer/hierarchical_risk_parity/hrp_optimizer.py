@@ -115,4 +115,3 @@ class HRPOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "HRPOptimizer"
-        

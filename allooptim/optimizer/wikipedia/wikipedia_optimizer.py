@@ -155,4 +155,3 @@ class WikipediaOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "WikipediaOptimizer"
-        

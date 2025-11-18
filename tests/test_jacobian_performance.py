@@ -1,6 +1,7 @@
 """Performance benchmarks for Jacobian/Hessian implementations."""
 
 import time
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -81,9 +82,9 @@ class TestPerformanceBenchmarks:
 
 def benchmark_all_optimizers():
     """Comprehensive benchmark comparing all implementations."""
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("JACOBIAN/HESSIAN PERFORMANCE BENCHMARK")
-    print("="*60)
+    print("=" * 60)
 
     results = []
 
@@ -107,13 +108,15 @@ def benchmark_all_optimizers():
         _ = optimizer.allocate(mu, cov)
         times.append(time.time() - start)
 
-    results.append({
-        'Optimizer': 'RiskParity',
-        'Has Jacobian': 'Yes',
-        'Has Hessian': 'No',
-        'Mean Time': f"{np.mean(times):.4f}s",
-        'Std Time': f"{np.std(times):.4f}s",
-    })
+    results.append(
+        {
+            "Optimizer": "RiskParity",
+            "Has Jacobian": "Yes",
+            "Has Hessian": "No",
+            "Mean Time": f"{np.mean(times):.4f}s",
+            "Std Time": f"{np.std(times):.4f}s",
+        }
+    )
 
     # Test Robust MV
     optimizer = RobustMeanVarianceOptimizer()
@@ -123,20 +126,24 @@ def benchmark_all_optimizers():
         _ = optimizer.allocate(mu, cov)
         times.append(time.time() - start)
 
-    results.append({
-        'Optimizer': 'RobustMeanVariance',
-        'Has Jacobian': 'Yes',
-        'Has Hessian': 'Yes',
-        'Mean Time': f"{np.mean(times):.4f}s",
-        'Std Time': f"{np.std(times):.4f}s",
-    })
+    results.append(
+        {
+            "Optimizer": "RobustMeanVariance",
+            "Has Jacobian": "Yes",
+            "Has Hessian": "Yes",
+            "Mean Time": f"{np.mean(times):.4f}s",
+            "Std Time": f"{np.std(times):.4f}s",
+        }
+    )
 
     # Print results
     print(f"\nBenchmark Results ({n_assets} assets, {n_trials} trials):")
     print("-" * 80)
     for r in results:
-        print(f"{r['Optimizer']:25s} | Jac: {r['Has Jacobian']:3s} | Hess: {r['Has Hessian']:3s} | "
-              f"Time: {r['Mean Time']} ± {r['Std Time']}")
+        print(
+            f"{r['Optimizer']:25s} | Jac: {r['Has Jacobian']:3s} | Hess: {r['Has Hessian']:3s} | "
+            f"Time: {r['Mean Time']} ± {r['Std Time']}"
+        )
     print("-" * 80)
 
     return results

@@ -20,13 +20,9 @@ class OptimizerConfig(BaseModel):
     name: str = Field(..., description="Optimizer class name for instantiation")
     display_name: Optional[str] = Field(
         default=None,
-        description="Unique identifier for results and reporting. "
-                    "Auto-generated from config if not provided."
+        description="Unique identifier for results and reporting. " "Auto-generated from config if not provided.",
     )
-    config: Optional[Dict] = Field(
-        default=None,
-        description="Optional custom configuration parameters"
-    )
+    config: Optional[Dict] = Field(default=None, description="Optional custom configuration parameters")
 
     @field_validator("name", mode="before")
     @classmethod
@@ -110,10 +106,7 @@ class OptimizerConfig(BaseModel):
             return ""
 
         # Filter to serializable primitive values
-        simple_params = {
-            k: v for k, v in config.items()
-            if isinstance(v, (str, int, float, bool))
-        }
+        simple_params = {k: v for k, v in config.items() if isinstance(v, (str, int, float, bool))}
 
         if not simple_params:
             return ""

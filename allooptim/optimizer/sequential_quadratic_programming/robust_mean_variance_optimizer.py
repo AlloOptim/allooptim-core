@@ -172,7 +172,9 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         estimated_cov_uncertainty: Estimated uncertainty level for Σ from historical data
     """
 
-    def __init__(self, config: Optional[RobustMeanVarianceOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[RobustMeanVarianceOptimizerConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize the robust mean-variance optimizer.
 
         Args:
@@ -451,4 +453,3 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "RobustMeanVarianceOptimizer"
-        

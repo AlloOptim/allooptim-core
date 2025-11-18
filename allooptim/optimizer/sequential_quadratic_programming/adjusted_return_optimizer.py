@@ -67,7 +67,9 @@ class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
     enable_ema: bool = False
     enable_semi_variance: bool = False
 
-    def __init__(self, config: Optional[MeanVarianceAdjustedReturnsOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[MeanVarianceAdjustedReturnsOptimizerConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize the mean-variance adjusted returns optimizer.
 
         Args:
@@ -331,4 +333,3 @@ class SemiVarianceAdjustedReturnsOptimizer(MeanVarianceAdjustedReturnsOptimizer)
             Optimizer name string
         """
         return "SemiVarianceAdjustedReturnsOptimizer"
-        

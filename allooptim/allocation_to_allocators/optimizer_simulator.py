@@ -10,13 +10,13 @@ from typing import List
 import numpy as np
 import pandas as pd
 
-from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.observation_simulator import (
     MuCovPartialObservationSimulator,
 )
 from allooptim.allocation_to_allocators.optimizer_convergence import (
     simulate_optimizers_with_convergence,
 )
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.covariance_transformer.covariance_transformer import (
     DeNoiserCovarianceTransformer,
 )

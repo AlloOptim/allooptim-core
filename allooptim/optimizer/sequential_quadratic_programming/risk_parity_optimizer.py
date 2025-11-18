@@ -201,4 +201,3 @@ class RiskParityOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "RiskParityOptimizer"
-        

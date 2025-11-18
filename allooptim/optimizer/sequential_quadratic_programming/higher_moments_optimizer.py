@@ -77,7 +77,9 @@ class HigherMomentOptimizer(AbstractOptimizer):
     Suitable for investors seeking asymmetric upside while managing tail risk.
     """
 
-    def __init__(self, config: Optional[HigherMomentsOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[HigherMomentsOptimizerConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize the higher moments optimizer.
 
         Args:
@@ -253,4 +255,3 @@ class HigherMomentOptimizer(AbstractOptimizer):
             Optimizer name string
         """
         return "HigherMomentOptimizer"
-        

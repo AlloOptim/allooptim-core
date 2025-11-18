@@ -18,7 +18,9 @@ class OptimizerAllocation(BaseModel):
 
     instance_id: str = Field(description="Unique identifier of the optimizer instance")
     weights: pd.Series = Field(description="Asset weights (asset_name -> weight)")
-    runtime_seconds: Optional[float] = Field(default=None, description="Time taken to compute this allocation (seconds)")
+    runtime_seconds: Optional[float] = Field(
+        default=None, description="Time taken to compute this allocation (seconds)"
+    )
     memory_usage_mb: Optional[float] = Field(default=None, description="Peak memory usage during computation (MB)")
 
     # Backward compatibility alias

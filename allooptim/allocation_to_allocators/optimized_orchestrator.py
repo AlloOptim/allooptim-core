@@ -7,13 +7,11 @@ import logging
 import time
 import tracemalloc
 from datetime import datetime
-from timeit import default_timer as timer
 from typing import List, Optional
 
 import numpy as np
 import pandas as pd
 
-from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import (
     A2AResult,
@@ -31,6 +29,7 @@ from allooptim.allocation_to_allocators.optimizer_simulator import (
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -205,10 +204,10 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
                     OptimizerAllocation(
-                        instance_id=optimizer.display_name, 
+                        instance_id=optimizer.display_name,
                         weights=weights_series,
                         runtime_seconds=runtime_seconds,
-                        memory_usage_mb=memory_usage_mb
+                        memory_usage_mb=memory_usage_mb,
                     )
                 )
 

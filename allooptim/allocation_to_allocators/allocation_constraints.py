@@ -54,9 +54,7 @@ class AllocationConstraints:
         if total_weight > 0:
             new_weights = new_weights / total_weight
 
-        logger.debug(
-            f"Applied max_active_assets constraint: {len(active_assets)} -> {len(top_assets)} assets"
-        )
+        logger.debug(f"Applied max_active_assets constraint: {len(active_assets)} -> {len(top_assets)} assets")
 
         return new_weights
 
@@ -158,8 +156,7 @@ class AllocationConstraints:
                 weights[assets_to_activate.index] = activation_weight
 
                 logger.debug(
-                    f"Applied min_active_assets constraint: activated {len(assets_to_activate)} "
-                    f"additional assets"
+                    f"Applied min_active_assets constraint: activated {len(assets_to_activate)} " f"additional assets"
                 )
 
         return weights

@@ -35,13 +35,9 @@ class OptimizerConfig(BaseModel):
     name: str = Field(..., description="Optimizer class name for instantiation")
     display_name: Optional[str] = Field(
         default=None,
-        description="Unique identifier for results and reporting. "
-                    "Auto-generated from config if not provided."
+        description="Unique identifier for results and reporting. " "Auto-generated from config if not provided.",
     )
-    config: Optional[Dict] = Field(
-        default=None, 
-        description="Optional custom configuration parameters"
-    )
+    config: Optional[Dict] = Field(default=None, description="Optional custom configuration parameters")
 
     @field_validator("name", mode="before")
     @classmethod
@@ -73,7 +69,7 @@ class OptimizerConfig(BaseModel):
     @classmethod
     def generate_display_name(cls, v: Optional[str], info) -> str:
         """Auto-generate display name if not provided.
-        
+
         Generation strategy:
         1. If display_name provided explicitly, use it
         2. If no config, use class name
@@ -81,18 +77,18 @@ class OptimizerConfig(BaseModel):
         """
         if v is not None:
             return v
-        
+
         name = info.data.get("name")
         config = info.data.get("config")
-        
+
         if not config:
             return name
-        
+
         # Generate suffix from config
         suffix = cls._generate_config_suffix(config)
         if suffix:
             return f"{name}[{suffix}]"
-        
+
         return name
 
     @model_validator(mode="after")
@@ -113,29 +109,26 @@ class OptimizerConfig(BaseModel):
     @staticmethod
     def _generate_config_suffix(config: Dict, max_params: int = 2) -> str:
         """Generate compact suffix from config parameters.
-        
+
         Args:
             config: Configuration dictionary
             max_params: Maximum number of parameters to include
-            
+
         Returns:
             Suffix string like "param1=value1-param2=value2"
         """
         if not config:
             return ""
-        
+
         # Filter to serializable primitive values
-        simple_params = {
-            k: v for k, v in config.items()
-            if isinstance(v, (str, int, float, bool))
-        }
-        
+        simple_params = {k: v for k, v in config.items() if isinstance(v, (str, int, float, bool))}
+
         if not simple_params:
             return ""
-        
+
         # Take first max_params, sorted for consistency
         items = sorted(simple_params.items())[:max_params]
-        
+
         # Format values
         parts = []
         for key, value in items:
@@ -145,9 +138,9 @@ class OptimizerConfig(BaseModel):
                 value_str = str(value).lower()
             else:
                 value_str = str(value)
-            
+
             parts.append(f"{key}={value_str}")
-        
+
         return "-".join(parts)
 
 
@@ -244,23 +237,18 @@ class BacktestConfig(BaseModel):
 
     @field_validator("optimizer_configs", mode="after")
     @classmethod
-    def validate_unique_display_names(
-        cls, configs: List[OptimizerConfig]
-    ) -> List[OptimizerConfig]:
+    def validate_unique_display_names(cls, configs: List[OptimizerConfig]) -> List[OptimizerConfig]:
         """Ensure all display names are unique."""
         display_names = [c.display_name for c in configs]
-        duplicates = [
-            name for name in set(display_names) 
-            if display_names.count(name) > 1
-        ]
-        
+        duplicates = [name for name in set(display_names) if display_names.count(name) > 1]
+
         if duplicates:
             raise ValueError(
                 f"Duplicate display names found: {duplicates}. "
                 f"Each optimizer instance must have a unique display_name. "
                 f"Provide explicit display_name values to resolve conflicts."
             )
-        
+
         return configs
 
     @field_validator("transformer_names", mode="before")

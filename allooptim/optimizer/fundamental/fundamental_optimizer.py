@@ -120,7 +120,9 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
 class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Quality and growth focused fundamental optimizer."""
 
-    def __init__(self, config: Optional[QualityGrowthFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[QualityGrowthFundamentalConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize quality growth fundamental optimizer.
 
         Args:
@@ -143,7 +145,9 @@ class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
 class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Value investing focused fundamental optimizer."""
 
-    def __init__(self, config: Optional[ValueInvestingFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[ValueInvestingFundamentalConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize value investing fundamental optimizer.
 
         Args:
@@ -166,7 +170,9 @@ class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
 class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Market capitalization based fundamental optimizer."""
 
-    def __init__(self, config: Optional[OnlyMarketCapFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self, config: Optional[OnlyMarketCapFundamentalConfig] = None, display_name: Optional[str] = None
+    ) -> None:
         """Initialize market cap fundamental optimizer.
 
         Args:
@@ -184,4 +190,3 @@ class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
             Optimizer name string
         """
         return "MarketCapFundamentalOptimizer"
-        

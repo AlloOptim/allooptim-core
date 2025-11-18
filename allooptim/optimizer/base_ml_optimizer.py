@@ -227,4 +227,3 @@ class BaseMLOptimizer(AbstractOptimizer, ABC):
         augmented_prices = starting_prices * np.exp(np.cumsum(all_returns, axis=0))
 
         return augmented_prices, augmented_returns
-        

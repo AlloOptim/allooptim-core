@@ -72,7 +72,7 @@ class AbstractOptimizer(ABC):
 
     def __init__(self, display_name: Optional[str] = None):
         """Initialize the optimizer.
-        
+
         Args:
             display_name: Optional display name for this optimizer instance.
                          If None, defaults to the optimizer's name property.
@@ -124,7 +124,7 @@ class AbstractOptimizer(ABC):
     def name(self) -> str:
         """Unique name of this optimizer class."""
         pass
-    
+
     @property
     def display_name(self) -> str:
         """Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist."""
@@ -136,7 +136,7 @@ class AbstractEnsembleOptimizer(ABC):
 
     def __init__(self, display_name: Optional[str] = None):
         """Initialize the ensemble optimizer.
-        
+
         Args:
             display_name: Optional display name for this optimizer instance.
                          If None, defaults to the optimizer's name property.
