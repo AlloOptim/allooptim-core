@@ -136,17 +136,21 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Optimizers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#module-allooptim.optimizer.optimizer_interface">Core Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.display_name</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.display_name</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -159,6 +163,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.display_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
 </ul>
@@ -344,7 +349,7 @@ approaches.</p>
 - Consistent error handling and validation</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractOptimizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.optimizer_interface.</span></span><span class="sig-name descname"><span class="pre">AbstractOptimizer</span></span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.optimizer_interface.</span></span><span class="sig-name descname"><span class="pre">AbstractOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Abstract base class for all portfolio optimization algorithms.</p>
 <p>All optimizers in AlloOptim inherit from this class and implement the
@@ -394,6 +399,23 @@ interface across different optimization strategies.</p>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">allooptim.optimizer.optimizer_factory</span></code>: Optimizer creation utilities</p></li>
 </ul>
 </div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractOptimizer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – Optional display name for this optimizer instance.
+If None, defaults to the optimizer’s name property.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractOptimizer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit" title="Link to this definition"></a></dt>
@@ -454,16 +476,39 @@ interface across different optimization strategies.</p>
 <dl class="py property">
 <dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractOptimizer.name">
 <em class="property"><span class="k"><span class="pre">abstract</span></span><span class="w"> </span><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name" title="Link to this definition"></a></dt>
-<dd><p>Name of this optimizer. The name will be displayed in the MCOS results DataFrame.</p>
+<dd><p>Unique name of this optimizer class.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractOptimizer.display_name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">display_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer.display_name" title="Link to this definition"></a></dt>
+<dd><p>Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist.</p>
 </dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.optimizer_interface.</span></span><span class="sig-name descname"><span class="pre">AbstractEnsembleOptimizer</span></span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractEnsembleOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.optimizer_interface.</span></span><span class="sig-name descname"><span class="pre">AbstractEnsembleOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractEnsembleOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/abc.html#abc.ABC" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></a></p>
 <p>Abstract base class for ensemble portfolio optimization algorithms with pandas interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>)</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractEnsembleOptimizer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the ensemble optimizer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – Optional display name for this optimizer instance.
+If None, defaults to the optimizer’s name property.</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit">
 <span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df_prices</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/optimizer_interface.html#AbstractEnsembleOptimizer.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit" title="Link to this definition"></a></dt>
@@ -530,6 +575,12 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
 <dd><p>Name of this optimizer. The name will be displayed in the MCOS results DataFrame.</p>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">display_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name" title="Link to this definition"></a></dt>
+<dd><p>Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -537,12 +588,15 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
 <h2>Mean-Variance Optimizers<a class="headerlink" href="#mean-variance-optimizers" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.</span></span><span class="sig-name descname"><span class="pre">MeanVarianceAdjustedReturnsOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/sequential_quadratic_programming/adjusted_return_optimizer.html#MeanVarianceAdjustedReturnsOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.</span></span><span class="sig-name descname"><span class="pre">MeanVarianceAdjustedReturnsOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/sequential_quadratic_programming/adjusted_return_optimizer.html#MeanVarianceAdjustedReturnsOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer" title="allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a></p>
 <p>Adjusted Returns Optimizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizerConfig</span></code>]</span>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizerConfig</span></code>]</span>)</p></li>
+<li><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>)</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -562,11 +616,14 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/sequential_quadratic_programming/adjusted_return_optimizer.html#MeanVarianceAdjustedReturnsOptimizer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/sequential_quadratic_programming/adjusted_return_optimizer.html#MeanVarianceAdjustedReturnsOptimizer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize the mean-variance adjusted returns optimizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizerConfig</span></code>]</span>) – Configuration parameters for the optimizer. If None, uses default config.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizerConfig</span></code>]</span>) – Configuration parameters for the optimizer. If None, uses default config.</p></li>
+<li><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – Optional display name for this optimizer instance.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -605,6 +662,12 @@ Used by ensemble optimizers (e.g., A2A) to avoid re-computation.</p></li>
 <dd class="field-odd"><p>Optimizer name string</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">display_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a></em><a class="headerlink" href="#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name" title="Link to this definition"></a></dt>
+<dd><p>Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -948,7 +1011,7 @@ for optimal portfolio weights.</p>
 <h2>Hierarchical Risk Parity<a class="headerlink" href="#hierarchical-risk-parity" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.</span></span><span class="sig-name descname"><span class="pre">HRPOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/hierarchical_risk_parity/hrp_optimizer.html#HRPOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.</span></span><span class="sig-name descname"><span class="pre">HRPOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/hierarchical_risk_parity/hrp_optimizer.html#HRPOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#allooptim.optimizer.optimizer_interface.AbstractOptimizer" title="allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a></p>
 <p>Hierarchical Risk Parity optimizer for portfolio allocation.</p>
 <p>This optimizer uses the Hierarchical Risk Parity (HRP) approach, which
@@ -958,16 +1021,22 @@ weights based on risk clustering rather than traditional mean-variance
 optimization.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">HRPOptimizerConfig</span></code>]</span>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">HRPOptimizerConfig</span></code>]</span>)</p></li>
+<li><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>)</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/hierarchical_risk_parity/hrp_optimizer.html#HRPOptimizer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.__init__" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/hierarchical_risk_parity/hrp_optimizer.html#HRPOptimizer.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize the Hierarchical Risk Parity optimizer.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">HRPOptimizerConfig</span></code>]</span>) – Configuration parameters for the optimizer. If None, uses default config.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">HRPOptimizerConfig</span></code>]</span>) – Configuration parameters for the optimizer. If None, uses default config.</p></li>
+<li><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>) – Optional display name for this optimizer instance.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -1080,12 +1149,15 @@ Suitable for: Research, long-term strategies, complex patterns
 Architectures: LSTM+Transformer, MAMBA (SSM), TCN.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.deep_learning.deep_learning_optimizer.</span></span><span class="sig-name descname"><span class="pre">LSTMOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/deep_learning/deep_learning_optimizer.html#LSTMOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.deep_learning.deep_learning_optimizer.</span></span><span class="sig-name descname"><span class="pre">LSTMOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/deep_learning/deep_learning_optimizer.html#LSTMOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMLOptimizer</span></code></p>
 <p>Deep learning optimizer using LSTM + Transformer architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMLOptimizerConfig</span></code>]</span>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMLOptimizerConfig</span></code>]</span>)</p></li>
+<li><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>)</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1103,12 +1175,15 @@ Architectures: LSTM+Transformer, MAMBA (SSM), TCN.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.deep_learning.deep_learning_optimizer.</span></span><span class="sig-name descname"><span class="pre">MAMBAOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/deep_learning/deep_learning_optimizer.html#MAMBAOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.deep_learning.deep_learning_optimizer.</span></span><span class="sig-name descname"><span class="pre">MAMBAOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/deep_learning/deep_learning_optimizer.html#MAMBAOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.MAMBAOptimizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer" title="allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSTMOptimizer</span></code></a></p>
 <p>Deep learning optimizer using MAMBA (Selective State Space Model) architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMLOptimizerConfig</span></code>]</span>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMLOptimizerConfig</span></code>]</span>)</p></li>
+<li><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>)</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">
@@ -1126,12 +1201,15 @@ Architectures: LSTM+Transformer, MAMBA (SSM), TCN.</p>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.deep_learning.deep_learning_optimizer.</span></span><span class="sig-name descname"><span class="pre">TCNOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/deep_learning/deep_learning_optimizer.html#TCNOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer" title="Link to this definition"></a></dt>
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">allooptim.optimizer.deep_learning.deep_learning_optimizer.</span></span><span class="sig-name descname"><span class="pre">TCNOptimizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/allooptim/optimizer/deep_learning/deep_learning_optimizer.html#TCNOptimizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.TCNOptimizer" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer" title="allooptim.optimizer.deep_learning.deep_learning_optimizer.LSTMOptimizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">LSTMOptimizer</span></code></a></p>
 <p>Deep learning optimizer using TCN (Temporal Convolutional Network) architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMLOptimizerConfig</span></code>]</span>)</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMLOptimizerConfig</span></code>]</span>)</p></li>
+<li><p><strong>display_name</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Optional" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code></a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>]</span>)</p></li>
+</ul>
 </dd>
 </dl>
 <dl class="py attribute">

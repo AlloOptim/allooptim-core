@@ -133,17 +133,21 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../api/optimizers.html">Optimizers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/optimizers.html#module-allooptim.optimizer.optimizer_interface">Core Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.display_name</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.display_name</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -156,6 +160,7 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.display_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
 </ul>
@@ -398,6 +403,18 @@
 <span class="sd">        - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+<div class="viewcode-block" id="AbstractOptimizer.__init__">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the optimizer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            display_name: Optional display name for this optimizer instance.</span>
+<span class="sd">                         If None, defaults to the optimizer&#39;s name property.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="n">display_name</span></div>
+
+
 <div class="viewcode-block" id="AbstractOptimizer.fit">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
@@ -412,7 +429,7 @@
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional method to reset any internal state of the optimizer.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AbstractOptimizer.allocate">
@@ -450,8 +467,13 @@
     <span class="nd">@property</span>
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. The name will be displayed in the MCOS results DataFrame.&quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Unique name of this optimizer class.&quot;&quot;&quot;</span>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 
 
@@ -459,6 +481,18 @@
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractEnsembleOptimizer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for ensemble portfolio optimization algorithms with pandas interface.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AbstractEnsembleOptimizer.__init__">
+<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ensemble optimizer.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            display_name: Optional display name for this optimizer instance.</span>
+<span class="sd">                         If None, defaults to the optimizer&#39;s name property.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="n">display_name</span></div>
+
 
 <div class="viewcode-block" id="AbstractEnsembleOptimizer.fit">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit">[docs]</a>
@@ -474,7 +508,7 @@
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional method to reset any internal state of the optimizer.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="AbstractEnsembleOptimizer.allocate">
@@ -517,7 +551,12 @@
     <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. The name will be displayed in the MCOS results DataFrame.&quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
+        <span class="k">pass</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">display_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 
 </pre></div>
 
