@@ -128,7 +128,9 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
                 weights = np.array(weights)
                 weights_sum = np.sum(weights)
-                if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
+                if np.any(weights > self.config.min_weight_threshold) and (
+                    not self.config.allow_partial_investment or weights_sum > 1.0
+                ):
                     weights = weights / weights_sum
 
                 # Track memory and time
@@ -231,6 +233,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             n_max_active_assets=self.config.n_max_active_assets,
             max_asset_concentration_pct=self.config.max_asset_concentration_pct,
             n_min_active_assets=self.config.n_min_active_assets,
+            min_weight_threshold=self.config.min_weight_threshold,
         )
 
         # Compute performance metrics

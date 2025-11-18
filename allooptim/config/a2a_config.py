@@ -82,5 +82,10 @@ class A2AConfig(BaseModel):
         ge=1,
         description="Minimum number of assets with weights > 0. Disabled if None.",
     )
+    min_weight_threshold: float = Field(
+        default=1e-6,
+        ge=0.0,
+        description="Minimum weight threshold to consider an asset 'active' for constraint calculations.",
+    )
 
     model_config = ConfigDict(frozen=True)

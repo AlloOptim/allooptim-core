@@ -20,6 +20,7 @@ from allooptim.allocation_to_allocators.a2a_result import (
     OptimizerWeight,
     PerformanceMetrics,
 )
+from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
 from allooptim.allocation_to_allocators.allocation_optimizer import (
     optimize_allocator_weights,
 )
@@ -129,6 +130,15 @@ class OptimizedOrchestrator(BaseOrchestrator):
             )
         )
 
+        # Apply allocation constraints
+        final_allocation = AllocationConstraints.apply_all_constraints(
+            weights=final_allocation,
+            n_max_active_assets=self.config.n_max_active_assets,
+            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
+            n_min_active_assets=self.config.n_min_active_assets,
+            min_weight_threshold=self.config.min_weight_threshold,
+        )
+
         runtime_seconds = time.time() - start_time
 
         # Create A2AResult
@@ -178,7 +188,9 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
             weights = np.array(weights)
             weights_sum = np.sum(weights)
-            if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
+            if np.any(weights > self.config.min_weight_threshold) and (
+                not self.config.allow_partial_investment or weights_sum > 1.0
+            ):
                 weights = weights / weights_sum
 
             # Track memory and time
@@ -219,6 +231,15 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
         # Final allocation is just the optimizer's weights
         final_allocation = weights_series
+
+        # Apply allocation constraints
+        final_allocation = AllocationConstraints.apply_all_constraints(
+            weights=final_allocation,
+            n_max_active_assets=self.config.n_max_active_assets,
+            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
+            n_min_active_assets=self.config.n_min_active_assets,
+            min_weight_threshold=self.config.min_weight_threshold,
+        )
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()
@@ -302,7 +323,9 @@ class OptimizedOrchestrator(BaseOrchestrator):
 
                 weights = np.array(weights)
                 weights_sum = np.sum(weights)
-                if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
+                if np.any(weights > self.config.min_weight_threshold) and (
+                    not self.config.allow_partial_investment or weights_sum > 1.0
+                ):
                     weights = weights / weights_sum
 
                 # Track memory and time
