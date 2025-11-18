@@ -11,7 +11,7 @@ from typing import List, Optional
 
 import numpy as np
 import pandas as pd
-
+import tracemalloc
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import (
@@ -99,7 +99,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         Returns:
             A2AResult with combined optimizer allocations
         """
-        start_time = time.time()
+        runtime_start = time.time()
 
         # Get ground truth parameters (no sampling for equal weight)
         mu, cov, prices, current_time, l_moments = data_provider.get_ground_truth()
@@ -113,6 +113,9 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # First pass: collect all optimizer allocations
         for optimizer in self.optimizers:
+            tracemalloc.start()
+            runtime_start = time.time()
+
             try:
                 logger.info(f"Computing allocation for {optimizer.name}...")
 
@@ -127,20 +130,39 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
                     weights = weights / weights_sum
 
+                # Track memory and time
+                runtime_end = time.time()
+                _, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+                
+                runtime_seconds = runtime_end - runtime_start
+                memory_usage_mb = peak / (1024 * 1024)  # Convert bytes to MB
+
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(instance_id=optimizer.display_name, weights=weights_series)
+                    OptimizerAllocation(
+                        instance_id=optimizer.display_name, 
+                        weights=weights_series,
+                        runtime_seconds=runtime_seconds,
+                        memory_usage_mb=memory_usage_mb
+                    )
                 )
 
             except Exception as error:
+                tracemalloc.stop()
                 logger.warning(f"Allocation failed for {optimizer.name}: {str(error)}")
                 # Use equal weights fallback
                 equal_weights = np.ones(len(mu)) / len(mu)
                 weights_series = pd.Series(equal_weights, index=mu.index)
 
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(instance_id=optimizer.display_name, weights=weights_series)
+                    OptimizerAllocation(
+                        instance_id=optimizer.display_name, 
+                        weights=weights_series,
+                        runtime_seconds=None,
+                        memory_usage_mb=None
+                    )
                 )
 
         # Second pass: determine A2A weights based on combination method
@@ -240,7 +262,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             for opt in optimizer_allocations_list
         ]
 
-        runtime_seconds = time.time() - start_time
+        runtime_seconds = time.time() - runtime_start
 
         # Create A2AResult
         result = A2AResult(

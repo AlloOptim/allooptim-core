@@ -85,6 +85,10 @@ class OptimizedOrchestrator(BaseOrchestrator):
         """
         start_time = time.time()
 
+        if time_today is None:
+            logger.debug("time_today not provided, using current datetime.")
+            time_today = datetime.now()
+
         # Step 1: Run enhanced MCOS simulation
         mcos_result = simulate_optimizers_with_allocation_statistics(
             df_assets=data_provider.historical_prices,
@@ -133,7 +137,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             n_simulations=self.config.n_simulations,
             optimizer_errors=optimizer_errors,
             orchestrator_name=self.name,
-            timestamp=time_today or datetime.now(),
+            timestamp=time_today,
             config=self.config,
         )
 
@@ -174,7 +178,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         for k, optimizer in enumerate(self.optimizers):
             # Track memory and time
             tracemalloc.start()
-            timer()
+            runtime_start = time.time()
 
             try:
                 logger.info(f"Computing allocation for {optimizer.name}...")
@@ -189,10 +193,23 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 if self.config.allow_partial_investment and np.sum(weights) > 0:
                     weights = weights / np.sum(weights)
 
+                # Track memory and time
+                runtime_end = time.time()
+                _, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+
+                runtime_seconds = runtime_end - runtime_start
+                memory_usage_mb = peak / (1024 * 1024)  # Convert bytes to MB
+
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(instance_id=optimizer.display_name, weights=weights_series)
+                    OptimizerAllocation(
+                        instance_id=optimizer.display_name, 
+                        weights=weights_series,
+                        runtime_seconds=runtime_seconds,
+                        memory_usage_mb=memory_usage_mb
+                    )
                 )
 
                 # Store optimizer weight
@@ -201,15 +218,9 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 )
 
             except Exception as error:
+                tracemalloc.stop()
                 optimizer.reset()
                 raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}") from error
-
-            timer()
-            current, peak = tracemalloc.get_traced_memory()
-            tracemalloc.stop()
-
-            # Accumulate weighted asset allocation
-            asset_weights += allocator_weights[k] * weights
 
             # Create optimizer error (simplified - in future this should use error estimators)
             optimizer_errors.append(

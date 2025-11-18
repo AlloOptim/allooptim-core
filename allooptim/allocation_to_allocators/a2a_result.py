@@ -18,6 +18,8 @@ class OptimizerAllocation(BaseModel):
 
     instance_id: str = Field(description="Unique identifier of the optimizer instance")
     weights: pd.Series = Field(description="Asset weights (asset_name -> weight)")
+    runtime_seconds: Optional[float] = Field(default=None, description="Time taken to compute this allocation (seconds)")
+    memory_usage_mb: Optional[float] = Field(default=None, description="Peak memory usage during computation (MB)")
 
     # Backward compatibility alias
     @property
@@ -25,7 +27,7 @@ class OptimizerAllocation(BaseModel):
         """Deprecated: Use instance_id instead."""
         return self.instance_id
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)  # Allow pandas Series
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class OptimizerWeight(BaseModel):
