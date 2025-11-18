@@ -62,7 +62,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         self,
         optimizers: List[AbstractOptimizer],
         covariance_transformers: List[AbstractCovarianceTransformer],
-        config: A2AConfig,
+        a2a_config: A2AConfig,
     ) -> None:
         """Initialize the Equal Weight Orchestrator.
 
@@ -71,7 +71,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             covariance_transformers: List of covariance matrix transformations to apply.
             config: Configuration object with A2A orchestration parameters.
         """
-        super().__init__(optimizers, covariance_transformers, config)
+        super().__init__(optimizers, covariance_transformers, a2a_config)
 
         if self.combined_weight_type == CombinedWeightType.CUSTOM:
             if not self.config.custom_a2a_weights:

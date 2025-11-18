@@ -58,7 +58,7 @@ def test_a2a(orchestrator_type, optimizer_names):
         orchestrator_type=orchestrator_type,
         optimizer_configs=optimizer_configs,
         transformer_names=["OracleCovarianceTransformer"],
-        config=fast_a2a_config,
+        a2a_config=fast_a2a_config,
         **kwargs,
     )
 

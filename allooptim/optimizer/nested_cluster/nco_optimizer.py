@@ -418,7 +418,7 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         if best_kmeans is not None:
             # assign clusters using best cluster sizes
             # Use numeric indices if _corr is a numpy array, otherwise use columns
-            asset_names = self._corr.columns if hasattr(self._corr, "columns") else list(range(self._corr.shape[1]))
+            asset_names = self._corr.columns if isinstance(self._corr, pd.DataFrame) else list(range(self._corr.shape[1]))
 
             self._clusters = {
                 i: [asset_names[j] for j in np.where(best_kmeans.labels_ == i)[0]]

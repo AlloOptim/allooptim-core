@@ -4,8 +4,8 @@ Factory for creating allocation-to-allocators orchestrators based on configurati
 """
 
 from enum import Enum
-from typing import List
-
+from typing import List, Optional
+import logging
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
@@ -23,6 +23,7 @@ from allooptim.covariance_transformer.transformer_list import get_transformer_by
 from allooptim.optimizer.optimizer_factory import get_optimizer_by_names_with_configs
 from allooptim.config.optimizer_config import OptimizerConfig
 
+logger = logging.getLogger(__name__)
 
 class OrchestratorType(str, Enum):
     """Enumeration of available orchestrator types."""
@@ -37,9 +38,9 @@ class OrchestratorType(str, Enum):
 
 def create_orchestrator(
     orchestrator_type: str,
-    optimizer_configs: List["OptimizerConfig"],  # Changed signature
+    optimizer_configs: List[OptimizerConfig],
     transformer_names: List[str] = None,
-    config: A2AConfig = None,
+    a2a_config: Optional[A2AConfig] = None,
     **kwargs,
 ) -> BaseOrchestrator:
     """Factory function to create the appropriate orchestrator based on type.
@@ -48,7 +49,7 @@ def create_orchestrator(
         orchestrator_type: Type of orchestrator to create
         optimizer_configs: List of OptimizerConfig objects
         transformer_names: List of covariance transformer names to use
-        config: A2AConfig for orchestrator configuration
+        a2a_config: A2AConfig for orchestrator configuration
         **kwargs: Additional arguments specific to orchestrator type
 
     Returns:
@@ -60,6 +61,10 @@ def create_orchestrator(
     # Get optimizers and transformers
     optimizers = get_optimizer_by_names_with_configs(optimizer_configs)
     transformers = get_transformer_by_names(transformer_names)
+    
+    if a2a_config is None:
+        logger.info("No A2AConfig provided, using default configuration.")
+        a2a_config = A2AConfig()
 
     if orchestrator_type == OrchestratorType.AUTO:
         orchestrator_type = get_default_orchestrator_type()
@@ -69,37 +74,51 @@ def create_orchestrator(
             return EqualWeightOrchestrator(
                 optimizers=optimizers,
                 covariance_transformers=transformers,
-                config=config,
+                a2a_config=a2a_config,
             )
         case OrchestratorType.MEDIAN_WEIGHT:
             return MedianWeightOrchestrator(
                 optimizers=optimizers,
                 covariance_transformers=transformers,
-                config=config,
+                a2a_config=a2a_config,
             )
         case OrchestratorType.CUSTOM_WEIGHT:
             return CustomWeightOrchestrator(
                 optimizers=optimizers,
                 covariance_transformers=transformers,
-                config=config,
+                a2a_config=a2a_config,
             )
 
         case OrchestratorType.OPTIMIZED:
             return OptimizedOrchestrator(
                 optimizers=optimizers,
                 covariance_transformers=transformers,
-                config=config,
+                a2a_config=a2a_config,
             )
 
         case OrchestratorType.WIKIPEDIA_PIPELINE:
-            # Extract wikipedia pipeline specific parameters
-            n_historical_days = kwargs.get("n_historical_days", 60)
-            use_wiki_database = kwargs.get("use_wiki_database", False)
-            wiki_database_path = kwargs.get("wiki_database_path", None)
+            if "n_historical_days" not in kwargs:
+                logger.info("n_historical_days not provided, using default of 60.")
+                n_historical_days = 60
+            else:
+                n_historical_days = kwargs["n_historical_days"]
+                
+            if "use_wiki_database" not in kwargs:
+                logger.info("use_wiki_database not provided, using default of False.")
+                use_wiki_database = False
+            else:   
+                use_wiki_database = kwargs["use_wiki_database"]
+                
+            if "wiki_database_path" not in kwargs:
+                logger.info("wiki_database_path not provided, using default of None.")
+                wiki_database_path = None
+            else:   
+                wiki_database_path = kwargs["wiki_database_path"]
+            
             return WikipediaPipelineOrchestrator(
                 optimizers=optimizers,
                 covariance_transformers=transformers,
-                config=config,
+                config=a2a_config,
                 n_historical_days=n_historical_days,
                 use_wiki_database=use_wiki_database,
                 wiki_database_path=wiki_database_path,

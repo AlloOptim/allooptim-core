@@ -55,7 +55,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
         self,
         optimizers: List[AbstractOptimizer],
         covariance_transformers: List[AbstractCovarianceTransformer],
-        config: A2AConfig,
+        a2a_config: A2AConfig,
     ):
         """Initialize the Optimized Orchestrator.
 
@@ -65,7 +65,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             config: Configuration object with A2A orchestration parameters including
                 Monte Carlo simulation count and PSO optimization settings.
         """
-        super().__init__(optimizers, covariance_transformers, config)
+        super().__init__(optimizers, covariance_transformers, a2a_config)
 
     def allocate(
         self,

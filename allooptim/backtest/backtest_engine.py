@@ -90,7 +90,7 @@ class BacktestEngine:
             orchestrator_type=final_orchestrator_type,
             optimizer_configs=self.config_backtest.optimizer_configs,
             transformer_names=self.config_backtest.transformer_names,
-            config=a2a_config,
+            a2a_config=a2a_config,
             **orchestrator_kwargs,
         )
 

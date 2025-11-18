@@ -1,8 +1,6 @@
 """Unit tests for allocation constraints module."""
 
-import numpy as np
 import pandas as pd
-import pytest
 
 from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
 
