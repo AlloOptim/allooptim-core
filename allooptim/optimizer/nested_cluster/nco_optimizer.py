@@ -140,12 +140,14 @@ class NCOSharpeOptimizer(AbstractOptimizer):
 
     objective_type = ObjectiveType.SHARPE
 
-    def __init__(self, config: Optional[NCOOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[NCOOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the Nested Clustered Optimization Sharpe optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or NCOOptimizerConfig()
 
         self._previous_weights = None
@@ -416,7 +418,9 @@ class NCOSharpeOptimizer(AbstractOptimizer):
         if best_kmeans is not None:
             # assign clusters using best cluster sizes
             # Use numeric indices if _corr is a numpy array, otherwise use columns
-            asset_names = self._corr.columns if hasattr(self._corr, "columns") else list(range(self._corr.shape[1]))
+            asset_names = (
+                self._corr.columns if isinstance(self._corr, pd.DataFrame) else list(range(self._corr.shape[1]))
+            )
 
             self._clusters = {
                 i: [asset_names[j] for j in np.where(best_kmeans.labels_ == i)[0]]

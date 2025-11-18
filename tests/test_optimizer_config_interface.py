@@ -8,7 +8,7 @@ from datetime import datetime
 
 import pytest
 
-from allooptim.backtest.backtest_config import BacktestConfig
+from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config_registry import (
     get_all_optimizer_configs,
     get_optimizer_config_class,
@@ -173,9 +173,9 @@ class TestBacktestConfigIntegration:
         assert isinstance(config_dict, dict)
         assert len(config_dict) == 3
         assert "HRPOptimizer" in config_dict
-        assert "CMAMeanVariance" in config_dict
+        assert "CMAMeanVariance[budget=1000]" in config_dict
         assert "PSOMeanVariance" in config_dict
-        assert config_dict["CMAMeanVariance"] == {"budget": 1000}
+        assert config_dict["CMAMeanVariance[budget=1000]"] == {"budget": 1000}
         assert config_dict["PSOMeanVariance"] is None or config_dict["PSOMeanVariance"] == {}
 
 
@@ -216,4 +216,4 @@ class TestConfigurationIntegration:
 
         assert len(backtest_config.optimizer_configs) == 1
         config_dict = backtest_config.get_optimizer_configs_dict()
-        assert config_dict["CMAMeanVariance"] == valid_config
+        assert config_dict["CMAMeanVariance[budget=1000-risk_aversion=3]"] == valid_config

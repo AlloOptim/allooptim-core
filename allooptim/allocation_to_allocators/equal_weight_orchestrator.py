@@ -5,6 +5,7 @@ Simplest orchestrator that calls each optimizer once and combines results with e
 
 import logging
 import time
+import tracemalloc
 from datetime import datetime
 from enum import Enum
 from typing import List, Optional
@@ -12,7 +13,6 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import (
     A2AResult,
@@ -21,9 +21,11 @@ from allooptim.allocation_to_allocators.a2a_result import (
     OptimizerWeight,
     PerformanceMetrics,
 )
+from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -61,16 +63,16 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         self,
         optimizers: List[AbstractOptimizer],
         covariance_transformers: List[AbstractCovarianceTransformer],
-        config: A2AConfig,
+        a2a_config: A2AConfig,
     ) -> None:
         """Initialize the Equal Weight Orchestrator.
 
         Args:
             optimizers: List of portfolio optimization algorithms to orchestrate.
             covariance_transformers: List of covariance matrix transformations to apply.
-            config: Configuration object with A2A orchestration parameters.
+            a2a_config: Configuration object with A2A orchestration parameters.
         """
-        super().__init__(optimizers, covariance_transformers, config)
+        super().__init__(optimizers, covariance_transformers, a2a_config)
 
         if self.combined_weight_type == CombinedWeightType.CUSTOM:
             if not self.config.custom_a2a_weights:
@@ -98,7 +100,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         Returns:
             A2AResult with combined optimizer allocations
         """
-        start_time = time.time()
+        runtime_start = time.time()
 
         # Get ground truth parameters (no sampling for equal weight)
         mu, cov, prices, current_time, l_moments = data_provider.get_ground_truth()
@@ -112,6 +114,9 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # First pass: collect all optimizer allocations
         for optimizer in self.optimizers:
+            tracemalloc.start()
+            runtime_start = time.time()
+
             try:
                 logger.info(f"Computing allocation for {optimizer.name}...")
 
@@ -123,23 +128,44 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
                 weights = np.array(weights)
                 weights_sum = np.sum(weights)
-                if weights_sum > 0 and (not self.config.allow_partial_investment or weights_sum > 1.0):
+                if np.any(weights > self.config.min_weight_threshold) and (
+                    not self.config.allow_partial_investment or weights_sum > 1.0
+                ):
                     weights = weights / weights_sum
+
+                # Track memory and time
+                runtime_end = time.time()
+                _, peak = tracemalloc.get_traced_memory()
+                tracemalloc.stop()
+
+                runtime_seconds = runtime_end - runtime_start
+                memory_usage_mb = peak / (1024 * 1024)  # Convert bytes to MB
 
                 # Store optimizer allocation
                 weights_series = pd.Series(weights, index=mu.index)
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
+                    OptimizerAllocation(
+                        instance_id=optimizer.display_name,
+                        weights=weights_series,
+                        runtime_seconds=runtime_seconds,
+                        memory_usage_mb=memory_usage_mb,
+                    )
                 )
 
             except Exception as error:
+                tracemalloc.stop()
                 logger.warning(f"Allocation failed for {optimizer.name}: {str(error)}")
                 # Use equal weights fallback
                 equal_weights = np.ones(len(mu)) / len(mu)
                 weights_series = pd.Series(equal_weights, index=mu.index)
 
                 optimizer_allocations_list.append(
-                    OptimizerAllocation(optimizer_name=optimizer.name, weights=weights_series)
+                    OptimizerAllocation(
+                        instance_id=optimizer.display_name,
+                        weights=weights_series,
+                        runtime_seconds=None,
+                        memory_usage_mb=None,
+                    )
                 )
 
         # Second pass: determine A2A weights based on combination method
@@ -148,7 +174,8 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Equal weights for all optimizers
                 # For median, this is the best approximation
                 a2a_weights = {
-                    opt.optimizer_name: 1.0 / len(optimizer_allocations_list) for opt in optimizer_allocations_list
+                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
+                    for opt_alloc in optimizer_allocations_list
                 }
 
             case CombinedWeightType.CUSTOM:
@@ -163,12 +190,14 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 # Weighted combination of optimizer allocations
                 asset_weights = np.zeros(len(mu))
                 for opt_alloc in optimizer_allocations_list:
-                    weight = a2a_weights[opt_alloc.optimizer_name]
+                    weight = a2a_weights[opt_alloc.instance_id]
                     asset_weights += weight * opt_alloc.weights.values
 
             case CombinedWeightType.MEDIAN:
                 # Take median across optimizer allocations for each asset
-                alloc_df = pd.DataFrame({opt.optimizer_name: opt.weights for opt in optimizer_allocations_list})
+                alloc_df = pd.DataFrame(
+                    {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
+                )
                 asset_weights = alloc_df.median(axis=1).values
 
             case _:
@@ -182,8 +211,8 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         for opt_alloc in optimizer_allocations_list:
             optimizer_weights_list.append(
                 OptimizerWeight(
-                    optimizer_name=opt_alloc.optimizer_name,
-                    weight=a2a_weights[opt_alloc.optimizer_name],
+                    instance_id=opt_alloc.instance_id,
+                    weight=a2a_weights[opt_alloc.instance_id],
                 )
             )
 
@@ -198,6 +227,15 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             logger.warning("Final allocation sums to zero; returning zero weights.")
             final_allocation = pd.Series(0.0, index=mu.index)
 
+        # Apply allocation constraints
+        final_allocation = AllocationConstraints.apply_all_constraints(
+            weights=final_allocation,
+            n_max_active_assets=self.config.n_max_active_assets,
+            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
+            n_min_active_assets=self.config.n_min_active_assets,
+            min_weight_threshold=self.config.min_weight_threshold,
+        )
+
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()
         portfolio_variance = final_allocation.values @ cov_transformed.values @ final_allocation.values
@@ -205,7 +243,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
 
         # Compute diversity score (1 - mean correlation)
-        optimizer_alloc_df = pd.DataFrame({alloc.optimizer_name: alloc.weights for alloc in optimizer_allocations_list})
+        optimizer_alloc_df = pd.DataFrame({alloc.instance_id: alloc.weights for alloc in optimizer_allocations_list})
         corr_matrix = optimizer_alloc_df.corr()
         n = len(corr_matrix)
         if n <= 1:
@@ -224,14 +262,14 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         # Create optimizer errors (empty for equal weight)
         optimizer_errors = [
             OptimizerError(
-                optimizer_name=opt.optimizer_name,
+                instance_id=opt.instance_id,
                 error=0.0,  # No error estimation for equal weight
                 error_components=[],
             )
             for opt in optimizer_allocations_list
         ]
 
-        runtime_seconds = time.time() - start_time
+        runtime_seconds = time.time() - runtime_start
 
         # Create A2AResult
         result = A2AResult(

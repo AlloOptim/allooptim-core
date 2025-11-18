@@ -51,12 +51,14 @@ class MomentumOptimizerConfig(BaseModel):
 class MomentumOptimizer(AbstractOptimizer):
     """Optimizer based on the naive momentum."""
 
-    def __init__(self, config: Optional[MomentumOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[MomentumOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the momentum optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or MomentumOptimizerConfig()
 
     def allocate(
@@ -123,13 +125,14 @@ class MomentumOptimizer(AbstractOptimizer):
 class EMAMomentumOptimizer(MomentumOptimizer):
     """Optimizer based on the naive momentum with EMA."""
 
-    def __init__(self, config: Optional[MomentumOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[MomentumOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the EMA momentum optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
-        super().__init__(config)
+        super().__init__(config, display_name)
 
     @property
     def name(self) -> str:

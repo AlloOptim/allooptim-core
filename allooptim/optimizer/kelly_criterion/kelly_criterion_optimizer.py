@@ -137,12 +137,14 @@ class KellyCriterionOptimizer(AbstractOptimizer):
         avg_losses: Average loss when return is negative (as fraction)
     """
 
-    def __init__(self, config: KellyCriterionOptimizerConfig | None = None) -> None:
+    def __init__(self, config: KellyCriterionOptimizerConfig | None = None, display_name: str | None = None) -> None:
         """Initialize the Kelly Criterion optimizer.
 
         Args:
             config: Configuration object with Kelly-specific parameters. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or KellyCriterionOptimizerConfig()
         self.win_rates: pd.Series | None = None
         self.avg_gains: pd.Series | None = None

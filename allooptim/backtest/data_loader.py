@@ -90,7 +90,7 @@ class DataLoader:
                     prices = pd.DataFrame()
 
                     # Check if we have multi-level columns
-                    if hasattr(batch_data.columns, "levels") and len(batch_data.columns.levels) > 1:
+                    if isinstance(batch_data.columns, pd.MultiIndex) and len(batch_data.columns.levels) > 1:
                         # Multi-level columns (symbol, field)
                         for symbol in batch_symbols:
                             try:

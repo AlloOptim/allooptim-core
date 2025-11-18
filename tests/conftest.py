@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
+from allooptim.config.a2a_config import A2AConfig
 
 TESTS_DIRECTORY = Path(__file__).parent.resolve()
 

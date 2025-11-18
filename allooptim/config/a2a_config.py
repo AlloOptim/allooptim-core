@@ -65,4 +65,27 @@ class A2AConfig(BaseModel):
 
     custom_a2a_weights: Optional[dict] = Field(default=None, description="Custom A2A weights for each optimizer")
 
+    # Asset allocation constraints
+    n_max_active_assets: Optional[int] = Field(
+        default=None,
+        ge=1,
+        description="Maximum number of assets with weights > 0. If more assets are active, reduce by setting the smallest ones to 0. Disabled if None.",
+    )
+    max_asset_concentration_pct: Optional[float] = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+        description="Maximum concentration for any single asset (e.g., 0.3 means weights above 30% get clipped to 30%). Disabled if None.",
+    )
+    n_min_active_assets: Optional[int] = Field(
+        default=None,
+        ge=1,
+        description="Minimum number of assets with weights > 0. Disabled if None.",
+    )
+    min_weight_threshold: float = Field(
+        default=1e-6,
+        ge=0.0,
+        description="Minimum weight threshold to consider an asset 'active' for constraint calculations.",
+    )
+
     model_config = ConfigDict(frozen=True)

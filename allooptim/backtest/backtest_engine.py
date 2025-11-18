@@ -22,7 +22,6 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
@@ -31,9 +30,10 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
-from allooptim.backtest.backtest_config import BacktestConfig
 from allooptim.backtest.data_loader import DataLoader
 from allooptim.backtest.performance_metrics import PerformanceMetrics
+from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.backtest_config import BacktestConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
 from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
 from allooptim.optimizer.wikipedia.wiki_database import download_data
@@ -88,9 +88,9 @@ class BacktestEngine:
 
         self.orchestrator = create_orchestrator(
             orchestrator_type=final_orchestrator_type,
-            optimizer_configs=self.config_backtest.get_optimizer_configs_dict(),
+            optimizer_configs=self.config_backtest.optimizer_configs,
             transformer_names=self.config_backtest.transformer_names,
-            config=a2a_config,
+            a2a_config=a2a_config,
             **orchestrator_kwargs,
         )
 
@@ -403,14 +403,34 @@ class BacktestEngine:
                         }
                     )
 
-            # Computation and memory statistics (not available in new architecture)
-            computation_stats = {
-                "avg_computation_time": 0,  # Not tracked in new architecture
-                "max_computation_time": 0,
-                "min_computation_time": 0,
-                "avg_memory_usage_mb": 0,
-                "max_memory_usage_mb": 0,
-            }
+            # Computation and memory statistics
+            # Extract per-optimizer computation times and memory usage from A2AResult objects
+            computation_times = []
+            memory_usages = []
+
+            for result in allocation_results:
+                for opt_alloc in result.optimizer_allocations:
+                    if opt_alloc.runtime_seconds is not None:
+                        computation_times.append(opt_alloc.runtime_seconds)
+                    if opt_alloc.memory_usage_mb is not None:
+                        memory_usages.append(opt_alloc.memory_usage_mb)
+
+            if computation_times:
+                computation_stats = {
+                    "avg_computation_time": np.mean(computation_times),
+                    "max_computation_time": np.max(computation_times),
+                    "min_computation_time": np.min(computation_times),
+                    "avg_memory_usage_mb": np.mean(memory_usages) if memory_usages else 0,
+                    "max_memory_usage_mb": np.max(memory_usages) if memory_usages else 0,
+                }
+            else:
+                computation_stats = {
+                    "avg_computation_time": 0,
+                    "max_computation_time": 0,
+                    "min_computation_time": 0,
+                    "avg_memory_usage_mb": 0,
+                    "max_memory_usage_mb": 0,
+                }
 
             # Combine all metrics
             all_metrics = {

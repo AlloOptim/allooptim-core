@@ -69,8 +69,13 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
         MSFT     0.417  # (0.40 + 0.45 + 0.40) / 3
     """
 
-    def __init__(self) -> None:
-        """Initialize A2A ensemble optimizer."""
+    def __init__(self, display_name: Optional[str] = None) -> None:
+        """Initialize A2A ensemble optimizer.
+
+        Args:
+            display_name: Optional display name for this optimizer instance.
+        """
+        super().__init__(display_name)
         self.config = EnsembleOptimizerConfig()
 
     @property
@@ -168,8 +173,13 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
         1.0
     """
 
-    def __init__(self) -> None:
-        """Initialize SPY 500 benchmark optimizer."""
+    def __init__(self, display_name: Optional[str] = None) -> None:
+        """Initialize SPY 500 benchmark optimizer.
+
+        Args:
+            display_name: Optional display name for this optimizer instance.
+        """
+        super().__init__(display_name)
         self.config = EnsembleOptimizerConfig()
 
     @property

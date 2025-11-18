@@ -124,6 +124,7 @@ def test_transformers(transformer_class):
 
     # Check that fit and transform don't raise warnings
     import warnings
+
     with warnings.catch_warnings(record=True) as warning_list:
         warnings.simplefilter("always")
         transformer.fit(
@@ -138,9 +139,7 @@ def test_transformers(transformer_class):
     # Fail the test if any warnings were raised
     if warning_list:
         warning_messages = [str(w.message) for w in warning_list]
-        pytest.fail(
-            f"Transformer {transformer.name} raised warnings during fit/transform: {warning_messages}"
-        )
+        pytest.fail(f"Transformer {transformer.name} raised warnings during fit/transform: {warning_messages}")
 
     assert isinstance(transformed_cov, pd.DataFrame)
     assert transformed_cov.shape == (n_assets, n_assets)

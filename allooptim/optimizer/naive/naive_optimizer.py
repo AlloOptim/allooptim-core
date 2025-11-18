@@ -81,12 +81,14 @@ class NaiveOptimizer(AbstractOptimizer):
         >>> print(f"Portfolio contains {n_assets} assets: {asset_names}")
     """
 
-    def __init__(self, config: Optional[NaiveOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[NaiveOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the naive equal-weight optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or NaiveOptimizerConfig()
 
     def allocate(

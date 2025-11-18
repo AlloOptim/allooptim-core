@@ -11,7 +11,6 @@ from typing import List, Optional
 
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_config import A2AConfig
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import (
     A2AResult,
@@ -24,6 +23,7 @@ from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
+from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -213,7 +213,12 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                 # Update with actual weights for selected assets
                 full_weights.update(opt_alloc.weights)
                 padded_optimizer_allocations.append(
-                    OptimizerAllocation(optimizer_name=opt_alloc.optimizer_name, weights=full_weights)
+                    OptimizerAllocation(
+                        instance_id=opt_alloc.instance_id,
+                        weights=full_weights,
+                        runtime_seconds=opt_alloc.runtime_seconds,
+                        memory_usage_mb=opt_alloc.memory_usage_mb,
+                    )
                 )
 
             runtime_seconds = time.time() - start_time

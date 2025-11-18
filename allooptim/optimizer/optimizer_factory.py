@@ -5,8 +5,9 @@ Supports both default configs and custom parameter overrides.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
+from allooptim.config.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import (
     NAME_TO_OPTIMIZER_CLASS,
     get_all_optimizer_configs,
@@ -18,69 +19,36 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 logger = logging.getLogger(__name__)
 
 
-class OptimizerConfig:
-    """Wrapper for optimizer configuration parameters."""
-
-    def __init__(self, optimizer_name: str, params: Optional[Dict[str, Any]] = None):
-        """Initialize optimizer configuration wrapper.
-
-        Args:
-            optimizer_name: Name of the optimizer to configure
-            params: Dictionary of configuration parameters
-        """
-        self.optimizer_name = optimizer_name
-        self.params = params or {}
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "OptimizerConfig":
-        """Create from dictionary representation."""
-        return cls(optimizer_name=data["optimizer_name"], params=data.get("params", {}))
-
-
 def get_optimizer_by_names_with_configs(
-    names: List[str], optimizer_configs: Optional[List[OptimizerConfig]] = None
+    configs: List[OptimizerConfig],
 ) -> List[AbstractOptimizer]:
-    """Enhanced factory function that creates optimizers with custom configurations.
+    """Create optimizers from OptimizerConfig objects.
 
     Args:
-        names: List of optimizer names to create
-        optimizer_configs: Optional list of custom configurations
+        configs: List of OptimizerConfig objects with class names and display names
 
     Returns:
         List of configured optimizer instances
-
-    Raises:
-        ValueError: If optimizer name is unknown or config validation fails
     """
-    if optimizer_configs is None:
-        optimizer_configs = []
-
-    # Create config map for quick lookup
-    config_map = {config.optimizer_name: config.params for config in optimizer_configs}
-
     optimizers = []
-    for name in names:
-        optimizer_class = NAME_TO_OPTIMIZER_CLASS.get(name)
+
+    for opt_config in configs:
+        # Use opt_config.name for class lookup
+        optimizer_class = NAME_TO_OPTIMIZER_CLASS.get(opt_config.name)
         if optimizer_class is None:
             available = list(NAME_TO_OPTIMIZER_CLASS.keys())
-            raise ValueError(f"Unknown optimizer '{name}'. Available optimizers: {available}")
+            raise ValueError(f"Unknown optimizer '{opt_config.name}'. " f"Available optimizers: {available}")
 
-        # Check if custom config provided
-        params = config_map.get(name, {})
-
-        if params:
-            # Validate and create config
-            try:
-                config = validate_optimizer_config(name, params)
-                optimizer = optimizer_class(config=config)
-                logger.info(f"Created {name} with custom config: {params}")
-            except ValueError as e:
-                logger.error(f"Failed to create {name} with config {params}: {e}")
-                raise
+        # Create with config
+        if opt_config.config:
+            config = validate_optimizer_config(opt_config.name, opt_config.config)
+            optimizer = optimizer_class(config=config, display_name=opt_config.display_name)
+            logger.info(
+                f"Created {opt_config.name} as '{opt_config.display_name}' " f"with config: {opt_config.config}"
+            )
         else:
-            # Use default config
-            optimizer = optimizer_class()
-            logger.debug(f"Created {name} with default config")
+            optimizer = optimizer_class(display_name=opt_config.display_name)
+            logger.debug(f"Created {opt_config.name} as '{opt_config.display_name}' " f"with default config")
 
         optimizers.append(optimizer)
 
@@ -92,7 +60,9 @@ def get_optimizer_by_names(names: List[str]) -> List[AbstractOptimizer]:
 
     This maintains compatibility with existing code.
     """
-    return get_optimizer_by_names_with_configs(names, [])
+    # Convert names to OptimizerConfig objects
+    configs = [OptimizerConfig(name=name) for name in names]
+    return get_optimizer_by_names_with_configs(configs)
 
 
 def create_optimizer_config_template(optimizer_name: str) -> Dict[str, Any]:
@@ -152,7 +122,7 @@ def validate_optimizer_config_list(configs: List[OptimizerConfig]) -> List[str]:
 
     for config in configs:
         try:
-            validate_optimizer_config(config.optimizer_name, config.params)
+            validate_optimizer_config(config.name, config.config)
         except ValueError as e:
             errors.append(str(e))
 

@@ -63,12 +63,14 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
 
     enable_l_moments: bool = False
 
-    def __init__(self, config: Optional[PSOOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[PSOOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the mean-variance particle swarm optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or PSOOptimizerConfig()
         self._previous_positions = None
 
@@ -150,12 +152,13 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
             Returns negative values for minimization.
 
             Args:
-                x: Decision variables (scale + weights)
+                x: Decision variables (scale + weights) of shape (n_particles, dimensions)
 
             Returns:
-                Negative risk-adjusted returns for minimization
+                Negative risk-adjusted returns for all particles, shape (n_particles,)
             """
-            return risk_adjusted_returns_objective(
+            # x is already 2D with shape (n_particles, n_assets+1)
+            result = risk_adjusted_returns_objective(
                 x,
                 enable_l_moments=self.enable_l_moments,
                 l_moments=l_moments,
@@ -163,6 +166,8 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
                 mu=mu_array,
                 cov=cov_array,
             )
+            # Return vector of costs for all particles
+            return result
 
         objective_with_early_stopping = EarlyStopObjective(
             objective_function=objective_function,
