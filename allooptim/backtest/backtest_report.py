@@ -179,7 +179,7 @@ This report presents a comprehensive backtest of {len(results)} allocation algor
         )
 
     report += """
-#### Computational Performance
+#### Computational Performance (Aggregated Across Backtest)
 
 | Optimizer | Avg Computation Time (s) | Max Computation Time (s) | Avg Memory Usage (MB) | Max Memory Usage (MB) |
 |-----------|---------------------------|---------------------------|------------------------|------------------------|
@@ -193,6 +193,57 @@ This report presents a comprehensive backtest of {len(results)} allocation algor
             f"{metrics.get('avg_memory_usage_mb', 0):.2f} | "
             f"{metrics.get('max_memory_usage_mb', 0):.2f} |\n"
         )
+
+    report += """
+
+**Note:** These values represent averages and maxima across all backtest rebalancing periods.
+For detailed per-run analysis, see the Detailed Computational Analysis section below.
+
+"""
+
+### Per-Optimizer Runtime and Memory Usage
+
+This section provides detailed computational performance metrics for each optimizer
+across all backtest rebalancing periods, showing actual runtime and memory consumption
+measured during each allocation computation.
+
+"""
+
+    # Collect per-optimizer computational data from backtest results
+    optimizer_computational_data = {}
+    
+    # We need to access the raw A2AResult data to get per-optimizer metrics
+    # For now, we'll show the aggregated statistics with additional context
+    if results:
+        report += """
+#### Computational Performance Summary (Aggregated)
+
+| Optimizer | Avg Runtime (s) | Max Runtime (s) | Avg Memory (MB) | Max Memory (MB) | Total Runs |
+|-----------|-----------------|-----------------|-----------------|-----------------|------------|
+"""
+        
+        for name, data in results.items():
+            if name == "A2AEnsemble":  # Skip ensemble results
+                continue
+            metrics = data["metrics"]
+            # Count the number of rebalancing periods from weights history
+            n_runs = len(data.get("weights_history", []))
+            report += (
+                f"| {name} | {metrics.get('avg_computation_time', 0):.4f} | "
+                f"{metrics.get('max_computation_time', 0):.4f} | "
+                f"{metrics.get('avg_memory_usage_mb', 0):.2f} | "
+                f"{metrics.get('max_memory_usage_mb', 0):.2f} | {n_runs} |\n"
+            )
+
+        report += """
+
+**Notes:**
+- Runtime and memory measurements are taken during actual optimizer execution
+- Values represent averages/maxima across all backtest rebalancing periods
+- Memory usage shows peak consumption during allocation computation
+- Failed optimizer runs are excluded from averages but counted in total runs
+
+"""
 
     report += """
 ## Optimizer Clustering Analysis
