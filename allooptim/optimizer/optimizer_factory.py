@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_optimizer_by_names_with_configs(
-    configs: List["OptimizerConfig"],  # Changed from Dict
+    configs: List[OptimizerConfig],
 ) -> List[AbstractOptimizer]:
     """Create optimizers from OptimizerConfig objects.
 
@@ -109,7 +109,7 @@ def get_available_optimizer_configs() -> Dict[str, Dict[str, Any]]:
     return result
 
 
-def validate_optimizer_config_list(configs: List["OptimizerConfig"]) -> List[str]:
+def validate_optimizer_config_list(configs: List[OptimizerConfig]) -> List[str]:
     """Validate a list of optimizer configs and return any errors.
 
     Args:
