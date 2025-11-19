@@ -12,3 +12,7 @@ Key features:
 - Handling of high-dimensional financial data
 - Integration with LightGBM library
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

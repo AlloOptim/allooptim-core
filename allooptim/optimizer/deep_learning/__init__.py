@@ -12,3 +12,7 @@ Key components:
 - Integration with TinyGrad for efficient computation
 - Portfolio weight prediction from historical returns
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

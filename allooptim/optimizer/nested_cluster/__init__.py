@@ -12,3 +12,7 @@ Key features:
 - Sharpe ratio maximization within nested structure
 - Integration with scikit-learn clustering
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

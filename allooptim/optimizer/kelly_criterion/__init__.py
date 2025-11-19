@@ -11,3 +11,7 @@ Key features:
 - Long-term wealth maximization
 - Integration with probability estimates
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

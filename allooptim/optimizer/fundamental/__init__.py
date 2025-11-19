@@ -11,3 +11,7 @@ Key features:
 - Integration with yfinance library
 - Long-term investment horizon focus
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

@@ -20,6 +20,6 @@ See Also:
     - :mod:`allooptim.covariance_transformer.transformer_interface`: Base interfaces
 """
 
-from allooptim.covariance_transformer.transformer_list import get_all_transformers
+import logging
 
-__all__ = ["get_all_transformers"]
+logger = logging.getLogger(__name__)

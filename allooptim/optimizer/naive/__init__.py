@@ -10,3 +10,7 @@ Key strategies:
 - Naive risk parity approximations
 - Simple benchmark strategies for comparison
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

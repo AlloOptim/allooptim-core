@@ -10,3 +10,7 @@ Key optimizers:
 - Integration with PyPortfolioOpt library
 - Support for custom risk measures and constraints
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

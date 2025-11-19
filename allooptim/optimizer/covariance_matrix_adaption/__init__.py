@@ -11,3 +11,7 @@ Key features:
 - Robust convergence properties
 - Integration with cma library
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

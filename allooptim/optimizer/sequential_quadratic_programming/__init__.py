@@ -11,3 +11,7 @@ Key features:
 - Robust moment estimation with exponential moving averages
 - Multi-start optimization for better convergence
 """
+
+import logging
+
+logger = logging.getLogger(__name__)
