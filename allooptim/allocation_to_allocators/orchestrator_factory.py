@@ -39,7 +39,7 @@ class OrchestratorType(str, Enum):
 
 
 def create_orchestrator(
-    orchestrator_type: str,
+    orchestrator_type: OrchestratorType,
     optimizer_configs: List[OptimizerConfig],
     transformer_names: List[str] = None,
     a2a_config: Optional[A2AConfig] = None,

@@ -124,8 +124,11 @@ class BacktestConfig(BaseModel):
         for item in v:
             if isinstance(item, str):
                 result.append(OptimizerConfig(name=item))
-            else:
+            elif isinstance(item, OptimizerConfig):
                 result.append(item)
+            else:
+                raise ValueError(f"Invalid optimizer_config item: {item}. Must be str or OptimizerConfig.")
+                
         return result
 
     @field_validator("optimizer_configs", mode="after")

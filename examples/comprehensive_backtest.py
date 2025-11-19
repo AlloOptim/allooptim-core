@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def main():
+def main(quick_test: bool =True,) -> None:
     """Main execution function."""
     logger.info("Starting comprehensive allocation algorithm backtest")
 
@@ -45,13 +45,13 @@ def main():
             end_date=datetime(2024, 12, 31),
             rebalance_frequency=10,
             lookback_days=90,
-            quick_test=True,
+            quick_test=quick_test,
             log_returns=True,
             benchmark="SPY",
             symbols=symbols,
             optimizer_configs=[
                 # Example with default config
-                OptimizerConfig(name="CMAMeanVariance"),
+                "CMAMeanVariance",
                 # Example with custom config
                 OptimizerConfig(name="CMALMoments", config={"budget": 2000}),
                 # More optimizers with defaults
