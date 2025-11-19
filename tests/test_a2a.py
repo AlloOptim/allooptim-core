@@ -4,20 +4,20 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from allooptim.allocation_to_allocators.a2a_orchestrator import AbstractA2AOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.data_provider_factory import (
     get_data_provider_factory,
 )
-from allooptim.allocation_to_allocators.a2a_orchestrator import AbstractA2AOrchestrator
 from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
 )
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.stock_universe import list_of_dax_stocks
+from allooptim.covariance_transformer.transformer_list import TRANSFORMER_LIST
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_list import OPTIMIZER_LIST
-from allooptim.covariance_transformer.transformer_list import TRANSFORMER_LIST
 from tests.conftest import (
     FAST_TEST_ITERATIONS,
     FAST_TEST_OBSERVATIONS,
@@ -95,14 +95,13 @@ def test_a2a(orchestrator_type, optimizer_names):
 
 @pytest.mark.parametrize("orchestrator_type", OrchestratorType)
 def test_create_orchestrator_vary_a2a(orchestrator_type):
-
+    """Test creating orchestrator with different orchestrator types."""
     optimizer_configs = [
         OptimizerConfig(name=OPTIMIZER_LIST[0]().name),
         OptimizerConfig(name=OPTIMIZER_LIST[1]().name),
     ]
 
-    transformer_list = [TRANSFORMER_LIST[0]().name,
-                        TRANSFORMER_LIST[1]().name]
+    transformer_list = [TRANSFORMER_LIST[0]().name, TRANSFORMER_LIST[1]().name]
 
     # Create custom A2A weights for CUSTOM_WEIGHT orchestrator type
     custom_a2a_weights = None
@@ -120,19 +119,19 @@ def test_create_orchestrator_vary_a2a(orchestrator_type):
         transformer_names=transformer_list,
         a2a_config=a2a_config,
     )
-    
+
     assert isinstance(orchestrator, AbstractA2AOrchestrator)
+
 
 @pytest.mark.parametrize("optimizer", OPTIMIZER_LIST)
 def test_create_orchestrator_vary_optimizer(optimizer):
-
+    """Test creating orchestrator with different optimizers."""
     optimizer_configs = [
         OptimizerConfig(name=optimizer().name),
         OptimizerConfig(name=OPTIMIZER_LIST[0]().name),
     ]
 
-    transformer_list = [TRANSFORMER_LIST[0]().name,
-                        TRANSFORMER_LIST[1]().name]
+    transformer_list = [TRANSFORMER_LIST[0]().name, TRANSFORMER_LIST[1]().name]
 
     orchestrator = create_orchestrator(
         orchestrator_type=OrchestratorType.EQUAL_WEIGHT,
@@ -142,16 +141,16 @@ def test_create_orchestrator_vary_optimizer(optimizer):
 
     assert isinstance(orchestrator, AbstractA2AOrchestrator)
 
-@pytest.mark.parametrize("transformer", TRANSFORMER_LIST)
-def test_create_orchestrator_varytransformer(transformer):
 
+@pytest.mark.parametrize("transformer", TRANSFORMER_LIST)
+def test_create_orchestrator_vary_transformer(transformer):
+    """Test creating orchestrator with different transformers."""
     optimizer_configs = [
         OptimizerConfig(name=OPTIMIZER_LIST[0]().name),
         OptimizerConfig(name=OPTIMIZER_LIST[1]().name),
     ]
 
-    transformer_list = [transformer().name,
-                        TRANSFORMER_LIST[0]().name]
+    transformer_list = [transformer().name, TRANSFORMER_LIST[0]().name]
 
     orchestrator = create_orchestrator(
         orchestrator_type=OrchestratorType.EQUAL_WEIGHT,

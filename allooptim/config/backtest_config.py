@@ -130,7 +130,7 @@ class BacktestConfig(BaseModel):
                 result.append(OptimizerConfig(**item))
             else:
                 raise ValueError(f"Invalid optimizer_config item: {item}. Must be str, dict, or OptimizerConfig.")
-                
+
         return result
 
     @field_validator("optimizer_configs", mode="after")

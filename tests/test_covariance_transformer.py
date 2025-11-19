@@ -50,6 +50,7 @@ def detoned_results():
 
 class TestDetoneCovarianceTransformer:
     """Tests for covariance matrix detoning transformer."""
+
     def test_transform(self, cov_matrix, detoned_results):
         """Test detoning transformer functionality."""
         results = DetoneCovarianceTransformer(n_remove=1).transform(cov_matrix, None)
@@ -75,6 +76,7 @@ class TestDetoneCovarianceTransformer:
 
 class TestDeNoiserCovarianceTransformer:
     """Tests for covariance matrix denoising transformer."""
+
     def test_transform(self, prices_df):
         """Test denoising transformer functionality."""
         covariance_matrix = sample_cov(prices_df)  # This returns a pandas DataFrame

@@ -19,41 +19,47 @@ class TestComprehensiveBacktest:
             # Use mocking to avoid the optimizer instantiation bug while still testing the main flow
             try:
                 # Mock the problematic optimizer factory to avoid the display_name issue
-                with patch('allooptim.optimizer.optimizer_factory.get_optimizer_by_config') as mock_factory:
+                with patch("allooptim.optimizer.optimizer_factory.get_optimizer_by_config") as mock_factory:
                     # Return a simple mock optimizer
-                    mock_optimizer = type('MockOptimizer', (), {
-                        'name': 'MockOptimizer',
-                        'allocate': lambda self, *args, **kwargs: type('MockSeries', (), {'values': [0.5, 0.5], 'index': ['A', 'B']})(),
-                        'fit': lambda self, *args, **kwargs: None
-                    })()
+                    mock_optimizer = type(
+                        "MockOptimizer",
+                        (),
+                        {
+                            "name": "MockOptimizer",
+                            "allocate": lambda self, *args, **kwargs: type(
+                                "MockSeries", (), {"values": [0.5, 0.5], "index": ["A", "B"]}
+                            )(),
+                            "fit": lambda self, *args, **kwargs: None,
+                        },
+                    )()
                     mock_factory.return_value = [mock_optimizer]
-                    
+
                     # Mock the backtest engine to return minimal results
-                    with patch('examples.comprehensive_backtest.BacktestEngine') as mock_engine_class:
+                    with patch("examples.comprehensive_backtest.BacktestEngine") as mock_engine_class:
                         mock_engine = mock_engine_class.return_value
                         mock_engine.run_backtest.return_value = {
-                            "MockOptimizer": {
-                                "metrics": {"sharpe_ratio": 1.5, "total_return": 0.25}
-                            }
+                            "MockOptimizer": {"metrics": {"sharpe_ratio": 1.5, "total_return": 0.25}}
                         }
-                        mock_engine.config = type('MockConfig', (), {
-                            'results_dir': Path("/tmp/test_results"),
-                            'quantstats_individual': False,
-                            'quantstats_top_n': 0,
-                            'benchmark': "SPY",
-                            'get_report_date_range': lambda: ("2020-01-01", "2024-01-01")
-                        })()
-                        
+                        mock_engine.config = type(
+                            "MockConfig",
+                            (),
+                            {
+                                "results_dir": Path("/tmp/test_results"),
+                                "quantstats_individual": False,
+                                "quantstats_top_n": 0,
+                                "benchmark": "SPY",
+                                "get_report_date_range": lambda: ("2020-01-01", "2024-01-01"),
+                            },
+                        )()
+
                         # Mock other components to avoid file I/O and external dependencies
-                        with patch('examples.comprehensive_backtest.ClusterAnalyzer'), \
-                             patch('examples.comprehensive_backtest.create_visualizations'), \
-                             patch('examples.comprehensive_backtest.create_quantstats_reports'), \
-                             patch('examples.comprehensive_backtest.generate_report', return_value="# Test Report"), \
-                             patch('builtins.open'), \
-                             patch('pandas.DataFrame.to_csv'):
-                            
+                        with patch("examples.comprehensive_backtest.ClusterAnalyzer"), patch(
+                            "examples.comprehensive_backtest.create_visualizations"
+                        ), patch("examples.comprehensive_backtest.create_quantstats_reports"), patch(
+                            "examples.comprehensive_backtest.generate_report", return_value="# Test Report"
+                        ), patch("builtins.open"), patch("pandas.DataFrame.to_csv"):
                             main(quick_test=True)
-                            
+
             except Exception as e:
                 pytest.fail(f"Comprehensive backtest failed to execute: {str(e)}")
 

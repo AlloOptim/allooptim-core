@@ -26,6 +26,7 @@ MIN_WEIGHT_TOLERANCE = -0.01
 
 class TestMarkowitzOptimizer:
     """Tests for Markowitz efficient frontier optimizer."""
+
     def test_allocate(self, prices_df):
         """Test allocation with historical returns and covariance."""
         mu = mean_historical_return(prices_df)  # Returns pandas Series
@@ -45,6 +46,7 @@ class TestMarkowitzOptimizer:
 
 class TestNCOOptimizer:
     """Tests for Nested Clustering Optimization optimizer."""
+
     def test_allocate_max_sharpe(self, prices_df):
         """Test allocation for maximum Sharpe ratio."""
         mu = mean_historical_return(prices_df)  # Returns pandas Series
@@ -75,6 +77,7 @@ class TestNCOOptimizer:
 
 class TestHRPOptimizer:
     """Tests for Hierarchical Risk Parity optimizer."""
+
     def test_allocate(self, prices_df):
         """Test allocation with historical returns and covariance."""
         mu = mean_historical_return(prices_df)  # Returns pandas Series
@@ -93,6 +96,7 @@ class TestHRPOptimizer:
 
 class TestRiskParityOptimizer:
     """Tests for Risk Parity optimizer."""
+
     # Create pandas Series and DataFrame with asset names
     assets = ["Asset_0", "Asset_1", "Asset_2", "Asset_3"]
     mu = pd.Series([0.14, 0.12, 0.15, 0.07], index=assets)
