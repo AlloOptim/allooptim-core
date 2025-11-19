@@ -114,11 +114,6 @@ class MCOSDataProviderFactory(AbstractDataProviderFactory):
         return MuCovPartialObservationSimulator(df_prices, self.n_simulations)
 
 
-# Default factory instances
-backtest_factory = BacktestDataProviderFactory()
-mcos_factory = MCOSDataProviderFactory()
-
-
 def get_data_provider_factory(context: str = "backtest") -> AbstractDataProviderFactory:
     """Get the appropriate data provider factory for the given context.
 
@@ -132,8 +127,8 @@ def get_data_provider_factory(context: str = "backtest") -> AbstractDataProvider
         ValueError: If context is not recognized
     """
     if context == "backtest":
-        return backtest_factory
+        return BacktestDataProviderFactory()
     elif context == "mcos":
-        return mcos_factory
+        return MCOSDataProviderFactory()
     else:
         raise ValueError(f"Unknown context: {context}. Must be 'backtest' or 'mcos'")

@@ -228,3 +228,4 @@ report.*
 market_data.db
 
 internal_docs/*
+downstream_tests/*
