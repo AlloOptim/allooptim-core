@@ -19,7 +19,7 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 logger = logging.getLogger(__name__)
 
 
-def get_optimizer_by_names_with_configs(
+def get_optimizer_by_config(
     configs: List[OptimizerConfig],
 ) -> List[AbstractOptimizer]:
     """Create optimizers from OptimizerConfig objects.
@@ -62,7 +62,7 @@ def get_optimizer_by_names(names: List[str]) -> List[AbstractOptimizer]:
     """
     # Convert names to OptimizerConfig objects
     configs = [OptimizerConfig(name=name) for name in names]
-    return get_optimizer_by_names_with_configs(configs)
+    return get_optimizer_by_config(configs)
 
 
 def create_optimizer_config_template(optimizer_name: str) -> Dict[str, Any]:

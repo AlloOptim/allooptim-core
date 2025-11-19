@@ -6,7 +6,6 @@ that the config system is properly set up and that all dependencies are
 correctly defined.
 """
 
-import pytest
 from datetime import datetime
 
 from allooptim.config.a2a_config import A2AConfig
