@@ -98,7 +98,7 @@ class TestRiskParityOptimizer:
     def test_allocate(self):
         weights = RiskParityOptimizer().allocate(self.mu, self.cov)
 
-        assert_almost_equal(weights.values, np.array([0.1954478, 0.2152349, 0.1626168, 0.4267005]))
+        assert_almost_equal(weights.values, np.array([0.1954397, 0.2152156, 0.1626095, 0.4267352]))
 
     def test_allocate_custom_risk_budget(self):
         target_risk = np.array(

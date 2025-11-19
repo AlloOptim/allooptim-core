@@ -11,9 +11,17 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from allooptim.config.cash_config import CashConfig
+
 
 class A2AConfig(BaseModel):
     """Pydantic configuration for A2A orchestrator."""
+
+    # Cash and leverage settings
+    cash_config: CashConfig = Field(
+        default_factory=CashConfig,
+        description="Cash and leverage settings"
+    )
 
     # Error estimation
     error_estimator_names: List[str] = Field(
@@ -41,10 +49,6 @@ class A2AConfig(BaseModel):
     random_seed: Optional[int] = Field(default=42, description="Random seed for reproducibility")
     parallel: bool = Field(default=False, description="Enable parallel execution")
     n_jobs: int = Field(default=-1, description="Number of parallel jobs (-1 = all CPUs)")
-    allow_partial_investment: bool = Field(
-        default=False,
-        description="Allow partial investment (0 <= sum(asset_weights) <= 1)",
-    )
 
     # Convergence settings
     convergence_threshold: float = Field(

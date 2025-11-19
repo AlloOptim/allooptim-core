@@ -15,6 +15,7 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, Field, field_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
+from allooptim.config.cash_config import CashConfig
 from allooptim.config.optimizer_config import OptimizerConfig
 from allooptim.covariance_transformer.transformer_list import get_all_transformers
 from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
@@ -30,6 +31,11 @@ class BacktestConfig(BaseModel):
     symbols: list[str] = Field(
         default_factory=lambda: ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
         description="List of asset symbols to include in the backtest",
+    )
+
+    cash_config: CashConfig = Field(
+        default_factory=CashConfig,
+        description="Cash and leverage settings"
     )
 
     # Exception handling

@@ -5,7 +5,7 @@ between mu (pd.Series) and cov (pd.DataFrame) inputs in the optimizer interface.
 """
 
 import warnings
-from typing import Union
+from typing import Optional, Union
 
 import numpy as np
 import pandas as pd

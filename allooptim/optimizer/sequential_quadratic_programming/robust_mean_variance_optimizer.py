@@ -49,6 +49,7 @@ from allooptim.optimizer.asset_name_utils import (
     convert_pandas_to_numpy,
     create_weights_series,
     get_asset_names,
+    normalize_weights,
     validate_asset_names,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
@@ -60,7 +61,6 @@ logger = logging.getLogger(__name__)
 MIN_OBSERVATIONS_FOR_UNCERTAINTY_ESTIMATION = 30
 WEIGHT_CLIPPING_THRESHOLD = 1e-6
 WEIGHT_SUM_TOLERANCE = 1e-6
-CASH_POSITION_WARNING_THRESHOLD = 0.1
 NORM_ZERO_THRESHOLD = 1e-10
 
 
@@ -92,11 +92,6 @@ class RobustMeanVarianceOptimizerConfig(BaseModel):
     uncertainty_estimation_method: str = Field(
         default="bootstrap",
         description="Method to estimate uncertainty: 'fixed', 'bootstrap', 'historical_std'",
-    )
-
-    allow_cash: bool = Field(
-        default=True,
-        description="Whether to allow cash holding (sum(w) < 1) when conditions are unfavorable",
     )
 
     min_total_weight: float = Field(
@@ -158,7 +153,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         This results in a tractable quadratic program that can be solved efficiently.
 
     Examples:
-        >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2, cov_uncertainty_level=0.1, allow_cash=True)
+        >>> config = RobustMeanVarianceOptimizerConfig(mu_uncertainty_level=0.2, cov_uncertainty_level=0.1)
         >>> optimizer = RobustMeanVarianceOptimizer(config)
         >>> optimizer.fit(df_prices)  # Estimate uncertainty from data
         >>> weights = optimizer.allocate(mu, cov)
@@ -186,6 +181,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         self.estimated_mu_uncertainty: Optional[float] = None
         self.estimated_cov_uncertainty: Optional[float] = None
         self._previous_best_weights: Optional[np.ndarray] = None
+        self.allow_cash = True
 
     def _update_uncertainties(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """Estimate uncertainty levels from historical price data.
@@ -349,7 +345,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         weights = minimize_with_multistart(
             objective_function=self._objective_function,
             n_assets=n_assets,
-            allow_cash=self.config.allow_cash,
+            allow_cash=self.allow_cash,
             previous_best_weights=self._previous_best_weights,
             jacobian=self._objective_jacobian,
             hessian=self._objective_hessian,
@@ -364,27 +360,12 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         # Clip very small weights to zero
         weights[weights < WEIGHT_CLIPPING_THRESHOLD] = 0.0
 
-        # Only normalize if sum > 1.0 (constraint violation for safety)
-        total_weight = np.sum(weights)
-        if total_weight > 1.0:
-            logger.warning(f"Robust: Total weight {total_weight:.6f} > 1.0, renormalizing")
-            weights = weights / total_weight
-        elif not self.config.allow_cash and abs(total_weight - 1.0) > WEIGHT_SUM_TOLERANCE:
-            logger.warning(f"Robust: Total weight {total_weight:.6f} != 1.0 (fully invested mode), renormalizing")
-            weights = weights / total_weight
+        # Apply normalization constraints based on allow_cash and max_leverage
+        weights = normalize_weights(weights, self.allow_cash, self.max_leverage)
 
         logger.debug(
             f"Robust optimization: total_weight={np.sum(weights):.4f}, " f"eps_mu={eps_mu:.4f}, eps_cov={eps_cov:.4f}"
         )
-
-        # Log if holding significant cash
-        if self.config.allow_cash:
-            cash_position = 1.0 - np.sum(weights)
-            if cash_position > CASH_POSITION_WARNING_THRESHOLD:  # More than 10% cash
-                logger.debug(
-                    f"Robust optimizer holding {cash_position:.2%} cash due to uncertain conditions "
-                    f"(ε_μ={eps_mu:.4f}, ε_Σ={eps_cov:.4f})"
-                )
 
         return create_weights_series(weights, asset_names)
 

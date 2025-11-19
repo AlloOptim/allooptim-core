@@ -28,6 +28,7 @@ from allooptim.optimizer.allocation_metric import (
 from allooptim.optimizer.asset_name_utils import (
     convert_pandas_to_numpy,
     create_weights_series,
+    normalize_weights,
     validate_asset_names,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
@@ -150,7 +151,7 @@ class HigherMomentOptimizer(AbstractOptimizer):
             objective_function=self._objective,
             jacobian=self._objective_jacobian,
             n_assets=n_assets,
-            allow_cash=True,
+            allow_cash=self.allow_cash,
             previous_best_weights=self._previous_weights,
             maxiter=self.config.maxiter,
             ftol=self.config.ftol,
@@ -159,6 +160,9 @@ class HigherMomentOptimizer(AbstractOptimizer):
 
         # Store best weights for next optimization warm start
         self._previous_weights = optimal_weights.copy()
+
+        # Apply normalization constraints based on allow_cash and max_leverage
+        optimal_weights = normalize_weights(optimal_weights, self.allow_cash, self.max_leverage)
 
         return create_weights_series(optimal_weights, asset_names)
 

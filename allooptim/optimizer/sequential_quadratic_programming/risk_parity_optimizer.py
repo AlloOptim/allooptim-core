@@ -28,6 +28,7 @@ from allooptim.optimizer.allocation_metric import (
 from allooptim.optimizer.asset_name_utils import (
     convert_pandas_to_numpy,
     create_weights_series,
+    normalize_weights,
     validate_asset_names,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
@@ -95,8 +96,8 @@ class RiskParityOptimizer(AbstractOptimizer):
 
         weights = self._solve_optimization(cov_array)
 
-        if np.sum(weights) > 0:
-            weights = weights / np.sum(weights)
+        # Apply normalization constraints based on allow_cash and max_leverage
+        weights = normalize_weights(weights, self.allow_cash, self.max_leverage)
 
         return create_weights_series(weights, asset_names)
 
@@ -180,7 +181,7 @@ class RiskParityOptimizer(AbstractOptimizer):
         weights = minimize_with_multistart(
             objective_function=self._risk_budget_objective,
             n_assets=n_assets,
-            allow_cash=True,
+            allow_cash=self.allow_cash,
             previous_best_weights=self._previous_weights,
             jacobian=self._risk_budget_jacobian,
             maxiter=self.config.maxiter,

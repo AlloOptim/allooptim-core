@@ -50,6 +50,16 @@ def get_optimizer_by_config(
             optimizer = optimizer_class(display_name=opt_config.display_name)
             logger.debug(f"Created {opt_config.name} as '{opt_config.display_name}' " f"with default config")
 
+        # Apply allow_cash override if specified
+        if opt_config.allow_cash is not None:
+            optimizer.set_allow_cash(opt_config.allow_cash)
+            logger.debug(f"Set allow_cash={opt_config.allow_cash} for {opt_config.display_name}")
+
+        # Apply max_leverage override if specified
+        if opt_config.max_leverage is not None:
+            optimizer.set_max_leverage(opt_config.max_leverage)
+            logger.debug(f"Set max_leverage={opt_config.max_leverage} for {opt_config.display_name}")
+
         optimizers.append(optimizer)
 
     return optimizers

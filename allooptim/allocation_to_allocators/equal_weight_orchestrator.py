@@ -30,6 +30,7 @@ from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
+from allooptim.config.cash_config import normalize_weights_a2a
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
@@ -127,11 +128,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     weights = weights.flatten()
 
                 weights = np.array(weights)
-                weights_sum = np.sum(weights)
-                if np.any(weights > self.config.min_weight_threshold) and (
-                    not self.config.allow_partial_investment or weights_sum > 1.0
-                ):
-                    weights = weights / weights_sum
 
                 # Track memory and time
                 runtime_end = time.time()
@@ -203,10 +199,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             case _:
                 raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
 
-        sum_asset_weights = np.sum(asset_weights)
-        if sum_asset_weights > 0 and (not self.config.allow_partial_investment or sum_asset_weights > 1.0):
-            asset_weights = asset_weights / sum_asset_weights
-
         # Store optimizer weights
         for opt_alloc in optimizer_allocations_list:
             optimizer_weights_list.append(
@@ -216,16 +208,12 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 )
             )
 
-        # Normalize final asset weights
-        final_allocation = pd.Series(asset_weights, index=mu.index)
-        final_allocation_sum = final_allocation.sum()
-        if final_allocation_sum > 0:
-            if not self.config.allow_partial_investment or final_allocation_sum > 1.0:
-                final_allocation = final_allocation / final_allocation_sum
+        # Normalize final asset weights according to global cash settings
 
-        else:
-            logger.warning("Final allocation sums to zero; returning zero weights.")
-            final_allocation = pd.Series(0.0, index=mu.index)
+        final_allocation_values = normalize_weights_a2a(
+            asset_weights, self.config.cash_config
+        )
+        final_allocation = pd.Series(final_allocation_values, index=mu.index)
 
         # Apply allocation constraints
         final_allocation = AllocationConstraints.apply_all_constraints(
