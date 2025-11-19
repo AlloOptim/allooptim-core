@@ -9,6 +9,7 @@ from datetime import datetime
 import pytest
 
 from allooptim.config.backtest_config import BacktestConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import (
     get_all_optimizer_configs,
     get_optimizer_config_class,
@@ -112,8 +113,8 @@ class TestBacktestConfigIntegration:
 
         optimizer_configs = [
             "HRPOptimizer",  # String
-            {"name": "CMAMeanVariance", "config": {"budget": 2000}},  # Dict with config
-            {"name": "PSOMeanVariance", "config": {}},  # Dict with empty config
+            OptimizerConfig(name="CMAMeanVariance", config={"budget": 2000}),  # OptimizerConfig with config
+            OptimizerConfig(name="PSOMeanVariance", config={}),  # OptimizerConfig with empty config
         ]
 
         backtest_config = BacktestConfig(
@@ -137,7 +138,7 @@ class TestBacktestConfigIntegration:
             BacktestConfig(
                 start_date=datetime(2020, 1, 1),
                 end_date=datetime(2023, 1, 1),
-                optimizer_configs=[{"name": "CMAMeanVariance", "config": {"invalid_param": "value"}}],
+                optimizer_configs=[OptimizerConfig(name="CMAMeanVariance", config={"invalid_param": "value"})],
             )
 
     def test_backtest_config_optimizer_names_property(self):
@@ -146,8 +147,8 @@ class TestBacktestConfigIntegration:
 
         optimizer_configs = [
             "HRPOptimizer",
-            {"name": "CMAMeanVariance", "config": {}},
-            {"name": "PSOMeanVariance", "config": {}},
+            OptimizerConfig(name="CMAMeanVariance", config={}),
+            OptimizerConfig(name="PSOMeanVariance", config={}),
         ]
 
         backtest_config = BacktestConfig(
@@ -167,8 +168,8 @@ class TestBacktestConfigIntegration:
 
         optimizer_configs = [
             "HRPOptimizer",
-            {"name": "CMAMeanVariance", "config": {"budget": 1000}},
-            {"name": "PSOMeanVariance", "config": {}},
+            OptimizerConfig(name="CMAMeanVariance", config={"budget": 1000}),
+            OptimizerConfig(name="PSOMeanVariance", config={}),
         ]
 
         backtest_config = BacktestConfig(
@@ -219,7 +220,7 @@ class TestConfigurationIntegration:
         backtest_config = BacktestConfig(
             start_date=datetime(2020, 1, 1),
             end_date=datetime(2023, 1, 1),
-            optimizer_configs=[{"name": "CMAMeanVariance", "config": valid_config}],
+            optimizer_configs=[OptimizerConfig(name="CMAMeanVariance", config=valid_config)],
         )
 
         EXPECTED_CONFIG_COUNT = 1
