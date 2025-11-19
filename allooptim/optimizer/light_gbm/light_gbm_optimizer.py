@@ -17,13 +17,14 @@ logger = logging.getLogger(__name__)
 class LightGBMOptimizer(BaseMLOptimizer):
     """Lightweight optimizer using LightGBM for portfolio optimization."""
 
-    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the LightGBM optimizer.
 
         Args:
             config: Configuration for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
-        super().__init__(config)
+        super().__init__(config, display_name)
         self.config.use_data_augmentation = False
 
     def _create_engine(self, n_assets: int, n_lookback: int) -> None:
@@ -39,13 +40,14 @@ class LightGBMOptimizer(BaseMLOptimizer):
 class AugmentedLightGBMOptimizer(LightGBMOptimizer):
     """LightGBM optimizer with data augmentation enabled."""
 
-    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None) -> None:
+    def __init__(self, config: Optional[BaseMLOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
         """Initialize the augmented LightGBM optimizer.
 
         Args:
             config: Configuration for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
-        super().__init__(config)
+        super().__init__(config, display_name)
         self.config.use_data_augmentation = True
 
     @property

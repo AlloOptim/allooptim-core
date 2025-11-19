@@ -105,12 +105,15 @@ class MeanVarianceCMAOptimizer(AbstractOptimizer):
     def __init__(
         self,
         config: Optional[CMAOptimizerConfig] = None,
+        display_name: Optional[str] = None,
     ) -> None:
         """Initialize the CMA-ES optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name=display_name)
         self.config = config or CMAOptimizerConfig()
 
         self._previous_solution: Optional[np.ndarray] = None

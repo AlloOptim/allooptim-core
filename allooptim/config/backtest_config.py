@@ -69,11 +69,11 @@ class BacktestConfig(BaseModel):
     )
 
     # Optimizer and transformer names
-    optimizer_configs: List[Union[str, OptimizerConfig]] = Field(
+    optimizer_configs: List[Union[str, OptimizerConfig, Dict]] = Field(
         default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
         min_length=1,
-        description="List of optimizer configurations. Can be optimizer names (strings) or "
-        "OptimizerConfig objects with custom parameters",
+        description="List of optimizer configurations. Can be optimizer names (strings), "
+        "OptimizerConfig objects, or dictionaries with 'name' and optional 'config' keys",
     )
     transformer_names: List[str] = Field(
         default=["OracleCovarianceTransformer"],
@@ -118,7 +118,7 @@ class BacktestConfig(BaseModel):
 
     @field_validator("optimizer_configs", mode="before")
     @classmethod
-    def convert_strings_to_optimizer_configs(cls, v: List[Union[str, OptimizerConfig]]) -> List[OptimizerConfig]:
+    def convert_strings_to_optimizer_configs(cls, v: List[Union[str, OptimizerConfig, Dict]]) -> List[OptimizerConfig]:
         """Convert string optimizer names to OptimizerConfig objects."""
         result = []
         for item in v:
@@ -126,8 +126,10 @@ class BacktestConfig(BaseModel):
                 result.append(OptimizerConfig(name=item))
             elif isinstance(item, OptimizerConfig):
                 result.append(item)
+            elif isinstance(item, dict):
+                result.append(OptimizerConfig(**item))
             else:
-                raise ValueError(f"Invalid optimizer_config item: {item}. Must be str or OptimizerConfig.")
+                raise ValueError(f"Invalid optimizer_config item: {item}. Must be str, dict, or OptimizerConfig.")
                 
         return result
 

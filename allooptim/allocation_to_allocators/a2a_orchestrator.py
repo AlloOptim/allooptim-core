@@ -23,7 +23,7 @@ from allooptim.covariance_transformer.transformer_interface import (
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 
-class A2AOrchestrator(ABC):
+class AbstractA2AOrchestrator(ABC):
     """Abstract base class for Allocation-to-Allocators orchestration.
 
     Design Philosophy:
@@ -62,7 +62,7 @@ class A2AOrchestrator(ABC):
         pass
 
 
-class BaseOrchestrator(A2AOrchestrator):
+class BaseOrchestrator(AbstractA2AOrchestrator):
     """Base implementation providing shared functionality for all orchestrators.
 
     Design Philosophy:

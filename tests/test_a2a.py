@@ -8,6 +8,7 @@ from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.data_provider_factory import (
     get_data_provider_factory,
 )
+from allooptim.allocation_to_allocators.a2a_orchestrator import AbstractA2AOrchestrator
 from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
@@ -15,6 +16,8 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.stock_universe import list_of_dax_stocks
 from allooptim.optimizer.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_list import OPTIMIZER_LIST
+from allooptim.covariance_transformer.transformer_list import TRANSFORMER_LIST
 from tests.conftest import (
     FAST_TEST_ITERATIONS,
     FAST_TEST_OBSERVATIONS,
@@ -88,3 +91,72 @@ def test_a2a(orchestrator_type, optimizer_names):
     assert df_allocation.shape[0] == len(assets)  # rows = assets
     assert df_allocation.shape[1] == len(optimizer_names)  # cols = optimizers
     assert list(df_allocation.index) == assets  # same asset order
+
+
+@pytest.mark.parametrize("orchestrator_type", OrchestratorType)
+def test_create_orchestrator_vary_a2a(orchestrator_type):
+
+    optimizer_configs = [
+        OptimizerConfig(name=OPTIMIZER_LIST[0]().name),
+        OptimizerConfig(name=OPTIMIZER_LIST[1]().name),
+    ]
+
+    transformer_list = [TRANSFORMER_LIST[0]().name,
+                        TRANSFORMER_LIST[1]().name]
+
+    # Create custom A2A weights for CUSTOM_WEIGHT orchestrator type
+    custom_a2a_weights = None
+    if orchestrator_type == OrchestratorType.CUSTOM_WEIGHT:
+        custom_a2a_weights = {
+            OPTIMIZER_LIST[0]().name: 0.6,
+            OPTIMIZER_LIST[1]().name: 0.4,
+        }
+
+    a2a_config = A2AConfig(custom_a2a_weights=custom_a2a_weights) if custom_a2a_weights else None
+
+    orchestrator = create_orchestrator(
+        orchestrator_type=orchestrator_type,
+        optimizer_configs=optimizer_configs,
+        transformer_names=transformer_list,
+        a2a_config=a2a_config,
+    )
+    
+    assert isinstance(orchestrator, AbstractA2AOrchestrator)
+
+@pytest.mark.parametrize("optimizer", OPTIMIZER_LIST)
+def test_create_orchestrator_vary_optimizer(optimizer):
+
+    optimizer_configs = [
+        OptimizerConfig(name=optimizer().name),
+        OptimizerConfig(name=OPTIMIZER_LIST[0]().name),
+    ]
+
+    transformer_list = [TRANSFORMER_LIST[0]().name,
+                        TRANSFORMER_LIST[1]().name]
+
+    orchestrator = create_orchestrator(
+        orchestrator_type=OrchestratorType.EQUAL_WEIGHT,
+        optimizer_configs=optimizer_configs,
+        transformer_names=transformer_list,
+    )
+
+    assert isinstance(orchestrator, AbstractA2AOrchestrator)
+
+@pytest.mark.parametrize("transformer", TRANSFORMER_LIST)
+def test_create_orchestrator_varytransformer(transformer):
+
+    optimizer_configs = [
+        OptimizerConfig(name=OPTIMIZER_LIST[0]().name),
+        OptimizerConfig(name=OPTIMIZER_LIST[1]().name),
+    ]
+
+    transformer_list = [transformer().name,
+                        TRANSFORMER_LIST[0]().name]
+
+    orchestrator = create_orchestrator(
+        orchestrator_type=OrchestratorType.EQUAL_WEIGHT,
+        optimizer_configs=optimizer_configs,
+        transformer_names=transformer_list,
+    )
+
+    assert isinstance(orchestrator, AbstractA2AOrchestrator)

@@ -47,12 +47,15 @@ class BlackLittermanOptimizer(AbstractOptimizer):
     def __init__(
         self,
         config: Optional[BLOptimizerConfig] = None,
+        display_name: Optional[str] = None,
     ) -> None:
         """Initialize Black-Litterman optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
+            display_name: Optional display name for this optimizer instance.
         """
+        super().__init__(display_name)
         self.config = config or BLOptimizerConfig()
 
     def allocate(
