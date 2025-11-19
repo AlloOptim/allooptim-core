@@ -136,6 +136,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.display_name</span></code></a></li>
@@ -145,6 +147,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.display_name</span></code></a></li>
@@ -163,6 +167,8 @@
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.display_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_max_leverage()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -670,14 +676,30 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash">set_allow_cash() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_allow_cash">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage">set_max_leverage() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_max_leverage">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
+</li>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_max_leverage">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig.sigma">sigma (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAOptimizerConfig attribute)</a>
 
       <ul>
         <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState.sigma">(allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.CMAState attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric.SORTINO">SORTINO (allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.RiskMetric attribute)</a>
 </li>
       <li><a href="api/optimizers.html#allooptim.optimizer.covariance_matrix_adaption.cma_optimizer.SortinoCMAOptimizer">SortinoCMAOptimizer (class in allooptim.optimizer.covariance_matrix_adaption.cma_optimizer)</a>

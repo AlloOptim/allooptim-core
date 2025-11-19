@@ -136,6 +136,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.display_name</span></code></a></li>
@@ -145,6 +147,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.display_name</span></code></a></li>
@@ -163,6 +167,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.display_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_max_leverage()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -351,6 +357,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.config.cash_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_weights_optimizers</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.config.default_pydantic_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_PYDANTIC_CONFIG</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">allooptim.optimizer.allocation_metric</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">LMoments</span><span class="p">,</span>
@@ -509,7 +516,7 @@
             <span class="n">jacobian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_objective_jacobian</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_l_moments</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">hessian</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_objective_hessian</span> <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">enable_l_moments</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
             <span class="n">n_assets</span><span class="o">=</span><span class="n">n_assets</span><span class="p">,</span>
-            <span class="n">allow_cash</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">allow_cash</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">allow_cash</span><span class="p">,</span>
             <span class="n">previous_best_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_previous_best_weights</span><span class="p">,</span>
             <span class="n">maxiter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">maxiter</span><span class="p">,</span>
             <span class="n">ftol</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ftol</span><span class="p">,</span>
@@ -518,6 +525,9 @@
 
         <span class="c1"># Store best weights for next optimization warm start</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_previous_best_weights</span> <span class="o">=</span> <span class="n">optimal_weights</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># Apply normalization constraints based on allow_cash and max_leverage</span>
+        <span class="n">optimal_weights</span> <span class="o">=</span> <span class="n">normalize_weights_optimizers</span><span class="p">(</span><span class="n">optimal_weights</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_cash</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_leverage</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">create_weights_series</span><span class="p">(</span><span class="n">optimal_weights</span><span class="p">,</span> <span class="n">asset_names</span><span class="p">)</span></div>
 

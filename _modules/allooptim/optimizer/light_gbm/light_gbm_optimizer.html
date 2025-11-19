@@ -136,6 +136,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.display_name</span></code></a></li>
@@ -145,6 +147,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.display_name</span></code></a></li>
@@ -163,6 +167,8 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.display_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_allow_cash()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_max_leverage()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -352,13 +358,14 @@
 
 <div class="viewcode-block" id="LightGBMOptimizer.__init__">
 <a class="viewcode-back" href="../../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseMLOptimizerConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseMLOptimizerConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the LightGBM optimizer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            config: Configuration for the optimizer. If None, uses default config.</span>
+<span class="sd">            display_name: Optional display name for this optimizer instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">use_data_augmentation</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
@@ -380,13 +387,14 @@
 
 <div class="viewcode-block" id="AugmentedLightGBMOptimizer.__init__">
 <a class="viewcode-back" href="../../../../api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseMLOptimizerConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">BaseMLOptimizerConfig</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the augmented LightGBM optimizer.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            config: Configuration for the optimizer. If None, uses default config.</span>
+<span class="sd">            display_name: Optional display name for this optimizer instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">use_data_augmentation</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
