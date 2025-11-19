@@ -9,7 +9,10 @@ from typing import Dict, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from allooptim.optimizer.optimizer_config_registry import get_all_optimizer_names, validate_optimizer_config
+from allooptim.optimizer.optimizer_config_registry import (
+    get_all_optimizer_names,
+    validate_optimizer_config,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,6 +26,14 @@ class OptimizerConfig(BaseModel):
         description="Unique identifier for results and reporting. " "Auto-generated from config if not provided.",
     )
     config: Optional[Dict] = Field(default=None, description="Optional custom configuration parameters")
+    allow_cash: Optional[bool] = Field(
+        default=None, description="Override optimizer's default allow_cash setting. If None, uses optimizer default."
+    )
+    max_leverage: Optional[float] = Field(
+        default=None,
+        ge=0.0,
+        description="Override optimizer's default max_leverage setting. If None, uses optimizer default.",
+    )
 
     @field_validator("name", mode="before")
     @classmethod

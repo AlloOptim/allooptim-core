@@ -78,6 +78,8 @@ class AbstractOptimizer(ABC):
                          If None, defaults to the optimizer's name property.
         """
         self._display_name = display_name
+        self.allow_cash = False  # Default to False for backward compatibility
+        self.max_leverage = None  # Default to None (no leverage limit)
 
     def fit(
         self,
@@ -89,6 +91,23 @@ class AbstractOptimizer(ABC):
     def reset(self) -> None:
         """Optional method to reset any internal state of the optimizer."""
         self.__init__(self._display_name)
+
+    def set_allow_cash(self, allow_cash: bool) -> None:
+        """Set whether this optimizer is allowed to use cash (partial investment).
+
+        Args:
+            allow_cash: Whether to allow cash positions (sum of weights < 1.0)
+        """
+        self.allow_cash = allow_cash
+
+    def set_max_leverage(self, max_leverage: Optional[float]) -> None:
+        """Set the maximum leverage allowed for this optimizer.
+
+        Args:
+            max_leverage: Maximum leverage factor (sum of weights <= max_leverage).
+                         None means no leverage limit.
+        """
+        self.max_leverage = max_leverage
 
     @abstractmethod
     def allocate(
@@ -142,6 +161,8 @@ class AbstractEnsembleOptimizer(ABC):
                          If None, defaults to the optimizer's name property.
         """
         self._display_name = display_name
+        self.allow_cash = False  # Default to False for backward compatibility
+        self.max_leverage = None  # Default to None (no leverage limit)
 
     def fit(
         self,
@@ -153,6 +174,23 @@ class AbstractEnsembleOptimizer(ABC):
     def reset(self) -> None:
         """Optional method to reset any internal state of the optimizer."""
         self.__init__(self._display_name)
+
+    def set_allow_cash(self, allow_cash: bool) -> None:
+        """Set whether this optimizer is allowed to use cash (partial investment).
+
+        Args:
+            allow_cash: Whether to allow cash positions (sum of weights < 1.0)
+        """
+        self.allow_cash = allow_cash
+
+    def set_max_leverage(self, max_leverage: Optional[float]) -> None:
+        """Set the maximum leverage allowed for this optimizer.
+
+        Args:
+            max_leverage: Maximum leverage factor (sum of weights <= max_leverage).
+                         None means no leverage limit.
+        """
+        self.max_leverage = max_leverage
 
     @abstractmethod
     def allocate(  # noqa: PLR0913

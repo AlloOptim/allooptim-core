@@ -12,3 +12,7 @@ Key features:
 - Autoencoder training data preparation
 - Realistic financial market simulation
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

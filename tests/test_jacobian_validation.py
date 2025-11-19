@@ -36,9 +36,10 @@ class TestRiskParityJacobian:
         optimizer._target_risk = np.ones(n) / n
 
         # Test using scipy's check_grad (more robust than approx_fprime)
+        GRADIENT_ERROR_TOLERANCE = 1e-3
         error = check_grad(optimizer._risk_budget_objective, optimizer._risk_budget_jacobian, x0)
 
-        assert error < 1e-3, f"Gradient check failed with error: {error}"
+        assert error < GRADIENT_ERROR_TOLERANCE, f"Gradient check failed with error: {error}"
 
     def test_gradient_at_multiple_points(self):
         """Test gradient accuracy at various weight configurations."""
@@ -57,8 +58,9 @@ class TestRiskParityJacobian:
         ]
 
         for x0 in test_points:
+            GRADIENT_ERROR_TOLERANCE = 1e-3
             error = check_grad(optimizer._risk_budget_objective, optimizer._risk_budget_jacobian, x0)
-            assert error < 1e-3, f"Gradient check failed at {x0} with error: {error}"
+            assert error < GRADIENT_ERROR_TOLERANCE, f"Gradient check failed at {x0} with error: {error}"
 
 
 class TestRobustMeanVarianceDerivatives:
@@ -81,9 +83,10 @@ class TestRobustMeanVarianceDerivatives:
         x0 = np.array([0.33, 0.33, 0.34])
 
         # Test using scipy's check_grad
+        GRADIENT_ERROR_TOLERANCE = 1e-5
         error = check_grad(optimizer._objective_function, optimizer._objective_jacobian, x0)
 
-        assert error < 1e-5, f"Gradient check failed with error: {error}"
+        assert error < GRADIENT_ERROR_TOLERANCE, f"Gradient check failed with error: {error}"
 
     def test_hessian_accuracy(self):
         """Verify analytical Hessian matches numerical."""
@@ -143,7 +146,8 @@ class TestAdjustedReturnsDerivatives:
 
         error = check_grad(optimizer._objective_function, optimizer._objective_jacobian, x0)
 
-        assert error < 1e-6, f"MV Gradient check failed: {error}"
+        MV_GRADIENT_ERROR_TOLERANCE = 1e-6
+        assert error < MV_GRADIENT_ERROR_TOLERANCE, f"MV Gradient check failed: {error}"
 
     def test_hessian_is_constant(self):
         """Verify Hessian is constant (doesn't depend on weights)."""

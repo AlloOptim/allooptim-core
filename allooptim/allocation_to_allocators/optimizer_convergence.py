@@ -41,7 +41,6 @@ def _simulate_optimization(
     n_optimizers: int,
     n_assets: int,
     use_optimal_observation: bool,
-    allow_partial_investment: bool,
 ) -> np.ndarray:
     """Run single optimization simulation with allocation tracking."""
     try:
@@ -68,11 +67,6 @@ def _simulate_optimization(
             alloc_result = optimizer.allocate(mu_hat, cov_hat, prices_hat, time_hat, l_moments_hat)
             # Ensure result is 1D array
             weights = np.array(alloc_result).flatten()
-
-            # Normalize weights only if partial investment is allowed and sum > 0
-            weight_sum = np.sum(weights)
-            if allow_partial_investment and weight_sum > 0:
-                weights = weights / weight_sum
 
             allocation[i, :] = weights
             validate_no_nan(allocation, f"{optimizer.name} allocation")
@@ -133,7 +127,6 @@ def simulate_optimizers_with_convergence(
                 n_optimizers=len(optimizer_list),
                 n_assets=n_assets,
                 use_optimal_observation=False,
-                allow_partial_investment=config.allow_partial_investment,
             )
 
             expected_return_all_time_steps[k, :] = expected_returns
@@ -156,7 +149,6 @@ def simulate_optimizers_with_convergence(
         n_optimizers=len(optimizer_list),
         n_assets=n_assets,
         use_optimal_observation=True,
-        allow_partial_investment=config.allow_partial_investment,
     )
 
     steps_completed = 0
@@ -180,7 +172,6 @@ def simulate_optimizers_with_convergence(
             n_optimizers=len(active_optimizers),
             n_assets=n_assets,
             use_optimal_observation=False,
-            allow_partial_investment=config.allow_partial_investment,
         )
 
         # 2. Ensure arrays are proper shape

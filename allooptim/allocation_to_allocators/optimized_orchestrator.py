@@ -21,9 +21,7 @@ from allooptim.allocation_to_allocators.a2a_result import (
     PerformanceMetrics,
 )
 from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
-from allooptim.allocation_to_allocators.allocation_optimizer import (
-    optimize_allocator_weights,
-)
+from allooptim.allocation_to_allocators.allocation_optimizer import optimize_allocator_weights
 from allooptim.allocation_to_allocators.optimizer_simulator import (
     simulate_optimizers_with_allocation_statistics,
 )
@@ -31,6 +29,7 @@ from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.cash_config import normalize_weights_a2a
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -187,11 +186,6 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 weights = weights.flatten()
 
             weights = np.array(weights)
-            weights_sum = np.sum(weights)
-            if np.any(weights > self.config.min_weight_threshold) and (
-                not self.config.allow_partial_investment or weights_sum > 1.0
-            ):
-                weights = weights / weights_sum
 
             # Track memory and time
             runtime_end = time.time()
@@ -322,11 +316,6 @@ class OptimizedOrchestrator(BaseOrchestrator):
                     weights = weights.flatten()
 
                 weights = np.array(weights)
-                weights_sum = np.sum(weights)
-                if np.any(weights > self.config.min_weight_threshold) and (
-                    not self.config.allow_partial_investment or weights_sum > 1.0
-                ):
-                    weights = weights / weights_sum
 
                 # Track memory and time
                 runtime_end = time.time()
@@ -369,9 +358,8 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 )
             )
 
-        # Create final allocation
-        final_allocation = pd.Series(asset_weights, index=mu.index)
-        final_allocation = final_allocation / final_allocation.sum()
+        final_allocation_values = normalize_weights_a2a(asset_weights, self.config.cash_config)
+        final_allocation = pd.Series(final_allocation_values, index=mu.index)
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()

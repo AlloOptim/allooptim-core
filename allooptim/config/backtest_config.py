@@ -15,8 +15,9 @@ from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, Field, field_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
-from allooptim.config.optimizer_config import OptimizerConfig
+from allooptim.config.cash_config import CashConfig
 from allooptim.covariance_transformer.transformer_list import get_all_transformers
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,8 @@ class BacktestConfig(BaseModel):
         default_factory=lambda: ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
         description="List of asset symbols to include in the backtest",
     )
+
+    cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")
 
     # Exception handling
     rerun_allocator_exceptions: bool = Field(
@@ -69,8 +72,7 @@ class BacktestConfig(BaseModel):
     optimizer_configs: List[Union[str, OptimizerConfig]] = Field(
         default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
         min_length=1,
-        description="List of optimizer configurations. Can be optimizer names (strings) or "
-        "OptimizerConfig objects with custom parameters",
+        description="List of optimizer configurations. Can be optimizer names (strings) or OptimizerConfig objects",
     )
     transformer_names: List[str] = Field(
         default=["OracleCovarianceTransformer"],
@@ -121,8 +123,11 @@ class BacktestConfig(BaseModel):
         for item in v:
             if isinstance(item, str):
                 result.append(OptimizerConfig(name=item))
-            else:
+            elif isinstance(item, OptimizerConfig):
                 result.append(item)
+            else:
+                raise ValueError(f"Invalid optimizer_config item: {item}. Must be str or OptimizerConfig.")
+
         return result
 
     @field_validator("optimizer_configs", mode="after")

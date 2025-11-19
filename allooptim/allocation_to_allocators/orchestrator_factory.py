@@ -20,9 +20,9 @@ from allooptim.allocation_to_allocators.wikipedia_pipeline_orchestrator import (
     WikipediaPipelineOrchestrator,
 )
 from allooptim.config.a2a_config import A2AConfig
-from allooptim.config.optimizer_config import OptimizerConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
-from allooptim.optimizer.optimizer_factory import get_optimizer_by_names_with_configs
+from allooptim.optimizer.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_factory import get_optimizer_by_config
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class OrchestratorType(str, Enum):
 
 
 def create_orchestrator(
-    orchestrator_type: str,
+    orchestrator_type: OrchestratorType,
     optimizer_configs: List[OptimizerConfig],
     transformer_names: List[str] = None,
     a2a_config: Optional[A2AConfig] = None,
@@ -61,7 +61,7 @@ def create_orchestrator(
         ValueError: If orchestrator_type is not recognized
     """
     # Get optimizers and transformers
-    optimizers = get_optimizer_by_names_with_configs(optimizer_configs)
+    optimizers = get_optimizer_by_config(optimizer_configs)
     transformers = get_transformer_by_names(transformer_names)
 
     if a2a_config is None:

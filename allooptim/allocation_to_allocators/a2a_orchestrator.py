@@ -15,6 +15,7 @@ from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.cash_config import AllowCashOption
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -22,7 +23,7 @@ from allooptim.covariance_transformer.transformer_interface import (
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 
-class A2AOrchestrator(ABC):
+class AbstractA2AOrchestrator(ABC):
     """Abstract base class for Allocation-to-Allocators orchestration.
 
     Design Philosophy:
@@ -61,7 +62,7 @@ class A2AOrchestrator(ABC):
         pass
 
 
-class BaseOrchestrator(A2AOrchestrator):
+class BaseOrchestrator(AbstractA2AOrchestrator):
     """Base implementation providing shared functionality for all orchestrators.
 
     Design Philosophy:
@@ -87,6 +88,42 @@ class BaseOrchestrator(A2AOrchestrator):
         self.optimizers = optimizers
         self.covariance_transformers = covariance_transformers
         self.config = config
+
+        # Set allow_cash on optimizers based on cash configuration
+        self._configure_optimizer_cash_settings()
+
+    def _configure_optimizer_cash_settings(self) -> None:
+        """Configure allow_cash and max_leverage settings on all optimizers based on cash configuration.
+
+        Uses the AllowCashOption enum from cash_config to determine cash policy:
+        - GLOBAL_ALLOW_CASH: Force all optimizers to allow cash
+        - GLOBAL_FORBID_CASH: Force all optimizers to forbid cash
+        - OPTIMIZER_DECIDES: Use each optimizer's default setting
+
+        Also sets max_leverage from cash_config on all optimizers.
+        """
+        cash_option = self.config.cash_config.allow_cash_option
+
+        if cash_option == AllowCashOption.GLOBAL_ALLOW_CASH:
+            for optimizer in self.optimizers:
+                optimizer.set_allow_cash(True)
+        elif cash_option == AllowCashOption.GLOBAL_FORBID_CASH:
+            for optimizer in self.optimizers:
+                optimizer.set_allow_cash(False)
+        # OPTIMIZER_DECIDES: Leave optimizers with their default settings
+
+        # Set max_leverage on all optimizers
+        max_leverage = self.config.cash_config.max_leverage
+        for optimizer in self.optimizers:
+            optimizer.set_max_leverage(max_leverage)
+
+    def _should_allow_cash(self) -> bool:
+        """Determine if cash positions should be allowed based on cash configuration.
+
+        Returns:
+            True if cash positions are allowed, False otherwise
+        """
+        return self.config.cash_config.allow_cash_option == AllowCashOption.GLOBAL_ALLOW_CASH
 
     def _apply_covariance_transformers(self, cov: pd.DataFrame, n_observations: int) -> pd.DataFrame:
         """Apply covariance transformation pipeline.

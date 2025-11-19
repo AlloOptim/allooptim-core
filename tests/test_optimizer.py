@@ -1,3 +1,5 @@
+"""Tests for portfolio optimization algorithms."""
+
 from datetime import datetime
 
 import numpy as np
@@ -23,7 +25,10 @@ MIN_WEIGHT_TOLERANCE = -0.01
 
 
 class TestMarkowitzOptimizer:
+    """Tests for Markowitz efficient frontier optimizer."""
+
     def test_allocate(self, prices_df):
+        """Test allocation with historical returns and covariance."""
         mu = mean_historical_return(prices_df)  # Returns pandas Series
         cov = sample_cov(prices_df)  # Returns pandas DataFrame
 
@@ -35,11 +40,15 @@ class TestMarkowitzOptimizer:
         )
 
     def test_name(self):
+        """Test optimizer name property."""
         assert MaxSharpeOptimizer().name == "MaxSharpe"
 
 
 class TestNCOOptimizer:
+    """Tests for Nested Clustering Optimization optimizer."""
+
     def test_allocate_max_sharpe(self, prices_df):
+        """Test allocation for maximum Sharpe ratio."""
         mu = mean_historical_return(prices_df)  # Returns pandas Series
         cov = sample_cov(prices_df)  # Returns pandas DataFrame
 
@@ -50,6 +59,7 @@ class TestNCOOptimizer:
         )
 
     def test_allocate_min_variance(self, prices_df):
+        """Test allocation for minimum variance."""
         cov = sample_cov(prices_df)  # Returns pandas DataFrame
         # For min variance, pass None for mu (NCO optimizer handles this)
         # or create matching Series with zeros
@@ -61,11 +71,15 @@ class TestNCOOptimizer:
         assert abs(weights.sum() - 1.0) < WEIGHT_SUM_TEST_TOLERANCE
 
     def test_name(self):
+        """Test optimizer name property."""
         assert NCOSharpeOptimizer().name == "NCOSharpeOptimizer"
 
 
 class TestHRPOptimizer:
+    """Tests for Hierarchical Risk Parity optimizer."""
+
     def test_allocate(self, prices_df):
+        """Test allocation with historical returns and covariance."""
         mu = mean_historical_return(prices_df)  # Returns pandas Series
         cov = sample_cov(prices_df)  # Returns pandas DataFrame
 
@@ -76,10 +90,13 @@ class TestHRPOptimizer:
         assert len(weights) == len(mu)
 
     def test_name(self):
+        """Test optimizer name property."""
         assert HRPOptimizer().name == "HRPOptimizer"
 
 
 class TestRiskParityOptimizer:
+    """Tests for Risk Parity optimizer."""
+
     # Create pandas Series and DataFrame with asset names
     assets = ["Asset_0", "Asset_1", "Asset_2", "Asset_3"]
     mu = pd.Series([0.14, 0.12, 0.15, 0.07], index=assets)
@@ -96,11 +113,13 @@ class TestRiskParityOptimizer:
     )
 
     def test_allocate(self):
+        """Test allocation with default risk budget."""
         weights = RiskParityOptimizer().allocate(self.mu, self.cov)
 
-        assert_almost_equal(weights.values, np.array([0.1954478, 0.2152349, 0.1626168, 0.4267005]))
+        assert_almost_equal(weights.values, np.array([0.1954397, 0.2152156, 0.1626095, 0.4267352]))
 
     def test_allocate_custom_risk_budget(self):
+        """Test allocation with custom risk budget."""
         target_risk = np.array(
             [0.30, 0.30, 0.10, 0.30]
         )  # your risk budget percent of total portfolio risk (equal risk)
@@ -115,6 +134,7 @@ class TestRiskParityOptimizer:
         )
 
     def test_name(self):
+        """Test optimizer name property."""
         assert RiskParityOptimizer().name == "RiskParityOptimizer"
 
 

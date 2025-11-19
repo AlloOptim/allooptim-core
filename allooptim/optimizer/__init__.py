@@ -24,7 +24,6 @@ See Also:
     - :mod:`allooptim.optimizer.optimizer_interface`: Base interfaces
 """
 
-from allooptim.optimizer.optimizer_factory import get_optimizer_by_names
-from allooptim.optimizer.optimizer_list import get_all_optimizers
+import logging
 
-__all__ = ["get_optimizer_by_names", "get_all_optimizers"]
+logger = logging.getLogger(__name__)

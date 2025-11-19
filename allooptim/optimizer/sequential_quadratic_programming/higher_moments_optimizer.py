@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
+from allooptim.config.cash_config import normalize_weights_optimizers
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.allocation_metric import (
     LMoments,
@@ -150,7 +151,7 @@ class HigherMomentOptimizer(AbstractOptimizer):
             objective_function=self._objective,
             jacobian=self._objective_jacobian,
             n_assets=n_assets,
-            allow_cash=True,
+            allow_cash=self.allow_cash,
             previous_best_weights=self._previous_weights,
             maxiter=self.config.maxiter,
             ftol=self.config.ftol,
@@ -159,6 +160,9 @@ class HigherMomentOptimizer(AbstractOptimizer):
 
         # Store best weights for next optimization warm start
         self._previous_weights = optimal_weights.copy()
+
+        # Apply normalization constraints based on allow_cash and max_leverage
+        optimal_weights = normalize_weights_optimizers(optimal_weights, self.allow_cash, self.max_leverage)
 
         return create_weights_series(optimal_weights, asset_names)
 

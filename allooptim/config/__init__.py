@@ -11,3 +11,7 @@ Key components:
 - Default configuration presets
 - Type-safe configuration management
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

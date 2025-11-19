@@ -89,7 +89,8 @@ class TestReturnsPreparation:
         result = _prepare_returns_for_quantstats(results, "TestOptimizer")
         assert result is not None
         assert not result.isna().any()  # Should have no NaN values
-        assert len(result) >= 10  # Should have sufficient data after cleaning
+        MIN_DATA_POINTS = 10
+        assert len(result) >= MIN_DATA_POINTS  # Should have sufficient data after cleaning
 
 
 class TestTearsheetGeneration:
@@ -149,7 +150,8 @@ class TestComparativeAnalysis:
 
         assert isinstance(status, dict)
         # Should have 2 results (Optimizer1 and Optimizer2, excluding SPYBenchmark)
-        assert len([k for k in status if k != "SPY"]) == 2
+        EXPECTED_OPTIMIZER_COUNT = 2
+        assert len([k for k in status if k != "SPY"]) == EXPECTED_OPTIMIZER_COUNT
 
 
 class TestReportOrchestration:

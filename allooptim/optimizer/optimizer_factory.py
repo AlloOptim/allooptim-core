@@ -7,7 +7,7 @@ Supports both default configs and custom parameter overrides.
 import logging
 from typing import Any, Dict, List
 
-from allooptim.config.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import (
     NAME_TO_OPTIMIZER_CLASS,
     get_all_optimizer_configs,
@@ -19,7 +19,7 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 logger = logging.getLogger(__name__)
 
 
-def get_optimizer_by_names_with_configs(
+def get_optimizer_by_config(
     configs: List[OptimizerConfig],
 ) -> List[AbstractOptimizer]:
     """Create optimizers from OptimizerConfig objects.
@@ -50,6 +50,16 @@ def get_optimizer_by_names_with_configs(
             optimizer = optimizer_class(display_name=opt_config.display_name)
             logger.debug(f"Created {opt_config.name} as '{opt_config.display_name}' " f"with default config")
 
+        # Apply allow_cash override if specified
+        if opt_config.allow_cash is not None:
+            optimizer.set_allow_cash(opt_config.allow_cash)
+            logger.debug(f"Set allow_cash={opt_config.allow_cash} for {opt_config.display_name}")
+
+        # Apply max_leverage override if specified
+        if opt_config.max_leverage is not None:
+            optimizer.set_max_leverage(opt_config.max_leverage)
+            logger.debug(f"Set max_leverage={opt_config.max_leverage} for {opt_config.display_name}")
+
         optimizers.append(optimizer)
 
     return optimizers
@@ -62,7 +72,7 @@ def get_optimizer_by_names(names: List[str]) -> List[AbstractOptimizer]:
     """
     # Convert names to OptimizerConfig objects
     configs = [OptimizerConfig(name=name) for name in names]
-    return get_optimizer_by_names_with_configs(configs)
+    return get_optimizer_by_config(configs)
 
 
 def create_optimizer_config_template(optimizer_name: str) -> Dict[str, Any]:

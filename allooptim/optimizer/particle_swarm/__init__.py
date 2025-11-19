@@ -13,3 +13,7 @@ Key features:
 - Early stopping criteria
 - Integration with PySwarms library
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

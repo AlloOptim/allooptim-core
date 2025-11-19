@@ -12,3 +12,7 @@ Key features:
 - Exponential decay weighting for recency
 - SQLite database caching for performance
 """
+
+import logging
+
+logger = logging.getLogger(__name__)

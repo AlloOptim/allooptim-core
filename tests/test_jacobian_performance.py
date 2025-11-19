@@ -45,7 +45,8 @@ class TestPerformanceBenchmarks:
         print(f"  Time with Jacobian: {time_with_jac:.4f}s")
         print(f"  Weights sum: {weights_with_jac.sum():.6f}")
 
-        assert time_with_jac < 5.0, f"Optimization too slow: {time_with_jac}s"
+        MAX_TIME_WITH_JACOBIAN = 5.0
+        assert time_with_jac < MAX_TIME_WITH_JACOBIAN, f"Optimization too slow: {time_with_jac}s"
 
     def test_robust_mv_convergence(self):
         """Test convergence properties with analytical derivatives."""
@@ -76,8 +77,10 @@ class TestPerformanceBenchmarks:
         print(f"  Min weight: {weights.min():.6f}")
         print(f"  Max weight: {weights.max():.6f}")
 
-        assert elapsed < 2.0, "Optimization too slow"
-        assert 0.0 <= weights.sum() <= 1.01, "Invalid weight sum"
+        MAX_ELAPSED_TIME = 2.0
+        MAX_WEIGHT_SUM = 1.01
+        assert elapsed < MAX_ELAPSED_TIME, "Optimization too slow"
+        assert 0.0 <= weights.sum() <= MAX_WEIGHT_SUM, "Invalid weight sum"
 
 
 def benchmark_all_optimizers():

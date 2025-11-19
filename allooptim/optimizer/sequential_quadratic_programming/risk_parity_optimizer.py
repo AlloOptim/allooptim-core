@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel
 
+from allooptim.config.cash_config import normalize_weights_optimizers
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.allocation_metric import (
     LMoments,
@@ -95,8 +96,8 @@ class RiskParityOptimizer(AbstractOptimizer):
 
         weights = self._solve_optimization(cov_array)
 
-        if np.sum(weights) > 0:
-            weights = weights / np.sum(weights)
+        # Apply normalization constraints based on allow_cash and max_leverage
+        weights = normalize_weights_optimizers(weights, self.allow_cash, self.max_leverage)
 
         return create_weights_series(weights, asset_names)
 
@@ -180,7 +181,7 @@ class RiskParityOptimizer(AbstractOptimizer):
         weights = minimize_with_multistart(
             objective_function=self._risk_budget_objective,
             n_assets=n_assets,
-            allow_cash=True,
+            allow_cash=self.allow_cash,
             previous_best_weights=self._previous_weights,
             jacobian=self._risk_budget_jacobian,
             maxiter=self.config.maxiter,

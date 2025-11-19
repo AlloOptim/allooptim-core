@@ -9,6 +9,7 @@ from datetime import datetime
 import pytest
 
 from allooptim.config.backtest_config import BacktestConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import (
     get_all_optimizer_configs,
     get_optimizer_config_class,
@@ -108,17 +109,19 @@ class TestBacktestConfigIntegration:
 
     def test_backtest_config_accepts_mixed_optimizer_configs(self):
         """Test that BacktestConfig accepts mixed optimizer configurations."""
+        EXPECTED_OPTIMIZER_COUNT = 3
+
         optimizer_configs = [
             "HRPOptimizer",  # String
-            {"name": "CMAMeanVariance", "config": {"budget": 2000}},  # Dict with config
-            {"name": "PSOMeanVariance", "config": {}},  # Dict with empty config
+            OptimizerConfig(name="CMAMeanVariance", config={"budget": 2000}),  # OptimizerConfig with config
+            OptimizerConfig(name="PSOMeanVariance", config={}),  # OptimizerConfig with empty config
         ]
 
         backtest_config = BacktestConfig(
             start_date=datetime(2020, 1, 1), end_date=datetime(2023, 1, 1), optimizer_configs=optimizer_configs
         )
 
-        assert len(backtest_config.optimizer_configs) == 3
+        assert len(backtest_config.optimizer_configs) == EXPECTED_OPTIMIZER_COUNT
 
     def test_backtest_config_validates_optimizer_configs(self):
         """Test that BacktestConfig validates optimizer configurations."""
@@ -135,15 +138,17 @@ class TestBacktestConfigIntegration:
             BacktestConfig(
                 start_date=datetime(2020, 1, 1),
                 end_date=datetime(2023, 1, 1),
-                optimizer_configs=[{"name": "CMAMeanVariance", "config": {"invalid_param": "value"}}],
+                optimizer_configs=[OptimizerConfig(name="CMAMeanVariance", config={"invalid_param": "value"})],
             )
 
     def test_backtest_config_optimizer_names_property(self):
         """Test that BacktestConfig.optimizer_names property works correctly."""
+        EXPECTED_OPTIMIZER_COUNT = 3
+
         optimizer_configs = [
             "HRPOptimizer",
-            {"name": "CMAMeanVariance", "config": {}},
-            {"name": "PSOMeanVariance", "config": {}},
+            OptimizerConfig(name="CMAMeanVariance", config={}),
+            OptimizerConfig(name="PSOMeanVariance", config={}),
         ]
 
         backtest_config = BacktestConfig(
@@ -152,17 +157,19 @@ class TestBacktestConfigIntegration:
 
         optimizer_names = backtest_config.optimizer_names
         assert isinstance(optimizer_names, list)
-        assert len(optimizer_names) == 3
+        assert len(optimizer_names) == EXPECTED_OPTIMIZER_COUNT
         assert "HRPOptimizer" in optimizer_names
         assert "CMAMeanVariance" in optimizer_names
         assert "PSOMeanVariance" in optimizer_names
 
     def test_backtest_config_get_optimizer_configs_dict(self):
         """Test that get_optimizer_configs_dict returns correct mapping."""
+        EXPECTED_CONFIG_COUNT = 3
+
         optimizer_configs = [
             "HRPOptimizer",
-            {"name": "CMAMeanVariance", "config": {"budget": 1000}},
-            {"name": "PSOMeanVariance", "config": {}},
+            OptimizerConfig(name="CMAMeanVariance", config={"budget": 1000}),
+            OptimizerConfig(name="PSOMeanVariance", config={}),
         ]
 
         backtest_config = BacktestConfig(
@@ -171,7 +178,7 @@ class TestBacktestConfigIntegration:
 
         config_dict = backtest_config.get_optimizer_configs_dict()
         assert isinstance(config_dict, dict)
-        assert len(config_dict) == 3
+        assert len(config_dict) == EXPECTED_CONFIG_COUNT
         assert "HRPOptimizer" in config_dict
         assert "CMAMeanVariance[budget=1000]" in config_dict
         assert "PSOMeanVariance" in config_dict
@@ -184,6 +191,8 @@ class TestConfigurationIntegration:
 
     def test_registry_and_backtest_config_integration(self):
         """Test that registry and BacktestConfig work together."""
+        EXPECTED_OPTIMIZER_COUNT = 3
+
         # Get registered optimizers
         registered_names = get_registered_optimizer_names()
 
@@ -195,7 +204,7 @@ class TestConfigurationIntegration:
         )
 
         # Verify the config was created successfully
-        assert len(backtest_config.optimizer_configs) == 3
+        assert len(backtest_config.optimizer_configs) == EXPECTED_OPTIMIZER_COUNT
 
         # Verify optimizer names match
         assert backtest_config.optimizer_names == test_optimizers
@@ -211,9 +220,10 @@ class TestConfigurationIntegration:
         backtest_config = BacktestConfig(
             start_date=datetime(2020, 1, 1),
             end_date=datetime(2023, 1, 1),
-            optimizer_configs=[{"name": "CMAMeanVariance", "config": valid_config}],
+            optimizer_configs=[OptimizerConfig(name="CMAMeanVariance", config=valid_config)],
         )
 
-        assert len(backtest_config.optimizer_configs) == 1
+        EXPECTED_CONFIG_COUNT = 1
+        assert len(backtest_config.optimizer_configs) == EXPECTED_CONFIG_COUNT
         config_dict = backtest_config.get_optimizer_configs_dict()
         assert config_dict["CMAMeanVariance[budget=1000-risk_aversion=3]"] == valid_config

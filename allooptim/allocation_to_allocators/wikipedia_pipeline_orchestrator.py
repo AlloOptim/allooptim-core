@@ -24,6 +24,7 @@ from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.cash_config import normalize_weights_a2a
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -200,10 +201,8 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
             if optimization_result.final_allocation is not None:
                 final_allocation.update(optimization_result.final_allocation)
 
-            # Ensure weights sum to 1
-            total_weight = final_allocation.sum()
-            if self.config.allow_partial_investment and total_weight > 0:
-                final_allocation = final_allocation / total_weight
+            final_allocation_values = normalize_weights_a2a(final_allocation.values, self.config.cash_config)
+            final_allocation = pd.Series(final_allocation_values, index=all_assets)
 
             # Step 6: Pad optimizer allocations with zeros for non-selected assets
             padded_optimizer_allocations = []
