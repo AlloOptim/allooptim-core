@@ -44,12 +44,12 @@ import pandas as pd
 from pydantic import BaseModel, Field
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.config.cash_config import normalize_weights_optimizers
 from allooptim.optimizer.allocation_metric import LMoments
 from allooptim.optimizer.asset_name_utils import (
     convert_pandas_to_numpy,
     create_weights_series,
     get_asset_names,
-    normalize_weights,
     validate_asset_names,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
@@ -361,7 +361,7 @@ class RobustMeanVarianceOptimizer(AbstractOptimizer):
         weights[weights < WEIGHT_CLIPPING_THRESHOLD] = 0.0
 
         # Apply normalization constraints based on allow_cash and max_leverage
-        weights = normalize_weights(weights, self.allow_cash, self.max_leverage)
+        weights = normalize_weights_optimizers(weights, self.allow_cash, self.max_leverage)
 
         logger.debug(
             f"Robust optimization: total_weight={np.sum(weights):.4f}, " f"eps_mu={eps_mu:.4f}, eps_cov={eps_cov:.4f}"

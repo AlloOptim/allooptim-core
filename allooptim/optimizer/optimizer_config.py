@@ -8,6 +8,10 @@ import logging
 from typing import Dict, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
+from allooptim.optimizer.optimizer_config_registry import (
+    get_all_optimizer_names,
+    validate_optimizer_config,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,9 +40,6 @@ class OptimizerConfig(BaseModel):
     def validate_optimizer_name(cls, v: str) -> str:
         """Validate that the optimizer name exists."""
         
-        # Lazy import to avoid circular dependency
-        from allooptim.optimizer.optimizer_config_registry import get_all_optimizer_names
-        
         available_optimizers = get_all_optimizer_names()
         if v not in available_optimizers:
             raise ValueError(f"Invalid optimizer name: {v}. " f"Available optimizers: {available_optimizers}")
@@ -50,9 +51,6 @@ class OptimizerConfig(BaseModel):
         """Validate the config against the optimizer's schema if provided."""
         if v is None:
             return v
-
-        # Lazy import to avoid circular dependency
-        from allooptim.optimizer.optimizer_config_registry import validate_optimizer_config
 
         # Get the optimizer name from the current values
         name = info.data.get("name")

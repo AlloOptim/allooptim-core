@@ -10,7 +10,7 @@ from datetime import datetime
 
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
-from allooptim.config.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 
 
 class TestConfigInstantiation:

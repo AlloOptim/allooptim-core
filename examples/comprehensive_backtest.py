@@ -17,7 +17,7 @@ import pandas as pd
 
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
-from allooptim.config.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
 from allooptim.backtest.backtest_quantstats import create_quantstats_reports
 from allooptim.backtest.backtest_report import generate_report

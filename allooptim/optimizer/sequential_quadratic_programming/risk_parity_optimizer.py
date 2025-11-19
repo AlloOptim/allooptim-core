@@ -22,13 +22,13 @@ import pandas as pd
 from pydantic import BaseModel
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.config.cash_config import normalize_weights_optimizers
 from allooptim.optimizer.allocation_metric import (
     LMoments,
 )
 from allooptim.optimizer.asset_name_utils import (
     convert_pandas_to_numpy,
     create_weights_series,
-    normalize_weights,
     validate_asset_names,
 )
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
@@ -97,7 +97,7 @@ class RiskParityOptimizer(AbstractOptimizer):
         weights = self._solve_optimization(cov_array)
 
         # Apply normalization constraints based on allow_cash and max_leverage
-        weights = normalize_weights(weights, self.allow_cash, self.max_leverage)
+        weights = normalize_weights_optimizers(weights, self.allow_cash, self.max_leverage)
 
         return create_weights_series(weights, asset_names)
 

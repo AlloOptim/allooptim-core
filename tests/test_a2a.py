@@ -11,7 +11,7 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
     create_orchestrator,
 )
 from allooptim.config.a2a_config import A2AConfig
-from allooptim.config.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.config.stock_universe import list_of_dax_stocks
 from tests.conftest import (
     FAST_TEST_ITERATIONS,

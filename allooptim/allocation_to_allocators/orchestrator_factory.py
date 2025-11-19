@@ -20,7 +20,7 @@ from allooptim.allocation_to_allocators.wikipedia_pipeline_orchestrator import (
     WikipediaPipelineOrchestrator,
 )
 from allooptim.config.a2a_config import A2AConfig
-from allooptim.config.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
 from allooptim.optimizer.optimizer_factory import get_optimizer_by_config
 

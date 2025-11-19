@@ -7,7 +7,7 @@ Supports both default configs and custom parameter overrides.
 import logging
 from typing import Any, Dict, List
 
-from allooptim.config.optimizer_config import OptimizerConfig
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import (
     NAME_TO_OPTIMIZER_CLASS,
     get_all_optimizer_configs,
