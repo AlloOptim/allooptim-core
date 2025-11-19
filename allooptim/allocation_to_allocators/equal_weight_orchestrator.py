@@ -26,11 +26,11 @@ from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.cash_config import normalize_weights_a2a
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
-from allooptim.config.cash_config import normalize_weights_a2a
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
@@ -210,9 +210,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # Normalize final asset weights according to global cash settings
 
-        final_allocation_values = normalize_weights_a2a(
-            asset_weights, self.config.cash_config
-        )
+        final_allocation_values = normalize_weights_a2a(asset_weights, self.config.cash_config)
         final_allocation = pd.Series(final_allocation_values, index=mu.index)
 
         # Apply allocation constraints

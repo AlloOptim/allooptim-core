@@ -18,10 +18,7 @@ class A2AConfig(BaseModel):
     """Pydantic configuration for A2A orchestrator."""
 
     # Cash and leverage settings
-    cash_config: CashConfig = Field(
-        default_factory=CashConfig,
-        description="Cash and leverage settings"
-    )
+    cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")
 
     # Error estimation
     error_estimator_names: List[str] = Field(

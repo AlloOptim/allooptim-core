@@ -6,7 +6,7 @@ from pathlib import Path
 import pytest
 from nbconvert.preprocessors import ExecutePreprocessor
 from nbformat import read
-from nbformat.validator import validate, ValidationError
+from nbformat.validator import ValidationError, validate
 
 
 class TestJupyterNotebooks:
@@ -21,7 +21,7 @@ class TestJupyterNotebooks:
     def test_notebooks_are_valid(self, notebook_paths):
         """Test that all notebooks have valid structure."""
         for notebook_path in notebook_paths:
-            with open(notebook_path, 'r', encoding='utf-8') as f:
+            with open(notebook_path, encoding="utf-8") as f:
                 nb = read(f, as_version=4)
 
             # Validate notebook structure
@@ -34,7 +34,7 @@ class TestJupyterNotebooks:
             assert len(nb.cells) > 0, f"Notebook {notebook_path.name} has no cells"
 
             # Check that notebook has at least one code cell
-            code_cells = [cell for cell in nb.cells if cell.cell_type == 'code']
+            code_cells = [cell for cell in nb.cells if cell.cell_type == "code"]
             assert len(code_cells) > 0, f"Notebook {notebook_path.name} has no code cells"
 
     def test_notebooks_execute_without_errors(self, notebook_paths):
@@ -42,11 +42,11 @@ class TestJupyterNotebooks:
         for notebook_path in notebook_paths:
             with self._notebook_execution_context(notebook_path):
                 # Read the notebook
-                with open(notebook_path, 'r', encoding='utf-8') as f:
+                with open(notebook_path, encoding="utf-8") as f:
                     nb = read(f, as_version=4)
 
                 # Create execution preprocessor
-                ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
+                ep = ExecutePreprocessor(timeout=600, kernel_name="python3")
 
                 # Execute the notebook and catch any errors
                 try:
@@ -62,16 +62,19 @@ class TestJupyterNotebooks:
         """Context manager that catches warnings and converts them to test failures."""
 
         def __init__(self, notebook_path):
+            """Initialize the warning catcher with notebook path."""
             self.notebook_path = notebook_path
             self.warnings_caught = []
 
         def __enter__(self):
+            """Enter the context manager and set up warning capture."""
             # Set up warning capture
             self.original_showwarning = warnings.showwarning
             warnings.showwarning = self._capture_warning
             return self
 
         def __exit__(self, exc_type, exc_val, exc_tb):
+            """Exit the context manager and restore warning handler."""
             # Restore original warning handler
             warnings.showwarning = self.original_showwarning
 
@@ -81,10 +84,7 @@ class TestJupyterNotebooks:
             # If any relevant warnings were caught, fail the test
             if relevant_warnings:
                 warning_messages = [str(w.message) for w in relevant_warnings]
-                pytest.fail(
-                    f"Notebook {self.notebook_path.name} generated warnings: "
-                    f"{'; '.join(warning_messages)}"
-                )
+                pytest.fail(f"Notebook {self.notebook_path.name} generated warnings: " f"{'; '.join(warning_messages)}")
 
         def _filter_relevant_warnings(self):
             """Filter out system warnings that are not relevant to notebook execution."""
@@ -118,12 +118,7 @@ class TestJupyterNotebooks:
         def _capture_warning(self, message, category, filename, lineno, file=None, line=None):
             """Capture warnings for later processing."""
             warning = warnings.WarningMessage(
-                message=message,
-                category=category,
-                filename=filename,
-                lineno=lineno,
-                file=file,
-                line=line
+                message=message, category=category, filename=filename, lineno=lineno, file=file, line=line
             )
             self.warnings_caught.append(warning)
 

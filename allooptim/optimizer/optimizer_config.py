@@ -8,6 +8,7 @@ import logging
 from typing import Dict, Optional
 
 from pydantic import BaseModel, Field, field_validator, model_validator
+
 from allooptim.optimizer.optimizer_config_registry import (
     get_all_optimizer_names,
     validate_optimizer_config,
@@ -26,20 +27,18 @@ class OptimizerConfig(BaseModel):
     )
     config: Optional[Dict] = Field(default=None, description="Optional custom configuration parameters")
     allow_cash: Optional[bool] = Field(
-        default=None,
-        description="Override optimizer's default allow_cash setting. If None, uses optimizer default."
+        default=None, description="Override optimizer's default allow_cash setting. If None, uses optimizer default."
     )
     max_leverage: Optional[float] = Field(
         default=None,
         ge=0.0,
-        description="Override optimizer's default max_leverage setting. If None, uses optimizer default."
+        description="Override optimizer's default max_leverage setting. If None, uses optimizer default.",
     )
 
     @field_validator("name", mode="before")
     @classmethod
     def validate_optimizer_name(cls, v: str) -> str:
         """Validate that the optimizer name exists."""
-        
         available_optimizers = get_all_optimizer_names()
         if v not in available_optimizers:
             raise ValueError(f"Invalid optimizer name: {v}. " f"Available optimizers: {available_optimizers}")

@@ -30,11 +30,11 @@ class TestConfigInstantiation:
         # Provide required fields
         start_date = datetime(2020, 1, 1)
         end_date = datetime(2023, 12, 31)
-        
+
         config = BacktestConfig(start_date=start_date, end_date=end_date)
         assert isinstance(config, BacktestConfig)
         # Validate that key fields exist and are properly typed
-        assert hasattr(config, 'optimizer_configs')
+        assert hasattr(config, "optimizer_configs")
         assert isinstance(config.optimizer_configs, list)
         assert config.start_date == start_date
         assert config.end_date == end_date

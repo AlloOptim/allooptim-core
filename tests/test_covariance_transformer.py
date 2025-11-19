@@ -1,3 +1,5 @@
+"""Tests for covariance matrix transformers."""
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -16,6 +18,7 @@ from allooptim.covariance_transformer.transformer_list import TRANSFORMER_LIST
 
 @pytest.fixture
 def cov_matrix():
+    """Sample covariance matrix fixture for testing."""
     asset_names = ["Asset_0", "Asset_1", "Asset_2"]
     stdevs = np.array([0.8, 1.2, 0.5])
     stdev_matrix = np.diag(stdevs)
@@ -33,6 +36,7 @@ def cov_matrix():
 
 @pytest.fixture
 def detoned_results():
+    """Expected results for detoned covariance matrix fixture."""
     asset_names = ["Asset_0", "Asset_1", "Asset_2"]
     detoned_data = np.array(
         [
@@ -45,7 +49,9 @@ def detoned_results():
 
 
 class TestDetoneCovarianceTransformer:
+    """Tests for covariance matrix detoning transformer."""
     def test_transform(self, cov_matrix, detoned_results):
+        """Test detoning transformer functionality."""
         results = DetoneCovarianceTransformer(n_remove=1).transform(cov_matrix, None)
 
         # Results should be a pandas DataFrame
@@ -68,7 +74,9 @@ class TestDetoneCovarianceTransformer:
 
 
 class TestDeNoiserCovarianceTransformer:
+    """Tests for covariance matrix denoising transformer."""
     def test_transform(self, prices_df):
+        """Test denoising transformer functionality."""
         covariance_matrix = sample_cov(prices_df)  # This returns a pandas DataFrame
         n_observations = prices_df.size
         results = DeNoiserCovarianceTransformer().transform(covariance_matrix, n_observations)
@@ -91,6 +99,7 @@ class TestDeNoiserCovarianceTransformer:
 
 
 def test_cov_to_corr(prices_df):
+    """Test covariance to correlation conversion."""
     covariance_matrix = sample_cov(prices_df).values
     correlation_matrix = cov_to_corr(covariance_matrix)
     assert correlation_matrix.shape == covariance_matrix.shape
@@ -104,6 +113,7 @@ def test_cov_to_corr(prices_df):
 
 @pytest.mark.parametrize("transformer_class", TRANSFORMER_LIST)
 def test_transformers(transformer_class):
+    """Test all covariance transformers in TRANSFORMER_LIST."""
     assert issubclass(transformer_class, AbstractCovarianceTransformer)
 
     n_assets = 3

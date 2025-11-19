@@ -1,12 +1,14 @@
 """Cash and leverage configuration shared across contexts."""
 
+import logging
 from enum import Enum
 from typing import Optional
-from pydantic import BaseModel, Field, field_validator
+
 import numpy as np
-import logging
+from pydantic import BaseModel, Field, field_validator
 
 logger = logging.getLogger(__name__)
+
 
 class AllowCashOption(str, Enum):
     """Control flow for cash allowance decisions.
@@ -39,15 +41,14 @@ class CashConfig(BaseModel):
             "GLOBAL_ALLOW_CASH: force all optimizers to allow cash. "
             "OPTIMIZER_DECIDES: each optimizer uses its class default. "
             "GLOBAL_FORBID_CASH: force all optimizers to forbid cash."
-        )
+        ),
     )
 
     max_leverage: Optional[float] = Field(
         default=None,
         le=10.0,
         ge=0.0,
-        description="Maximum leverage factor (sum(weights) <= max_leverage). "
-                    "None = no leverage allowed."
+        description="Maximum leverage factor (sum(weights) <= max_leverage). " "None = no leverage allowed.",
     )
 
     @field_validator("allow_cash_option", mode="before")
@@ -88,6 +89,7 @@ def normalize_weights_optimizers(weights: np.ndarray, allow_cash: bool, max_leve
 
     return weights
 
+
 def normalize_weights_a2a(weights: np.ndarray, cash_config: CashConfig) -> np.ndarray:
     """Normalize weights based on cash and leverage settings from CashConfig.
 
@@ -100,10 +102,10 @@ def normalize_weights_a2a(weights: np.ndarray, cash_config: CashConfig) -> np.nd
     match cash_config.allow_cash_option:
         case AllowCashOption.GLOBAL_ALLOW_CASH:
             return normalize_weights_optimizers(weights, True, max_leverage)
-        
+
         case AllowCashOption.GLOBAL_FORBID_CASH:
             return normalize_weights_optimizers(weights, False, max_leverage)
-        
+
         case AllowCashOption.OPTIMIZER_DECIDES:
             return normalize_weights_optimizers(weights, True, max_leverage)
 

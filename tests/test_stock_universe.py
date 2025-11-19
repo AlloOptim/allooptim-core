@@ -1,3 +1,5 @@
+"""Tests for stock universe configuration."""
+
 from dataclasses import fields
 
 import pytest

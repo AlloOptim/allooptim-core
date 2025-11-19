@@ -71,12 +71,15 @@ class TestAllocationConstraints:
 
     def test_apply_min_active_assets_activate(self):
         """Test min_active_assets when additional assets need to be activated."""
+        WEIGHT_SUM_TOLERANCE = 1e-6
+        MIN_ACTIVE_ASSETS = 4
+
         weights = pd.Series([0.5, 0.5, 0.0, 0.0], index=["A", "B", "C", "D"])
-        result = AllocationConstraints.apply_min_active_assets(weights, 4)
+        result = AllocationConstraints.apply_min_active_assets(weights, MIN_ACTIVE_ASSETS)
         # Should activate C and D with small weights
         assert result["C"] > 0
         assert result["D"] > 0
-        assert abs(result.sum() - 1.0) < 1e-6
+        assert abs(result.sum() - 1.0) < WEIGHT_SUM_TOLERANCE
 
     def test_apply_min_active_assets_insufficient_assets(self):
         """Test min_active_assets when there aren't enough assets to activate."""
@@ -93,23 +96,30 @@ class TestAllocationConstraints:
 
     def test_apply_all_constraints_combined(self):
         """Test apply_all_constraints with multiple constraints."""
+        WEIGHT_THRESHOLD = 1e-6
+        MIN_ACTIVE_ASSETS = 3
+        MAX_ACTIVE_ASSETS = 2
+
         # Start with equal weights
         weights = pd.Series([0.25, 0.25, 0.25, 0.25], index=["A", "B", "C", "D"])
 
         result = AllocationConstraints.apply_all_constraints(
             weights=weights,
-            n_max_active_assets=2,
+            n_max_active_assets=MAX_ACTIVE_ASSETS,
             max_asset_concentration_pct=0.3,
-            n_min_active_assets=3,
+            n_min_active_assets=MIN_ACTIVE_ASSETS,
         )
 
         # Should have max 2 active assets, but min 3 required - min takes precedence
-        active_count = (result > 1e-6).sum()
-        assert active_count >= 3
+        active_count = (result > WEIGHT_THRESHOLD).sum()
+        assert active_count >= MIN_ACTIVE_ASSETS
         assert result.sum() <= 1.0
 
     def test_apply_all_constraints_order(self):
         """Test that constraints are applied in the correct order."""
+        WEIGHT_THRESHOLD = 1e-6
+        MAX_ACTIVE_ASSETS = 2
+
         # Create weights that would be affected differently by order
         weights = pd.Series([0.1, 0.1, 0.1, 0.7], index=["A", "B", "C", "D"])
 
@@ -117,7 +127,7 @@ class TestAllocationConstraints:
         result = AllocationConstraints.apply_all_constraints(
             weights=weights,
             max_asset_concentration_pct=0.3,
-            n_max_active_assets=2,
+            n_max_active_assets=MAX_ACTIVE_ASSETS,
         )
 
         # D should be clipped to 0.3 first, then only top 2 assets kept
@@ -127,8 +137,8 @@ class TestAllocationConstraints:
         # Then max_active_assets=2: keep D and one other, renormalize
 
         assert result.sum() <= 1.0
-        active_count = (result > 1e-6).sum()
-        assert active_count <= 2
+        active_count = (result > WEIGHT_THRESHOLD).sum()
+        assert active_count <= MAX_ACTIVE_ASSETS
 
     def test_zero_weights_handling(self):
         """Test handling of all-zero weights."""
@@ -142,6 +152,8 @@ class TestAllocationConstraints:
 
     def test_normalization_preserved(self):
         """Test that final weights are properly normalized."""
+        WEIGHT_SUM_TOLERANCE = 1e-6
+
         weights = pd.Series([0.1, 0.2, 0.3, 0.4], index=["A", "B", "C", "D"])
 
         result = AllocationConstraints.apply_all_constraints(
@@ -149,7 +161,7 @@ class TestAllocationConstraints:
             max_asset_concentration_pct=0.5,
         )
 
-        assert abs(result.sum() - 1.0) < 1e-6
+        assert abs(result.sum() - 1.0) < WEIGHT_SUM_TOLERANCE
 
     def test_edge_case_single_asset(self):
         """Test constraints with single asset portfolio."""

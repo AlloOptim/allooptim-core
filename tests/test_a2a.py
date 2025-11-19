@@ -1,3 +1,5 @@
+"""Tests for A2A (Allocation-to-Allocators) orchestrators."""
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -11,8 +13,8 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
     create_orchestrator,
 )
 from allooptim.config.a2a_config import A2AConfig
-from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.config.stock_universe import list_of_dax_stocks
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from tests.conftest import (
     FAST_TEST_ITERATIONS,
     FAST_TEST_OBSERVATIONS,
@@ -72,10 +74,12 @@ def test_a2a(orchestrator_type, optimizer_names):
         all_stocks=all_stocks,
     )
 
+    WEIGHT_SUM_TOLERANCE = 1e-6
+
     assert isinstance(result, A2AResult)
     assert len(result.final_allocation) == len(assets)
     assert all(0 <= w <= 1.0 for w in result.final_allocation.values)
-    assert abs(sum(result.final_allocation.values) - 1.0) < 1e-6  # Should sum to 1.0
+    assert abs(sum(result.final_allocation.values) - 1.0) < WEIGHT_SUM_TOLERANCE  # Should sum to 1.0
 
     # Verify df_allocation is populated correctly
     df_allocation = result.to_dataframe()

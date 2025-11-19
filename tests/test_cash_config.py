@@ -1,5 +1,6 @@
 """Test CashConfig dataclass and AllowCashOption enum."""
-from allooptim.config.cash_config import CashConfig, AllowCashOption
+
+from allooptim.config.cash_config import AllowCashOption, CashConfig
 
 
 def test_cash_config_defaults():
@@ -11,12 +12,11 @@ def test_cash_config_defaults():
 
 def test_cash_config_global_allow():
     """Test CashConfig with GLOBAL_ALLOW_CASH option."""
-    config = CashConfig(
-        allow_cash_option=AllowCashOption.GLOBAL_ALLOW_CASH,
-        max_leverage=1.5
-    )
+    MAX_LEVERAGE_VALUE = 1.5
+
+    config = CashConfig(allow_cash_option=AllowCashOption.GLOBAL_ALLOW_CASH, max_leverage=MAX_LEVERAGE_VALUE)
     assert config.allow_cash_option == AllowCashOption.GLOBAL_ALLOW_CASH
-    assert config.max_leverage == 1.5
+    assert config.max_leverage == MAX_LEVERAGE_VALUE
 
 
 def test_cash_config_global_forbid():

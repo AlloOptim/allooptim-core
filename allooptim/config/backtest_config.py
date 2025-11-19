@@ -16,8 +16,8 @@ from pydantic import BaseModel, Field, field_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.config.cash_config import CashConfig
-from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.covariance_transformer.transformer_list import get_all_transformers
+from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
 
 logger = logging.getLogger(__name__)
@@ -33,10 +33,7 @@ class BacktestConfig(BaseModel):
         description="List of asset symbols to include in the backtest",
     )
 
-    cash_config: CashConfig = Field(
-        default_factory=CashConfig,
-        description="Cash and leverage settings"
-    )
+    cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")
 
     # Exception handling
     rerun_allocator_exceptions: bool = Field(

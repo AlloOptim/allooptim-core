@@ -43,8 +43,8 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field
 
-from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.config.cash_config import normalize_weights_optimizers
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.allocation_metric import LMoments
 from allooptim.optimizer.asset_name_utils import (
     convert_pandas_to_numpy,
