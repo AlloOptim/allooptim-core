@@ -74,6 +74,9 @@ from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_o
     RobustMeanVarianceOptimizer,
 )
 from allooptim.optimizer.wikipedia.wikipedia_optimizer import WikipediaOptimizer
+from allooptim.optimizer.fast_diversification.fast_diversification import (
+    FastPortfolioDiversificationOptimizer,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -119,6 +122,7 @@ OPTIMIZER_LIST: list[type[AbstractOptimizer]] = [
     MonteCarloMaxDiversificationOptimizer,
     MonteCarloMaxSortinoOptimizer,
     MonteCarloMinCVAROptimizer,
+    FastPortfolioDiversificationOptimizer,
 ]
 
 
