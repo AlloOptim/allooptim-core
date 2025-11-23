@@ -214,10 +214,10 @@ class SimFinProvider(FundamentalDataProvider):
                         # Find the most recent year end before or on the given date
                         target_date = date
                         # SimFin typically has annual data, so find the year end
-                        year_end = pd.Timestamp(target_date).to_period("A").end_time
+                        year_end = pd.Timestamp(target_date).to_period("YE").end_time
                         if year_end > target_date:
                             # If year end is after target date, use previous year
-                            year_end = (pd.Timestamp(target_date) - pd.DateOffset(years=1)).to_period("A").end_time
+                            year_end = (pd.Timestamp(target_date) - pd.DateOffset(years=1)).to_period("YE").end_time
                         period_end = year_end
                     else:
                         # Use latest available data

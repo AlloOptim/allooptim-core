@@ -62,15 +62,15 @@ class FundamentalDataProviderFactory:
                 try:
                     simfin = SimFinProvider(api_key=api_key)
                     providers.append(simfin)
-                    logger.info("SimFin provider initialized")
+                    logger.debug("SimFin provider initialized")
                 except (ImportError, ValueError) as e:
                     logger.info(f"SimFin unavailable: {e}")
             else:
-                logger.info("SimFin API key not found, skipping")
+                logger.debug("SimFin API key not found, skipping")
 
         # Always include Yahoo Finance as fallback
         providers.append(YahooFinanceProvider())
-        logger.info("Yahoo Finance provider initialized")
+        logger.debug("Yahoo Finance provider initialized")
 
         return UnifiedFundamentalProvider(providers=providers, enable_caching=enable_caching)
 
@@ -152,7 +152,7 @@ class UnifiedFundamentalProvider:
 
         import pandas as pd
 
-        dates = pd.date_range(start=start_date, end=end_date, freq="A")
+        dates = pd.date_range(start=start_date, end=end_date, freq="YE")
         for date in dates:
             logger.info(f"Preloading data for {date}")
             self.get_fundamental_data(tickers, date)

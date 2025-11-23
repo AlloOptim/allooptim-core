@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def main(quick_test: bool = True,) -> None:
+def main(quick_test: bool = False,) -> None:
     """Main execution function."""
     logger.info("Starting comprehensive allocation algorithm backtest")
 
@@ -79,11 +79,11 @@ def main(quick_test: bool = True,) -> None:
                 "MonteCarloMaxDiversificationOptimizer",
                 "MonteCarloMaxSortinoOptimizer",
                 "MonteCarloMinCVAROptimizer",
-                # "FilterAndDiversifyOptimizer",
-                # "SignalBasedOptimizer",
+                "FilterAndDiversifyOptimizer",
+                "SignalBasedOptimizer",
             ],
             transformer_names=["OracleCovarianceTransformer"],
-            orchestration_type="equal_weight",
+            orchestration_type="volatility_adjusted",
         )
 
         config_a2a = A2AConfig()
