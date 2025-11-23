@@ -24,9 +24,42 @@ from typing import Optional
 from datetime import datetime
 import pandas as pd
 import numpy as np
+from pydantic import BaseModel, field_validator
+from enum import Enum
+
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
     DiversificationOptimizer,
 )
+
+
+class SignalType(str, Enum):
+    """Enumeration of supported signal transformation types."""
+    LINEAR = "linear"
+    SIGMOID = "sigmoid"
+    EXPONENTIAL = "exponential"
+
+
+class SignalBasedOptimizerConfig(BaseModel):
+    """Configuration for Signal-Based optimizer.
+
+    This config holds parameters for signal-based portfolio optimization
+    including signal transformation and diversification settings.
+    """
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
+
+    signal_type: SignalType = SignalType.LINEAR
+    scale_by_returns: bool = True
+    apply_diversification: bool = True
+    signal_power: float = 1.0
+    min_signal: float = 0.0
+
+    @field_validator("signal_type", mode="before")
+    @classmethod
+    def validate_signal_type(cls, v: str) -> SignalType:
+        """Validate that signal type is one of the allowed values."""
+        return SignalType(v)
 
 
 class SignalBasedOptimizer(AbstractOptimizer):
@@ -39,8 +72,8 @@ class SignalBasedOptimizer(AbstractOptimizer):
     
     Parameters
     ----------
-    signal_type : str, default='linear'
-        Type of signal transformation: 'linear', 'sigmoid', 'exponential'
+    signal_type : SignalType, default=SignalType.LINEAR
+        Type of signal transformation: LINEAR, SIGMOID, EXPONENTIAL
     scale_by_returns : bool, default=True
         Scale weights by expected returns
     apply_diversification : bool, default=True
@@ -53,26 +86,14 @@ class SignalBasedOptimizer(AbstractOptimizer):
 
     def __init__(
         self,
-        signal_type: str = 'linear',
-        scale_by_returns: bool = True,
-        apply_diversification: bool = True,
-        signal_power: float = 1.0,
-        min_signal: float = 0.0,
+        config: Optional[SignalBasedOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
         super().__init__(display_name)
-        self.signal_type = signal_type
-        self.scale_by_returns = scale_by_returns
-        self.apply_diversification = apply_diversification
-        self.signal_power = signal_power
-        self.min_signal = min_signal
-        
-        if apply_diversification:
-            self.diversifier = DiversificationOptimizer()
+        self.config = config or SignalBasedOptimizerConfig()
 
-    @property
-    def name(self) -> str:
-        return "SignalBased"
+        if self.config.apply_diversification:
+            self.diversifier = DiversificationOptimizer()
 
     def allocate(
         self,
@@ -84,54 +105,60 @@ class SignalBasedOptimizer(AbstractOptimizer):
     ) -> pd.Series:
         """Compute portfolio weights using predictive signals."""
         asset_names = ds_mu.index
-        
+
         # Use expected returns as signals (in practice, you'd use external signals)
         signals = ds_mu.copy()
-        
+
         # Filter by minimum signal
-        mask = signals >= self.min_signal
+        mask = signals >= self.config.min_signal
         if not mask.any():
             return pd.Series(1.0 / len(signals), index=asset_names)
-        
+
         signals = signals[mask]
-        
+
         # Transform signals to weights
         weights = self._transform_signals(signals)
-        
+
         # Optionally scale by expected returns
-        if self.scale_by_returns:
+        if self.config.scale_by_returns:
             filtered_mu = ds_mu[mask]
             weights = weights * np.maximum(filtered_mu, 0)
-        
+
         # Normalize
         if weights.sum() > 0:
             weights = weights / weights.sum()
         else:
             weights = pd.Series(1.0 / len(weights), index=weights.index)
-        
+
         # Apply diversification if requested
-        if self.apply_diversification and len(weights) > 1:
+        if self.config.apply_diversification and len(weights) > 1:
             filtered_cov = df_cov.loc[mask, mask]
             weights = self.diversifier.allocate(weights, filtered_cov)
-        
+
         # Map back to full universe
         full_weights = pd.Series(0.0, index=asset_names)
         full_weights[weights.index] = weights.values
-        
+
         return full_weights
 
     def _transform_signals(self, signals: pd.Series) -> pd.Series:
         """Transform signals to weights using specified method."""
-        if self.signal_type == 'linear':
-            # Linear transformation with power
-            weights = np.power(np.maximum(signals, 0), self.signal_power)
-        elif self.signal_type == 'sigmoid':
-            # Sigmoid transformation
-            weights = 1.0 / (1.0 + np.exp(-self.signal_power * signals))
-        elif self.signal_type == 'exponential':
-            # Exponential transformation
-            weights = np.exp(self.signal_power * signals)
-        else:
-            weights = signals.copy()
-        
+        match self.config.signal_type:
+            case SignalType.LINEAR:
+                # Linear transformation with power
+                weights = np.power(np.maximum(signals, 0), self.config.signal_power)
+            case SignalType.SIGMOID:
+                # Sigmoid transformation
+                weights = 1.0 / (1.0 + np.exp(-self.config.signal_power * signals))
+            case SignalType.EXPONENTIAL:
+                # Exponential transformation
+                weights = np.exp(self.config.signal_power * signals)
+
+            case _:
+                raise NotImplementedError(f"Unsupported signal type: {self.config.signal_type}")
+
         return weights
+
+    @property
+    def name(self) -> str:
+        return "SignalBasedOptimizer"

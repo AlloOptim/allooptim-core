@@ -23,8 +23,30 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 from typing import Optional
 from datetime import datetime
 import pandas as pd
+from pydantic import BaseModel
 
-from allooptim.optimizer.hvass_diversification.diversify_optimizer import DiversificationOptimizer
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
+    DiversificationOptimizer,
+    DiversificationOptimizerConfig,
+)
+
+
+class FilterAndDiversifyOptimizerConfig(BaseModel):
+    """Configuration for Filter and Diversify optimizer.
+
+    This config holds parameters for the filter + diversify approach
+    including return thresholds and diversification settings.
+    """
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
+
+    return_threshold: float = 0.0
+    use_percentile_filter: bool = False
+    percentile: float = 0.5
+    max_iterations: int = 100
+    adjust_for_volatility: bool = True
+
 
 class FilterAndDiversifyOptimizer(AbstractOptimizer):
     """
@@ -53,29 +75,19 @@ class FilterAndDiversifyOptimizer(AbstractOptimizer):
 
     def __init__(
         self,
-        return_threshold: float = 0.0,
-        use_percentile_filter: bool = False,
-        percentile: float = 0.5,
-        max_iterations: int = 100,
-        adjust_for_volatility: bool = True,
+        config: Optional[FilterAndDiversifyOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
         super().__init__(display_name)
-        self.return_threshold = return_threshold
-        self.use_percentile_filter = use_percentile_filter
-        self.percentile = percentile
-        self.max_iterations = max_iterations
-        self.adjust_for_volatility = adjust_for_volatility
-        
+        self.config = config or FilterAndDiversifyOptimizerConfig()
+
         # Internal diversifier
         self.diversifier = DiversificationOptimizer(
-            max_iterations=max_iterations,
-            adjust_for_volatility=adjust_for_volatility,
+            config=DiversificationOptimizerConfig(
+                max_iterations=self.config.max_iterations,
+                adjust_for_volatility=self.config.adjust_for_volatility,
+            )
         )
-
-    @property
-    def name(self) -> str:
-        return "SimplePortfolio"
 
     def allocate(
         self,
@@ -88,22 +100,22 @@ class FilterAndDiversifyOptimizer(AbstractOptimizer):
         """Compute portfolio weights using filter + diversify approach."""
         n_assets = len(ds_mu)
         asset_names = ds_mu.index
-        
+
         # Step 1: Filter assets based on expected returns
-        if self.use_percentile_filter:
-            threshold = ds_mu.quantile(self.percentile)
+        if self.config.use_percentile_filter:
+            threshold = ds_mu.quantile(self.config.percentile)
             mask = ds_mu >= threshold
         else:
-            mask = ds_mu >= self.return_threshold
-        
+            mask = ds_mu >= self.config.return_threshold
+
         if not mask.any():
             # No assets pass filter, return equal weight
             return pd.Series(1.0 / n_assets, index=asset_names)
-        
+
         # Get filtered assets
         filtered_mu = ds_mu[mask]
         filtered_cov = df_cov.loc[mask, mask]
-        
+
         # Step 2: Diversify the filtered portfolio
         if len(filtered_mu) == 1:
             # Only one asset, give it all weight
@@ -112,9 +124,13 @@ class FilterAndDiversifyOptimizer(AbstractOptimizer):
         else:
             # Apply diversification
             filtered_weights = self.diversifier.allocate(filtered_mu, filtered_cov)
-            
+
             # Map back to full asset universe
             weights = pd.Series(0.0, index=asset_names)
             weights[filtered_weights.index] = filtered_weights.values
-        
+
         return weights
+
+    @property
+    def name(self) -> str:
+        return "FilterAndDiversifyOptimizer"

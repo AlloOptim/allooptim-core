@@ -24,9 +24,27 @@ from typing import Optional, Dict, Tuple
 from datetime import datetime
 import pandas as pd
 import numpy as np
+from pydantic import BaseModel
+
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
     DiversificationOptimizer,
 )
+
+
+class GroupConstraintsOptimizerConfig(BaseModel):
+    """Configuration for Group Constraints optimizer.
+
+    This config holds parameters for portfolio optimization with group constraints
+    including group weight limits and diversification settings.
+    """
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
+
+    group_constraints: Optional[Dict[str, Tuple[float, float]]] = None
+    asset_to_group: Optional[Dict[str, str]] = None
+    optimize_within_groups: bool = True
+
 
 class GroupConstraintsOptimizer(AbstractOptimizer):
     """
@@ -48,22 +66,14 @@ class GroupConstraintsOptimizer(AbstractOptimizer):
 
     def __init__(
         self,
-        group_constraints: Optional[Dict[str, Tuple[float, float]]] = None,
-        asset_to_group: Optional[Dict[str, str]] = None,
-        optimize_within_groups: bool = True,
+        config: Optional[GroupConstraintsOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
         super().__init__(display_name)
-        self.group_constraints = group_constraints or {}
-        self.asset_to_group = asset_to_group or {}
-        self.optimize_within_groups = optimize_within_groups
-        
-        if optimize_within_groups:
-            self.diversifier = DiversificationOptimizer()
+        self.config = config or GroupConstraintsOptimizerConfig()
 
-    @property
-    def name(self) -> str:
-        return "GroupConstraints"
+        if self.config.optimize_within_groups:
+            self.diversifier = DiversificationOptimizer()
 
     def allocate(
         self,
@@ -76,47 +86,51 @@ class GroupConstraintsOptimizer(AbstractOptimizer):
         """Compute portfolio weights with group constraints."""
         asset_names = ds_mu.index
         n_assets = len(ds_mu)
-        
+
         # If no constraints, just diversify normally
-        if not self.group_constraints or not self.asset_to_group:
+        if not self.config.group_constraints or not self.config.asset_to_group:
             return self.diversifier.allocate(ds_mu, df_cov)
-        
+
         # Group assets
         groups = {}
         for asset in asset_names:
-            group = self.asset_to_group.get(asset, 'default')
+            group = self.config.asset_to_group.get(asset, 'default')
             if group not in groups:
                 groups[group] = []
             groups[group].append(asset)
-        
+
         # Allocate weights respecting group constraints
         weights = pd.Series(0.0, index=asset_names)
-        
+
         for group_name, group_assets in groups.items():
-            min_weight, max_weight = self.group_constraints.get(
+            min_weight, max_weight = self.config.group_constraints.get(
                 group_name, (0.0, 1.0)
             )
-            
+
             # Get expected returns and covariance for this group
             group_mu = ds_mu[group_assets]
             group_cov = df_cov.loc[group_assets, group_assets]
-            
+
             # Optimize within group
-            if self.optimize_within_groups and len(group_assets) > 1:
+            if self.config.optimize_within_groups and len(group_assets) > 1:
                 group_weights = self.diversifier.allocate(group_mu, group_cov)
             else:
                 # Equal weight within group
                 group_weights = pd.Series(
                     1.0 / len(group_assets), index=group_assets
                 )
-            
+
             # Scale to group constraint
             target_group_weight = np.clip(
                 1.0 / len(groups), min_weight, max_weight
             )
             weights[group_assets] = group_weights * target_group_weight
-        
+
         # Normalize to sum to 1
         weights = weights / weights.sum()
-        
+
         return weights
+
+    @property
+    def name(self) -> str:
+        return "GroupConstraintsOptimizer"

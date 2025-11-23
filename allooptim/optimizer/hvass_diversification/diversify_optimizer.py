@@ -16,7 +16,27 @@ from typing import Optional
 from datetime import datetime
 import pandas as pd
 import numpy as np
+from pydantic import BaseModel
+
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+
+
+class DiversificationOptimizerConfig(BaseModel):
+    """Configuration for Hvass Diversification optimizer.
+
+    This config holds parameters for the fast portfolio diversification algorithm
+    including convergence settings and risk contribution preferences.
+    """
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
+
+    max_iterations: int = 100
+    tolerance: float = 1e-6
+    equal_risk_contribution: bool = True
+    adjust_for_volatility: bool = True
+    min_weight: float = 0.0
+    max_weight: float = 1.0
 
 
 class DiversificationOptimizer(AbstractOptimizer):
@@ -54,29 +74,15 @@ class DiversificationOptimizer(AbstractOptimizer):
 
     def __init__(
         self,
-        max_iterations: int = 100,
-        tolerance: float = 1e-6,
-        equal_risk_contribution: bool = True,
-        adjust_for_volatility: bool = True,
-        min_weight: float = 0.0,
-        max_weight: float = 1.0,
+        config: Optional[DiversificationOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
         super().__init__(display_name)
-        self.max_iterations = max_iterations
-        self.tolerance = tolerance
-        self.equal_risk_contribution = equal_risk_contribution
-        self.adjust_for_volatility = adjust_for_volatility
-        self.min_weight = min_weight
-        self.max_weight = max_weight
+        self.config = config or DiversificationOptimizerConfig()
 
         # State variables
-        self.iterations_used_ = 0
-        self.converged_ = False
-
-    @property
-    def name(self) -> str:
-        return "HvassDiversification"
+        self._iterations_used = 0
+        self._converged = False
 
     def allocate(
         self,
@@ -115,7 +121,7 @@ class DiversificationOptimizer(AbstractOptimizer):
         corr_matrix = self._cov_to_corr(df_cov.values)
 
         # Initialize weights
-        if self.adjust_for_volatility:
+        if self.config.adjust_for_volatility:
             # Start with inverse volatility weighting
             weights = 1.0 / (volatilities + 1e-8)
         else:
@@ -126,7 +132,7 @@ class DiversificationOptimizer(AbstractOptimizer):
         weights = weights / np.sum(weights)
 
         # Iterative diversification algorithm
-        for iteration in range(self.max_iterations):
+        for iteration in range(self.config.max_iterations):
             weights_old = weights.copy()
 
             # Compute full exposure for each asset
@@ -138,7 +144,7 @@ class DiversificationOptimizer(AbstractOptimizer):
             )
 
             # Adjust weights to reduce correlated exposure
-            if self.equal_risk_contribution:
+            if self.config.equal_risk_contribution:
                 # Equal Risk Contribution variant
                 weights = self._adjust_weights_erc(
                     weights, full_exposure, correlated_exposure, corr_matrix
@@ -150,20 +156,20 @@ class DiversificationOptimizer(AbstractOptimizer):
                 )
 
             # Apply constraints
-            weights = np.clip(weights, self.min_weight, self.max_weight)
+            weights = np.clip(weights, self.config.min_weight, self.config.max_weight)
 
             # Normalize weights to sum to 1
             weights = weights / np.sum(weights)
 
             # Check convergence
             weight_change = np.max(np.abs(weights - weights_old))
-            if weight_change < self.tolerance:
-                self.converged_ = True
-                self.iterations_used_ = iteration + 1
+            if weight_change < self.config.tolerance:
+                self._converged = True
+                self._iterations_used = iteration + 1
                 break
         else:
-            self.converged_ = False
-            self.iterations_used_ = self.max_iterations
+            self._converged = False
+            self._iterations_used = self.config.max_iterations
 
         # Create result Series with asset names
         result = pd.Series(weights, index=asset_names)
@@ -199,25 +205,10 @@ class DiversificationOptimizer(AbstractOptimizer):
         The correlated exposure measures how much an asset's risk overlaps
         with other assets in the portfolio due to correlations.
         """
-        
-        if not self.use_matrix:
-            n_assets = len(weights)
-            correlated_exposure = np.zeros(n_assets)
 
-            for i in range(n_assets):
-                # Sum of weighted correlations with other assets
-                exposure = 0.0
-                for j in range(n_assets):
-                    if i != j:
-                        # Correlation weighted by the other asset's weight
-                        exposure += abs(corr_matrix[i, j]) * weights[j]
-
-                correlated_exposure[i] = exposure
-
-        else:
-            # Matrix formulation: abs(corr_matrix) @ weights - weights
-            # This computes sum_{j≠i} |corr[i,j]| * weights[j] for each i
-            correlated_exposure = np.abs(corr_matrix) @ weights - weights
+        # Matrix formulation: abs(corr_matrix) @ weights - weights
+        # This computes sum_{j≠i} |corr[i,j]| * weights[j] for each i
+        correlated_exposure = np.abs(corr_matrix) @ weights - weights
 
         return correlated_exposure
 
@@ -270,122 +261,16 @@ class DiversificationOptimizer(AbstractOptimizer):
 
         return adjusted_weights
 
-    def get_diversification_metrics(
-        self, weights: pd.Series, df_cov: pd.DataFrame
-    ) -> dict:
-        """
-        Compute diversification metrics for a given portfolio.
-        
-        Parameters
-        ----------
-        weights : pd.Series
-            Portfolio weights
-        df_cov : pd.DataFrame
-            Covariance matrix
-            
-        Returns
-        -------
-        dict
-            Dictionary containing diversification metrics
-        """
-        w = weights.values
-        cov = df_cov.values
+    @property
+    def name(self) -> str:
+        return "DiversificationOptimizer"
 
-        # Portfolio variance
-        portfolio_variance = w @ cov @ w
-        portfolio_volatility = np.sqrt(portfolio_variance)
+    @property
+    def iterations_used_(self) -> int:
+        """Number of iterations used in the last optimization."""
+        return self._iterations_used
 
-        # Individual asset volatilities
-        volatilities = np.sqrt(np.diag(cov))
-
-        # Diversification ratio (weighted sum of volatilities / portfolio volatility)
-        diversification_ratio = (w @ volatilities) / portfolio_volatility
-
-        # Effective number of assets (inverse Herfindahl index)
-        effective_n_assets = 1.0 / np.sum(w ** 2)
-
-        # Correlation matrix
-        corr = self._cov_to_corr(cov)
-
-        # Average pairwise correlation (weighted)
-        avg_correlation = 0.0
-        total_weight_pairs = 0.0
-        n = len(w)
-        for i in range(n):
-            for j in range(i + 1, n):
-                weight_pair = w[i] * w[j]
-                avg_correlation += corr[i, j] * weight_pair
-                total_weight_pairs += weight_pair
-
-        if total_weight_pairs > 0:
-            avg_correlation /= total_weight_pairs
-
-        return {
-            "portfolio_volatility": portfolio_volatility,
-            "diversification_ratio": diversification_ratio,
-            "effective_n_assets": effective_n_assets,
-            "avg_correlation": avg_correlation,
-            "iterations_used": self.iterations_used_,
-            "converged": self.converged_,
-        }
-
-
-# Example usage
-if __name__ == "__main__":
-    # Create sample data
-    np.random.seed(42)
-    n_assets = 10
-    asset_names = [f"Asset_{i+1}" for i in range(n_assets)]
-        
-    # Initialize optimizer
-    optimizer = DiversificationOptimizer(
-        max_iterations=100,
-        tolerance=1e-6,
-        equal_risk_contribution=True,
-        adjust_for_volatility=True,
-    )
-    
-    for _ in range(1000):
-        # Expected returns (not used in pure diversification, but required by interface)
-        ds_mu = pd.Series(
-            np.random.randn(n_assets) * 0.1 + 0.05,
-            index=asset_names
-        )
-        
-        # Generate a realistic covariance matrix
-        volatilities = np.random.uniform(0.1, 0.3, n_assets)
-        corr_matrix = np.random.uniform(-0.3, 0.7, (n_assets, n_assets))
-        corr_matrix = (corr_matrix + corr_matrix.T) / 2  # Make symmetric
-        np.fill_diagonal(corr_matrix, 1.0)
-        
-        # Ensure positive semi-definite
-        eigenvalues, eigenvectors = np.linalg.eigh(corr_matrix)
-        eigenvalues = np.maximum(eigenvalues, 1e-8)
-        corr_matrix = eigenvectors @ np.diag(eigenvalues) @ eigenvectors.T
-        
-        # Create covariance matrix
-        D = np.diag(volatilities)
-        cov_matrix = D @ corr_matrix @ D
-        df_cov = pd.DataFrame(cov_matrix, index=asset_names, columns=asset_names)
-
-        optimizer.use_matrix = True
-        a1 = optimizer._compute_correlated_exposure(ds_mu.values, df_cov.values)
-        optimizer.use_matrix = False
-        a2 = optimizer._compute_correlated_exposure(ds_mu.values, df_cov.values)
-    
-        assert np.allclose(a1, a2)
-    
-    # # Compute optimal weights
-    # weights = optimizer.allocate(ds_mu, df_cov)
-    
-    # print("Hvass Diversification Optimizer Results")
-    # print("=" * 50)
-    # print("\nPortfolio Weights:")
-    # print(weights.sort_values(ascending=False))
-    # print(f"\nSum of weights: {weights.sum():.4f}")
-    
-    # # Get diversification metrics
-    # metrics = optimizer.get_diversification_metrics(weights, df_cov)
-    # print("\nDiversification Metrics:")
-    # for key, value in metrics.items():
-    #     print(f"  {key}: {value}")
+    @property
+    def converged_(self) -> bool:
+        """Whether the algorithm converged in the last optimization."""
+        return self._converged

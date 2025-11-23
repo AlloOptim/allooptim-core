@@ -74,8 +74,17 @@ from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_o
     RobustMeanVarianceOptimizer,
 )
 from allooptim.optimizer.wikipedia.wikipedia_optimizer import WikipediaOptimizer
-from allooptim.optimizer.hvass_diversification.fast_diversification_v1 import (
-    FastPortfolioDiversificationOptimizer,
+from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
+    DiversificationOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.filter_and_diversify_optimizer import (
+    FilterAndDiversifyOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.group_constraint_optimizer import (
+    GroupConstraintsOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.signal_based_optimizer import (
+    SignalBasedOptimizer,
 )
 
 logger = logging.getLogger(__name__)
@@ -122,7 +131,10 @@ OPTIMIZER_LIST: list[type[AbstractOptimizer]] = [
     MonteCarloMaxDiversificationOptimizer,
     MonteCarloMaxSortinoOptimizer,
     MonteCarloMinCVAROptimizer,
-    FastPortfolioDiversificationOptimizer,
+    DiversificationOptimizer,
+    FilterAndDiversifyOptimizer,
+    GroupConstraintsOptimizer,
+    SignalBasedOptimizer,
 ]
 
 
