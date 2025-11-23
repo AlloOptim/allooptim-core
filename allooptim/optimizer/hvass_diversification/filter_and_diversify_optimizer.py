@@ -24,6 +24,8 @@ from typing import Optional
 from datetime import datetime
 import pandas as pd
 
+from allooptim.optimizer.hvass_diversification.diversify_optimizer import DiversificationOptimizer
+
 class FilterAndDiversifyOptimizer(AbstractOptimizer):
     """
     Simple Portfolio Optimization That Works!
@@ -66,7 +68,7 @@ class FilterAndDiversifyOptimizer(AbstractOptimizer):
         self.adjust_for_volatility = adjust_for_volatility
         
         # Internal diversifier
-        self.diversifier = HvassDiversificationOptimizer(
+        self.diversifier = DiversificationOptimizer(
             max_iterations=max_iterations,
             adjust_for_volatility=adjust_for_volatility,
         )

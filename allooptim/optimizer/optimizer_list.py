@@ -74,7 +74,7 @@ from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_o
     RobustMeanVarianceOptimizer,
 )
 from allooptim.optimizer.wikipedia.wikipedia_optimizer import WikipediaOptimizer
-from allooptim.optimizer.fast_diversification.fast_diversification_v1 import (
+from allooptim.optimizer.hvass_diversification.fast_diversification_v1 import (
     FastPortfolioDiversificationOptimizer,
 )
 

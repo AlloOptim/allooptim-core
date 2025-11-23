@@ -24,6 +24,9 @@ from typing import Optional, Dict, Tuple
 from datetime import datetime
 import pandas as pd
 import numpy as np
+from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
+    DiversificationOptimizer,
+)
 
 class GroupConstraintsOptimizer(AbstractOptimizer):
     """
@@ -56,7 +59,7 @@ class GroupConstraintsOptimizer(AbstractOptimizer):
         self.optimize_within_groups = optimize_within_groups
         
         if optimize_within_groups:
-            self.diversifier = HvassDiversificationOptimizer()
+            self.diversifier = DiversificationOptimizer()
 
     @property
     def name(self) -> str:

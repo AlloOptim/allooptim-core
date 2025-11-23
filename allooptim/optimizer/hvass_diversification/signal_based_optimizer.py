@@ -24,6 +24,10 @@ from typing import Optional
 from datetime import datetime
 import pandas as pd
 import numpy as np
+from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
+    DiversificationOptimizer,
+)
+
 
 class SignalBasedOptimizer(AbstractOptimizer):
     """
@@ -64,7 +68,7 @@ class SignalBasedOptimizer(AbstractOptimizer):
         self.min_signal = min_signal
         
         if apply_diversification:
-            self.diversifier = HvassDiversificationOptimizer()
+            self.diversifier = DiversificationOptimizer()
 
     @property
     def name(self) -> str:
@@ -131,4 +135,3 @@ class SignalBasedOptimizer(AbstractOptimizer):
             weights = signals.copy()
         
         return weights
-
