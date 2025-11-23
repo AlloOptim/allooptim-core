@@ -102,10 +102,14 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         Returns:
             A2AResult with combined optimizer allocations
         """
+
+        if time_today is None:
+            time_today = datetime.now()
+
         runtime_start = time.time()
 
         # Get ground truth parameters (no sampling for equal weight)
-        mu, cov, prices, current_time, l_moments = data_provider.get_ground_truth()
+        mu, cov, prices, _, l_moments = data_provider.get_ground_truth()
 
         # Apply covariance transformations
         cov_transformed = self._apply_covariance_transformers(cov, data_provider.n_observations)
@@ -124,7 +128,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
                 optimizer.fit(prices)
 
-                weights = optimizer.allocate(mu, cov_transformed, prices, current_time, l_moments)
+                weights = optimizer.allocate(mu, cov_transformed, prices, time_today, l_moments)
                 if isinstance(weights, np.ndarray):
                     weights = weights.flatten()
 
@@ -193,7 +197,11 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # Second pass: determine A2A weights based on combination method
         match self.combined_weight_type:
-            case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN | CombinedWeightType.VOLATILITY:
+            case (
+                CombinedWeightType.EQUAL
+                | CombinedWeightType.MEDIAN
+                | CombinedWeightType.VOLATILITY
+            ):
                 # Equal weights for all optimizers
                 # For median and volatility, this is the best approximation
                 a2a_weights = {
@@ -310,7 +318,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             n_simulations=1,  # Equal weight uses ground truth only
             optimizer_errors=optimizer_errors,
             orchestrator_name=self.name,
-            timestamp=current_time or datetime.now(),
+            timestamp=time_today,
             config=self.config,
         )
 

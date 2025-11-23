@@ -13,38 +13,14 @@ import yfinance as yf
 from pydantic import BaseModel, model_validator
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.data.fundamental_data import FundamentalData
+from allooptim.data.fundamental_providers import FundamentalDataManager
 
 logger = logging.getLogger(__name__)
 
 # Constants for fundamental analysis thresholds
 DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD = 50  # Above this, likely expressed as percentage
 MINIMUM_WEIGHT_DISPLAY_THRESHOLD = 0.001  # 0.1% minimum weight to display
-
-
-class FundamentalData(BaseModel):
-    """Fundamental data for a single ticker."""
-
-    model_config = DEFAULT_PYDANTIC_CONFIG
-
-    ticker: str
-    market_cap: Optional[float] = None
-    roe: Optional[float] = None  # Return on Equity
-    debt_to_equity: Optional[float] = None
-    pb_ratio: Optional[float] = None  # Price to Book ratio
-    current_ratio: Optional[float] = None
-
-    @property
-    def is_valid(self) -> bool:
-        """Determine if this fundamental data is valid."""
-        return any(
-            [
-                self.market_cap is not None,
-                self.roe is not None,
-                self.debt_to_equity is not None,
-                self.pb_ratio is not None,
-                self.current_ratio is not None,
-            ]
-        )
 
 
 class BalancedFundamentalConfig(BaseModel):
@@ -299,6 +275,7 @@ def allocate(
     asset_names: list[str],
     today: datetime,
     config: BalancedFundamentalConfig,
+    data_manager: Optional[FundamentalDataManager] = None,
 ) -> np.ndarray:
     """Allocate portfolio weights based purely on fundamental data.
 
@@ -330,12 +307,21 @@ def allocate(
 
     # Download fundamental data using batch processing
     logger.debug(f"Fetching fundamental data for {len(asset_names)} assets using batch processing...")
-    fundamentals = get_fundamental_data(today, asset_names)
+    if data_manager is not None:
+        logger.debug(f"Using data_manager: {type(data_manager).__name__}")
+        fundamentals = data_manager.get_fundamental_data(asset_names, today)
+    else:
+        # Fallback to legacy method for backward compatibility
+        logger.debug("Using legacy yfinance method (no data_manager)")
+        fundamentals = get_fundamental_data(today, asset_names)
 
     # Check if we have any valid data
     valid_count = sum(1 for f in fundamentals if f.is_valid)
     if valid_count == 0:
         logger.warning("⚠ No valid fundamental data found. Returning equal weights.")
+        logger.warning(f"Sample of fundamental data received:")
+        for i, f in enumerate(fundamentals[:5]):  # Show first 5
+            logger.warning(f"  {f.ticker}: market_cap={f.market_cap}, roe={f.roe}, debt_to_equity={f.debt_to_equity}, pb_ratio={f.pb_ratio}, current_ratio={f.current_ratio}, is_valid={f.is_valid}")
         return np.ones(len(asset_names)) / len(asset_names)
 
     logger.debug(f"\n{'-'*60}")

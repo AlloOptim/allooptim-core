@@ -23,7 +23,7 @@ from typing import Optional
 
 import pandas as pd
 from pydantic import BaseModel
-
+import numpy as np
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
@@ -102,7 +102,7 @@ class FilterAndDiversifyOptimizer(BaseOptimizer):
 
         # Step 1: Filter assets based on expected returns
         if self.config.use_percentile_filter:
-            threshold = ds_mu.quantile(self.config.percentile)
+            threshold = np.max(ds_mu.quantile(self.config.percentile), 0.0)
             mask = ds_mu >= threshold
         else:
             mask = ds_mu >= self.config.return_threshold
