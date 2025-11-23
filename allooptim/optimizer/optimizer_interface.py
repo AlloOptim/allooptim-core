@@ -197,6 +197,7 @@ class AbstractEnsembleOptimizer(ABC):
         pass
 
     @property
+    @abstractmethod
     def display_name(self) -> str:
         """Display name of this optimizer instance."""
         pass

@@ -143,14 +143,13 @@ class BacktestEngine:
                 logger.warning(f"Failed to download Wikipedia data: {e}")
 
         # Check if fundamental optimizers are being used and preload data if needed
-        fundamental_optimizer_names = [
-            "BalancedFundamentalOptimizer",
-            "QualityGrowthFundamentalOptimizer",
-            "ValueInvestingFundamentalOptimizer",
-            "MarketCapFundamentalOptimizer",
-        ]
+        from allooptim.optimizer.optimizer_config_registry import NAME_TO_OPTIMIZER_CLASS
+        import inspect
+        
         has_fundamental_optimizer = any(
-            opt_name in fundamental_optimizer_names for opt_name in self.config_backtest.optimizer_names
+            'data_provider' in inspect.signature(NAME_TO_OPTIMIZER_CLASS[opt_name].__init__).parameters
+            for opt_name in self.config_backtest.optimizer_names
+            if opt_name in NAME_TO_OPTIMIZER_CLASS
         )
 
         if has_fundamental_optimizer:

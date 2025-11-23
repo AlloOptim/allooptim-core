@@ -5,7 +5,7 @@ between mu (pd.Series) and cov (pd.DataFrame) inputs in the optimizer interface.
 """
 
 import warnings
-from typing import Union
+from typing import Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -151,7 +151,7 @@ def align_assets(
 
 
 def convert_numpy_to_pandas(
-    mu: Union[np.ndarray, pd.Series], cov: Union[np.ndarray, pd.DataFrame], asset_names: list[str] = None
+    mu: Union[np.ndarray, pd.Series], cov: Union[np.ndarray, pd.DataFrame], asset_names: Optional[list[str]] = None
 ) -> tuple[pd.Series, pd.DataFrame]:
     """Convert numpy arrays to pandas Series/DataFrame with asset names.
 

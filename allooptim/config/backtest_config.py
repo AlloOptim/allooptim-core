@@ -69,8 +69,8 @@ class BacktestConfig(BaseModel):
     )
 
     # Optimizer and transformer names
-    optimizer_configs: List[Union[str, OptimizerConfig]] = Field(
-        default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
+    optimizer_configs: List[OptimizerConfig] = Field(
+        default_factory=lambda: [OptimizerConfig(name="RiskParityOptimizer"), OptimizerConfig(name="NaiveOptimizer"), OptimizerConfig(name="MomentumOptimizer"), OptimizerConfig(name="HRPOptimizer"), OptimizerConfig(name="NCOSharpeOptimizer")],
         min_length=1,
         description="List of optimizer configurations. Can be optimizer names (strings) or OptimizerConfig objects",
     )
@@ -181,7 +181,7 @@ class BacktestConfig(BaseModel):
 
     def get_optimizer_configs_dict(self) -> Dict[str, Optional[Dict]]:
         """Get optimizer configs as a dict mapping display_names to config dicts."""
-        return {config.display_name: config.config for config in self.optimizer_configs}
+        return {str(config.display_name): config.config for config in self.optimizer_configs}
 
     def get_optimizer_config_schemas(self) -> Dict[str, Dict]:
         """Get JSON schemas for all configured optimizers."""

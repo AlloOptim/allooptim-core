@@ -116,9 +116,11 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
         if estimate_new:
             try:
                 logger.info("Estimating new weights using FundamentalOptimizer.")
+                # Handle case where time might be None
+                today = time or datetime.now()
                 weights = allocate(
                     asset_names=asset_names,
-                    today=time,
+                    today=today,
                     config=self.config,
                     data_provider=self.data_provider,
                 )
@@ -132,6 +134,8 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
                 weights = np.ones(n_assets) / n_assets
 
         else:
+            # If we get here, _weights_today should not be None
+            assert self._weights_today is not None, "Cached weights should not be None"
             weights = self._weights_today
 
         return create_weights_series(weights, asset_names)
@@ -245,9 +249,10 @@ def _adapt_manager_to_provider(data_manager: FundamentalDataManager) -> UnifiedF
     This is for backward compatibility during migration.
     """
     from allooptim.data.provider_factory import UnifiedFundamentalProvider
+    from allooptim.data.fundamental_providers import FundamentalDataProvider
     
     # Create a simple adapter that wraps the manager
-    class ManagerAdapter:
+    class ManagerAdapter(FundamentalDataProvider):
         def __init__(self, manager):
             self.manager = manager
             
@@ -255,6 +260,13 @@ def _adapt_manager_to_provider(data_manager: FundamentalDataManager) -> UnifiedF
             return self.manager.get_fundamental_data(tickers, date)
             
         def supports_historical_data(self):
-            return self.manager.mode == "backtest"
+            # Check if manager has provider (new implementation) or mode (old)
+            if hasattr(self.manager, 'provider'):
+                return self.manager.provider.supports_historical_data()
+            elif hasattr(self.manager, 'mode'):
+                return self.manager.mode == "backtest"
+            else:
+                # Default to False for safety
+                return False
     
     return UnifiedFundamentalProvider([ManagerAdapter(data_manager)])

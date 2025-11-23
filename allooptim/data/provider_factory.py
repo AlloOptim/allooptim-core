@@ -55,7 +55,7 @@ class FundamentalDataProviderFactory:
         Returns:
             UnifiedFundamentalProvider with configured fallback chain
         """
-        providers = []
+        providers: List[FundamentalDataProvider] = []
 
         # Try SimFin first if preferred and available
         if prefer_simfin:
@@ -98,8 +98,14 @@ class UnifiedFundamentalProvider:
             providers: List of providers to try in order (first = highest priority)
             enable_caching: Whether to enable data caching
         """
+        if not providers:
+            raise ValueError("At least one fundamental data provider must be provided")
+        
         self.providers = providers
         self.cache = FundamentalDataStore() if enable_caching else None
+        
+        # Validate provider chain
+        self._validate_provider_chain()
 
     def get_fundamental_data(
         self,
@@ -173,3 +179,20 @@ class UnifiedFundamentalProvider:
     def supports_historical_data(self) -> bool:
         """Check if any provider supports historical data."""
         return any(provider.supports_historical_data() for provider in self.providers)
+
+    def _validate_provider_chain(self) -> None:
+        """Validate that the provider chain is properly configured."""
+        if not self.providers:
+            raise ValueError("Provider chain cannot be empty")
+        
+        # Check that we have at least one provider that can handle current data
+        current_providers = [p for p in self.providers if not p.supports_historical_data()]
+        if not current_providers:
+            logger.warning("No providers configured for current data - historical-only backtests may fail")
+        
+        # Check for duplicate provider types (not necessarily an error, but warn)
+        provider_types = [type(p).__name__ for p in self.providers]
+        if len(provider_types) != len(set(provider_types)):
+            logger.info(f"Provider chain contains duplicate types: {provider_types}")
+        
+        logger.debug(f"Validated provider chain with {len(self.providers)} providers: {provider_types}")

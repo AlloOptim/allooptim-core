@@ -41,7 +41,7 @@ class OrchestratorType(str, Enum):
 def create_orchestrator(
     orchestrator_type: OrchestratorType,
     optimizer_configs: List[OptimizerConfig],
-    transformer_names: List[str] = None,
+    transformer_names: Optional[List[str]] = None,
     a2a_config: Optional[A2AConfig] = None,
     fundamental_data_provider=None,
     **kwargs,

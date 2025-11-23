@@ -7,6 +7,7 @@ import pickle  # nosec B403 - trusted data serialization for generated training 
 import sys
 import time
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 
@@ -20,7 +21,7 @@ from lower_triangle_utils import pack_lower_triangle
 EIGENVALUE_POSITIVE_TOLERANCE = -1e-10
 
 
-def generate_full_training_dataset(save_path: str = None):
+def generate_full_training_dataset(save_path: Optional[str] = None):
     """Generate full 30,000 covariance matrix training dataset."""
     print("=" * 60)
     print("GENERATING 30,000 COVARIANCE MATRIX TRAINING DATASET")
@@ -130,7 +131,7 @@ def generate_full_training_dataset(save_path: str = None):
     if save_path is None:
         output_dir = Path(__file__).parent.parent.parent / "generated_output"
         output_dir.mkdir(exist_ok=True)
-        save_path = output_dir / "covariance_training_data_30k.pkl"
+        save_path = str(output_dir / "covariance_training_data_30k.pkl")
 
     print(f"\nSaving dataset to: {save_path}")
 
@@ -171,11 +172,11 @@ def generate_full_training_dataset(save_path: str = None):
     return X_train, dataset
 
 
-def load_training_dataset(save_path: str = None):
+def load_training_dataset(save_path: Optional[str] = None):
     """Load the pre-generated training dataset."""
     if save_path is None:
         output_dir = Path(__file__).parent.parent.parent / "generated_output"
-        save_path = output_dir / "covariance_training_data_30k.pkl"
+        save_path = str(output_dir / "covariance_training_data_30k.pkl")
 
     if not Path(save_path).exists():
         raise FileNotFoundError(f"Training dataset not found at: {save_path}")

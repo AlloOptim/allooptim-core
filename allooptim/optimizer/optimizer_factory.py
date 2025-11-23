@@ -19,6 +19,13 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 logger = logging.getLogger(__name__)
 
 
+def _is_fundamental_optimizer(optimizer_class) -> bool:
+    """Check if an optimizer class accepts a data_provider parameter."""
+    import inspect
+    sig = inspect.signature(optimizer_class.__init__)
+    return 'data_provider' in sig.parameters
+
+
 def get_optimizer_by_config(
     configs: List[OptimizerConfig],
     fundamental_data_provider=None,
@@ -45,12 +52,7 @@ def get_optimizer_by_config(
         if opt_config.config:
             config = validate_optimizer_config(opt_config.name, opt_config.config)
             # Check if this is a fundamental optimizer and pass data provider
-            if fundamental_data_provider and opt_config.name in [
-                "BalancedFundamentalOptimizer",
-                "QualityGrowthFundamentalOptimizer", 
-                "ValueInvestingFundamentalOptimizer",
-                "MarketCapFundamentalOptimizer"
-            ]:
+            if fundamental_data_provider and _is_fundamental_optimizer(optimizer_class):
                 optimizer = optimizer_class(
                     config=config, 
                     display_name=opt_config.display_name,
@@ -63,12 +65,7 @@ def get_optimizer_by_config(
             )
         else:
             # Check if this is a fundamental optimizer and pass data provider
-            if fundamental_data_provider and opt_config.name in [
-                "BalancedFundamentalOptimizer",
-                "QualityGrowthFundamentalOptimizer", 
-                "ValueInvestingFundamentalOptimizer",
-                "MarketCapFundamentalOptimizer"
-            ]:
+            if fundamental_data_provider and _is_fundamental_optimizer(optimizer_class):
                 optimizer = optimizer_class(
                     display_name=opt_config.display_name,
                     data_provider=fundamental_data_provider

@@ -16,7 +16,7 @@ import logging
 from typing import Callable, Optional
 
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize, OptimizeResult
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def minimize_given_initial(
     maxiter: int = 100,
     ftol: float = 1e-6,
     optimizer_name: str = "SLSQP",
-) -> np.ndarray:
+) -> OptimizeResult:
     """Perform optimization with multiple starting points to avoid local minima.
 
     Tries:
