@@ -74,28 +74,18 @@ class FailureHandlingConfig(BaseModel):
         ),
     )
 
-    log_failures: bool = Field(
-        default=True,
-        description="Whether to log optimizer failures at WARNING level"
-    )
+    log_failures: bool = Field(default=True, description="Whether to log optimizer failures at WARNING level")
 
     raise_on_all_failed: bool = Field(
-        default=False,
-        description="Raise exception if ALL optimizers fail (vs returning equal weights)"
+        default=False, description="Raise exception if ALL optimizers fail (vs returning equal weights)"
     )
 
     retry_attempts: int = Field(
-        default=1,
-        ge=0,
-        le=5,
-        description="Number of retry attempts for transient failures (0 = no retries)"
+        default=1, ge=0, le=5, description="Number of retry attempts for transient failures (0 = no retries)"
     )
 
     retry_delay_seconds: float = Field(
-        default=0.1,
-        ge=0.0,
-        le=10.0,
-        description="Delay in seconds between retry attempts"
+        default=0.1, ge=0.0, le=10.0, description="Delay in seconds between retry attempts"
     )
 
     context_aware_fallbacks: Dict[FailureType, FailureHandlingOption] = Field(
@@ -104,12 +94,11 @@ class FailureHandlingConfig(BaseModel):
             "Type-specific fallback strategies. If not specified for a failure type, "
             "the default 'option' will be used. Example: "
             "{'numerical_error': 'zero_weights', 'data_error': 'equal_weights'}"
-        )
+        ),
     )
 
     enable_diagnostics: bool = Field(
-        default=False,
-        description="Whether to collect detailed failure diagnostics and metrics"
+        default=False, description="Whether to collect detailed failure diagnostics and metrics"
     )
 
     circuit_breaker_threshold: Optional[int] = Field(
@@ -118,16 +107,16 @@ class FailureHandlingConfig(BaseModel):
         description=(
             "Number of consecutive failures before temporarily disabling an optimizer. "
             "None disables circuit breaker functionality."
-        )
+        ),
     )
 
-    @field_validator('context_aware_fallbacks')
+    @field_validator("context_aware_fallbacks")
     @classmethod
     def validate_context_aware_fallbacks(cls, v):
         """Validate and convert context-aware fallbacks to use proper enum types."""
         if not isinstance(v, dict):
             raise ValueError("context_aware_fallbacks must be a dictionary")
-        
+
         validated = {}
         for failure_type, handling_option in v.items():
             # Convert string keys to FailureType enum
@@ -138,16 +127,18 @@ class FailureHandlingConfig(BaseModel):
                     raise ValueError(f"Invalid failure type: {failure_type}")
             elif not isinstance(failure_type, FailureType):
                 raise ValueError(f"Failure type must be a string or FailureType enum, got {type(failure_type)}")
-            
-            # Convert string values to FailureHandlingOption enum  
+
+            # Convert string values to FailureHandlingOption enum
             if isinstance(handling_option, str):
                 try:
                     handling_option = FailureHandlingOption(handling_option)
                 except ValueError:
                     raise ValueError(f"Invalid handling option: {handling_option}")
             elif not isinstance(handling_option, FailureHandlingOption):
-                raise ValueError(f"Handling option must be a string or FailureHandlingOption enum, got {type(handling_option)}")
-            
+                raise ValueError(
+                    f"Handling option must be a string or FailureHandlingOption enum, got {type(handling_option)}"
+                )
+
             validated[failure_type] = handling_option
-        
+
         return validated

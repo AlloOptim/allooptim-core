@@ -181,9 +181,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 )
             else:
                 # Graceful degradation: add equal-weight fallback allocation
-                logger.error(
-                    "All optimizers failed, returning equal-weight fallback allocation"
-                )
+                logger.error("All optimizers failed, returning equal-weight fallback allocation")
                 equal_weight = 1.0 / len(mu)
                 fallback_allocation = OptimizerAllocation(
                     instance_id="EMERGENCY_FALLBACK",
@@ -195,11 +193,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # Second pass: determine A2A weights based on combination method
         match self.combined_weight_type:
-            case (
-                CombinedWeightType.EQUAL
-                | CombinedWeightType.MEDIAN
-                | CombinedWeightType.VOLATILITY
-            ):
+            case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN | CombinedWeightType.VOLATILITY:
                 # Equal weights for all optimizers
                 # For median and volatility, this is the best approximation
                 a2a_weights = {
@@ -237,9 +231,9 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 mean_asset = alloc_df.mean(axis=1)
                 variance_asset = np.clip(alloc_df.std(axis=1) ** 2, a_min=0.0, a_max=1.0)
                 variance_overall = variance_asset.mean()
-                asset_weights = (1.0 - self.config.voloatility_adjustment) * mean_asset + self.config.voloatility_adjustment * (
-                    variance_overall - variance_asset
-                )
+                asset_weights = (
+                    1.0 - self.config.voloatility_adjustment
+                ) * mean_asset + self.config.voloatility_adjustment * (variance_overall - variance_asset)
                 # Clip negative weights and normalize
                 asset_weights = np.clip(asset_weights, a_min=0.0, a_max=1.0)
                 if asset_weights.sum() > 0:

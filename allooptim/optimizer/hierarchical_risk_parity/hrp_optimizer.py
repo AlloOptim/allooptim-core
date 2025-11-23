@@ -25,7 +25,7 @@ from pypfopt.hierarchical_portfolio import HRPOpt
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.allocation_metric import LMoments
 from allooptim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class HRPOptimizerConfig(BaseModel):
     pass
 
 
-class HRPOptimizer(AbstractOptimizer):
+class HRPOptimizer(BaseOptimizer):
     """Hierarchical Risk Parity optimizer for portfolio allocation.
 
     This optimizer uses the Hierarchical Risk Parity (HRP) approach, which

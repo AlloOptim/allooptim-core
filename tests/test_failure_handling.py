@@ -5,11 +5,11 @@ ensuring graceful degradation when optimizers fail during allocation.
 """
 
 import logging
-import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 import numpy as np
 import pandas as pd
+import pytest
 from numpy.linalg import LinAlgError
 
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
@@ -17,18 +17,17 @@ from allooptim.allocation_to_allocators.equal_weight_orchestrator import EqualWe
 from allooptim.allocation_to_allocators.optimized_orchestrator import OptimizedOrchestrator
 from allooptim.allocation_to_allocators.simulator_interface import AbstractObservationSimulator
 from allooptim.config.a2a_config import A2AConfig
-from allooptim.config.failure_handling_config import FailureHandlingConfig, FailureHandlingOption, FailureType
 from allooptim.config.failure_diagnostics import (
     CircuitBreaker,
     FailureClassifier,
-    FailureDiagnostic,
     RetryHandler,
 )
+from allooptim.config.failure_handling_config import FailureHandlingConfig, FailureHandlingOption, FailureType
 from allooptim.covariance_transformer.transformer_interface import AbstractCovarianceTransformer
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 
-class FailingOptimizer(AbstractOptimizer):
+class FailingOptimizer(BaseOptimizer):
     """Test optimizer that always fails."""
 
     def __init__(self, fail_with: Exception = RuntimeError("Test failure")):
@@ -61,10 +60,7 @@ class MockDataProvider(AbstractObservationSimulator):
 
     @property
     def historical_prices(self):
-        return pd.DataFrame(
-            np.random.randn(100, self.n_assets),
-            columns=self.asset_names
-        )
+        return pd.DataFrame(np.random.randn(100, self.n_assets), columns=self.asset_names)
 
     @property
     def n_observations(self):
@@ -145,7 +141,7 @@ class TestBaseOrchestratorFailureHandling:
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure"),
             n_assets=len(mu),
-            asset_names=mu.index.tolist()
+            asset_names=mu.index.tolist(),
         )
 
         assert result is not None
@@ -163,7 +159,7 @@ class TestBaseOrchestratorFailureHandling:
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure"),
             n_assets=len(mu),
-            asset_names=mu.index.tolist()
+            asset_names=mu.index.tolist(),
         )
 
         assert result is not None
@@ -182,7 +178,7 @@ class TestBaseOrchestratorFailureHandling:
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure"),
             n_assets=len(mu),
-            asset_names=mu.index.tolist()
+            asset_names=mu.index.tolist(),
         )
 
         assert result is None  # Should skip optimizer entirely
@@ -198,7 +194,7 @@ class TestBaseOrchestratorFailureHandling:
                 optimizer=self.optimizers[0],
                 exception=RuntimeError("Test failure"),
                 n_assets=len(mu),
-                asset_names=mu.index.tolist()
+                asset_names=mu.index.tolist(),
             )
 
         assert "FailingOptimizer failed with unknown_error: Test failure" in caplog.text
@@ -214,7 +210,7 @@ class TestBaseOrchestratorFailureHandling:
                 optimizer=self.optimizers[0],
                 exception=RuntimeError("Test failure"),
                 n_assets=len(mu),
-                asset_names=mu.index.tolist()
+                asset_names=mu.index.tolist(),
             )
 
         assert "FailingOptimizer failed" not in caplog.text
@@ -277,10 +273,11 @@ class TestEqualWeightOrchestratorFailureHandling:
 
     def test_all_optimizers_failed_with_ignore(self):
         """Test IGNORE_OPTIMIZER when all optimizers fail."""
-        config = A2AConfig(failure_handling=FailureHandlingConfig(
-            option=FailureHandlingOption.IGNORE_OPTIMIZER,
-            raise_on_all_failed=False
-        ))
+        config = A2AConfig(
+            failure_handling=FailureHandlingConfig(
+                option=FailureHandlingOption.IGNORE_OPTIMIZER, raise_on_all_failed=False
+            )
+        )
         optimizers = [FailingOptimizer(), FailingOptimizer()]
         orchestrator = EqualWeightOrchestrator(optimizers, self.covariance_transformers, config)
 
@@ -295,10 +292,11 @@ class TestEqualWeightOrchestratorFailureHandling:
 
     def test_all_optimizers_failed_with_raise(self):
         """Test raise_on_all_failed=True behavior."""
-        config = A2AConfig(failure_handling=FailureHandlingConfig(
-            option=FailureHandlingOption.IGNORE_OPTIMIZER,
-            raise_on_all_failed=True
-        ))
+        config = A2AConfig(
+            failure_handling=FailureHandlingConfig(
+                option=FailureHandlingOption.IGNORE_OPTIMIZER, raise_on_all_failed=True
+            )
+        )
         optimizers = [FailingOptimizer(), FailingOptimizer()]
         orchestrator = EqualWeightOrchestrator(optimizers, self.covariance_transformers, config)
 
@@ -341,49 +339,20 @@ class TestOptimizedOrchestratorFailureHandling:
         pytest.skip("OptimizedOrchestrator simulation framework doesn't support all-optimizers-failed handling")
 
 
-class TestAbstractOptimizerSafeAllocate:
-    """Test AbstractOptimizer.allocate_safe method."""
-
-    def test_successful_allocation(self):
-        """Test that allocate_safe returns normal result on success."""
-        optimizer = Mock()
-        optimizer.name = "TestOptimizer"
-        optimizer.allocate.return_value = pd.Series([0.5, 0.3, 0.2], index=["A", "B", "C"])
-
-        # Call allocate_safe (which doesn't exist on Mock, so we need to use a real optimizer)
-        # This test would need a concrete optimizer implementation
-        pass
-
-    def test_failed_allocation_fallback(self):
-        """Test that allocate_safe returns equal weights on failure."""
-        failing_opt = FailingOptimizer()
-        mu = pd.Series([0.1, 0.2, 0.3], index=["A", "B", "C"])
-        cov = pd.DataFrame(np.eye(3), index=["A", "B", "C"], columns=["A", "B", "C"])
-
-        result = failing_opt.allocate_safe(mu, cov)
-
-        expected_weight = 1.0 / 3
-        assert len(result) == 3
-        assert (result == expected_weight).all()
-        assert result.name == "FailingOptimizer"
-
-
 class TestA2AConfigIntegration:
     """Test that FailureHandlingConfig integrates properly with A2AConfig."""
 
     def test_failure_handling_in_a2a_config(self):
         """Test that failure_handling field is properly included in A2AConfig."""
         config = A2AConfig()
-        assert hasattr(config, 'failure_handling')
+        assert hasattr(config, "failure_handling")
         assert isinstance(config.failure_handling, FailureHandlingConfig)
         assert config.failure_handling.option == FailureHandlingOption.EQUAL_WEIGHTS
 
     def test_custom_failure_handling_config(self):
         """Test setting custom failure handling configuration."""
         custom_config = FailureHandlingConfig(
-            option=FailureHandlingOption.ZERO_WEIGHTS,
-            log_failures=False,
-            raise_on_all_failed=True
+            option=FailureHandlingOption.ZERO_WEIGHTS, log_failures=False, raise_on_all_failed=True
         )
         a2a_config = A2AConfig(failure_handling=custom_config)
 
@@ -409,10 +378,7 @@ class TestEnhancedFailureHandlingConfig:
 
     def test_retry_configuration(self):
         """Test retry configuration parameters."""
-        config = FailureHandlingConfig(
-            retry_attempts=3,
-            retry_delay_seconds=0.5
-        )
+        config = FailureHandlingConfig(retry_attempts=3, retry_delay_seconds=0.5)
 
         assert config.retry_attempts == 3
         assert config.retry_delay_seconds == 0.5
@@ -425,11 +391,7 @@ class TestEnhancedFailureHandlingConfig:
     def test_configuration_validation(self):
         """Test configuration validation."""
         # Valid configuration
-        config = FailureHandlingConfig(
-            retry_attempts=2,
-            retry_delay_seconds=1.0,
-            circuit_breaker_threshold=3
-        )
+        config = FailureHandlingConfig(retry_attempts=2, retry_delay_seconds=1.0, circuit_breaker_threshold=3)
         assert config.retry_attempts == 2
 
         # Invalid retry attempts (too high)
@@ -511,6 +473,7 @@ class TestCircuitBreaker:
 
         # Wait for timeout
         import time
+
         time.sleep(0.2)
 
         # Should be closed now
@@ -583,25 +546,23 @@ class TestEnhancedBaseOrchestratorFailureHandling:
             option=FailureHandlingOption.EQUAL_WEIGHTS,  # Default fallback
             context_aware_fallbacks={
                 FailureType.NUMERICAL_ERROR: FailureHandlingOption.ZERO_WEIGHTS,
-            }
+            },
         )
 
         # Verify the config is set up correctly
         assert config.context_aware_fallbacks[FailureType.NUMERICAL_ERROR] == FailureHandlingOption.ZERO_WEIGHTS
 
         # Test with BaseOrchestrator
-        orchestrator = self.TestOrchestrator(self.optimizers, self.covariance_transformers, 
-                                           A2AConfig(failure_handling=config))
+        orchestrator = self.TestOrchestrator(
+            self.optimizers, self.covariance_transformers, A2AConfig(failure_handling=config)
+        )
 
         mu, cov, prices, time, l_moments = self.data_provider.get_ground_truth()
 
         # Trigger numerical error - should use ZERO_WEIGHTS, not EQUAL_WEIGHTS
         numerical_error = LinAlgError("Singular matrix")
         result = orchestrator._handle_optimizer_failure(
-            optimizer=self.optimizers[0],
-            exception=numerical_error,
-            n_assets=len(mu),
-            asset_names=mu.index.tolist()
+            optimizer=self.optimizers[0], exception=numerical_error, n_assets=len(mu), asset_names=mu.index.tolist()
         )
 
         # Should return zero weights (context-aware fallback), not equal weights
@@ -610,9 +571,11 @@ class TestEnhancedBaseOrchestratorFailureHandling:
 
     def test_circuit_breaker_integration(self):
         """Test circuit breaker integration."""
-        config = A2AConfig(failure_handling=FailureHandlingConfig(
-            circuit_breaker_threshold=1  # Open immediately
-        ))
+        config = A2AConfig(
+            failure_handling=FailureHandlingConfig(
+                circuit_breaker_threshold=1  # Open immediately
+            )
+        )
         orchestrator = self.TestOrchestrator(self.optimizers, self.covariance_transformers, config)
 
         mu, cov, prices, time, l_moments = self.data_provider.get_ground_truth()
@@ -622,7 +585,7 @@ class TestEnhancedBaseOrchestratorFailureHandling:
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure"),
             n_assets=len(mu),
-            asset_names=mu.index.tolist()
+            asset_names=mu.index.tolist(),
         )
         assert result1 is not None  # First failure handled
 
@@ -631,7 +594,7 @@ class TestEnhancedBaseOrchestratorFailureHandling:
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure 2"),
             n_assets=len(mu),
-            asset_names=mu.index.tolist()
+            asset_names=mu.index.tolist(),
         )
         assert result2 is None  # Circuit breaker blocks
 
@@ -647,7 +610,7 @@ class TestEnhancedBaseOrchestratorFailureHandling:
                 optimizer=self.optimizers[0],
                 exception=ValueError("Matrix not positive definite"),
                 n_assets=len(mu),
-                asset_names=mu.index.tolist()
+                asset_names=mu.index.tolist(),
             )
 
         # Should log with classified failure type

@@ -1,5 +1,4 @@
-"""
-Magnus Hvass Portfolio Optimization Algorithms Collection
+"""Magnus Hvass Portfolio Optimization Algorithms Collection
 
 This module implements the main portfolio optimization algorithms developed by
 Magnus Erik Hvass Pedersen, as presented in his research papers:
@@ -19,15 +18,16 @@ References:
 - GitHub: https://github.com/Hvass-Labs/FinanceOps
 """
 
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
-from typing import Optional
 from datetime import datetime
-import pandas as pd
-import numpy as np
-from pydantic import BaseModel, field_validator
 from enum import Enum
+from typing import Optional
+
+import numpy as np
+import pandas as pd
+from pydantic import BaseModel, field_validator
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
     DiversificationOptimizer,
 )
@@ -35,6 +35,7 @@ from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
 
 class SignalType(str, Enum):
     """Enumeration of supported signal transformation types."""
+
     LINEAR = "linear"
     SIGMOID = "sigmoid"
     EXPONENTIAL = "exponential"
@@ -62,14 +63,13 @@ class SignalBasedOptimizerConfig(BaseModel):
         return SignalType(v)
 
 
-class SignalBasedOptimizer(AbstractOptimizer):
-    """
-    Portfolio Optimization Using Signals.
-    
+class SignalBasedOptimizer(BaseOptimizer):
+    """Portfolio Optimization Using Signals.
+
     Uses predictive signals (e.g., P/Sales, P/E ratios, momentum) to determine
     portfolio weights. The signals are transformed into weights using a flexible
     mapping function.
-    
+
     Parameters
     ----------
     signal_type : SignalType, default=SignalType.LINEAR

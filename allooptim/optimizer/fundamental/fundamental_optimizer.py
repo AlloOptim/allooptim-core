@@ -26,6 +26,7 @@ from allooptim.optimizer.asset_name_utils import (
     create_weights_series,
     validate_asset_names,
 )
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.fundamental.fundamental_methods import (
     BalancedFundamentalConfig,
     OnlyMarketCapFundamentalConfig,
@@ -33,12 +34,11 @@ from allooptim.optimizer.fundamental.fundamental_methods import (
     ValueInvestingFundamentalConfig,
     allocate,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 
 
-class BalancedFundamentalOptimizer(AbstractOptimizer):
+class BalancedFundamentalOptimizer(BaseOptimizer):
     """Balanced fundamental optimizer using fundamental analysis for portfolio allocation."""
 
     def __init__(self, config: Optional[BalancedFundamentalConfig] = None, display_name: Optional[str] = None) -> None:

@@ -36,7 +36,7 @@ from allooptim.optimizer.asset_name_utils import (
     create_weights_series,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -54,7 +54,7 @@ class BaseMLOptimizerConfig(BaseModel):
     n_augmentation: int = 10
 
 
-class BaseMLOptimizer(AbstractOptimizer, ABC):
+class BaseMLOptimizer(BaseOptimizer, ABC):
     """Abstract base class for machine learning-based portfolio optimizers.
 
     This class handles all common wrapper logic including:

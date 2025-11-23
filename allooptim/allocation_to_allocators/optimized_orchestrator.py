@@ -209,7 +209,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
             # Store optimizer weight (1.0 for single optimizer)
             optimizer_weights_list = [OptimizerWeight(instance_id=optimizer.display_name, weight=1.0)]
 
-        except Exception as error:
+        except Exception:
             tracemalloc.stop()
             optimizer.reset()
             # For standalone usage (single optimizer), always use EQUAL_WEIGHTS fallback
@@ -411,15 +411,13 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 )
             else:
                 # Graceful degradation: add equal-weight fallback allocation
-                logger.error(
-                    "All optimizers failed, returning equal-weight fallback allocation"
-                )
+                logger.error("All optimizers failed, returning equal-weight fallback allocation")
                 equal_weight = 1.0 / len(mu)
                 fallback_weights = pd.Series(equal_weight, index=mu.index)
-                
+
                 # Add to asset_weights with weight 1.0 (since this is the only allocation)
                 asset_weights += 1.0 * fallback_weights.values
-                
+
                 fallback_allocation = OptimizerAllocation(
                     instance_id="EMERGENCY_FALLBACK",
                     weights=fallback_weights,
@@ -427,9 +425,7 @@ class OptimizedOrchestrator(BaseOrchestrator):
                     memory_usage_mb=None,
                 )
                 optimizer_allocations_list.append(fallback_allocation)
-                optimizer_weights_list.append(
-                    OptimizerWeight(instance_id="EMERGENCY_FALLBACK", weight=1.0)
-                )
+                optimizer_weights_list.append(OptimizerWeight(instance_id="EMERGENCY_FALLBACK", weight=1.0))
 
         final_allocation_values = normalize_weights_a2a(asset_weights, self.config.cash_config)
         final_allocation = pd.Series(final_allocation_values, index=mu.index)

@@ -1,5 +1,4 @@
-"""
-Magnus Hvass Portfolio Optimization Algorithms Collection
+"""Magnus Hvass Portfolio Optimization Algorithms Collection
 
 This module implements the main portfolio optimization algorithms developed by
 Magnus Erik Hvass Pedersen, as presented in his research papers:
@@ -19,13 +18,14 @@ References:
 - GitHub: https://github.com/Hvass-Labs/FinanceOps
 """
 
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
 import pandas as pd
 from pydantic import BaseModel
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
     DiversificationOptimizer,
     DiversificationOptimizerConfig,
@@ -48,17 +48,16 @@ class FilterAndDiversifyOptimizerConfig(BaseModel):
     adjust_for_volatility: bool = True
 
 
-class FilterAndDiversifyOptimizer(AbstractOptimizer):
-    """
-    Simple Portfolio Optimization That Works!
-    
+class FilterAndDiversifyOptimizer(BaseOptimizer):
+    """Simple Portfolio Optimization That Works!
+
     Two-step approach:
     1. Filter: Keep only assets with expected return above threshold
     2. Diversify: Apply Hvass Diversification to filtered assets
-    
+
     This method is extremely robust and outperforms traditional mean-variance
     optimization in real-world applications.
-    
+
     Parameters
     ----------
     return_threshold : float, default=0.0

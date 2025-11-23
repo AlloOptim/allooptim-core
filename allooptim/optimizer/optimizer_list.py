@@ -34,6 +34,18 @@ from allooptim.optimizer.fundamental.fundamental_optimizer import (
     ValueInvestingFundamentalOptimizer,
 )
 from allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
+from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
+    DiversificationOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.filter_and_diversify_optimizer import (
+    FilterAndDiversifyOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.group_constraint_optimizer import (
+    GroupConstraintsOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.signal_based_optimizer import (
+    SignalBasedOptimizer,
+)
 from allooptim.optimizer.kelly_criterion.kelly_criterion_optimizer import (
     KellyCriterionOptimizer,
 )
@@ -74,18 +86,6 @@ from allooptim.optimizer.sequential_quadratic_programming.robust_mean_variance_o
     RobustMeanVarianceOptimizer,
 )
 from allooptim.optimizer.wikipedia.wikipedia_optimizer import WikipediaOptimizer
-from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
-    DiversificationOptimizer,
-)
-from allooptim.optimizer.hvass_diversification.filter_and_diversify_optimizer import (
-    FilterAndDiversifyOptimizer,
-)
-from allooptim.optimizer.hvass_diversification.group_constraint_optimizer import (
-    GroupConstraintsOptimizer,
-)
-from allooptim.optimizer.hvass_diversification.signal_based_optimizer import (
-    SignalBasedOptimizer,
-)
 
 logger = logging.getLogger(__name__)
 

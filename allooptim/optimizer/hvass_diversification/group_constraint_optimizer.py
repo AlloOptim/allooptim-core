@@ -1,5 +1,4 @@
-"""
-Magnus Hvass Portfolio Optimization Algorithms Collection
+"""Magnus Hvass Portfolio Optimization Algorithms Collection
 
 This module implements the main portfolio optimization algorithms developed by
 Magnus Erik Hvass Pedersen, as presented in his research papers:
@@ -19,14 +18,15 @@ References:
 - GitHub: https://github.com/Hvass-Labs/FinanceOps
 """
 
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
-from typing import Optional, Dict, Tuple
 from datetime import datetime
-import pandas as pd
+from typing import Dict, Optional, Tuple
+
 import numpy as np
+import pandas as pd
 from pydantic import BaseModel
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
     DiversificationOptimizer,
 )
@@ -46,14 +46,13 @@ class GroupConstraintsOptimizerConfig(BaseModel):
     optimize_within_groups: bool = True
 
 
-class GroupConstraintsOptimizer(AbstractOptimizer):
-    """
-    Portfolio Optimization with Group Constraints.
-    
+class GroupConstraintsOptimizer(BaseOptimizer):
+    """Portfolio Optimization with Group Constraints.
+
     Enforces constraints on groups of assets (e.g., sector limits, geography limits).
     Uses optimization to find weights that satisfy group constraints while
     maximizing diversification.
-    
+
     Parameters
     ----------
     group_constraints : Dict[str, Tuple[float, float]]
@@ -94,7 +93,7 @@ class GroupConstraintsOptimizer(AbstractOptimizer):
         # Group assets
         groups = {}
         for asset in asset_names:
-            group = self.config.asset_to_group.get(asset, 'default')
+            group = self.config.asset_to_group.get(asset, "default")
             if group not in groups:
                 groups[group] = []
             groups[group].append(asset)
@@ -103,9 +102,7 @@ class GroupConstraintsOptimizer(AbstractOptimizer):
         weights = pd.Series(0.0, index=asset_names)
 
         for group_name, group_assets in groups.items():
-            min_weight, max_weight = self.config.group_constraints.get(
-                group_name, (0.0, 1.0)
-            )
+            min_weight, max_weight = self.config.group_constraints.get(group_name, (0.0, 1.0))
 
             # Get expected returns and covariance for this group
             group_mu = ds_mu[group_assets]
@@ -116,14 +113,10 @@ class GroupConstraintsOptimizer(AbstractOptimizer):
                 group_weights = self.diversifier.allocate(group_mu, group_cov)
             else:
                 # Equal weight within group
-                group_weights = pd.Series(
-                    1.0 / len(group_assets), index=group_assets
-                )
+                group_weights = pd.Series(1.0 / len(group_assets), index=group_assets)
 
             # Scale to group constraint
-            target_group_weight = np.clip(
-                1.0 / len(groups), min_weight, max_weight
-            )
+            target_group_weight = np.clip(1.0 / len(groups), min_weight, max_weight)
             weights[group_assets] = group_weights * target_group_weight
 
         # Normalize to sum to 1

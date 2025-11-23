@@ -24,7 +24,7 @@ class A2AConfig(BaseModel):
     # Failure handling settings
     failure_handling: FailureHandlingConfig = Field(
         default_factory=FailureHandlingConfig,
-        description="Configuration for handling optimizer failures in A2A orchestration"
+        description="Configuration for handling optimizer failures in A2A orchestration",
     )
 
     # Error estimation
@@ -48,7 +48,7 @@ class A2AConfig(BaseModel):
     meta_model_type: str = Field(
         default="lightgbm", description="Meta-model type for stacking: 'lightgbm', 'xgboost', etc."
     )
-    
+
     # volatility adjustment
     voloatility_adjustment: float = Field(
         default=0.2,

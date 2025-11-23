@@ -17,13 +17,9 @@ from allooptim.allocation_to_allocators.simulator_interface import (
 )
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.cash_config import AllowCashOption
-from allooptim.config.failure_handling_config import FailureHandlingConfig
 from allooptim.config.failure_diagnostics import (
     CircuitBreaker,
     FailureClassifier,
-    FailureDiagnostic,
-    RetryHandler,
-    failure_diagnostics_context,
 )
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
@@ -101,9 +97,7 @@ class BaseOrchestrator(AbstractA2AOrchestrator):
         # Initialize circuit breaker if enabled
         self.circuit_breaker = None
         if config.failure_handling.circuit_breaker_threshold is not None:
-            self.circuit_breaker = CircuitBreaker(
-                threshold=config.failure_handling.circuit_breaker_threshold
-            )
+            self.circuit_breaker = CircuitBreaker(threshold=config.failure_handling.circuit_breaker_threshold)
 
         # Set allow_cash on optimizers based on cash configuration
         self._configure_optimizer_cash_settings()
@@ -182,9 +176,7 @@ class BaseOrchestrator(AbstractA2AOrchestrator):
         # Check circuit breaker first
         if self.circuit_breaker and self.circuit_breaker.is_open(optimizer.name):
             if failure_config.log_failures:
-                logging.warning(
-                    f"Optimizer {optimizer.name} is circuit-breaker disabled, skipping"
-                )
+                logging.warning(f"Optimizer {optimizer.name} is circuit-breaker disabled, skipping")
             return None
 
         # Classify the failure
@@ -192,16 +184,11 @@ class BaseOrchestrator(AbstractA2AOrchestrator):
         failure_type = failure_classifier.classify_failure(exception)
 
         # Determine handling strategy (context-aware or default)
-        handling_option = failure_config.context_aware_fallbacks.get(
-            failure_type,
-            failure_config.option
-        )
+        handling_option = failure_config.context_aware_fallbacks.get(failure_type, failure_config.option)
 
         # Log failure if enabled
         if failure_config.log_failures:
-            logging.warning(
-                f"Optimizer {optimizer.name} failed with {failure_type.value}: {exception}"
-            )
+            logging.warning(f"Optimizer {optimizer.name} failed with {failure_type.value}: {exception}")
 
         # Record failure for circuit breaker
         if self.circuit_breaker:

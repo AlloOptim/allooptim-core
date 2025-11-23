@@ -19,9 +19,6 @@ from allooptim.allocation_to_allocators.a2a_result import (
     OptimizerWeight,
     PerformanceMetrics,
 )
-from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
-    EqualWeightOrchestrator,
-)
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
@@ -193,27 +190,27 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
             # Step 4: Run optimization on filtered data with failure handling
             # Get filtered data
             mu, cov, prices, current_time, l_moments = filtered_data_provider.get_ground_truth()
-            
+
             # Apply covariance transformations
             cov_transformed = cov
             for transformer in self.covariance_transformers:
                 cov_transformed = transformer.transform(cov_transformed)
-            
+
             # Initialize tracking variables
             optimizer_allocations_list = []
             optimizer_weights_list = []
             asset_weights = np.zeros(len(mu))
-            
+
             # Fit optimizers once before allocation loop
             for optimizer in self.optimizers:
                 optimizer.fit(prices)
-            
+
             # Run allocation for each optimizer with failure handling
             for optimizer in self.optimizers:
                 try:
                     # Allocate portfolio
                     weights = optimizer.allocate(mu, cov_transformed, prices, current_time, l_moments)
-                    
+
                     # Store successful allocation
                     weights_series = pd.Series(weights, index=mu.index)
                     optimizer_allocations_list.append(
@@ -224,10 +221,10 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                             memory_usage_mb=None,
                         )
                     )
-                    
+
                     # Add equal contribution to final allocation
                     asset_weights += weights
-                    
+
                 except Exception as error:
                     logger.warning(f"Allocation failed for {optimizer.name}: {str(error)}")
                     # Use configured failure handling strategy
@@ -237,7 +234,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                         n_assets=len(mu),
                         asset_names=mu.index.tolist(),
                     )
-                    
+
                     if fallback_weights is not None:
                         # Store fallback allocation
                         optimizer_allocations_list.append(
@@ -248,11 +245,11 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                                 memory_usage_mb=None,
                             )
                         )
-                        
+
                         # Add fallback contribution to final allocation
                         asset_weights += fallback_weights.values
                     # If fallback_weights is None (IGNORE_OPTIMIZER), skip this optimizer entirely
-            
+
             # Check if all optimizers failed
             if len(optimizer_allocations_list) == 0:
                 if self.config.failure_handling.raise_on_all_failed:
@@ -262,15 +259,13 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                     )
                 else:
                     # Graceful degradation: add equal-weight fallback allocation
-                    logger.error(
-                        "All Wikipedia pipeline optimizers failed, returning equal-weight fallback allocation"
-                    )
+                    logger.error("All Wikipedia pipeline optimizers failed, returning equal-weight fallback allocation")
                     equal_weight = 1.0 / len(mu)
                     fallback_weights = pd.Series(equal_weight, index=mu.index)
-                    
+
                     # Add to asset_weights
                     asset_weights += fallback_weights.values
-                    
+
                     fallback_allocation = OptimizerAllocation(
                         instance_id="EMERGENCY_FALLBACK",
                         weights=fallback_weights,
@@ -278,14 +273,12 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                         memory_usage_mb=None,
                     )
                     optimizer_allocations_list.append(fallback_allocation)
-                    optimizer_weights_list.append(
-                        OptimizerWeight(instance_id="EMERGENCY_FALLBACK", weight=1.0)
-                    )
-            
+                    optimizer_weights_list.append(OptimizerWeight(instance_id="EMERGENCY_FALLBACK", weight=1.0))
+
             # Average the asset weights across optimizers
             if len(optimizer_allocations_list) > 0:
                 asset_weights = asset_weights / len(optimizer_allocations_list)
-            
+
             # Create equal weights for optimizer combination
             for opt_alloc in optimizer_allocations_list:
                 optimizer_weights_list.append(
@@ -294,7 +287,7 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                         weight=1.0 / len(optimizer_allocations_list),
                     )
                 )
-            
+
             # Create optimization result
             optimization_result = A2AResult(
                 final_allocation=pd.Series(asset_weights, index=mu.index),

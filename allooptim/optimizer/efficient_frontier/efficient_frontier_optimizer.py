@@ -33,7 +33,7 @@ from allooptim.optimizer.asset_name_utils import (
     get_asset_names,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +49,7 @@ class MaxSharpeOptimizerConfig(BaseModel):
     min_positive_percentage: float = 0.05  # Minimum percentage of assets with positive expected returns
 
 
-class MaxSharpeOptimizer(AbstractOptimizer):
+class MaxSharpeOptimizer(BaseOptimizer):
     """Maximum Sharpe ratio optimizer using Modern Portfolio Theory with pandas interface.
 
     Implements the classic mean-variance optimization to find the portfolio with the highest
@@ -205,7 +205,7 @@ class EfficientRiskOptimizerConfig(BaseModel):
     risk_multiplier: float = 1.0  # Multiplier for diagonal risk calculation
 
 
-class EfficientRiskOptimizer(AbstractOptimizer):
+class EfficientRiskOptimizer(BaseOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'."""
 
     def __init__(
@@ -286,7 +286,7 @@ class EfficientReturnOptimizerConfig(BaseModel):
     return_multiplier: float = 1.0  # Multiplier for mean return calculation
 
 
-class EfficientReturnOptimizer(AbstractOptimizer):
+class EfficientReturnOptimizer(BaseOptimizer):
     """Optimizer based on the Modern Portfolio Theory pioneered by Harry Markowitz's paper 'Portfolio Selection'."""
 
     def __init__(

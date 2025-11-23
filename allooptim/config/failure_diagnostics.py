@@ -6,13 +6,12 @@ retry logic, circuit breaker patterns, and collecting diagnostic information.
 
 import logging
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Optional, Any, Callable
-from contextlib import contextmanager
+from typing import Any, Callable, Dict, Optional
 
 from allooptim.config.failure_handling_config import FailureType
-
 
 logger = logging.getLogger(__name__)
 
@@ -111,53 +110,87 @@ class FailureClassifier:
         exception_message = str(exception).lower()
 
         # Check exception type first for specific classifications
-        if exception_type in ['KeyError', 'IndexError']:
+        if exception_type in ["KeyError", "IndexError"]:
             return FailureType.DATA_ERROR
-        elif exception_type in ['MemoryError', 'TimeoutError', 'OSError', 'ConnectionError']:
+        elif exception_type in ["MemoryError", "TimeoutError", "OSError", "ConnectionError"]:
             return FailureType.RESOURCE_ERROR
-        elif exception_type in ['LinAlgError', 'ZeroDivisionError', 'OverflowError']:
+        elif exception_type in ["LinAlgError", "ZeroDivisionError", "OverflowError"]:
             return FailureType.NUMERICAL_ERROR
 
         # Then check message content for more specific classification
         # Numerical errors - specific numerical computation issues
         numerical_keywords = [
-            'nan', 'inf', 'infinity', 'overflow', 'underflow', 'convergence',
-            'singular', 'not positive definite', 'linear algebra', 'eigenvalue',
-            'matrix decomposition', 'cholesky', 'svd', 'qr decomposition'
+            "nan",
+            "inf",
+            "infinity",
+            "overflow",
+            "underflow",
+            "convergence",
+            "singular",
+            "not positive definite",
+            "linear algebra",
+            "eigenvalue",
+            "matrix decomposition",
+            "cholesky",
+            "svd",
+            "qr decomposition",
         ]
         if any(keyword in exception_message for keyword in numerical_keywords):
             return FailureType.NUMERICAL_ERROR
 
         # Data errors - missing or invalid data
         data_keywords = [
-            'missing', 'none', 'empty', 'shape', 'dimension', 'index', 'key',
-            'not found', 'does not exist', 'invalid data'
+            "missing",
+            "none",
+            "empty",
+            "shape",
+            "dimension",
+            "index",
+            "key",
+            "not found",
+            "does not exist",
+            "invalid data",
         ]
         if any(keyword in exception_message for keyword in data_keywords):
             return FailureType.DATA_ERROR
 
         # Configuration errors - parameter or constraint issues
         config_keywords = [
-            'config', 'parameter', 'constraint', 'bound', 'limit', 'invalid',
-            'configuration', 'setting', 'option'
+            "config",
+            "parameter",
+            "constraint",
+            "bound",
+            "limit",
+            "invalid",
+            "configuration",
+            "setting",
+            "option",
         ]
         if any(keyword in exception_message for keyword in config_keywords):
             return FailureType.CONFIGURATION_ERROR
 
         # Resource errors - memory, timeout, external service issues
         resource_keywords = [
-            'memory', 'timeout', 'resource', 'connection', 'network', 'disk',
-            'out of memory', 'timed out', 'connection refused', 'service unavailable'
+            "memory",
+            "timeout",
+            "resource",
+            "connection",
+            "network",
+            "disk",
+            "out of memory",
+            "timed out",
+            "connection refused",
+            "service unavailable",
         ]
         if any(keyword in exception_message for keyword in resource_keywords):
             return FailureType.RESOURCE_ERROR
 
         # Type and attribute errors are typically data-related
-        if exception_type in ['TypeError', 'AttributeError']:
+        if exception_type in ["TypeError", "AttributeError"]:
             return FailureType.DATA_ERROR
 
         # ValueError can be many things - check message content more carefully
-        if exception_type == 'ValueError':
+        if exception_type == "ValueError":
             if any(keyword in exception_message for keyword in numerical_keywords):
                 return FailureType.NUMERICAL_ERROR
             elif any(keyword in exception_message for keyword in config_keywords):
@@ -190,7 +223,7 @@ class RetryHandler:
         # Only retry certain types of failures that might be transient
         retryable_types = [
             FailureType.RESOURCE_ERROR,  # Memory, timeout issues
-            FailureType.UNKNOWN_ERROR,   # Might be transient
+            FailureType.UNKNOWN_ERROR,  # Might be transient
         ]
 
         return failure_type in retryable_types
@@ -208,7 +241,8 @@ class RetryHandler:
         """
         # Exponential backoff with jitter
         import random
-        delay = base_delay * (2 ** retry_count)
+
+        delay = base_delay * (2**retry_count)
         jitter = random.uniform(0.5, 1.5)
         return delay * jitter
 
@@ -254,20 +288,19 @@ class RetryHandler:
                         failure_type=failure_type,
                         exception=e,
                         retry_count=attempt,
-                        context={"attempt": attempt + 1}
+                        context={"attempt": attempt + 1},
                     )
 
                 if attempt < max_retries and RetryHandler.should_retry(failure_type, attempt, max_retries):
                     delay = RetryHandler.calculate_delay(attempt, base_delay)
                     logger.warning(
-                        f"Retryable {failure_type.value} on attempt {attempt + 1}, "
-                        f"retrying in {delay:.3f}s: {e}"
+                        f"Retryable {failure_type.value} on attempt {attempt + 1}, " f"retrying in {delay:.3f}s: {e}"
                     )
                     time.sleep(delay)
                 else:
                     # Final failure
                     if enable_diagnostics:
-                        diagnostic.total_retry_time = time.time() - start_time if 'start_time' in locals() else 0.0
+                        diagnostic.total_retry_time = time.time() - start_time if "start_time" in locals() else 0.0
                     return None, diagnostic
 
         return None, diagnostic
@@ -290,10 +323,7 @@ def failure_diagnostics_context(optimizer_name: str, enable_diagnostics: bool = 
         """Collect a diagnostic entry."""
         if enable_diagnostics:
             diagnostic = FailureDiagnostic(
-                optimizer_name=optimizer_name,
-                failure_type=failure_type,
-                exception=exception,
-                context=context
+                optimizer_name=optimizer_name, failure_type=failure_type, exception=exception, context=context
             )
             diagnostics.append(diagnostic)
             logger.debug(f"Collected diagnostic for {optimizer_name}: {failure_type.value}")
@@ -303,6 +333,4 @@ def failure_diagnostics_context(optimizer_name: str, enable_diagnostics: bool = 
     finally:
         if diagnostics:
             # Log summary of diagnostics
-            logger.warning(
-                f"Optimizer {optimizer_name} had {len(diagnostics)} failure(s) during execution"
-            )
+            logger.warning(f"Optimizer {optimizer_name} had {len(diagnostics)} failure(s) during execution")

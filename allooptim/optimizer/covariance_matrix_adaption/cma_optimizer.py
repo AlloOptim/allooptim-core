@@ -30,7 +30,7 @@ from allooptim.optimizer.allocation_metric import (
     expected_return_moments,
 )
 from allooptim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.particle_swarm.pso_objective import (
     conditional_value_at_risk_objective,
     maximum_drawdown_objective,
@@ -97,7 +97,7 @@ class CMAOptimizerConfig(BaseModel):
     risk_penalty_max_drawdown: float = 1.0
 
 
-class MeanVarianceCMAOptimizer(AbstractOptimizer):
+class MeanVarianceCMAOptimizer(BaseOptimizer):
     """CMA-ES optimizer with explicit scaling and interpolation."""
 
     risk_metric: RiskMetric = RiskMetric.MEAN_VARIANCE

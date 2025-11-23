@@ -31,7 +31,7 @@ from allooptim.optimizer.asset_name_utils import (
     create_weights_series,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.minimize_multistart import minimize_with_multistart
 
 logger = logging.getLogger(__name__)
@@ -61,7 +61,7 @@ class HigherMomentsOptimizerConfig(BaseModel):
     optimizer_name: str = Field(default="SLSQP", description="Name of the optimizer to use")
 
 
-class HigherMomentOptimizer(AbstractOptimizer):
+class HigherMomentOptimizer(BaseOptimizer):
     """Higher-Moment Portfolio Optimizer (Skewness-Kurtosis).
 
     Goes beyond mean-variance by incorporating third and fourth moments:
