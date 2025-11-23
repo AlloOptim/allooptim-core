@@ -9,12 +9,14 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
 
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import (
     A2AResult,
     OptimizerAllocation,
+    OptimizerWeight,
     PerformanceMetrics,
 )
 from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
@@ -188,9 +190,124 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                 mu_filtered, cov_filtered, prices_filtered, time_full, l_moments_full
             )
 
-            # Step 4: Run equal weight optimization on filtered data
-            equal_orchestrator = EqualWeightOrchestrator(self.optimizers, self.covariance_transformers, self.config)
-            optimization_result = equal_orchestrator.allocate(filtered_data_provider, time_today)
+            # Step 4: Run optimization on filtered data with failure handling
+            # Get filtered data
+            mu, cov, prices, current_time, l_moments = filtered_data_provider.get_ground_truth()
+            
+            # Apply covariance transformations
+            cov_transformed = cov
+            for transformer in self.covariance_transformers:
+                cov_transformed = transformer.transform(cov_transformed)
+            
+            # Initialize tracking variables
+            optimizer_allocations_list = []
+            optimizer_weights_list = []
+            asset_weights = np.zeros(len(mu))
+            
+            # Fit optimizers once before allocation loop
+            for optimizer in self.optimizers:
+                optimizer.fit(prices)
+            
+            # Run allocation for each optimizer with failure handling
+            for optimizer in self.optimizers:
+                try:
+                    # Allocate portfolio
+                    weights = optimizer.allocate(mu, cov_transformed, prices, current_time, l_moments)
+                    
+                    # Store successful allocation
+                    weights_series = pd.Series(weights, index=mu.index)
+                    optimizer_allocations_list.append(
+                        OptimizerAllocation(
+                            instance_id=optimizer.display_name,
+                            weights=weights_series,
+                            runtime_seconds=None,  # Not measured individually
+                            memory_usage_mb=None,
+                        )
+                    )
+                    
+                    # Add equal contribution to final allocation
+                    asset_weights += weights
+                    
+                except Exception as error:
+                    logger.warning(f"Allocation failed for {optimizer.name}: {str(error)}")
+                    # Use configured failure handling strategy
+                    fallback_weights = self._handle_optimizer_failure(
+                        optimizer=optimizer,
+                        exception=error,
+                        n_assets=len(mu),
+                        asset_names=mu.index.tolist(),
+                    )
+                    
+                    if fallback_weights is not None:
+                        # Store fallback allocation
+                        optimizer_allocations_list.append(
+                            OptimizerAllocation(
+                                instance_id=optimizer.display_name,
+                                weights=fallback_weights,
+                                runtime_seconds=None,
+                                memory_usage_mb=None,
+                            )
+                        )
+                        
+                        # Add fallback contribution to final allocation
+                        asset_weights += fallback_weights.values
+                    # If fallback_weights is None (IGNORE_OPTIMIZER), skip this optimizer entirely
+            
+            # Check if all optimizers failed
+            if len(optimizer_allocations_list) == 0:
+                if self.config.failure_handling.raise_on_all_failed:
+                    raise RuntimeError(
+                        "All Wikipedia pipeline optimizers failed. "
+                        "Check optimizer configurations and input data quality."
+                    )
+                else:
+                    # Graceful degradation: add equal-weight fallback allocation
+                    logger.error(
+                        "All Wikipedia pipeline optimizers failed, returning equal-weight fallback allocation"
+                    )
+                    equal_weight = 1.0 / len(mu)
+                    fallback_weights = pd.Series(equal_weight, index=mu.index)
+                    
+                    # Add to asset_weights
+                    asset_weights += fallback_weights.values
+                    
+                    fallback_allocation = OptimizerAllocation(
+                        instance_id="EMERGENCY_FALLBACK",
+                        weights=fallback_weights,
+                        runtime_seconds=None,
+                        memory_usage_mb=None,
+                    )
+                    optimizer_allocations_list.append(fallback_allocation)
+                    optimizer_weights_list.append(
+                        OptimizerWeight(instance_id="EMERGENCY_FALLBACK", weight=1.0)
+                    )
+            
+            # Average the asset weights across optimizers
+            if len(optimizer_allocations_list) > 0:
+                asset_weights = asset_weights / len(optimizer_allocations_list)
+            
+            # Create equal weights for optimizer combination
+            for opt_alloc in optimizer_allocations_list:
+                optimizer_weights_list.append(
+                    OptimizerWeight(
+                        instance_id=opt_alloc.instance_id,
+                        weight=1.0 / len(optimizer_allocations_list),
+                    )
+                )
+            
+            # Create optimization result
+            optimization_result = A2AResult(
+                final_allocation=pd.Series(asset_weights, index=mu.index),
+                optimizer_allocations=optimizer_allocations_list,
+                optimizer_weights=optimizer_weights_list,
+                metrics=PerformanceMetrics(0, 0, 0, 0),  # Placeholder
+                runtime_seconds=0,
+                n_simulations=1,
+                optimizer_errors=[],
+                orchestrator_name="Wikipedia_EqualWeight",
+                timestamp=time_today,
+                config=self.config,
+            )
 
             # Step 5: Pad weights with zeros for non-selected assets
             # Create full weight dict with all original assets

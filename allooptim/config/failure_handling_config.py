@@ -124,23 +124,30 @@ class FailureHandlingConfig(BaseModel):
     @field_validator('context_aware_fallbacks')
     @classmethod
     def validate_context_aware_fallbacks(cls, v):
-        """Validate that context-aware fallbacks use valid FailureHandlingOption values."""
+        """Validate and convert context-aware fallbacks to use proper enum types."""
         if not isinstance(v, dict):
             raise ValueError("context_aware_fallbacks must be a dictionary")
-
+        
+        validated = {}
         for failure_type, handling_option in v.items():
-            if not isinstance(failure_type, FailureType):
-                # Try to convert string to enum
+            # Convert string keys to FailureType enum
+            if isinstance(failure_type, str):
                 try:
-                    FailureType(failure_type)
+                    failure_type = FailureType(failure_type)
                 except ValueError:
                     raise ValueError(f"Invalid failure type: {failure_type}")
-
-            if not isinstance(handling_option, FailureHandlingOption):
-                # Try to convert string to enum
+            elif not isinstance(failure_type, FailureType):
+                raise ValueError(f"Failure type must be a string or FailureType enum, got {type(failure_type)}")
+            
+            # Convert string values to FailureHandlingOption enum  
+            if isinstance(handling_option, str):
                 try:
-                    FailureHandlingOption(handling_option)
+                    handling_option = FailureHandlingOption(handling_option)
                 except ValueError:
                     raise ValueError(f"Invalid handling option: {handling_option}")
-
-        return v
+            elif not isinstance(handling_option, FailureHandlingOption):
+                raise ValueError(f"Handling option must be a string or FailureHandlingOption enum, got {type(handling_option)}")
+            
+            validated[failure_type] = handling_option
+        
+        return validated

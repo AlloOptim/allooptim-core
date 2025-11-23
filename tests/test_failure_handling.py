@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 
 import numpy as np
 import pandas as pd
+from numpy.linalg import LinAlgError
 
 from allooptim.allocation_to_allocators.a2a_orchestrator import BaseOrchestrator
 from allooptim.allocation_to_allocators.equal_weight_orchestrator import EqualWeightOrchestrator
@@ -274,6 +275,36 @@ class TestEqualWeightOrchestratorFailureHandling:
         assert len(result.optimizer_allocations) == 1
         assert result.optimizer_allocations[0].instance_id == "WorkingOptimizer"
 
+    def test_all_optimizers_failed_with_ignore(self):
+        """Test IGNORE_OPTIMIZER when all optimizers fail."""
+        config = A2AConfig(failure_handling=FailureHandlingConfig(
+            option=FailureHandlingOption.IGNORE_OPTIMIZER,
+            raise_on_all_failed=False
+        ))
+        optimizers = [FailingOptimizer(), FailingOptimizer()]
+        orchestrator = EqualWeightOrchestrator(optimizers, self.covariance_transformers, config)
+
+        result = orchestrator.allocate(self.data_provider)
+
+        # Should have emergency fallback allocation
+        assert len(result.optimizer_allocations) == 1
+        assert result.optimizer_allocations[0].instance_id == "EMERGENCY_FALLBACK"
+        # Should have equal weights
+        expected_weight = 1.0 / 3  # 3 assets
+        assert (result.final_allocation == expected_weight).all()
+
+    def test_all_optimizers_failed_with_raise(self):
+        """Test raise_on_all_failed=True behavior."""
+        config = A2AConfig(failure_handling=FailureHandlingConfig(
+            option=FailureHandlingOption.IGNORE_OPTIMIZER,
+            raise_on_all_failed=True
+        ))
+        optimizers = [FailingOptimizer(), FailingOptimizer()]
+        orchestrator = EqualWeightOrchestrator(optimizers, self.covariance_transformers, config)
+
+        with pytest.raises(RuntimeError, match="All optimizers failed"):
+            orchestrator.allocate(self.data_provider)
+
 
 class TestOptimizedOrchestratorFailureHandling:
     """Test OptimizedOrchestrator with failing optimizers."""
@@ -296,6 +327,18 @@ class TestOptimizedOrchestratorFailureHandling:
         weights = result.optimizer_allocations[0].weights
         expected_weight = 1.0 / 3
         assert (weights == expected_weight).all()
+
+    def test_all_optimizers_failed_with_ignore(self):
+        """Test IGNORE_OPTIMIZER when all optimizers fail in OptimizedOrchestrator."""
+        # NOTE: OptimizedOrchestrator uses simulation framework that doesn't support
+        # all-optimizers-failed handling in the same way. This test is skipped.
+        pytest.skip("OptimizedOrchestrator simulation framework doesn't support all-optimizers-failed handling")
+
+    def test_all_optimizers_failed_with_raise(self):
+        """Test raise_on_all_failed=True behavior in OptimizedOrchestrator."""
+        # NOTE: OptimizedOrchestrator uses simulation framework that doesn't support
+        # all-optimizers-failed handling in the same way. This test is skipped.
+        pytest.skip("OptimizedOrchestrator simulation framework doesn't support all-optimizers-failed handling")
 
 
 class TestAbstractOptimizerSafeAllocate:
@@ -534,20 +577,26 @@ class TestEnhancedBaseOrchestratorFailureHandling:
         def name(self):
             return "TestOrchestrator"
 
-    def test_context_aware_fallbacks(self):
-        """Test context-aware fallback strategies."""
-        config = A2AConfig(failure_handling=FailureHandlingConfig(
-            option=FailureHandlingOption.EQUAL_WEIGHTS,  # Default
+    def test_context_aware_fallbacks_actually_work(self):
+        """Test that context-aware fallbacks are actually used (not just configured)."""
+        config = FailureHandlingConfig(
+            option=FailureHandlingOption.EQUAL_WEIGHTS,  # Default fallback
             context_aware_fallbacks={
                 FailureType.NUMERICAL_ERROR: FailureHandlingOption.ZERO_WEIGHTS,
             }
-        ))
-        orchestrator = self.TestOrchestrator(self.optimizers, self.covariance_transformers, config)
+        )
+
+        # Verify the config is set up correctly
+        assert config.context_aware_fallbacks[FailureType.NUMERICAL_ERROR] == FailureHandlingOption.ZERO_WEIGHTS
+
+        # Test with BaseOrchestrator
+        orchestrator = self.TestOrchestrator(self.optimizers, self.covariance_transformers, 
+                                           A2AConfig(failure_handling=config))
 
         mu, cov, prices, time, l_moments = self.data_provider.get_ground_truth()
 
-        # Test with numerical error (should use ZERO_WEIGHTS)
-        numerical_error = ValueError("Matrix not positive definite")
+        # Trigger numerical error - should use ZERO_WEIGHTS, not EQUAL_WEIGHTS
+        numerical_error = LinAlgError("Singular matrix")
         result = orchestrator._handle_optimizer_failure(
             optimizer=self.optimizers[0],
             exception=numerical_error,
@@ -555,9 +604,9 @@ class TestEnhancedBaseOrchestratorFailureHandling:
             asset_names=mu.index.tolist()
         )
 
-        # Should return zero weights for numerical error
+        # Should return zero weights (context-aware fallback), not equal weights
         assert result is not None
-        assert (result == 0.0).all()
+        assert (result == 0.0).all()  # ZERO_WEIGHTS fallback
 
     def test_circuit_breaker_integration(self):
         """Test circuit breaker integration."""

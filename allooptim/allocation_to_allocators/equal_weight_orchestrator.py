@@ -172,6 +172,27 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     )
                 # If fallback_weights is None (IGNORE_OPTIMIZER), skip this optimizer entirely
 
+        # Check if all optimizers failed
+        if len(optimizer_allocations_list) == 0:
+            if self.config.failure_handling.raise_on_all_failed:
+                raise RuntimeError(
+                    "All optimizers failed. No valid allocations available. "
+                    "Check optimizer configurations and input data quality."
+                )
+            else:
+                # Graceful degradation: add equal-weight fallback allocation
+                logger.error(
+                    "All optimizers failed, returning equal-weight fallback allocation"
+                )
+                equal_weight = 1.0 / len(mu)
+                fallback_allocation = OptimizerAllocation(
+                    instance_id="EMERGENCY_FALLBACK",
+                    weights=pd.Series(equal_weight, index=mu.index),
+                    runtime_seconds=None,
+                    memory_usage_mb=None,
+                )
+                optimizer_allocations_list.append(fallback_allocation)
+
         # Second pass: determine A2A weights based on combination method
         match self.combined_weight_type:
             case (

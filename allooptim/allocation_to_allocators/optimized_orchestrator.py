@@ -402,6 +402,35 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 )
             )
 
+        # Check if all optimizers failed
+        if len(optimizer_allocations_list) == 0:
+            if self.config.failure_handling.raise_on_all_failed:
+                raise RuntimeError(
+                    "All optimizers failed. No valid allocations available. "
+                    "Check optimizer configurations and input data quality."
+                )
+            else:
+                # Graceful degradation: add equal-weight fallback allocation
+                logger.error(
+                    "All optimizers failed, returning equal-weight fallback allocation"
+                )
+                equal_weight = 1.0 / len(mu)
+                fallback_weights = pd.Series(equal_weight, index=mu.index)
+                
+                # Add to asset_weights with weight 1.0 (since this is the only allocation)
+                asset_weights += 1.0 * fallback_weights.values
+                
+                fallback_allocation = OptimizerAllocation(
+                    instance_id="EMERGENCY_FALLBACK",
+                    weights=fallback_weights,
+                    runtime_seconds=None,
+                    memory_usage_mb=None,
+                )
+                optimizer_allocations_list.append(fallback_allocation)
+                optimizer_weights_list.append(
+                    OptimizerWeight(instance_id="EMERGENCY_FALLBACK", weight=1.0)
+                )
+
         final_allocation_values = normalize_weights_a2a(asset_weights, self.config.cash_config)
         final_allocation = pd.Series(final_allocation_values, index=mu.index)
 

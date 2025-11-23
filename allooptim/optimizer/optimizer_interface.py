@@ -135,6 +135,7 @@ class AbstractOptimizer(ABC):
         """
         try:
             return self.allocate(ds_mu, df_cov, df_prices, time, l_moments)
+
         except Exception as e:
             import logging
             logger = logging.getLogger(__name__)
