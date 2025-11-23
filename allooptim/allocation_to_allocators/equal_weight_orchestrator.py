@@ -42,6 +42,7 @@ class CombinedWeightType(str, Enum):
     EQUAL = "equal"
     CUSTOM = "custom"
     MEDIAN = "median"
+    VOLATILITY = "volatility"
 
 
 class EqualWeightOrchestrator(BaseOrchestrator):
@@ -166,9 +167,13 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # Second pass: determine A2A weights based on combination method
         match self.combined_weight_type:
-            case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN:
+            case (
+                CombinedWeightType.EQUAL
+                | CombinedWeightType.MEDIAN
+                | CombinedWeightType.VOLATILITY
+            ):
                 # Equal weights for all optimizers
-                # For median, this is the best approximation
+                # For median and volatility, this is the best approximation
                 a2a_weights = {
                     opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
                     for opt_alloc in optimizer_allocations_list
@@ -195,6 +200,22 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
                 )
                 asset_weights = alloc_df.median(axis=1).values
+
+            case CombinedWeightType.VOLATILITY:
+                # Volatility-adjusted weighting
+                alloc_df = pd.DataFrame(
+                    {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
+                )
+                mean_asset = alloc_df.mean(axis=1)
+                variance_asset = np.clip(alloc_df.std(axis=1) ** 2, a_min=0.0, a_max=1.0)
+                variance_overall = variance_asset.mean()
+                asset_weights = (1.0 - self.config.voloatility_adjustment) * mean_asset + self.config.voloatility_adjustment * (
+                    variance_overall - variance_asset
+                )
+                # Clip negative weights and normalize
+                asset_weights = np.clip(asset_weights, a_min=0.0, a_max=1.0)
+                if asset_weights.sum() > 0:
+                    asset_weights = asset_weights / asset_weights.sum()
 
             case _:
                 raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
@@ -317,3 +338,25 @@ class CustomWeightOrchestrator(EqualWeightOrchestrator):
             String identifier for this orchestrator type.
         """
         return "CustomWeight_A2A"
+
+
+class VolatilityOrchestrator(EqualWeightOrchestrator):
+    """Volatility-based Allocation-to-Allocators orchestrator.
+
+    Combines optimizer allocations using a volatility-adjusted weighting scheme:
+    - Computes mean (mu_asset) and std (std_asset) of weights across optimizers for each asset
+    - Calculates overall std as mean of asset stds
+    - Weights assets as: mu_asset + alpha * (std_overall - std_asset)
+    - Clips negative weights to zero and normalizes
+    """
+
+    combined_weight_type = CombinedWeightType.VOLATILITY
+
+    @property
+    def name(self) -> str:
+        """Get the orchestrator name identifier.
+
+        Returns:
+            String identifier for this orchestrator type.
+        """
+        return f"Volatility_A2A_alpha_{self.alpha}"

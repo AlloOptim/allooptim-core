@@ -41,6 +41,14 @@ class A2AConfig(BaseModel):
     meta_model_type: str = Field(
         default="lightgbm", description="Meta-model type for stacking: 'lightgbm', 'xgboost', etc."
     )
+    
+    # volatility adjustment
+    voloatility_adjustment: float = Field(
+        default=0.2,
+        ge=0.0,
+        le=1.0,
+        description="Parameter for volatility adjustment in A2A weights",
+    )
 
     # General settings
     random_seed: Optional[int] = Field(default=42, description="Random seed for reproducibility")

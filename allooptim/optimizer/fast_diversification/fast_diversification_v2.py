@@ -12,59 +12,13 @@ References:
 - Paper: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4009041
 """
 
-from abc import ABC, abstractmethod
 from typing import Optional
 from datetime import datetime
 import pandas as pd
 import numpy as np
 
+from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
-class AbstractOptimizer(ABC):
-    """Abstract base class for all portfolio optimization algorithms."""
-
-    def __init__(self, display_name: Optional[str] = None):
-        self._display_name = display_name
-        self.allow_cash = False
-        self.max_leverage = None
-
-    def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
-        """Optional setup method to prepare the optimizer with historical data."""
-        pass
-
-    def reset(self) -> None:
-        """Optional method to reset any internal state of the optimizer."""
-        self.__init__(self._display_name)
-
-    def set_allow_cash(self, allow_cash: bool) -> None:
-        """Set whether this optimizer is allowed to use cash."""
-        self.allow_cash = allow_cash
-
-    def set_max_leverage(self, max_leverage: Optional[float]) -> None:
-        """Set the maximum leverage allowed for this optimizer."""
-        self.max_leverage = max_leverage
-
-    @abstractmethod
-    def allocate(
-        self,
-        ds_mu: pd.Series,
-        df_cov: pd.DataFrame,
-        df_prices: Optional[pd.DataFrame] = None,
-        time: Optional[datetime] = None,
-        l_moments: Optional[object] = None,
-    ) -> pd.Series:
-        """Create an optimal portfolio allocation."""
-        pass
-
-    @property
-    @abstractmethod
-    def name(self) -> str:
-        """Unique name of this optimizer class."""
-        pass
-
-    @property
-    def display_name(self) -> str:
-        """Display name of this optimizer instance."""
-        return self._display_name if self._display_name is not None else self.name
 
 
 class HvassDiversificationOptimizer(AbstractOptimizer):
