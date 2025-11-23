@@ -122,23 +122,27 @@ class FailureHandlingConfig(BaseModel):
             # Convert string keys to FailureType enum
             if isinstance(failure_type, str):
                 try:
-                    failure_type = FailureType(failure_type)
-                except ValueError:
-                    raise ValueError(f"Invalid failure type: {failure_type}")
+                    failure_type_enum = FailureType(failure_type)
+                except ValueError as err:
+                    raise ValueError(f"Invalid failure type: {failure_type}") from err
             elif not isinstance(failure_type, FailureType):
                 raise ValueError(f"Failure type must be a string or FailureType enum, got {type(failure_type)}")
+            else:
+                failure_type_enum = failure_type
 
             # Convert string values to FailureHandlingOption enum
             if isinstance(handling_option, str):
                 try:
-                    handling_option = FailureHandlingOption(handling_option)
-                except ValueError:
-                    raise ValueError(f"Invalid handling option: {handling_option}")
+                    handling_option_enum = FailureHandlingOption(handling_option)
+                except ValueError as err:
+                    raise ValueError(f"Invalid handling option: {handling_option}") from err
             elif not isinstance(handling_option, FailureHandlingOption):
                 raise ValueError(
                     f"Handling option must be a string or FailureHandlingOption enum, got {type(handling_option)}"
                 )
+            else:
+                handling_option_enum = handling_option
 
-            validated[failure_type] = handling_option
+            validated[failure_type_enum] = handling_option_enum
 
         return validated

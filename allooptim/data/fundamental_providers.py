@@ -24,6 +24,9 @@ from allooptim.data.fundamental_data import FundamentalData
 
 logger = logging.getLogger(__name__)
 
+# Constants for fundamental data processing
+DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD = 50  # Above this, likely expressed as percentage
+
 
 class FundamentalDataProvider(ABC):
     """Abstract base class for fundamental data providers."""
@@ -89,7 +92,7 @@ class YahooFinanceProvider(FundamentalDataProvider):
                         current_ratio = info.get("currentRatio")
 
                         # Handle debt_to_equity format variations
-                        if debt_to_equity is not None and debt_to_equity > 50:  # Above 50, likely percentage
+                        if debt_to_equity is not None and debt_to_equity > DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD:  # Above this, likely percentage
                             debt_to_equity = debt_to_equity / 100.0
 
                         # Create FundamentalData object
@@ -149,8 +152,8 @@ class SimFinProvider(FundamentalDataProvider):
             self.api_key = api_key or os.getenv("SIMFIN_API_KEY")
             sf.set_api_key(self.api_key)
             logger.info("SimFin provider initialized with API key")
-        except ImportError:
-            raise ImportError("simfin package required for SimFin provider. Install with: pip install simfin")
+        except ImportError as err:
+            raise ImportError("simfin package required for SimFin provider. Install with: pip install simfin") from err
 
     def supports_historical_data(self) -> bool:
         """SimFin supports historical fundamental data."""
@@ -203,8 +206,6 @@ class SimFinProvider(FundamentalDataProvider):
                         logger.warning(f"  ✗ {ticker}: Not found in SimFin database")
                         all_results.append(FundamentalData(ticker=ticker))
                         continue
-
-                    simfin_id = ticker_to_simfin[ticker]
 
                     # Determine the period to fetch (use the provided date or latest)
                     if date:
@@ -470,7 +471,7 @@ class FundamentalDataStore:
             True if data exists for this date
         """
         date_str = date.strftime("%Y-%m-%d")
-        return any(key.endswith(f"_{date_str}") for key in self._data_cache.keys())
+        return any(key.endswith(f"_{date_str}") for key in self._data_cache)
 
     def clear_cache(self) -> None:
         """Clear all cached data."""

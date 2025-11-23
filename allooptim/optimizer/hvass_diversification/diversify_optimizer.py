@@ -1,4 +1,4 @@
-"""Hvass Fast Portfolio Diversification Optimizer
+"""Hvass Fast Portfolio Diversification Optimizer.
 
 Implementation of Magnus Hvass Pedersen's Fast Portfolio Diversification algorithm.
 Based on the research paper "Fast Portfolio Diversification" (2022).
@@ -76,6 +76,15 @@ class DiversificationOptimizer(BaseOptimizer):
         config: Optional[DiversificationOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
+        """Initialize the DiversificationOptimizer.
+
+        Parameters
+        ----------
+        config : DiversificationOptimizerConfig, optional
+            Configuration for the optimizer. If None, uses default config.
+        display_name : str, optional
+            Display name for the optimizer.
+        """
         super().__init__(display_name)
         self.config = config or DiversificationOptimizerConfig()
 
@@ -119,12 +128,7 @@ class DiversificationOptimizer(BaseOptimizer):
         corr_matrix = self._cov_to_corr(df_cov.values)
 
         # Initialize weights
-        if self.config.adjust_for_volatility:
-            # Start with inverse volatility weighting
-            weights = 1.0 / (volatilities + 1e-8)
-        else:
-            # Start with equal weights
-            weights = np.ones(n_assets)
+        weights = 1.0 / (volatilities + 1e-08) if self.config.adjust_for_volatility else np.ones(n_assets)
 
         # Normalize initial weights
         weights = weights / np.sum(weights)
@@ -229,8 +233,6 @@ class DiversificationOptimizer(BaseOptimizer):
 
         Aims to equalize the marginal risk contribution of each asset.
         """
-        n_assets = len(weights)
-
         # Compute marginal risk contribution for each asset
         portfolio_variance = weights @ corr_matrix @ weights
         marginal_risk = corr_matrix @ weights / (np.sqrt(portfolio_variance) + 1e-8)
@@ -249,6 +251,7 @@ class DiversificationOptimizer(BaseOptimizer):
 
     @property
     def name(self) -> str:
+        """Name of the optimizer."""
         return "DiversificationOptimizer"
 
     @property

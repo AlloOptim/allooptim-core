@@ -290,6 +290,7 @@ def allocate(
         asset_names: list of stock ticker symbols
         today: Current date (for logging purposes)
         config: Configuration for fundamental scoring
+        data_manager: Optional fundamental data manager for fetching data
 
     Returns:
         np.ndarray: Portfolio weights summing to 1.0
@@ -320,9 +321,9 @@ def allocate(
     if valid_count == 0:
         logger.warning("⚠ No valid fundamental data found. Returning equal weights.")
         logger.warning("Sample of fundamental data received:")
-        for i, f in enumerate(fundamentals[:5]):  # Show first 5
+        for fund in fundamentals[:5]:  # Show first 5
             logger.warning(
-                f"  {f.ticker}: market_cap={f.market_cap}, roe={f.roe}, debt_to_equity={f.debt_to_equity}, pb_ratio={f.pb_ratio}, current_ratio={f.current_ratio}, is_valid={f.is_valid}"
+                f"  {fund.ticker}: market_cap={fund.market_cap}, roe={fund.roe}, debt_to_equity={fund.debt_to_equity}, pb_ratio={fund.pb_ratio}, current_ratio={fund.current_ratio}, is_valid={fund.is_valid}"
             )
         return np.ones(len(asset_names)) / len(asset_names)
 

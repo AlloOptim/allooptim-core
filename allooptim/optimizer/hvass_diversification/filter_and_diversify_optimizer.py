@@ -1,4 +1,4 @@
-"""Magnus Hvass Portfolio Optimization Algorithms Collection
+"""Magnus Hvass Portfolio Optimization Algorithms Collection.
 
 This module implements the main portfolio optimization algorithms developed by
 Magnus Erik Hvass Pedersen, as presented in his research papers:
@@ -78,6 +78,15 @@ class FilterAndDiversifyOptimizer(BaseOptimizer):
         config: Optional[FilterAndDiversifyOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
+        """Initialize the FilterAndDiversifyOptimizer.
+
+        Parameters
+        ----------
+        config : FilterAndDiversifyOptimizerConfig, optional
+            Configuration for the optimizer. If None, uses default config.
+        display_name : str, optional
+            Display name for the optimizer.
+        """
         super().__init__(display_name)
         self.config = config or FilterAndDiversifyOptimizerConfig()
 
@@ -133,4 +142,5 @@ class FilterAndDiversifyOptimizer(BaseOptimizer):
 
     @property
     def name(self) -> str:
+        """Name of the optimizer."""
         return "FilterAndDiversifyOptimizer"

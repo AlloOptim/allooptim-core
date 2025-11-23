@@ -1,4 +1,4 @@
-"""Magnus Hvass Portfolio Optimization Algorithms Collection
+"""Magnus Hvass Portfolio Optimization Algorithms Collection.
 
 This module implements the main portfolio optimization algorithms developed by
 Magnus Erik Hvass Pedersen, as presented in his research papers:
@@ -68,6 +68,15 @@ class GroupConstraintsOptimizer(BaseOptimizer):
         config: Optional[GroupConstraintsOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
+        """Initialize the GroupConstraintsOptimizer.
+
+        Parameters
+        ----------
+        config : GroupConstraintsOptimizerConfig, optional
+            Configuration for the optimizer. If None, uses default config.
+        display_name : str, optional
+            Display name for the optimizer.
+        """
         super().__init__(display_name)
         self.config = config or GroupConstraintsOptimizerConfig()
 
@@ -84,7 +93,6 @@ class GroupConstraintsOptimizer(BaseOptimizer):
     ) -> pd.Series:
         """Compute portfolio weights with group constraints."""
         asset_names = ds_mu.index
-        n_assets = len(ds_mu)
 
         # If no constraints, just diversify normally
         if not self.config.group_constraints or not self.config.asset_to_group:
@@ -126,4 +134,5 @@ class GroupConstraintsOptimizer(BaseOptimizer):
 
     @property
     def name(self) -> str:
+        """Name of the optimizer."""
         return "GroupConstraintsOptimizer"

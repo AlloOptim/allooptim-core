@@ -1,4 +1,4 @@
-"""Magnus Hvass Portfolio Optimization Algorithms Collection
+"""Magnus Hvass Portfolio Optimization Algorithms Collection.
 
 This module implements the main portfolio optimization algorithms developed by
 Magnus Erik Hvass Pedersen, as presented in his research papers:
@@ -89,6 +89,15 @@ class SignalBasedOptimizer(BaseOptimizer):
         config: Optional[SignalBasedOptimizerConfig] = None,
         display_name: Optional[str] = None,
     ):
+        """Initialize the SignalBasedOptimizer.
+
+        Parameters
+        ----------
+        config : SignalBasedOptimizerConfig, optional
+            Configuration for the optimizer. If None, uses default config.
+        display_name : str, optional
+            Display name for the optimizer.
+        """
         super().__init__(display_name)
         self.config = config or SignalBasedOptimizerConfig()
 
@@ -125,10 +134,7 @@ class SignalBasedOptimizer(BaseOptimizer):
             weights = weights * np.maximum(filtered_mu, 0)
 
         # Normalize
-        if weights.sum() > 0:
-            weights = weights / weights.sum()
-        else:
-            weights = pd.Series(1.0 / len(weights), index=weights.index)
+        weights = weights / weights.sum() if weights.sum() > 0 else pd.Series(1.0 / len(weights), index=weights.index)
 
         # Apply diversification if requested
         if self.config.apply_diversification and len(weights) > 1:
@@ -161,4 +167,5 @@ class SignalBasedOptimizer(BaseOptimizer):
 
     @property
     def name(self) -> str:
+        """Name of the optimizer."""
         return "SignalBasedOptimizer"

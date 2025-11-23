@@ -30,15 +30,24 @@ from allooptim.optimizer.base_optimizer import BaseOptimizer
 class FailingOptimizer(BaseOptimizer):
     """Test optimizer that always fails."""
 
-    def __init__(self, fail_with: Exception = RuntimeError("Test failure")):
+    def __init__(self, fail_with: Exception = None):
+        """Initialize the FailingOptimizer.
+
+        Parameters
+        ----------
+        fail_with : Exception, optional
+            The exception to raise during allocation. Defaults to RuntimeError.
+        """
         super().__init__()
-        self.fail_with = fail_with
+        self.fail_with = fail_with or RuntimeError("Test failure")
 
     def allocate(self, ds_mu, df_cov, df_prices=None, time=None, l_moments=None):
+        """Allocate method that always raises an exception."""
         raise self.fail_with
 
     @property
     def name(self):
+        """Name of the optimizer."""
         return "FailingOptimizer"
 
 
@@ -46,27 +55,39 @@ class MockDataProvider(AbstractObservationSimulator):
     """Mock data provider for testing."""
 
     def __init__(self, n_assets=3):
+        """Initialize the MockDataProvider.
+
+        Parameters
+        ----------
+        n_assets : int, default=3
+            Number of assets to simulate.
+        """
         self.n_assets = n_assets
         self.asset_names = [f"Asset_{i}" for i in range(n_assets)]
 
     @property
     def mu(self):
+        """Expected returns for the assets."""
         return pd.Series(np.random.randn(self.n_assets), index=self.asset_names)
 
     @property
     def cov(self):
+        """Covariance matrix for the assets."""
         cov = np.random.randn(self.n_assets, self.n_assets)
         return cov @ cov.T  # Make positive definite
 
     @property
     def historical_prices(self):
+        """Historical prices for the assets."""
         return pd.DataFrame(np.random.randn(100, self.n_assets), columns=self.asset_names)
 
     @property
     def n_observations(self):
+        """Number of observations."""
         return 100
 
     def get_sample(self):
+        """Get a sample of data."""
         mu = self.mu
         cov = pd.DataFrame(self.cov, index=self.asset_names, columns=self.asset_names)
         prices = self.historical_prices
@@ -75,10 +96,12 @@ class MockDataProvider(AbstractObservationSimulator):
         return mu, cov, prices, time, l_moments
 
     def get_ground_truth(self):
+        """Get ground truth data."""
         return self.get_sample()
 
     @property
     def name(self):
+        """Name of the data provider."""
         return "MockDataProvider"
 
 
@@ -86,6 +109,7 @@ class MockCovarianceTransformer(AbstractCovarianceTransformer):
     """Mock covariance transformer that returns input unchanged."""
 
     def transform(self, cov, n_observations):
+        """Transform the covariance matrix (returns unchanged for testing)."""
         return cov
 
 
@@ -124,11 +148,13 @@ class TestBaseOrchestratorFailureHandling:
         """Concrete implementation of BaseOrchestrator for testing."""
 
         def allocate(self, data_provider, time_today=None, all_stocks=None):
+            """Allocate method for testing (not used)."""
             # Not used in these tests
             pass
 
         @property
         def name(self):
+            """Name of the orchestrator."""
             return "TestOrchestrator"
 
     def test_zero_weights_fallback(self):
@@ -533,11 +559,13 @@ class TestEnhancedBaseOrchestratorFailureHandling:
         """Concrete implementation of BaseOrchestrator for testing."""
 
         def allocate(self, data_provider, time_today=None, all_stocks=None):
+            """Allocate method for testing (not used)."""
             # Not used in these tests
             pass
 
         @property
         def name(self):
+            """Name of the orchestrator."""
             return "TestOrchestrator"
 
     def test_context_aware_fallbacks_actually_work(self):
