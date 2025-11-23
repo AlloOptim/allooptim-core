@@ -41,10 +41,8 @@ class FundamentalDataProviderFactory:
 
     @staticmethod
     def create_provider(
-        prefer_simfin: bool = True,
-        simfin_api_key: Optional[str] = None,
-        enable_caching: bool = False
-    ) -> 'UnifiedFundamentalProvider':
+        prefer_simfin: bool = True, simfin_api_key: Optional[str] = None, enable_caching: bool = False
+    ) -> "UnifiedFundamentalProvider":
         """Create a provider with fallback chain.
 
         Args:
@@ -59,7 +57,7 @@ class FundamentalDataProviderFactory:
 
         # Try SimFin first if preferred and available
         if prefer_simfin:
-            api_key = simfin_api_key or os.getenv('SIMFIN_API_KEY')
+            api_key = simfin_api_key or os.getenv("SIMFIN_API_KEY")
             if api_key:
                 try:
                     simfin = SimFinProvider(api_key=api_key)
@@ -74,10 +72,7 @@ class FundamentalDataProviderFactory:
         providers.append(YahooFinanceProvider())
         logger.info("Yahoo Finance provider initialized")
 
-        return UnifiedFundamentalProvider(
-            providers=providers,
-            enable_caching=enable_caching
-        )
+        return UnifiedFundamentalProvider(providers=providers, enable_caching=enable_caching)
 
 
 class UnifiedFundamentalProvider:
@@ -87,11 +82,7 @@ class UnifiedFundamentalProvider:
     to the next provider if the current one fails or doesn't support the request.
     """
 
-    def __init__(
-        self,
-        providers: List[FundamentalDataProvider],
-        enable_caching: bool = False
-    ):
+    def __init__(self, providers: List[FundamentalDataProvider], enable_caching: bool = False):
         """Initialize unified provider.
 
         Args:
@@ -100,18 +91,14 @@ class UnifiedFundamentalProvider:
         """
         if not providers:
             raise ValueError("At least one fundamental data provider must be provided")
-        
+
         self.providers = providers
         self.cache = FundamentalDataStore() if enable_caching else None
-        
+
         # Validate provider chain
         self._validate_provider_chain()
 
-    def get_fundamental_data(
-        self,
-        tickers: List[str],
-        date: Optional[datetime] = None
-    ) -> List[FundamentalData]:
+    def get_fundamental_data(self, tickers: List[str], date: Optional[datetime] = None) -> List[FundamentalData]:
         """Get data from first available provider.
 
         Args:
@@ -122,10 +109,9 @@ class UnifiedFundamentalProvider:
             List of FundamentalData objects, one per ticker
         """
         # Check cache first (backtest mode)
-        if self.cache and date:
-            if self.cache.has_data_for_date(date):
-                logger.debug(f"Using cached data for {date}")
-                return self.cache.get_data(tickers, date)
+        if self.cache and date and self.cache.has_data_for_date(date):
+            logger.debug(f"Using cached data for {date}")
+            return self.cache.get_data(tickers, date)
 
         # Try providers in order
         for provider in self.providers:
@@ -152,12 +138,7 @@ class UnifiedFundamentalProvider:
         logger.error("All providers failed, returning empty data")
         return [FundamentalData(ticker=t) for t in tickers]
 
-    def preload_data(
-        self,
-        tickers: List[str],
-        start_date: datetime,
-        end_date: datetime
-    ) -> None:
+    def preload_data(self, tickers: List[str], start_date: datetime, end_date: datetime) -> None:
         """Preload data for backtest period.
 
         Args:
@@ -171,7 +152,7 @@ class UnifiedFundamentalProvider:
 
         import pandas as pd
 
-        dates = pd.date_range(start=start_date, end=end_date, freq='A')
+        dates = pd.date_range(start=start_date, end=end_date, freq="A")
         for date in dates:
             logger.info(f"Preloading data for {date}")
             self.get_fundamental_data(tickers, date)
@@ -184,15 +165,15 @@ class UnifiedFundamentalProvider:
         """Validate that the provider chain is properly configured."""
         if not self.providers:
             raise ValueError("Provider chain cannot be empty")
-        
+
         # Check that we have at least one provider that can handle current data
         current_providers = [p for p in self.providers if not p.supports_historical_data()]
         if not current_providers:
             logger.warning("No providers configured for current data - historical-only backtests may fail")
-        
+
         # Check for duplicate provider types (not necessarily an error, but warn)
         provider_types = [type(p).__name__ for p in self.providers]
         if len(provider_types) != len(set(provider_types)):
             logger.info(f"Provider chain contains duplicate types: {provider_types}")
-        
+
         logger.debug(f"Validated provider chain with {len(self.providers)} providers: {provider_types}")

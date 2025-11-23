@@ -6,7 +6,7 @@ Generates synthetic correlation matrices for training denoising autoencoders.
 import multiprocessing as mp
 import os
 from dataclasses import dataclass
-from typing import Optional, Any
+from typing import Any, Optional
 
 import h5py
 import numpy as np
@@ -68,7 +68,9 @@ class SpectrumGenerator:
         return eigenvalues / np.sum(eigenvalues) * n
 
     @staticmethod
-    def spiked_model(n: int, n_factors: Optional[int] = None, factor_strength: tuple[float, float] = (5.0, 20.0)) -> np.ndarray:
+    def spiked_model(
+        n: int, n_factors: Optional[int] = None, factor_strength: tuple[float, float] = (5.0, 20.0)
+    ) -> np.ndarray:
         """Spiked model: few large factors + noise.
 
         Models market with strong factors (market, sector, etc.).

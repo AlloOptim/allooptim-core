@@ -194,7 +194,8 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
 
     # Filter out expected warnings (SLSQP doesn't use Hessian, pandas/yfinance deprecations)
     filtered_warnings = [
-        w for w in warning_list 
+        w
+        for w in warning_list
         if "Method SLSQP does not use Hessian information" not in str(w.message)
         and "The argument 'date_parser' is deprecated" not in str(w.message)
         and "'A' is deprecated and will be removed" not in str(w.message)

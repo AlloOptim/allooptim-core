@@ -70,7 +70,13 @@ class BacktestConfig(BaseModel):
 
     # Optimizer and transformer names
     optimizer_configs: List[OptimizerConfig] = Field(
-        default_factory=lambda: [OptimizerConfig(name="RiskParityOptimizer"), OptimizerConfig(name="NaiveOptimizer"), OptimizerConfig(name="MomentumOptimizer"), OptimizerConfig(name="HRPOptimizer"), OptimizerConfig(name="NCOSharpeOptimizer")],
+        default_factory=lambda: [
+            OptimizerConfig(name="RiskParityOptimizer"),
+            OptimizerConfig(name="NaiveOptimizer"),
+            OptimizerConfig(name="MomentumOptimizer"),
+            OptimizerConfig(name="HRPOptimizer"),
+            OptimizerConfig(name="NCOSharpeOptimizer"),
+        ],
         min_length=1,
         description="List of optimizer configurations. Can be optimizer names (strings) or OptimizerConfig objects",
     )

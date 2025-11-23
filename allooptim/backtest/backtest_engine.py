@@ -35,7 +35,6 @@ from allooptim.backtest.performance_metrics import PerformanceMetrics
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
-from allooptim.data.fundamental_providers import FundamentalDataManager
 from allooptim.data.provider_factory import FundamentalDataProviderFactory
 from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
 from allooptim.optimizer.wikipedia.wiki_database import download_data
@@ -81,15 +80,8 @@ class BacktestEngine:
             interval=self.config_backtest.data_interval,
         )
 
-        self.fundamental_data_manager = FundamentalDataManager(mode="backtest")
-
         # Create shared fundamental data provider with caching for backtests
-        self.fundamental_provider = FundamentalDataProviderFactory.create_provider(
-            enable_caching=True
-        )
-
-        # Keep old manager for backward compatibility (can be removed later)
-        # TODO: Remove after migration is complete
+        self.fundamental_provider = FundamentalDataProviderFactory.create_provider(enable_caching=True)
 
         # Create orchestrator using factory
         if a2a_config is None:
@@ -143,11 +135,12 @@ class BacktestEngine:
                 logger.warning(f"Failed to download Wikipedia data: {e}")
 
         # Check if fundamental optimizers are being used and preload data if needed
-        from allooptim.optimizer.optimizer_config_registry import NAME_TO_OPTIMIZER_CLASS
         import inspect
-        
+
+        from allooptim.optimizer.optimizer_config_registry import NAME_TO_OPTIMIZER_CLASS
+
         has_fundamental_optimizer = any(
-            'data_provider' in inspect.signature(NAME_TO_OPTIMIZER_CLASS[opt_name].__init__).parameters
+            "data_provider" in inspect.signature(NAME_TO_OPTIMIZER_CLASS[opt_name].__init__).parameters
             for opt_name in self.config_backtest.optimizer_names
             if opt_name in NAME_TO_OPTIMIZER_CLASS
         )

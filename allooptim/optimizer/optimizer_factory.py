@@ -22,8 +22,9 @@ logger = logging.getLogger(__name__)
 def _is_fundamental_optimizer(optimizer_class) -> bool:
     """Check if an optimizer class accepts a data_provider parameter."""
     import inspect
+
     sig = inspect.signature(optimizer_class.__init__)
-    return 'data_provider' in sig.parameters
+    return "data_provider" in sig.parameters
 
 
 def get_optimizer_by_config(
@@ -54,9 +55,7 @@ def get_optimizer_by_config(
             # Check if this is a fundamental optimizer and pass data provider
             if fundamental_data_provider and _is_fundamental_optimizer(optimizer_class):
                 optimizer = optimizer_class(
-                    config=config, 
-                    display_name=opt_config.display_name,
-                    data_provider=fundamental_data_provider
+                    config=config, display_name=opt_config.display_name, data_provider=fundamental_data_provider
                 )
             else:
                 optimizer = optimizer_class(config=config, display_name=opt_config.display_name)
@@ -67,8 +66,7 @@ def get_optimizer_by_config(
             # Check if this is a fundamental optimizer and pass data provider
             if fundamental_data_provider and _is_fundamental_optimizer(optimizer_class):
                 optimizer = optimizer_class(
-                    display_name=opt_config.display_name,
-                    data_provider=fundamental_data_provider
+                    display_name=opt_config.display_name, data_provider=fundamental_data_provider
                 )
             else:
                 optimizer = optimizer_class(display_name=opt_config.display_name)

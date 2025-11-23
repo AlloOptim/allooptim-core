@@ -16,7 +16,7 @@ import logging
 from typing import Callable, Optional
 
 import numpy as np
-from scipy.optimize import minimize, OptimizeResult
+from scipy.optimize import OptimizeResult, minimize
 
 logger = logging.getLogger(__name__)
 

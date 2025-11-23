@@ -3,8 +3,6 @@
 import os
 from unittest.mock import Mock, patch
 
-import pytest
-
 from allooptim.data.fundamental_data import FundamentalData
 from allooptim.data.fundamental_providers import (
     FundamentalDataStore,
@@ -22,101 +20,99 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_simfin_priority(self):
         """Verify SimFin used when API key available."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}):
-            with patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin:
-                with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                    mock_simfin.return_value = Mock(spec=SimFinProvider)
-                    mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), \
+             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_simfin.return_value = Mock(spec=SimFinProvider)
+            mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
-                    provider = FundamentalDataProviderFactory.create_provider()
+            provider = FundamentalDataProviderFactory.create_provider()
 
-                    # Should have 2 providers: SimFin first, then Yahoo
-                    assert len(provider.providers) == 2
-                    mock_simfin.assert_called_once_with(api_key="test_key")
-                    mock_yahoo.assert_called_once()
-                    assert provider.providers[0] is mock_simfin.return_value
-                    assert provider.providers[1] is mock_yahoo.return_value
+            # Should have 2 providers: SimFin first, then Yahoo
+            assert len(provider.providers) == 2
+            mock_simfin.assert_called_once_with(api_key="test_key")
+            mock_yahoo.assert_called_once()
+            assert provider.providers[0] is mock_simfin.return_value
+            assert provider.providers[1] is mock_yahoo.return_value
 
     def test_factory_yahoo_fallback(self):
         """Verify Yahoo used when no SimFin key."""
-        with patch.dict(os.environ, {}, clear=True):
-            with patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin:
-                with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                    mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
+        with patch.dict(os.environ, {}, clear=True), \
+             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
-                    provider = FundamentalDataProviderFactory.create_provider()
+            provider = FundamentalDataProviderFactory.create_provider()
 
-                    # Should have only Yahoo provider
-                    assert len(provider.providers) == 1
-                    mock_simfin.assert_not_called()
-                    mock_yahoo.assert_called_once()
-                    assert provider.providers[0] is mock_yahoo.return_value
+            # Should have only Yahoo provider
+            assert len(provider.providers) == 1
+            mock_simfin.assert_not_called()
+            mock_yahoo.assert_called_once()
+            assert provider.providers[0] is mock_yahoo.return_value
 
     def test_factory_caching_enabled(self):
         """Verify caching initialization."""
-        with patch.dict(os.environ, {}, clear=True):
-            with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
+        with patch.dict(os.environ, {}, clear=True), \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
-                provider = FundamentalDataProviderFactory.create_provider(enable_caching=True)
+            provider = FundamentalDataProviderFactory.create_provider(enable_caching=True)
 
-                # Should have cache initialized
-                assert provider.cache is not None
-                assert isinstance(provider.cache, FundamentalDataStore)
+            # Should have cache initialized
+            assert provider.cache is not None
+            assert isinstance(provider.cache, FundamentalDataStore)
 
     def test_factory_caching_disabled(self):
         """Verify no caching when disabled."""
-        with patch.dict(os.environ, {}, clear=True):
-            with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
+        with patch.dict(os.environ, {}, clear=True), \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
-                provider = FundamentalDataProviderFactory.create_provider(enable_caching=False)
+            provider = FundamentalDataProviderFactory.create_provider(enable_caching=False)
 
-                # Should not have cache
-                assert provider.cache is None
+            # Should not have cache
+            assert provider.cache is None
 
     def test_factory_simfin_import_error_fallback(self):
         """Verify fallback to Yahoo when SimFin import fails."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}):
-            with patch("allooptim.data.provider_factory.SimFinProvider", side_effect=ImportError("No simfin")):
-                with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                    mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), \
+             patch("allooptim.data.provider_factory.SimFinProvider", side_effect=ImportError("No simfin")), \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
-                    provider = FundamentalDataProviderFactory.create_provider()
+            provider = FundamentalDataProviderFactory.create_provider()
 
-                    # Should have only Yahoo provider
-                    assert len(provider.providers) == 1
-                    mock_yahoo.assert_called_once()
-                    assert provider.providers[0] is mock_yahoo.return_value
+            # Should have only Yahoo provider
+            assert len(provider.providers) == 1
+            mock_yahoo.assert_called_once()
+            assert provider.providers[0] is mock_yahoo.return_value
 
     def test_factory_explicit_api_key(self):
         """Verify explicit API key overrides environment."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "env_key"}):
-            with patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin:
-                with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                    mock_simfin.return_value = Mock(spec=SimFinProvider)
-                    mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "env_key"}), \
+             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_simfin.return_value = Mock(spec=SimFinProvider)
+            mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
-                    provider = FundamentalDataProviderFactory.create_provider(
-                        simfin_api_key="explicit_key"
-                    )
+            FundamentalDataProviderFactory.create_provider(simfin_api_key="explicit_key")
 
-                    # Should use explicit key
-                    mock_simfin.assert_called_once_with(api_key="explicit_key")
+            # Should use explicit key
+            mock_simfin.assert_called_once_with(api_key="explicit_key")
 
     def test_factory_prefer_simfin_false(self):
         """Verify Yahoo only when SimFin not preferred."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}):
-            with patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin:
-                with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                    mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), \
+             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
-                    provider = FundamentalDataProviderFactory.create_provider(prefer_simfin=False)
+            provider = FundamentalDataProviderFactory.create_provider(prefer_simfin=False)
 
-                    # Should have only Yahoo provider
-                    assert len(provider.providers) == 1
-                    mock_simfin.assert_not_called()
-                    mock_yahoo.assert_called_once()
+            # Should have only Yahoo provider
+            assert len(provider.providers) == 1
+            mock_simfin.assert_not_called()
+            mock_yahoo.assert_called_once()
 
 
 class TestUnifiedFundamentalProvider:
@@ -129,9 +125,7 @@ class TestUnifiedFundamentalProvider:
         failing_provider.supports_historical_data.return_value = True
 
         working_provider = Mock(spec=YahooFinanceProvider)
-        working_provider.get_fundamental_data.return_value = [
-            FundamentalData(ticker="AAPL", market_cap=3e12)
-        ]
+        working_provider.get_fundamental_data.return_value = [FundamentalData(ticker="AAPL", market_cap=3e12)]
         working_provider.supports_historical_data.return_value = False
 
         provider = UnifiedFundamentalProvider([failing_provider, working_provider])
@@ -149,6 +143,7 @@ class TestUnifiedFundamentalProvider:
         provider = UnifiedFundamentalProvider([mock_provider], enable_caching=True)
 
         from datetime import datetime
+
         date = datetime(2023, 1, 1)
 
         # Store data
@@ -165,14 +160,13 @@ class TestUnifiedFundamentalProvider:
     def test_unified_provider_cache_miss(self):
         """Test cache miss calls provider."""
         mock_provider = Mock(spec=YahooFinanceProvider)
-        mock_provider.get_fundamental_data.return_value = [
-            FundamentalData(ticker="AAPL", market_cap=3e12)
-        ]
+        mock_provider.get_fundamental_data.return_value = [FundamentalData(ticker="AAPL", market_cap=3e12)]
         mock_provider.supports_historical_data.return_value = True
 
         provider = UnifiedFundamentalProvider([mock_provider], enable_caching=True)
 
         from datetime import datetime
+
         date = datetime(2023, 1, 1)
 
         # Retrieve (cache empty, should call provider)
@@ -189,6 +183,7 @@ class TestUnifiedFundamentalProvider:
         provider = UnifiedFundamentalProvider([yahoo_provider])
 
         from datetime import datetime
+
         date = datetime(2020, 1, 1)
 
         # Yahoo doesn't support historical, should return empty data
@@ -220,6 +215,7 @@ class TestUnifiedFundamentalProvider:
         provider = UnifiedFundamentalProvider([mock_provider], enable_caching=False)
 
         from datetime import datetime
+
         start = datetime(2020, 1, 1)
         end = datetime(2023, 1, 1)
 

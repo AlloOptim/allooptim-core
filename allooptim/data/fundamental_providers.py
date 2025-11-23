@@ -92,7 +92,9 @@ class YahooFinanceProvider(FundamentalDataProvider):
                         current_ratio = info.get("currentRatio")
 
                         # Handle debt_to_equity format variations
-                        if debt_to_equity is not None and debt_to_equity > DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD:  # Above this, likely percentage
+                        if (
+                            debt_to_equity is not None and debt_to_equity > DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD
+                        ):  # Above this, likely percentage
                             debt_to_equity = debt_to_equity / 100.0
 
                         # Create FundamentalData object
@@ -499,13 +501,15 @@ class FundamentalDataManager:
             mode: DEPRECATED - ignored, kept for backward compatibility
         """
         import warnings
+
         warnings.warn(
             "FundamentalDataManager is deprecated. Use UnifiedFundamentalProvider directly instead.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
 
         from allooptim.data.provider_factory import FundamentalDataProviderFactory
+
         self.provider = FundamentalDataProviderFactory.create_provider()
 
         logger.info("FundamentalDataManager initialized (deprecated - use UnifiedFundamentalProvider)")

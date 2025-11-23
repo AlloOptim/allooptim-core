@@ -1,17 +1,14 @@
 """Integration tests for fundamental data providers with optimizers."""
 
 import os
-import warnings
 from datetime import datetime
 from unittest.mock import Mock, patch
 
 import pandas as pd
-import pytest
 
-from allooptim.allocation_to_allocators.orchestrator_factory import create_orchestrator, OrchestratorType
+from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType, create_orchestrator
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.data.fundamental_data import FundamentalData
-from allooptim.data.fundamental_providers import FundamentalDataManager
 from allooptim.data.provider_factory import FundamentalDataProviderFactory
 from allooptim.optimizer.fundamental.fundamental_optimizer import BalancedFundamentalOptimizer
 from allooptim.optimizer.optimizer_config import OptimizerConfig
@@ -39,22 +36,6 @@ class TestFundamentalIntegration:
         assert abs(weights.sum() - 1.0) < 0.01
         mock_provider.get_fundamental_data.assert_called_once()
 
-    def test_optimizer_backward_compatibility(self):
-        """Test old data_manager parameter still works."""
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always")
-
-            manager = FundamentalDataManager()
-            optimizer = BalancedFundamentalOptimizer(data_manager=manager)
-
-            # Should have deprecation warning (may have multiple due to nested initialization)
-            assert len(w) >= 1
-            assert any(issubclass(warning.category, DeprecationWarning) for warning in w)
-            assert any("deprecated" in str(warning.message) for warning in w)
-
-            # Should still work
-            assert optimizer.data_provider is not None
-
     def test_optimizer_factory_with_provider(self):
         """Test optimizer factory passes provider correctly."""
         mock_provider = Mock()
@@ -62,10 +43,7 @@ class TestFundamentalIntegration:
             FundamentalData(ticker="AAPL", market_cap=3e12, roe=0.3, pb_ratio=5.0)
         ]
 
-        config = OptimizerConfig(
-            name="BalancedFundamentalOptimizer",
-            display_name="Test Fundamental"
-        )
+        config = OptimizerConfig(name="BalancedFundamentalOptimizer", display_name="Test Fundamental")
 
         optimizers = get_optimizer_by_config([config], fundamental_data_provider=mock_provider)
 
@@ -76,10 +54,7 @@ class TestFundamentalIntegration:
 
     def test_optimizer_factory_without_provider(self):
         """Test optimizer factory creates default provider."""
-        config = OptimizerConfig(
-            name="BalancedFundamentalOptimizer",
-            display_name="Test Fundamental"
-        )
+        config = OptimizerConfig(name="BalancedFundamentalOptimizer", display_name="Test Fundamental")
 
         optimizers = get_optimizer_by_config([config])
 
@@ -89,6 +64,7 @@ class TestFundamentalIntegration:
         assert optimizer.data_provider is not None
         # Should be UnifiedFundamentalProvider
         from allooptim.data.provider_factory import UnifiedFundamentalProvider
+
         assert isinstance(optimizer.data_provider, UnifiedFundamentalProvider)
 
     def test_orchestrator_with_provider(self):
@@ -96,62 +72,57 @@ class TestFundamentalIntegration:
         mock_provider = Mock()
         mock_provider.get_fundamental_data.return_value = [
             FundamentalData(ticker="AAPL", market_cap=3e12, roe=0.3, pb_ratio=5.0),
-            FundamentalData(ticker="MSFT", market_cap=2e12, roe=0.25, pb_ratio=4.0)
+            FundamentalData(ticker="MSFT", market_cap=2e12, roe=0.25, pb_ratio=4.0),
         ]
 
-        from allooptim.config.a2a_config import A2AConfig
-        from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 
         orchestrator = create_orchestrator(
             orchestrator_type=OrchestratorType.OPTIMIZED,
             optimizer_configs=[
                 OptimizerConfig(name="BalancedFundamentalOptimizer"),
-                OptimizerConfig(name="MomentumOptimizer")
+                OptimizerConfig(name="MomentumOptimizer"),
             ],
             transformer_names=[],  # Empty list instead of None
             a2a_config=A2AConfig(allocation_constraints={"max_active_assets": 2}),
-            fundamental_data_provider=mock_provider
+            fundamental_data_provider=mock_provider,
         )
 
         # Verify fundamental optimizer has provider
-        fundamental_opts = [o for o in orchestrator.optimizers
-                           if hasattr(o, 'data_provider')]
+        fundamental_opts = [o for o in orchestrator.optimizers if hasattr(o, "data_provider")]
         assert len(fundamental_opts) == 1
         assert fundamental_opts[0].data_provider is mock_provider
 
     def test_provider_factory_integration(self):
         """Test full integration with factory-created provider."""
         # This test uses the actual factory (with mocking to avoid network calls)
-        with patch.dict(os.environ, {}, clear=True):
-            with patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
-                mock_yahoo.return_value = Mock()
-                mock_yahoo.return_value.get_fundamental_data.return_value = [
-                    FundamentalData(ticker="AAPL", market_cap=3e12, roe=0.3, pb_ratio=5.0)
-                ]
-                mock_yahoo.return_value.supports_historical_data.return_value = False
+        with patch.dict(os.environ, {}, clear=True), \
+             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+            mock_yahoo.return_value = Mock()
+            mock_yahoo.return_value.get_fundamental_data.return_value = [
+                FundamentalData(ticker="AAPL", market_cap=3e12, roe=0.3, pb_ratio=5.0)
+            ]
+            mock_yahoo.return_value.supports_historical_data.return_value = False
 
-                provider = FundamentalDataProviderFactory.create_provider()
+            provider = FundamentalDataProviderFactory.create_provider()
 
-                # Create optimizer with this provider
-                optimizer = BalancedFundamentalOptimizer(data_provider=provider)
+            # Create optimizer with this provider
+            optimizer = BalancedFundamentalOptimizer(data_provider=provider)
 
-                mu = pd.Series([0.1], index=["AAPL"])
-                cov = pd.DataFrame([[0.04]], index=["AAPL"], columns=["AAPL"])
+            mu = pd.Series([0.1], index=["AAPL"])
+            cov = pd.DataFrame([[0.04]], index=["AAPL"], columns=["AAPL"])
 
-                weights = optimizer.allocate(mu, cov, time=datetime.now())
+            weights = optimizer.allocate(mu, cov, time=datetime.now())
 
-                assert len(weights) == 1
-                assert abs(weights.sum() - 1.0) < 0.01
+            assert len(weights) == 1
+            assert abs(weights.sum() - 1.0) < 0.01
 
     def test_fundamental_data_caching(self):
         """Test that caching works in integration."""
-        from allooptim.data.provider_factory import UnifiedFundamentalProvider
         from allooptim.data.fundamental_providers import YahooFinanceProvider
+        from allooptim.data.provider_factory import UnifiedFundamentalProvider
 
         mock_provider = Mock(spec=YahooFinanceProvider)
-        mock_provider.get_fundamental_data.return_value = [
-            FundamentalData(ticker="AAPL", market_cap=3e12)
-        ]
+        mock_provider.get_fundamental_data.return_value = [FundamentalData(ticker="AAPL", market_cap=3e12)]
         mock_provider.supports_historical_data.return_value = True
 
         provider = UnifiedFundamentalProvider([mock_provider], enable_caching=True)
@@ -178,7 +149,7 @@ class TestFundamentalIntegration:
         mock_provider.get_fundamental_data.return_value = [
             FundamentalData(ticker="AAPL", market_cap=3e12, roe=0.3, pb_ratio=5.0),
             FundamentalData(ticker="MSFT", market_cap=2e12, roe=0.25, pb_ratio=4.0),
-            FundamentalData(ticker="GOOGL", market_cap=1.5e12, roe=0.2, pb_ratio=3.0)
+            FundamentalData(ticker="GOOGL", market_cap=1.5e12, roe=0.2, pb_ratio=3.0),
         ]
 
         optimizer = BalancedFundamentalOptimizer(data_provider=mock_provider)
@@ -186,11 +157,7 @@ class TestFundamentalIntegration:
         tickers = ["AAPL", "MSFT", "GOOGL"]
         mu = pd.Series([0.1, 0.08, 0.12], index=tickers)
         cov = pd.DataFrame(
-            [[0.04, 0.02, 0.01],
-             [0.02, 0.03, 0.015],
-             [0.01, 0.015, 0.05]],
-            index=tickers,
-            columns=tickers
+            [[0.04, 0.02, 0.01], [0.02, 0.03, 0.015], [0.01, 0.015, 0.05]], index=tickers, columns=tickers
         )
 
         weights = optimizer.allocate(mu, cov, time=datetime.now())

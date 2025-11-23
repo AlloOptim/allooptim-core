@@ -298,7 +298,9 @@ class WikipediaPipelineOrchestrator(BaseOrchestrator):
                 final_allocation=pd.Series(asset_weights, index=mu.index),
                 optimizer_allocations=optimizer_allocations_list,
                 optimizer_weights=optimizer_weights_list,
-                metrics=PerformanceMetrics(expected_return=0, volatility=0, sharpe_ratio=0, diversity_score=0),  # Placeholder
+                metrics=PerformanceMetrics(
+                    expected_return=0, volatility=0, sharpe_ratio=0, diversity_score=0
+                ),  # Placeholder
                 runtime_seconds=0,
                 n_simulations=1,
                 optimizer_errors=[],

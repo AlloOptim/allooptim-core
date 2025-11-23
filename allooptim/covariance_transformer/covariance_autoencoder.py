@@ -13,12 +13,12 @@ import pandas as pd
 from tinygrad import Tensor, dtypes, nn
 from tinygrad.nn import optim
 
+from allooptim.covariance_transformer.covariance_transformer import (
+    _create_cov_dataframe,
+    _extract_cov_info,
+)
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
-)
-from allooptim.covariance_transformer.covariance_transformer import (
-    _extract_cov_info,
-    _create_cov_dataframe,
 )
 from allooptim.data_generation.lower_triangle_utils import get_packed_size, pack_lower_triangle, unpack_lower_triangle
 from allooptim.data_generation.training_data import TrainingConfig, TrainingDataGenerator, load_training_data
@@ -72,6 +72,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
             use_lower_triangle: Use symmetric matrix optimization (recommended)
             use_synthetic: Whether to use synthetic training data
             n_synthetic_samples: Number of synthetic samples to generate
+            n_assets: Number of assets (inferred from data if None)
         """
         self.use_lower_triangle = use_lower_triangle
         self.hidden_dims = hidden_dims

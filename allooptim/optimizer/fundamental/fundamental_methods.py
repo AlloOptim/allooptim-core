@@ -13,7 +13,6 @@ from pydantic import BaseModel, model_validator
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.data.fundamental_data import FundamentalData
-from allooptim.data.fundamental_providers import FundamentalDataManager
 from allooptim.data.provider_factory import UnifiedFundamentalProvider
 
 logger = logging.getLogger(__name__)
@@ -194,7 +193,6 @@ def allocate(
     today: datetime,
     config: BalancedFundamentalConfig,
     data_provider: Optional[UnifiedFundamentalProvider] = None,
-    data_manager: Optional[FundamentalDataManager] = None,  # DEPRECATED
 ) -> np.ndarray:
     """Allocate portfolio weights based purely on fundamental data.
 
@@ -210,7 +208,6 @@ def allocate(
         today: Current date (for logging purposes)
         config: Configuration for fundamental scoring
         data_provider: Fundamental data provider for fetching data
-        data_manager: DEPRECATED - Use data_provider instead
 
     Returns:
         np.ndarray: Portfolio weights summing to 1.0
@@ -231,19 +228,11 @@ def allocate(
     if data_provider is not None:
         logger.debug(f"Using data_provider: {type(data_provider).__name__}")
         fundamentals = data_provider.get_fundamental_data(asset_names, today)
-    elif data_manager is not None:
-        import warnings
-        warnings.warn(
-            "data_manager parameter is deprecated, use data_provider instead",
-            DeprecationWarning,
-            stacklevel=2
-        )
-        logger.debug(f"Using data_manager: {type(data_manager).__name__}")
-        fundamentals = data_manager.get_fundamental_data(asset_names, today)
     else:
         # Fallback to legacy method for backward compatibility
-        logger.debug("Using legacy yfinance method (no data_provider or data_manager)")
+        logger.debug("Using legacy yfinance method (no data_provider)")
         from allooptim.data.provider_factory import FundamentalDataProviderFactory
+
         fallback_provider = FundamentalDataProviderFactory.create_provider()
         fundamentals = fallback_provider.get_fundamental_data(asset_names, today)
 
