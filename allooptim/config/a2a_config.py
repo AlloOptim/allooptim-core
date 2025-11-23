@@ -12,6 +12,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from allooptim.config.cash_config import CashConfig
+from allooptim.config.failure_handling_config import FailureHandlingConfig
 
 
 class A2AConfig(BaseModel):
@@ -19,6 +20,12 @@ class A2AConfig(BaseModel):
 
     # Cash and leverage settings
     cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")
+
+    # Failure handling settings
+    failure_handling: FailureHandlingConfig = Field(
+        default_factory=FailureHandlingConfig,
+        description="Configuration for handling optimizer failures in A2A orchestration"
+    )
 
     # Error estimation
     error_estimator_names: List[str] = Field(

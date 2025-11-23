@@ -4,6 +4,7 @@ Abstract base classes for Allocation-to-Allocators orchestration.
 Provides clean separation between different orchestration strategies.
 """
 
+import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import List, Optional
@@ -16,6 +17,14 @@ from allooptim.allocation_to_allocators.simulator_interface import (
 )
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.cash_config import AllowCashOption
+from allooptim.config.failure_handling_config import FailureHandlingConfig
+from allooptim.config.failure_diagnostics import (
+    CircuitBreaker,
+    FailureClassifier,
+    FailureDiagnostic,
+    RetryHandler,
+    failure_diagnostics_context,
+)
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -89,6 +98,13 @@ class BaseOrchestrator(AbstractA2AOrchestrator):
         self.covariance_transformers = covariance_transformers
         self.config = config
 
+        # Initialize circuit breaker if enabled
+        self.circuit_breaker = None
+        if config.failure_handling.circuit_breaker_threshold is not None:
+            self.circuit_breaker = CircuitBreaker(
+                threshold=config.failure_handling.circuit_breaker_threshold
+            )
+
         # Set allow_cash on optimizers based on cash configuration
         self._configure_optimizer_cash_settings()
 
@@ -139,6 +155,80 @@ class BaseOrchestrator(AbstractA2AOrchestrator):
         for transformer in self.covariance_transformers:
             cov_transformed = transformer.transform(cov_transformed, n_observations)
         return cov_transformed
+
+    def _handle_optimizer_failure(
+        self,
+        optimizer: AbstractOptimizer,
+        exception: Exception,
+        n_assets: int,
+        asset_names: Optional[List[str]] = None,
+    ) -> Optional[pd.Series]:
+        """Handle optimizer failure according to configured failure handling strategy.
+
+        Enhanced version with error classification, context-aware fallbacks,
+        retry logic, circuit breaker, and diagnostics.
+
+        Args:
+            optimizer: The optimizer that failed
+            exception: The exception that was raised
+            n_assets: Number of assets in the portfolio
+            asset_names: Optional list of asset names for index
+
+        Returns:
+            Fallback weights as pd.Series, or None to skip optimizer entirely
+        """
+        failure_config = self.config.failure_handling
+
+        # Check circuit breaker first
+        if self.circuit_breaker and self.circuit_breaker.is_open(optimizer.name):
+            if failure_config.log_failures:
+                logging.warning(
+                    f"Optimizer {optimizer.name} is circuit-breaker disabled, skipping"
+                )
+            return None
+
+        # Classify the failure
+        failure_classifier = FailureClassifier()
+        failure_type = failure_classifier.classify_failure(exception)
+
+        # Determine handling strategy (context-aware or default)
+        handling_option = failure_config.context_aware_fallbacks.get(
+            failure_type,
+            failure_config.option
+        )
+
+        # Log failure if enabled
+        if failure_config.log_failures:
+            logging.warning(
+                f"Optimizer {optimizer.name} failed with {failure_type.value}: {exception}"
+            )
+
+        # Record failure for circuit breaker
+        if self.circuit_breaker:
+            self.circuit_breaker.record_failure(optimizer.name)
+
+        # Apply the determined handling strategy
+        if handling_option == "zero_weights":
+            # Return all-zero weights (no investment)
+            weights = pd.Series(0.0, index=asset_names or range(n_assets), name=optimizer.name)
+            return weights
+
+        elif handling_option == "equal_weights":
+            # Return 1/N naive diversification
+            equal_weight = 1.0 / n_assets
+            weights = pd.Series(equal_weight, index=asset_names or range(n_assets), name=optimizer.name)
+            return weights
+
+        elif handling_option == "ignore_optimizer":
+            # Skip optimizer entirely in ensemble combination
+            return None
+
+        else:
+            # Should not happen due to enum validation, but defensive programming
+            logging.error(f"Unknown failure handling option: {handling_option}, defaulting to equal_weights")
+            equal_weight = 1.0 / n_assets
+            weights = pd.Series(equal_weight, index=asset_names or range(n_assets), name=optimizer.name)
+            return weights
 
     @abstractmethod
     def allocate(

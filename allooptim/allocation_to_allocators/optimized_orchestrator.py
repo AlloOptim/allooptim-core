@@ -212,7 +212,24 @@ class OptimizedOrchestrator(BaseOrchestrator):
         except Exception as error:
             tracemalloc.stop()
             optimizer.reset()
-            raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}") from error
+            # For standalone usage (single optimizer), always use EQUAL_WEIGHTS fallback
+            n_assets = len(mu)
+            equal_weight = 1.0 / n_assets
+            fallback_weights = pd.Series(equal_weight, index=mu.index, name=optimizer.name)
+
+            # Store fallback allocation
+            weights_series = fallback_weights
+            optimizer_allocations_list = [
+                OptimizerAllocation(
+                    instance_id=optimizer.display_name,
+                    weights=weights_series,
+                    runtime_seconds=None,
+                    memory_usage_mb=None,
+                )
+            ]
+
+            # Store optimizer weight (1.0 for single optimizer)
+            optimizer_weights_list = [OptimizerWeight(instance_id=optimizer.display_name, weight=1.0)]
 
         # Create optimizer errors
         optimizer_errors = [
@@ -347,7 +364,34 @@ class OptimizedOrchestrator(BaseOrchestrator):
             except Exception as error:
                 tracemalloc.stop()
                 optimizer.reset()
-                raise RuntimeError(f"Allocation failed for {optimizer.name}: {str(error)}") from error
+                # Use configured failure handling strategy for A2A usage
+                fallback_weights = self._handle_optimizer_failure(
+                    optimizer=optimizer,
+                    exception=error,
+                    n_assets=len(mu),
+                    asset_names=mu.index.tolist(),
+                )
+
+                if fallback_weights is not None:
+                    # Add weighted contribution to final allocation (even for fallback)
+                    asset_weights += allocator_weights[k] * fallback_weights.values
+
+                    # Store fallback allocation
+                    optimizer_allocations_list.append(
+                        OptimizerAllocation(
+                            instance_id=optimizer.display_name,
+                            weights=fallback_weights,
+                            runtime_seconds=None,
+                            memory_usage_mb=None,
+                        )
+                    )
+
+                    # Store optimizer weight (still use allocated weight even for fallback)
+                    optimizer_weights_list.append(
+                        OptimizerWeight(instance_id=optimizer.display_name, weight=float(allocator_weights[k]))
+                    )
+                # If fallback_weights is None (IGNORE_OPTIMIZER), skip this optimizer entirely
+                # Note: This breaks the correspondence between allocator_weights and optimizer lists
 
             # Create optimizer error (simplified - in future this should use error estimators)
             optimizer_errors.append(

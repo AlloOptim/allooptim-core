@@ -109,8 +109,7 @@ class AbstractOptimizer(ABC):
         """
         self.max_leverage = max_leverage
 
-    @abstractmethod
-    def allocate(
+    def allocate_safe(
         self,
         ds_mu: pd.Series,
         df_cov: pd.DataFrame,
@@ -118,6 +117,33 @@ class AbstractOptimizer(ABC):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
+        """Create an optimal portfolio allocation with graceful failure handling.
+
+        This method wraps the allocate() method and provides fallback behavior
+        when the optimizer fails. For standalone optimizer usage (not in A2A),
+        this always uses EQUAL_WEIGHTS fallback on failure.
+
+        Args:
+            ds_mu: Expected return vector as pandas Series with asset names as index
+            df_cov: Expected covariance matrix as pandas DataFrame with asset names as both index and columns
+            df_prices: Optional historical prices DataFrame
+            time: Optional timestamp for time-dependent optimizers
+            l_moments: Optional L-moments for advanced risk modeling
+
+        Returns:
+            Portfolio weights as pandas Series with asset names as index
+        """
+        try:
+            return self.allocate(ds_mu, df_cov, df_prices, time, l_moments)
+        except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"Optimizer {self.name} failed with {type(e).__name__}: {e}")
+
+            # For standalone usage, always use EQUAL_WEIGHTS fallback
+            n_assets = len(ds_mu)
+            equal_weight = 1.0 / n_assets
+            return pd.Series(equal_weight, index=ds_mu.index, name=self.name)
         """Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
 
         Args:

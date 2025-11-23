@@ -152,18 +152,25 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             except Exception as error:
                 tracemalloc.stop()
                 logger.warning(f"Allocation failed for {optimizer.name}: {str(error)}")
-                # Use equal weights fallback
-                equal_weights = np.ones(len(mu)) / len(mu)
-                weights_series = pd.Series(equal_weights, index=mu.index)
-
-                optimizer_allocations_list.append(
-                    OptimizerAllocation(
-                        instance_id=optimizer.display_name,
-                        weights=weights_series,
-                        runtime_seconds=None,
-                        memory_usage_mb=None,
-                    )
+                # Use configured failure handling strategy
+                fallback_weights = self._handle_optimizer_failure(
+                    optimizer=optimizer,
+                    exception=error,
+                    n_assets=len(mu),
+                    asset_names=mu.index.tolist(),
                 )
+
+                if fallback_weights is not None:
+                    # Store fallback allocation
+                    optimizer_allocations_list.append(
+                        OptimizerAllocation(
+                            instance_id=optimizer.display_name,
+                            weights=fallback_weights,
+                            runtime_seconds=None,
+                            memory_usage_mb=None,
+                        )
+                    )
+                # If fallback_weights is None (IGNORE_OPTIMIZER), skip this optimizer entirely
 
         # Second pass: determine A2A weights based on combination method
         match self.combined_weight_type:
