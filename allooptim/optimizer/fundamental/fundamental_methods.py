@@ -5,16 +5,16 @@ No price data, returns, or covariance analysis.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
 import numpy as np
-import yfinance as yf
 from pydantic import BaseModel, model_validator
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.data.fundamental_data import FundamentalData
 from allooptim.data.fundamental_providers import FundamentalDataManager
+from allooptim.data.provider_factory import UnifiedFundamentalProvider
 
 logger = logging.getLogger(__name__)
 
@@ -110,88 +110,6 @@ class OnlyMarketCapFundamentalConfig(BalancedFundamentalConfig):
     current_ratio_weight: float = 0.0
 
 
-def get_fundamental_data(today: datetime, tickers: list[str], batch_size: int = 1000) -> list[FundamentalData]:
-    """Download fundamental data for multiple stocks using batch processing.
-
-    Args:
-        today: Current date for data fetching
-        tickers: list of ticker symbols to fetch data for
-        batch_size: Maximum number of tickers to process in one batch
-
-    Returns:
-        list of FundamentalData objects, one for each ticker
-    """
-    all_results = []
-
-    logger.debug(f"Fetching fundamental data for {len(tickers)} tickers in batches of {batch_size}")
-
-    if today - datetime.now() > timedelta(days=1):
-        logger.error("Data fetching is only supported for the current day.")
-
-    # Process tickers in batches
-    for i in range(0, len(tickers), batch_size):
-        batch_tickers = tickers[i : i + batch_size]
-        batch_num = i // batch_size + 1
-        total_batches = (len(tickers) + batch_size - 1) // batch_size
-
-        logger.debug(f"Processing batch {batch_num}/{total_batches}: {len(batch_tickers)} tickers")
-
-        try:
-            tickers_data = yf.Tickers(
-                tickers=batch_tickers,
-            )
-
-            # Process each ticker in the batch
-            for ticker in batch_tickers:
-                try:
-                    info = tickers_data.tickers[ticker].info
-
-                    # Extract fundamental metrics
-                    market_cap = info.get("marketCap")
-                    roe = info.get("returnOnEquity")
-                    debt_to_equity = info.get("debtToEquity")
-                    pb_ratio = info.get("priceToBook")
-                    current_ratio = info.get("currentRatio")
-
-                    # Handle debt_to_equity format variations (some APIs return as percentage)
-                    if debt_to_equity is not None and debt_to_equity > DEBT_TO_EQUITY_PERCENTAGE_THRESHOLD:
-                        debt_to_equity = debt_to_equity / 100.0
-
-                    # Create FundamentalData object
-                    fund_data = FundamentalData(
-                        ticker=ticker,
-                        market_cap=market_cap,
-                        roe=roe,
-                        debt_to_equity=debt_to_equity,
-                        pb_ratio=pb_ratio,
-                        current_ratio=current_ratio,
-                    )
-
-                    all_results.append(fund_data)
-
-                    if fund_data.is_valid:
-                        logger.debug(f"  ✓ {ticker}")
-                    else:
-                        logger.warning(f"  ✗ {ticker} (no valid data)")
-
-                except Exception as e:
-                    logger.error(f"  ✗ {ticker}: {e}")
-                    # Create empty FundamentalData for failed ticker
-                    all_results.append(FundamentalData(ticker=ticker))
-
-        except Exception as e:
-            logger.error(f"Batch {batch_num} failed: {e}")
-            # Create empty FundamentalData for all tickers in failed batch
-            for ticker in batch_tickers:
-                all_results.append(FundamentalData(ticker=ticker))
-
-    # Summary statistics
-    valid_count = sum(1 for data in all_results if data.is_valid)
-    logger.debug(f"Fundamental data summary: {valid_count}/{len(tickers)} tickers successful")
-
-    return all_results
-
-
 def normalize_metric(values: np.ndarray, inverse: bool = False) -> np.ndarray:
     """Normalize values to 0-1 range using min-max normalization.
 
@@ -275,7 +193,8 @@ def allocate(
     asset_names: list[str],
     today: datetime,
     config: BalancedFundamentalConfig,
-    data_manager: Optional[FundamentalDataManager] = None,
+    data_provider: Optional[UnifiedFundamentalProvider] = None,
+    data_manager: Optional[FundamentalDataManager] = None,  # DEPRECATED
 ) -> np.ndarray:
     """Allocate portfolio weights based purely on fundamental data.
 
@@ -290,7 +209,8 @@ def allocate(
         asset_names: list of stock ticker symbols
         today: Current date (for logging purposes)
         config: Configuration for fundamental scoring
-        data_manager: Optional fundamental data manager for fetching data
+        data_provider: Fundamental data provider for fetching data
+        data_manager: DEPRECATED - Use data_provider instead
 
     Returns:
         np.ndarray: Portfolio weights summing to 1.0
@@ -308,13 +228,24 @@ def allocate(
 
     # Download fundamental data using batch processing
     logger.debug(f"Fetching fundamental data for {len(asset_names)} assets using batch processing...")
-    if data_manager is not None:
+    if data_provider is not None:
+        logger.debug(f"Using data_provider: {type(data_provider).__name__}")
+        fundamentals = data_provider.get_fundamental_data(asset_names, today)
+    elif data_manager is not None:
+        import warnings
+        warnings.warn(
+            "data_manager parameter is deprecated, use data_provider instead",
+            DeprecationWarning,
+            stacklevel=2
+        )
         logger.debug(f"Using data_manager: {type(data_manager).__name__}")
         fundamentals = data_manager.get_fundamental_data(asset_names, today)
     else:
         # Fallback to legacy method for backward compatibility
-        logger.debug("Using legacy yfinance method (no data_manager)")
-        fundamentals = get_fundamental_data(today, asset_names)
+        logger.debug("Using legacy yfinance method (no data_provider or data_manager)")
+        from allooptim.data.provider_factory import FundamentalDataProviderFactory
+        fallback_provider = FundamentalDataProviderFactory.create_provider()
+        fundamentals = fallback_provider.get_fundamental_data(asset_names, today)
 
     # Check if we have any valid data
     valid_count = sum(1 for f in fundamentals if f.is_valid)

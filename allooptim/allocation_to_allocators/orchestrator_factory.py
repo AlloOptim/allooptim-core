@@ -43,6 +43,7 @@ def create_orchestrator(
     optimizer_configs: List[OptimizerConfig],
     transformer_names: List[str] = None,
     a2a_config: Optional[A2AConfig] = None,
+    fundamental_data_provider=None,
     **kwargs,
 ) -> BaseOrchestrator:
     """Factory function to create the appropriate orchestrator based on type.
@@ -52,6 +53,7 @@ def create_orchestrator(
         optimizer_configs: List of OptimizerConfig objects
         transformer_names: List of covariance transformer names to use
         a2a_config: A2AConfig for orchestrator configuration
+        fundamental_data_provider: Optional fundamental data provider for fundamental optimizers
         **kwargs: Additional arguments specific to orchestrator type
 
     Returns:
@@ -61,7 +63,7 @@ def create_orchestrator(
         ValueError: If orchestrator_type is not recognized
     """
     # Get optimizers and transformers
-    optimizers = get_optimizer_by_config(optimizer_configs)
+    optimizers = get_optimizer_by_config(optimizer_configs, fundamental_data_provider)
     transformers = get_transformer_by_names(transformer_names)
 
     if a2a_config is None:

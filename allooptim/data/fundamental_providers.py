@@ -486,104 +486,38 @@ class FundamentalDataStore:
 
 
 class FundamentalDataManager:
-    """Manager for fundamental data providers and storage."""
+    """Manager for fundamental data providers and storage.
+
+    DEPRECATED: Use UnifiedFundamentalProvider directly instead.
+    This class is maintained for backward compatibility only.
+    """
 
     def __init__(self, mode: str = "live"):
         """Initialize the fundamental data manager.
 
         Args:
-            mode: 'live' for Yahoo Finance, 'backtest' for SimFin
+            mode: DEPRECATED - ignored, kept for backward compatibility
         """
-        self.mode = mode
-        self.data_store = FundamentalDataStore()
-
-        # Initialize providers
-        self.live_provider = YahooFinanceProvider()
-        self.backtest_provider = None  # Lazy initialization
-
-        logger.info(f"FundamentalDataManager initialized in {mode} mode")
-
-    def get_provider(self) -> FundamentalDataProvider:
-        """Get the appropriate data provider based on mode."""
-        if self.mode == "live":
-            return self.live_provider
-        elif self.mode == "backtest":
-            if self.backtest_provider is None:
-                self.backtest_provider = SimFinProvider()
-            return self.backtest_provider
-        else:
-            raise ValueError(f"Unknown mode: {self.mode}")
-
-    def preload_backtest_data(
-        self,
-        tickers: List[str],
-        start_date: datetime,
-        end_date: datetime,
-        frequency: str = "A",  # Annual fundamental data
-    ) -> None:
-        """Preload fundamental data for backtesting period.
-
-        Args:
-            tickers: List of ticker symbols
-            start_date: Start date for backtest
-            end_date: End date for backtest
-            frequency: Frequency of fundamental data updates ('A' for annual)
-        """
-        if self.mode != "backtest":
-            logger.warning("Preloading only supported in backtest mode")
-            return
-
-        logger.info(
-            f"Preloading fundamental data for {len(tickers)} tickers from {start_date.date()} to {end_date.date()}"
+        import warnings
+        warnings.warn(
+            "FundamentalDataManager is deprecated. Use UnifiedFundamentalProvider directly instead.",
+            DeprecationWarning,
+            stacklevel=2
         )
 
-        # Generate dates for fundamental data updates
-        dates = pd.date_range(start=start_date, end=end_date, freq=frequency)
+        from allooptim.data.provider_factory import FundamentalDataProviderFactory
+        self.provider = FundamentalDataProviderFactory.create_provider()
 
-        total_requests = len(dates)
-        for i, date in enumerate(dates):
-            logger.info(f"Loading fundamental data for {date.strftime('%Y-%m-%d')} ({i+1}/{total_requests})")
-
-            try:
-                data = self.get_provider().get_fundamental_data(tickers, date)
-                logger.debug(f"Retrieved {len(data)} data points for {date.strftime('%Y-%m-%d')}")
-                for d in data:
-                    logger.debug(f"  {d.ticker}: valid={d.is_valid}")
-                self.data_store.store_data(data, date)
-            except Exception as e:
-                logger.error(f"Failed to load data for {date.strftime('%Y-%m-%d')}: {e}")
-
-        logger.info(f"Preloaded {self.data_store.cache_size} fundamental data points")
+        logger.info("FundamentalDataManager initialized (deprecated - use UnifiedFundamentalProvider)")
 
     def get_fundamental_data(self, tickers: List[str], date: Optional[datetime] = None) -> List[FundamentalData]:
-        """Get fundamental data using the appropriate provider.
-
-        In backtest mode, uses cached data if available.
-        In live mode, fetches fresh data.
+        """Get fundamental data using the unified provider.
 
         Args:
             tickers: List of ticker symbols
-            date: Date for data (backtest mode only)
+            date: Date for data
 
         Returns:
             List of FundamentalData objects
         """
-        if self.mode == "backtest":
-            if date is None:
-                raise ValueError("Date required for backtest mode")
-
-            # For backtest mode, find the most recent year end before or on the given date
-            # This matches the logic used in SimFinProvider.get_fundamental_data
-            target_date = date
-            year_end = pd.Timestamp(target_date).to_period("A").end_time
-            if year_end > target_date:
-                # If year end is after target date, use previous year
-                year_end = (pd.Timestamp(target_date) - pd.DateOffset(years=1)).to_period("A").end_time
-
-            logger.debug(
-                f"Retrieving fundamental data for {date.strftime('%Y-%m-%d')} using year end {year_end.strftime('%Y-%m-%d')}"
-            )
-            return self.data_store.get_data(tickers, year_end)
-        else:
-            # Live mode - fetch fresh data
-            return self.get_provider().get_fundamental_data(tickers, date)
+        return self.provider.get_fundamental_data(tickers, date)

@@ -20,6 +20,7 @@ import numpy as np
 import pandas as pd
 
 from allooptim.data.fundamental_providers import FundamentalDataManager
+from allooptim.data.provider_factory import FundamentalDataProviderFactory, UnifiedFundamentalProvider
 from allooptim.optimizer.allocation_metric import (
     LMoments,
 )
@@ -46,18 +47,35 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
         self,
         config: Optional[BalancedFundamentalConfig] = None,
         display_name: Optional[str] = None,
-        data_manager: Optional[FundamentalDataManager] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
+        data_manager: Optional[FundamentalDataManager] = None,  # DEPRECATED
     ) -> None:
         """Initialize balanced fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
-            data_manager: Fundamental data manager for data access. If None, uses legacy yfinance.
+            data_provider: Fundamental data provider for data access. If None, creates from factory.
+            data_manager: DEPRECATED - Use data_provider instead. Fundamental data manager for data access.
         """
         super().__init__(display_name)
         self.config = config or BalancedFundamentalConfig()
-        self.data_manager = data_manager or FundamentalDataManager()
+        
+        # Handle data provider selection with backward compatibility
+        if data_manager is not None:
+            import warnings
+            warnings.warn(
+                "data_manager parameter is deprecated, use data_provider instead",
+                DeprecationWarning,
+                stacklevel=2
+            )
+            # Adapt old manager to new interface (temporary compatibility)
+            self.data_provider = _adapt_manager_to_provider(data_manager)
+        elif data_provider is not None:
+            self.data_provider = data_provider
+        else:
+            # Default: create from factory
+            self.data_provider = FundamentalDataProviderFactory.create_provider()
 
         self._weights_today: Optional[np.ndarray] = None
         self._last_calculation_time: Optional[datetime] = None
@@ -102,7 +120,7 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
                     asset_names=asset_names,
                     today=time,
                     config=self.config,
-                    data_manager=self.data_manager,
+                    data_provider=self.data_provider,
                 )
 
                 self._weights_today = weights
@@ -135,16 +153,18 @@ class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
         self,
         config: Optional[QualityGrowthFundamentalConfig] = None,
         display_name: Optional[str] = None,
-        data_manager: Optional[FundamentalDataManager] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
+        data_manager: Optional[FundamentalDataManager] = None,  # DEPRECATED
     ) -> None:
         """Initialize quality growth fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
-            data_manager: Fundamental data manager for data access.
+            data_provider: Fundamental data provider for data access.
+            data_manager: DEPRECATED - Use data_provider instead.
         """
-        super().__init__(config, display_name, data_manager)
+        super().__init__(config, display_name, data_provider, data_manager)
         self.config = config or QualityGrowthFundamentalConfig()
 
     @property
@@ -164,16 +184,18 @@ class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
         self,
         config: Optional[ValueInvestingFundamentalConfig] = None,
         display_name: Optional[str] = None,
-        data_manager: Optional[FundamentalDataManager] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
+        data_manager: Optional[FundamentalDataManager] = None,  # DEPRECATED
     ) -> None:
         """Initialize value investing fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
-            data_manager: Fundamental data manager for data access.
+            data_provider: Fundamental data provider for data access.
+            data_manager: DEPRECATED - Use data_provider instead.
         """
-        super().__init__(config, display_name, data_manager)
+        super().__init__(config, display_name, data_provider, data_manager)
         self.config = config or ValueInvestingFundamentalConfig()
 
     @property
@@ -193,16 +215,18 @@ class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
         self,
         config: Optional[OnlyMarketCapFundamentalConfig] = None,
         display_name: Optional[str] = None,
-        data_manager: Optional[FundamentalDataManager] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
+        data_manager: Optional[FundamentalDataManager] = None,  # DEPRECATED
     ) -> None:
         """Initialize market cap fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
-            data_manager: Fundamental data manager for data access.
+            data_provider: Fundamental data provider for data access.
+            data_manager: DEPRECATED - Use data_provider instead.
         """
-        super().__init__(config, display_name, data_manager)
+        super().__init__(config, display_name, data_provider, data_manager)
         self.config = config or OnlyMarketCapFundamentalConfig()
 
     @property
@@ -213,3 +237,24 @@ class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
             Optimizer name string
         """
         return "MarketCapFundamentalOptimizer"
+
+
+def _adapt_manager_to_provider(data_manager: FundamentalDataManager) -> UnifiedFundamentalProvider:
+    """Temporary adapter to convert old FundamentalDataManager to new UnifiedFundamentalProvider.
+    
+    This is for backward compatibility during migration.
+    """
+    from allooptim.data.provider_factory import UnifiedFundamentalProvider
+    
+    # Create a simple adapter that wraps the manager
+    class ManagerAdapter:
+        def __init__(self, manager):
+            self.manager = manager
+            
+        def get_fundamental_data(self, tickers, date=None):
+            return self.manager.get_fundamental_data(tickers, date)
+            
+        def supports_historical_data(self):
+            return self.manager.mode == "backtest"
+    
+    return UnifiedFundamentalProvider([ManagerAdapter(data_manager)])

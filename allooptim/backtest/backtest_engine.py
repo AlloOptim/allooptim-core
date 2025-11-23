@@ -36,6 +36,7 @@ from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
 from allooptim.data.fundamental_providers import FundamentalDataManager
+from allooptim.data.provider_factory import FundamentalDataProviderFactory
 from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
 from allooptim.optimizer.wikipedia.wiki_database import download_data
 
@@ -82,6 +83,14 @@ class BacktestEngine:
 
         self.fundamental_data_manager = FundamentalDataManager(mode="backtest")
 
+        # Create shared fundamental data provider with caching for backtests
+        self.fundamental_provider = FundamentalDataProviderFactory.create_provider(
+            enable_caching=True
+        )
+
+        # Keep old manager for backward compatibility (can be removed later)
+        # TODO: Remove after migration is complete
+
         # Create orchestrator using factory
         if a2a_config is None:
             a2a_config = A2AConfig()
@@ -94,10 +103,11 @@ class BacktestEngine:
             optimizer_configs=self.config_backtest.optimizer_configs,
             transformer_names=self.config_backtest.transformer_names,
             a2a_config=a2a_config,
+            fundamental_data_provider=self.fundamental_provider,  # NEW: Pass provider
             **orchestrator_kwargs,
         )
 
-        self._inject_fundamental_data_manager()
+        # NO LONGER NEEDED: self._inject_fundamental_data_manager()
 
         self.results = {}
 
@@ -146,11 +156,10 @@ class BacktestEngine:
         if has_fundamental_optimizer:
             logger.info("Fundamental optimizers detected, preloading fundamental data...")
             try:
-                self.fundamental_data_manager.preload_backtest_data(
+                self.fundamental_provider.preload_data(
                     tickers=self.config_backtest.symbols,
                     start_date=start_data_date,
                     end_date=end_data_date,
-                    frequency="A",  # Annual fundamental data updates
                 )
                 logger.info("Fundamental data preload completed")
             except Exception as e:
@@ -736,32 +745,6 @@ class BacktestEngine:
                 portfolio_values.append(portfolio_value)
 
         return pd.Series(portfolio_values, index=price_data.index)
-
-    def _inject_fundamental_data_manager(self) -> None:
-        """Inject fundamental data manager into fundamental optimizers."""
-        from allooptim.optimizer.fundamental.fundamental_optimizer import (
-            BalancedFundamentalOptimizer,
-            MarketCapFundamentalOptimizer,
-            QualityGrowthFundamentalOptimizer,
-            ValueInvestingFundamentalOptimizer,
-        )
-
-        fundamental_optimizer_classes = (
-            BalancedFundamentalOptimizer,
-            QualityGrowthFundamentalOptimizer,
-            ValueInvestingFundamentalOptimizer,
-            MarketCapFundamentalOptimizer,
-        )
-
-        # Inject data manager into all optimizers in the orchestrator
-        injected_count = 0
-        for optimizer in self.orchestrator.optimizers:
-            if isinstance(optimizer, fundamental_optimizer_classes):
-                optimizer.data_manager = self.fundamental_data_manager
-                logger.info(f"Injected fundamental data manager into {optimizer.display_name}")
-                injected_count += 1
-
-        logger.info(f"Injected data manager into {injected_count} fundamental optimizers")
 
 
 class _PriceDataProvider(AbstractObservationSimulator):
