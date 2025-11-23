@@ -231,16 +231,21 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 alloc_df = pd.DataFrame(
                     {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
                 )
-                mean_asset = alloc_df.mean(axis=1)
-                variance_asset = np.clip(alloc_df.std(axis=1) ** 2, a_min=0.0, a_max=1.0)
-                variance_overall = variance_asset.mean()
-                asset_weights = (
-                    1.0 - self.config.volatility_adjustment
-                ) * mean_asset + self.config.volatility_adjustment * (variance_overall - variance_asset)
-                # Clip negative weights and normalize
-                asset_weights = np.clip(asset_weights, a_min=0.0, a_max=1.0)
-                if asset_weights.sum() > 0:
-                    asset_weights = asset_weights / asset_weights.sum()
+                
+                # Handle single optimizer case
+                if len(optimizer_allocations_list) == 1:
+                    asset_weights = alloc_df.iloc[:, 0].values
+                else:
+                    mean_asset = alloc_df.mean(axis=1)
+                    variance_asset = np.clip(alloc_df.std(axis=1) ** 2, a_min=0.0, a_max=1.0)
+                    variance_overall = variance_asset.mean()
+                    asset_weights = (
+                        1.0 - self.config.volatility_adjustment
+                    ) * mean_asset + self.config.volatility_adjustment * (variance_overall - variance_asset)
+                    # Clip negative weights and normalize
+                    asset_weights = np.clip(asset_weights, a_min=0.0, a_max=1.0)
+                    if asset_weights.sum() > 0:
+                        asset_weights = asset_weights / asset_weights.sum()
 
             case _:
                 raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
@@ -384,4 +389,4 @@ class VolatilityOrchestrator(EqualWeightOrchestrator):
         Returns:
             String identifier for this orchestrator type.
         """
-        return f"Volatility_A2A_alpha_{self.alpha}"
+        return f"Volatility_A2A_alpha_{self.config.volatility_adjustment}"

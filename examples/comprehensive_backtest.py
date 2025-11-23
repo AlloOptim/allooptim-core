@@ -33,7 +33,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
-def main(quick_test: bool = False,) -> None:
+def main(quick_test: bool = True,) -> None:
     """Main execution function."""
     logger.info("Starting comprehensive allocation algorithm backtest")
 

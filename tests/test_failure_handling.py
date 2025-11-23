@@ -618,14 +618,24 @@ class TestEnhancedBaseOrchestratorFailureHandling:
         expected_weight = 1.0 / len(mu)
         assert (result1 == expected_weight).all()
 
-        # Second failure should open circuit and be blocked
+        # Second failure should also be handled (circuit opens after this failure)
         result2 = orchestrator._handle_optimizer_failure(
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure 2"),
             n_assets=len(mu),
             asset_names=mu.index.tolist(),
         )
-        assert result2 is None  # Circuit breaker blocks
+        assert result2 is not None  # Second failure still handled
+        assert (result2 == expected_weight).all()
+
+        # Third failure should be blocked by circuit breaker
+        result3 = orchestrator._handle_optimizer_failure(
+            optimizer=self.optimizers[0],
+            exception=RuntimeError("Test failure 3"),
+            n_assets=len(mu),
+            asset_names=mu.index.tolist(),
+        )
+        assert result3 is None  # Circuit breaker now blocks
 
     def test_enhanced_logging(self, caplog):
         """Test enhanced logging with failure classification."""
