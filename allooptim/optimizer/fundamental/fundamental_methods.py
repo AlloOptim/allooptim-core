@@ -319,9 +319,11 @@ def allocate(
     valid_count = sum(1 for f in fundamentals if f.is_valid)
     if valid_count == 0:
         logger.warning("⚠ No valid fundamental data found. Returning equal weights.")
-        logger.warning(f"Sample of fundamental data received:")
+        logger.warning("Sample of fundamental data received:")
         for i, f in enumerate(fundamentals[:5]):  # Show first 5
-            logger.warning(f"  {f.ticker}: market_cap={f.market_cap}, roe={f.roe}, debt_to_equity={f.debt_to_equity}, pb_ratio={f.pb_ratio}, current_ratio={f.current_ratio}, is_valid={f.is_valid}")
+            logger.warning(
+                f"  {f.ticker}: market_cap={f.market_cap}, roe={f.roe}, debt_to_equity={f.debt_to_equity}, pb_ratio={f.pb_ratio}, current_ratio={f.current_ratio}, is_valid={f.is_valid}"
+            )
         return np.ones(len(asset_names)) / len(asset_names)
 
     logger.debug(f"\n{'-'*60}")

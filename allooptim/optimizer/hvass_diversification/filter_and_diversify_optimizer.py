@@ -21,9 +21,10 @@ References:
 from datetime import datetime
 from typing import Optional
 
+import numpy as np
 import pandas as pd
 from pydantic import BaseModel
-import numpy as np
+
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.hvass_diversification.diversify_optimizer import (

@@ -13,12 +13,13 @@ Key features:
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
 import numpy as np
 import pandas as pd
 
+from allooptim.data.fundamental_providers import FundamentalDataManager
 from allooptim.optimizer.allocation_metric import (
     LMoments,
 )
@@ -34,7 +35,6 @@ from allooptim.optimizer.fundamental.fundamental_methods import (
     ValueInvestingFundamentalConfig,
     allocate,
 )
-from allooptim.data.fundamental_providers import FundamentalDataManager
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
         self,
         config: Optional[BalancedFundamentalConfig] = None,
         display_name: Optional[str] = None,
-        data_manager: Optional[FundamentalDataManager] = None
+        data_manager: Optional[FundamentalDataManager] = None,
     ) -> None:
         """Initialize balanced fundamental optimizer.
 
@@ -132,7 +132,10 @@ class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Quality and growth focused fundamental optimizer."""
 
     def __init__(
-        self, config: Optional[QualityGrowthFundamentalConfig] = None, display_name: Optional[str] = None, data_manager: Optional[FundamentalDataManager] = None
+        self,
+        config: Optional[QualityGrowthFundamentalConfig] = None,
+        display_name: Optional[str] = None,
+        data_manager: Optional[FundamentalDataManager] = None,
     ) -> None:
         """Initialize quality growth fundamental optimizer.
 
@@ -158,7 +161,10 @@ class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Value investing focused fundamental optimizer."""
 
     def __init__(
-        self, config: Optional[ValueInvestingFundamentalConfig] = None, display_name: Optional[str] = None, data_manager: Optional[FundamentalDataManager] = None
+        self,
+        config: Optional[ValueInvestingFundamentalConfig] = None,
+        display_name: Optional[str] = None,
+        data_manager: Optional[FundamentalDataManager] = None,
     ) -> None:
         """Initialize value investing fundamental optimizer.
 
@@ -184,7 +190,10 @@ class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Market capitalization based fundamental optimizer."""
 
     def __init__(
-        self, config: Optional[OnlyMarketCapFundamentalConfig] = None, display_name: Optional[str] = None, data_manager: Optional[FundamentalDataManager] = None
+        self,
+        config: Optional[OnlyMarketCapFundamentalConfig] = None,
+        display_name: Optional[str] = None,
+        data_manager: Optional[FundamentalDataManager] = None,
     ) -> None:
         """Initialize market cap fundamental optimizer.
 

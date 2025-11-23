@@ -35,7 +35,7 @@ def generate_report(results: dict, clustering_results: dict, config: Optional[Ba
     start_date, end_date = config.get_report_date_range()
 
     # Calculate number of individual optimizers (excluding ensemble and benchmark)
-    individual_optimizers = [name for name in results.keys() if name not in ["A2AEnsemble", "SPY"]]
+    individual_optimizers = [name for name in results if name not in ["A2AEnsemble", "SPY"]]
     n_individual = len(individual_optimizers)
 
     report = f"""# Comprehensive Allocation Algorithm Backtest Report

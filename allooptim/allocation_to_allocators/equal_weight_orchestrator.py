@@ -102,7 +102,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         Returns:
             A2AResult with combined optimizer allocations
         """
-
         if time_today is None:
             time_today = datetime.now()
 
@@ -197,11 +196,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # Second pass: determine A2A weights based on combination method
         match self.combined_weight_type:
-            case (
-                CombinedWeightType.EQUAL
-                | CombinedWeightType.MEDIAN
-                | CombinedWeightType.VOLATILITY
-            ):
+            case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN | CombinedWeightType.VOLATILITY:
                 # Equal weights for all optimizers
                 # For median and volatility, this is the best approximation
                 a2a_weights = {

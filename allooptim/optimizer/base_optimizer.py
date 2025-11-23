@@ -126,8 +126,7 @@ class BaseOptimizer(AbstractOptimizer):
         except Exception as e:
             # Log the error
             logger.warning(
-                f"{self.display_name} failed with {type(e).__name__}: {e}. "
-                f"Falling back to equal weights."
+                f"{self.display_name} failed with {type(e).__name__}: {e}. " f"Falling back to equal weights."
             )
 
             # Fallback to equal weights

@@ -31,11 +31,11 @@ from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
 from allooptim.backtest.data_loader import DataLoader
-from allooptim.data.fundamental_providers import FundamentalDataManager
 from allooptim.backtest.performance_metrics import PerformanceMetrics
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
+from allooptim.data.fundamental_providers import FundamentalDataManager
 from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
 from allooptim.optimizer.wikipedia.wiki_database import download_data
 
@@ -135,9 +135,9 @@ class BacktestEngine:
         # Check if fundamental optimizers are being used and preload data if needed
         fundamental_optimizer_names = [
             "BalancedFundamentalOptimizer",
-            "QualityGrowthFundamentalOptimizer", 
+            "QualityGrowthFundamentalOptimizer",
             "ValueInvestingFundamentalOptimizer",
-            "MarketCapFundamentalOptimizer"
+            "MarketCapFundamentalOptimizer",
         ]
         has_fundamental_optimizer = any(
             opt_name in fundamental_optimizer_names for opt_name in self.config_backtest.optimizer_names
@@ -150,7 +150,7 @@ class BacktestEngine:
                     tickers=self.config_backtest.symbols,
                     start_date=start_data_date,
                     end_date=end_data_date,
-                    frequency="A"  # Annual fundamental data updates
+                    frequency="A",  # Annual fundamental data updates
                 )
                 logger.info("Fundamental data preload completed")
             except Exception as e:
@@ -741,9 +741,9 @@ class BacktestEngine:
         """Inject fundamental data manager into fundamental optimizers."""
         from allooptim.optimizer.fundamental.fundamental_optimizer import (
             BalancedFundamentalOptimizer,
+            MarketCapFundamentalOptimizer,
             QualityGrowthFundamentalOptimizer,
             ValueInvestingFundamentalOptimizer,
-            MarketCapFundamentalOptimizer,
         )
 
         fundamental_optimizer_classes = (
@@ -760,7 +760,7 @@ class BacktestEngine:
                 optimizer.data_manager = self.fundamental_data_manager
                 logger.info(f"Injected fundamental data manager into {optimizer.display_name}")
                 injected_count += 1
-        
+
         logger.info(f"Injected data manager into {injected_count} fundamental optimizers")
 
 

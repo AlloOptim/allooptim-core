@@ -16,6 +16,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Dict, List, Optional
+
 import pandas as pd
 import yfinance as yf
 
@@ -28,11 +29,7 @@ class FundamentalDataProvider(ABC):
     """Abstract base class for fundamental data providers."""
 
     @abstractmethod
-    def get_fundamental_data(
-        self,
-        tickers: List[str],
-        date: Optional[datetime] = None
-    ) -> List[FundamentalData]:
+    def get_fundamental_data(self, tickers: List[str], date: Optional[datetime] = None) -> List[FundamentalData]:
         """Get fundamental data for a list of tickers.
 
         Args:
@@ -57,11 +54,7 @@ class YahooFinanceProvider(FundamentalDataProvider):
         """Yahoo Finance has limited historical fundamental data."""
         return False
 
-    def get_fundamental_data(
-        self,
-        tickers: List[str],
-        date: Optional[datetime] = None
-    ) -> List[FundamentalData]:
+    def get_fundamental_data(self, tickers: List[str], date: Optional[datetime] = None) -> List[FundamentalData]:
         """Get fundamental data from Yahoo Finance.
 
         Args:
@@ -143,8 +136,9 @@ class SimFinProvider(FundamentalDataProvider):
             api_key: SimFin API key. If None, uses environment variable.
         """
         try:
-            import simfin as sf
             import os
+
+            import simfin as sf
 
             # Set data directory for SimFin (use a cache directory)
             data_dir = os.path.join(os.path.expanduser("~"), ".simfin_cache")
@@ -152,7 +146,7 @@ class SimFinProvider(FundamentalDataProvider):
             sf.set_data_dir(data_dir)
 
             self.sf = sf
-            self.api_key = api_key or os.getenv('SIMFIN_API_KEY')
+            self.api_key = api_key or os.getenv("SIMFIN_API_KEY")
             sf.set_api_key(self.api_key)
             logger.info("SimFin provider initialized with API key")
         except ImportError:
@@ -162,11 +156,7 @@ class SimFinProvider(FundamentalDataProvider):
         """SimFin supports historical fundamental data."""
         return True
 
-    def get_fundamental_data(
-        self,
-        tickers: List[str],
-        date: Optional[datetime] = None
-    ) -> List[FundamentalData]:
+    def get_fundamental_data(self, tickers: List[str], date: Optional[datetime] = None) -> List[FundamentalData]:
         """Get fundamental data from SimFin.
 
         Args:
@@ -182,10 +172,10 @@ class SimFinProvider(FundamentalDataProvider):
 
         try:
             import simfin as sf
-            from simfin.names import TICKER, SIMFIN_ID, COMPANY_NAME
+            from simfin.names import SIMFIN_ID
 
             # Load companies dataset to map tickers to SimFin IDs
-            companies = sf.load_companies(market='us')
+            companies = sf.load_companies(market="us")
             logger.debug(f"Companies dataset loaded with columns: {list(companies.columns)}")
             logger.debug(f"First few rows of companies data:\n{companies.head()}")
 
@@ -196,11 +186,11 @@ class SimFinProvider(FundamentalDataProvider):
 
             # Load all annual datasets once (more complete data than quarterly)
             logger.debug("Loading annual datasets...")
-            bs_full = sf.load_balance(variant='annual', market='us')
-            pl_full = sf.load_income(variant='annual', market='us')
-            cf_full = sf.load_cashflow(variant='annual', market='us')
+            bs_full = sf.load_balance(variant="annual", market="us")
+            pl_full = sf.load_income(variant="annual", market="us")
+            cf_full = sf.load_cashflow(variant="annual", market="us")
             logger.debug("Annual datasets loaded successfully")
-            
+
             # Debug: Print column names
             logger.info(f"Balance Sheet columns: {list(bs_full.columns)[:10]}...")
             logger.info(f"Income Statement columns: {list(pl_full.columns)[:10]}...")
@@ -221,10 +211,10 @@ class SimFinProvider(FundamentalDataProvider):
                         # Find the most recent year end before or on the given date
                         target_date = date
                         # SimFin typically has annual data, so find the year end
-                        year_end = pd.Timestamp(target_date).to_period('A').end_time
+                        year_end = pd.Timestamp(target_date).to_period("A").end_time
                         if year_end > target_date:
                             # If year end is after target date, use previous year
-                            year_end = (pd.Timestamp(target_date) - pd.DateOffset(years=1)).to_period('A').end_time
+                            year_end = (pd.Timestamp(target_date) - pd.DateOffset(years=1)).to_period("A").end_time
                         period_end = year_end
                     else:
                         # Use latest available data
@@ -232,8 +222,8 @@ class SimFinProvider(FundamentalDataProvider):
 
                     # Fetch balance sheet data
                     try:
-                        if ticker in bs_full.index.get_level_values('Ticker'):
-                            company_bs = bs_full.xs(ticker, level='Ticker')
+                        if ticker in bs_full.index.get_level_values("Ticker"):
+                            company_bs = bs_full.xs(ticker, level="Ticker")
                             logger.debug(f"Balance sheet columns for {ticker}: {list(company_bs.columns)}")
                             if period_end:
                                 # Find the most recent period before or equal to period_end
@@ -242,7 +232,9 @@ class SimFinProvider(FundamentalDataProvider):
                                 if len(valid_periods) > 0:
                                     latest_period = valid_periods.max()
                                     bs_data = company_bs.loc[latest_period]
-                                    logger.debug(f"{ticker}: Using balance sheet data for {latest_period}: {bs_data.to_dict()}")
+                                    logger.debug(
+                                        f"{ticker}: Using balance sheet data for {latest_period}: {bs_data.to_dict()}"
+                                    )
                                 else:
                                     bs_data = None
                             else:
@@ -255,15 +247,17 @@ class SimFinProvider(FundamentalDataProvider):
 
                     # Fetch income statement data
                     try:
-                        if ticker in pl_full.index.get_level_values('Ticker'):
-                            company_pl = pl_full.xs(ticker, level='Ticker')
+                        if ticker in pl_full.index.get_level_values("Ticker"):
+                            company_pl = pl_full.xs(ticker, level="Ticker")
                             if period_end:
                                 available_periods = company_pl.index
                                 valid_periods = available_periods[available_periods <= period_end]
                                 if len(valid_periods) > 0:
                                     latest_period = valid_periods.max()
                                     pl_data = company_pl.loc[latest_period]
-                                    logger.debug(f"{ticker}: Using income statement data for {latest_period}: {pl_data.to_dict()}")
+                                    logger.debug(
+                                        f"{ticker}: Using income statement data for {latest_period}: {pl_data.to_dict()}"
+                                    )
                                 else:
                                     pl_data = None
                             else:
@@ -276,8 +270,8 @@ class SimFinProvider(FundamentalDataProvider):
 
                     # Fetch cash flow data
                     try:
-                        if ticker in cf_full.index.get_level_values('Ticker'):
-                            company_cf = cf_full.xs(ticker, level='Ticker')
+                        if ticker in cf_full.index.get_level_values("Ticker"):
+                            company_cf = cf_full.xs(ticker, level="Ticker")
                             if period_end:
                                 available_periods = company_cf.index
                                 valid_periods = available_periods[available_periods <= period_end]
@@ -305,14 +299,18 @@ class SimFinProvider(FundamentalDataProvider):
                     if pl_data is not None and bs_data is not None:
                         # Try different possible column names for net income
                         net_income = None
-                        for col_name in ['Net Income', 'Net Income/Starting Line', 'Net Income Available for Common Shareholders']:
+                        for col_name in [
+                            "Net Income",
+                            "Net Income/Starting Line",
+                            "Net Income Available for Common Shareholders",
+                        ]:
                             if col_name in cf_data.index:
                                 net_income = cf_data[col_name]
                                 break
-                        
+
                         # Try different possible column names for equity
                         shareholder_equity = None
-                        for col_name in ['Total Equity', 'Shareholders Equity', 'Equity']:
+                        for col_name in ["Total Equity", "Shareholders Equity", "Equity"]:
                             if col_name in bs_data.index:
                                 shareholder_equity = bs_data[col_name]
                                 break
@@ -327,18 +325,20 @@ class SimFinProvider(FundamentalDataProvider):
                     if bs_data is not None:
                         # Try different possible column names for liabilities and equity
                         total_liabilities = None
-                        for col_name in ['Total Liabilities', 'Total Liab']:
+                        for col_name in ["Total Liabilities", "Total Liab"]:
                             if col_name in bs_data.index:
                                 total_liabilities = bs_data[col_name]
                                 break
-                        
+
                         total_equity = None
-                        for col_name in ['Total Equity', 'Shareholders Equity', 'Equity']:
+                        for col_name in ["Total Equity", "Shareholders Equity", "Equity"]:
                             if col_name in bs_data.index:
                                 total_equity = bs_data[col_name]
                                 break
 
-                        logger.debug(f"{ticker}: Total Liabilities = {total_liabilities}, Total Equity = {total_equity}")
+                        logger.debug(
+                            f"{ticker}: Total Liabilities = {total_liabilities}, Total Equity = {total_equity}"
+                        )
 
                         if total_liabilities is not None and total_equity is not None and total_equity != 0:
                             debt_to_equity = total_liabilities / total_equity
@@ -348,24 +348,28 @@ class SimFinProvider(FundamentalDataProvider):
                     if bs_data is not None:
                         # Try different possible column names for current assets and liabilities
                         current_assets = None
-                        for col_name in ['Total Current Assets', 'Current Assets']:
+                        for col_name in ["Total Current Assets", "Current Assets"]:
                             if col_name in bs_data.index:
                                 current_assets = bs_data[col_name]
                                 break
-                        
+
                         current_liabilities = None
-                        for col_name in ['Total Current Liabilities', 'Current Liabilities']:
+                        for col_name in ["Total Current Liabilities", "Current Liabilities"]:
                             if col_name in bs_data.index:
                                 current_liabilities = bs_data[col_name]
                                 break
 
-                        logger.debug(f"{ticker}: Current Assets = {current_assets}, Current Liabilities = {current_liabilities}")
+                        logger.debug(
+                            f"{ticker}: Current Assets = {current_assets}, Current Liabilities = {current_liabilities}"
+                        )
 
                         if current_assets is not None and current_liabilities is not None and current_liabilities != 0:
                             current_ratio = current_assets / current_liabilities
                             logger.debug(f"{ticker}: Calculated Current Ratio = {current_ratio}")
 
-                    logger.debug(f"{ticker}: Final data - ROE: {roe}, D/E: {debt_to_equity}, Current: {current_ratio}, is_valid: {any([roe is not None, debt_to_equity is not None, current_ratio is not None])}")
+                    logger.debug(
+                        f"{ticker}: Final data - ROE: {roe}, D/E: {debt_to_equity}, Current: {current_ratio}, is_valid: {any([roe is not None, debt_to_equity is not None, current_ratio is not None])}"
+                    )
 
                     # Create FundamentalData object
                     fund_data = FundamentalData(
@@ -374,7 +378,7 @@ class SimFinProvider(FundamentalDataProvider):
                         roe=roe,
                         debt_to_equity=debt_to_equity,
                         pb_ratio=pb_ratio,
-                        current_ratio=current_ratio
+                        current_ratio=current_ratio,
                     )
 
                     all_results.append(fund_data)
@@ -411,13 +415,15 @@ class FundamentalDataStore:
             data: List of FundamentalData objects
             date: Date the data corresponds to
         """
-        date_str = date.strftime('%Y-%m-%d')
+        date_str = date.strftime("%Y-%m-%d")
         logger.debug(f"Storing {len(data)} fundamental data points for {date_str}")
-        
+
         for fund_data in data:
             key = f"{fund_data.ticker}_{date_str}"
             self._data_cache[key] = fund_data
-            logger.debug(f"  Stored {key}: valid={fund_data.is_valid}, roe={fund_data.roe}, debt_to_equity={fund_data.debt_to_equity}, current_ratio={fund_data.current_ratio}")
+            logger.debug(
+                f"  Stored {key}: valid={fund_data.is_valid}, roe={fund_data.roe}, debt_to_equity={fund_data.debt_to_equity}, current_ratio={fund_data.current_ratio}"
+            )
 
         self._last_update = date
         logger.debug(f"Stored {len(data)} fundamental data points for {date_str}. Cache size: {len(self._data_cache)}")
@@ -433,7 +439,7 @@ class FundamentalDataStore:
             List of FundamentalData objects (empty objects for missing data)
         """
         results = []
-        date_str = date.strftime('%Y-%m-%d')
+        date_str = date.strftime("%Y-%m-%d")
 
         logger.info(f"Retrieving fundamental data for {len(tickers)} tickers on {date_str}")
         logger.info(f"Cache size: {len(self._data_cache)}")
@@ -444,7 +450,9 @@ class FundamentalDataStore:
             logger.debug(f"Looking for key: {key}")
             if key in self._data_cache:
                 data = self._data_cache[key]
-                logger.debug(f"  Found cached data for {ticker}: valid={data.is_valid}, roe={data.roe}, debt_to_equity={data.debt_to_equity}, current_ratio={data.current_ratio}")
+                logger.debug(
+                    f"  Found cached data for {ticker}: valid={data.is_valid}, roe={data.roe}, debt_to_equity={data.debt_to_equity}, current_ratio={data.current_ratio}"
+                )
                 results.append(data)
             else:
                 logger.debug(f"  No cached data for {ticker} with key {key}")
@@ -461,7 +469,7 @@ class FundamentalDataStore:
         Returns:
             True if data exists for this date
         """
-        date_str = date.strftime('%Y-%m-%d')
+        date_str = date.strftime("%Y-%m-%d")
         return any(key.endswith(f"_{date_str}") for key in self._data_cache.keys())
 
     def clear_cache(self) -> None:
@@ -510,7 +518,7 @@ class FundamentalDataManager:
         tickers: List[str],
         start_date: datetime,
         end_date: datetime,
-        frequency: str = "A"  # Annual fundamental data
+        frequency: str = "A",  # Annual fundamental data
     ) -> None:
         """Preload fundamental data for backtesting period.
 
@@ -524,7 +532,9 @@ class FundamentalDataManager:
             logger.warning("Preloading only supported in backtest mode")
             return
 
-        logger.info(f"Preloading fundamental data for {len(tickers)} tickers from {start_date.date()} to {end_date.date()}")
+        logger.info(
+            f"Preloading fundamental data for {len(tickers)} tickers from {start_date.date()} to {end_date.date()}"
+        )
 
         # Generate dates for fundamental data updates
         dates = pd.date_range(start=start_date, end=end_date, freq=frequency)
@@ -544,11 +554,7 @@ class FundamentalDataManager:
 
         logger.info(f"Preloaded {self.data_store.cache_size} fundamental data points")
 
-    def get_fundamental_data(
-        self,
-        tickers: List[str],
-        date: Optional[datetime] = None
-    ) -> List[FundamentalData]:
+    def get_fundamental_data(self, tickers: List[str], date: Optional[datetime] = None) -> List[FundamentalData]:
         """Get fundamental data using the appropriate provider.
 
         In backtest mode, uses cached data if available.
@@ -564,16 +570,18 @@ class FundamentalDataManager:
         if self.mode == "backtest":
             if date is None:
                 raise ValueError("Date required for backtest mode")
-            
+
             # For backtest mode, find the most recent year end before or on the given date
             # This matches the logic used in SimFinProvider.get_fundamental_data
             target_date = date
-            year_end = pd.Timestamp(target_date).to_period('A').end_time
+            year_end = pd.Timestamp(target_date).to_period("A").end_time
             if year_end > target_date:
                 # If year end is after target date, use previous year
-                year_end = (pd.Timestamp(target_date) - pd.DateOffset(years=1)).to_period('A').end_time
-            
-            logger.debug(f"Retrieving fundamental data for {date.strftime('%Y-%m-%d')} using year end {year_end.strftime('%Y-%m-%d')}")
+                year_end = (pd.Timestamp(target_date) - pd.DateOffset(years=1)).to_period("A").end_time
+
+            logger.debug(
+                f"Retrieving fundamental data for {date.strftime('%Y-%m-%d')} using year end {year_end.strftime('%Y-%m-%d')}"
+            )
             return self.data_store.get_data(tickers, year_end)
         else:
             # Live mode - fetch fresh data
