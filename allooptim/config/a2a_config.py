@@ -50,8 +50,8 @@ class A2AConfig(BaseModel):
     )
 
     # volatility adjustment
-    voloatility_adjustment: float = Field(
-        default=0.2,
+    volatility_adjustment: float = Field(
+        default=0.1,
         ge=0.0,
         le=1.0,
         description="Parameter for volatility adjustment in A2A weights",

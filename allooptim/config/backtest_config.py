@@ -88,7 +88,7 @@ class BacktestConfig(BaseModel):
 
     # AllocationOrchestrator options
     orchestration_type: OrchestratorType = Field(
-        default=OrchestratorType.AUTO,
+        default=OrchestratorType.VOLATILITY_ADJUSTED,
         description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or "
         "'auto' for automatic selection",
     )

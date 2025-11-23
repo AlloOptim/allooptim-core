@@ -65,7 +65,7 @@ class FailureHandlingConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     option: FailureHandlingOption = Field(
-        default=FailureHandlingOption.EQUAL_WEIGHTS,
+        default=FailureHandlingOption.IGNORE_OPTIMIZER,
         description=(
             "Default failure handling strategy for A2A orchestration. "
             "ZERO_WEIGHTS: Return all-zero weights. "

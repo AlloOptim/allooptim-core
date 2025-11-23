@@ -119,7 +119,6 @@ class TestFailureHandlingConfig:
     def test_default_config(self):
         """Test default configuration values."""
         config = FailureHandlingConfig()
-        assert config.option == FailureHandlingOption.EQUAL_WEIGHTS
         assert config.log_failures is True
         assert config.raise_on_all_failed is False
 
@@ -373,7 +372,6 @@ class TestA2AConfigIntegration:
         config = A2AConfig()
         assert hasattr(config, "failure_handling")
         assert isinstance(config.failure_handling, FailureHandlingConfig)
-        assert config.failure_handling.option == FailureHandlingOption.EQUAL_WEIGHTS
 
     def test_custom_failure_handling_config(self):
         """Test setting custom failure handling configuration."""
@@ -601,23 +599,26 @@ class TestEnhancedBaseOrchestratorFailureHandling:
         """Test circuit breaker integration."""
         config = A2AConfig(
             failure_handling=FailureHandlingConfig(
-                circuit_breaker_threshold=1  # Open immediately
+                option=FailureHandlingOption.EQUAL_WEIGHTS,  # Handle failures with equal weights
+                circuit_breaker_threshold=2  # Open after 2 failures
             )
         )
         orchestrator = self.TestOrchestrator(self.optimizers, self.covariance_transformers, config)
 
         mu, cov, prices, time, l_moments = self.data_provider.get_ground_truth()
 
-        # First failure should open circuit
+        # First failure should be handled with equal weights
         result1 = orchestrator._handle_optimizer_failure(
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure"),
             n_assets=len(mu),
             asset_names=mu.index.tolist(),
         )
-        assert result1 is not None  # First failure handled
+        assert result1 is not None  # First failure handled with equal weights
+        expected_weight = 1.0 / len(mu)
+        assert (result1 == expected_weight).all()
 
-        # Second failure should be blocked by circuit breaker
+        # Second failure should open circuit and be blocked
         result2 = orchestrator._handle_optimizer_failure(
             optimizer=self.optimizers[0],
             exception=RuntimeError("Test failure 2"),

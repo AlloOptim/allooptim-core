@@ -235,8 +235,8 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 variance_asset = np.clip(alloc_df.std(axis=1) ** 2, a_min=0.0, a_max=1.0)
                 variance_overall = variance_asset.mean()
                 asset_weights = (
-                    1.0 - self.config.voloatility_adjustment
-                ) * mean_asset + self.config.voloatility_adjustment * (variance_overall - variance_asset)
+                    1.0 - self.config.volatility_adjustment
+                ) * mean_asset + self.config.volatility_adjustment * (variance_overall - variance_asset)
                 # Clip negative weights and normalize
                 asset_weights = np.clip(asset_weights, a_min=0.0, a_max=1.0)
                 if asset_weights.sum() > 0:
