@@ -34,6 +34,10 @@ def generate_report(results: dict, clustering_results: dict, config: Optional[Ba
     # Get date range for report
     start_date, end_date = config.get_report_date_range()
 
+    # Calculate number of individual optimizers (excluding ensemble and benchmark)
+    individual_optimizers = [name for name in results.keys() if name not in ["A2AEnsemble", "SPY"]]
+    n_individual = len(individual_optimizers)
+
     report = f"""# Comprehensive Allocation Algorithm Backtest Report
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
@@ -45,7 +49,7 @@ def generate_report(results: dict, clustering_results: dict, config: Optional[Ba
 ## Executive Summary
 
 This report presents a comprehensive backtest of {len(results)} allocation algorithms including:
-- 13 individual optimizers from the enhanced allocation framework
+- {n_individual} individual optimizers from the enhanced allocation framework
 - A2A ensemble optimizer (simple average of all individual optimizers)  
 - S&P 500 benchmark (100% SPY allocation)
 

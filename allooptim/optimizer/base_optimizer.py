@@ -10,11 +10,16 @@ The hierarchy is:
 - ConcreteOptimizer (specific algorithms)
 """
 
+import logging
+from datetime import datetime
 from typing import Optional
 
+import numpy as np
 import pandas as pd
 
 from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+
+logger = logging.getLogger(__name__)
 
 
 class BaseOptimizer(AbstractOptimizer):
@@ -26,6 +31,7 @@ class BaseOptimizer(AbstractOptimizer):
     - Reset functionality
     - Cash and leverage configuration
     - Display name management
+    - Graceful failure handling with fallback to equal weights
 
     All concrete optimizers should inherit from this class rather than
     AbstractOptimizer directly.
@@ -89,6 +95,48 @@ class BaseOptimizer(AbstractOptimizer):
                          None means no leverage limit.
         """
         self.max_leverage = max_leverage
+
+    def allocate_safe(
+        self,
+        ds_mu: pd.Series,
+        df_cov: pd.DataFrame,
+        df_prices: Optional[pd.DataFrame] = None,
+        time: Optional[datetime] = None,
+        l_moments: Optional[object] = None,
+    ) -> pd.Series:
+        """Allocate portfolio weights with graceful failure handling.
+
+        This method wraps the allocate() call with error handling. If the
+        optimization fails for any reason, it falls back to equal weights
+        across all assets.
+
+        Args:
+            ds_mu: Expected returns series with asset names as index
+            df_cov: Covariance matrix DataFrame
+            df_prices: Optional historical price data
+            time: Optional timestamp for time-dependent optimizers
+            l_moments: Optional L-moments for advanced risk modeling
+
+        Returns:
+            Portfolio weights as pandas Series. On failure, returns equal weights.
+        """
+        try:
+            # Attempt normal allocation
+            return self.allocate(ds_mu, df_cov, df_prices, time, l_moments)
+        except Exception as e:
+            # Log the error
+            logger.warning(
+                f"{self.display_name} failed with {type(e).__name__}: {e}. "
+                f"Falling back to equal weights."
+            )
+
+            # Fallback to equal weights
+            asset_names = ds_mu.index.tolist()
+            n_assets = len(asset_names)
+            equal_weight = 1.0 / n_assets
+            weights = np.full(n_assets, equal_weight)
+
+            return pd.Series(weights, index=asset_names, name=self.display_name)
 
     @property
     def display_name(self) -> str:

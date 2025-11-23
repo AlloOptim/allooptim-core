@@ -72,6 +72,49 @@ class AbstractOptimizer(ABC):
     """
 
     @abstractmethod
+    def fit(
+        self,
+        df_prices: Optional[pd.DataFrame] = None,
+    ) -> None:
+        """Optional setup method to prepare the optimizer with historical data.
+
+        This method can be overridden by optimizers that need to learn from
+        historical data (e.g., machine learning models, momentum-based strategies).
+
+        Args:
+            df_prices: Historical price data for fitting the optimizer.
+        """
+        pass
+
+    @abstractmethod
+    def reset(self) -> None:
+        """Reset any internal state of the optimizer.
+
+        This method should restore the optimizer to its initial state,
+        clearing any learned parameters or cached computations.
+        """
+        pass
+
+    @abstractmethod
+    def set_allow_cash(self, allow_cash: bool) -> None:
+        """Set whether this optimizer is allowed to use cash (partial investment).
+
+        Args:
+            allow_cash: Whether to allow cash positions (sum of weights < 1.0)
+        """
+        pass
+
+    @abstractmethod
+    def set_max_leverage(self, max_leverage: Optional[float]) -> None:
+        """Set the maximum leverage allowed for this optimizer.
+
+        Args:
+            max_leverage: Maximum leverage factor (sum of weights <= max_leverage).
+                         None means no leverage limit.
+        """
+        pass
+
+    @abstractmethod
     def allocate(
         self,
         ds_mu: pd.Series,
