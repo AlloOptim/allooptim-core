@@ -33,39 +33,24 @@ warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-DEFAULT_OPTIMIZER_CONFIG =       ["CMAMeanVariance",
-                "CMALMoments",
-                "CMASortino",
-                "CMAMaxDrawdown",
-                "CMARobustSharpe",
-                "CMACvar",
-                "PSOMeanVariance",
-                "PSOLMoments",
-                "HRPOptimizer",
-                "NCOSharpeOptimizer",
-                "NaiveOptimizer",
-                "MomentumOptimizer",
-                "MomentumEMAOptimizer",
-                "RiskParityOptimizer",
-                "MeanVarianceAdjustedReturnsOptimizer",
-                "EMAAdjustedReturnsOptimizer",
-                "LMomentsAdjustedReturnsOptimizer",
-                "SemiVarianceAdjustedReturnsOptimizer",
-                "HigherMomentOptimizer",
-                "MaxSharpe",
-                "EfficientReturn",
-                "EfficientRisk",
-                "KellyCriterionOptimizer",
-                "RobustMeanVarianceOptimizer",
-                "MonteCarloMinVarianceOptimizer",
-                "MonteCarloMaxDrawdownOptimizer",
-                "MonteCarloMaxDiversificationOptimizer",
-                "MonteCarloMaxSortinoOptimizer",
-                "MonteCarloMinCVAROptimizer",
-                "FilterAndDiversifyOptimizer",
-                "SignalBasedOptimizer",
+DEFAULT_OPTIMIZER_CONFIG =[
+                # Example with default config
+                "CMAMeanVariance",
+                # Example with custom config
+                OptimizerConfig(name="CMALMoments", config={"budget": 2000}),
+                # More optimizers with defaults
+                OptimizerConfig(name="PSOMeanVariance"),
+                OptimizerConfig(name="PSOLMoments"),
+                OptimizerConfig(name="NCOSharpeOptimizer"),
+                OptimizerConfig(name="NaiveOptimizer"),
+                OptimizerConfig(name="MomentumOptimizer"),
+                OptimizerConfig(name="MeanVarianceAdjustedReturnsOptimizer"),
+                OptimizerConfig(name="SemiVarianceAdjustedReturnsOptimizer"),
+                OptimizerConfig(name="HigherMomentOptimizer"),
+                OptimizerConfig(name="EfficientReturn"),
+                OptimizerConfig(name="EfficientRisk"),
+                OptimizerConfig(name="MaxSharpe"),
             ]
-
 
 def main_backtest(quick_test: bool = True,
          optimizer_configs: Optional[list[OptimizerConfig]] = None,
@@ -75,7 +60,7 @@ def main_backtest(quick_test: bool = True,
 
     # Use default configs if none provided
     if optimizer_configs is None:
-        optimizer_configs = [OptimizerConfig(name=name) for name in DEFAULT_OPTIMIZER_CONFIG]
+        optimizer_configs = DEFAULT_OPTIMIZER_CONFIG
 
     try:
         symbols = extract_symbols_from_list(large_stock_universe())

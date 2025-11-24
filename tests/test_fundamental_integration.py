@@ -67,8 +67,12 @@ class TestFundamentalIntegration:
             ],
             transformer_names=[],  # Empty list instead of None
             a2a_config=A2AConfig(n_max_active_assets=2),
-            fundamental_data_provider=mock_provider,
         )
+
+        # Set provider on fundamental optimizers after creation
+        for optimizer in orchestrator.optimizers:
+            if optimizer.is_fundamental_optimizer:
+                optimizer.data_provider = mock_provider
 
         # Verify fundamental optimizer has provider
         fundamental_opts = [o for o in orchestrator.optimizers if hasattr(o, "data_provider")]

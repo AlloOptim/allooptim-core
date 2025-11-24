@@ -153,7 +153,7 @@ class AbstractOptimizer(ABC):
 
     @property
     def display_name(self) -> str:
-        """Display name of this optimizer instance."""
+        """Display name of this optimizer instance. Can depend on the optimizer configuration, if multiple instances exist."""
         pass
 
 
@@ -202,5 +202,5 @@ class AbstractEnsembleOptimizer(ABC):
     @property
     @abstractmethod
     def display_name(self) -> str:
-        """Display name of this optimizer instance."""
+        """Display name of this optimizer instance. Can depend on the optimizer configuration, if multiple instances exist."""
         pass
