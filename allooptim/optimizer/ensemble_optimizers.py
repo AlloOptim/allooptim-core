@@ -85,7 +85,7 @@ class A2AEnsembleOptimizer(EnsembleBaseOptimizer):
         Returns:
             Optimizer name string
         """
-        return "A2AEnsemble"
+        return "A2AEnsembleOptimizer"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """No fitting needed for ensemble optimizer."""
@@ -189,7 +189,7 @@ class SPY500Benchmark(EnsembleBaseOptimizer):
         Returns:
             Optimizer name string
         """
-        return "SPY"
+        return "SPY500BenchmarkOptimizer"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """No fitting needed for benchmark."""

@@ -41,7 +41,7 @@ class TestMarkowitzOptimizer:
 
     def test_name(self):
         """Test optimizer name property."""
-        assert MaxSharpeOptimizer().name == "MaxSharpe"
+        assert MaxSharpeOptimizer().name == "MaxSharpeOptimizer"
 
 
 class TestNCOOptimizer:

@@ -39,17 +39,17 @@ DEFAULT_OPTIMIZER_CONFIG =[
                 # Example with custom config
                 OptimizerConfig(name="CMALMoments", config={"budget": 2000}),
                 # More optimizers with defaults
-                OptimizerConfig(name="PSOMeanVariance"),
-                OptimizerConfig(name="PSOLMoments"),
+                OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer"),
+                OptimizerConfig(name="LMomentsParticleSwarmOptimizer"),
                 OptimizerConfig(name="NCOSharpeOptimizer"),
                 OptimizerConfig(name="NaiveOptimizer"),
                 OptimizerConfig(name="MomentumOptimizer"),
                 OptimizerConfig(name="MeanVarianceAdjustedReturnsOptimizer"),
                 OptimizerConfig(name="SemiVarianceAdjustedReturnsOptimizer"),
                 OptimizerConfig(name="HigherMomentOptimizer"),
-                OptimizerConfig(name="EfficientReturn"),
-                OptimizerConfig(name="EfficientRisk"),
-                OptimizerConfig(name="MaxSharpe"),
+                OptimizerConfig(name="EfficientReturnOptimizer"),
+                OptimizerConfig(name="EfficientRiskOptimizer"),
+                OptimizerConfig(name="MaxSharpeOptimizer"),
             ]
 
 def main_backtest(quick_test: bool = True,

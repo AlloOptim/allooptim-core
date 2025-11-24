@@ -42,8 +42,8 @@ class TestConfigInstantiation:
     def test_optimizer_config_instantiation(self):
         """Test that OptimizerConfig can be instantiated with defaults."""
         # Provide required name field with a valid optimizer name
-        config = OptimizerConfig(name="MaxSharpe")
+        config = OptimizerConfig(name="MaxSharpeOptimizer")
         assert isinstance(config, OptimizerConfig)
         # Validate that key fields have reasonable defaults
-        assert config.name == "MaxSharpe"
-        assert config.display_name == "MaxSharpe"  # Should be auto-generated from name
+        assert config.name == "MaxSharpeOptimizer"
+        assert config.display_name == "MaxSharpeOptimizer"  # Should be auto-generated from name

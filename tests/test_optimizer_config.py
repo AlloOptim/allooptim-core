@@ -121,7 +121,7 @@ class TestOptimizerConfigValidation:
     def test_pso_optimizer_configs(self):
         """Test validation of PSO optimizer configurations."""
         pso_configs = {
-            "PSOMeanVariance": {
+            "MeanVarianceParticleSwarmOptimizer": {
                 "n_particles": 100,
                 "n_iters": 50,
                 "risk_aversion": 3.0,

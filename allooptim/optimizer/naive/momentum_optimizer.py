@@ -141,4 +141,4 @@ class EMAMomentumOptimizer(MomentumOptimizer):
         Returns:
             Optimizer name string
         """
-        return "MomentumEMAOptimizer"
+        return "EMAMomentumOptimizer"

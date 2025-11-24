@@ -208,7 +208,7 @@ class MeanVarianceParticleSwarmOptimizer(BaseOptimizer):
         Returns:
             Optimizer name string
         """
-        return "PSOMeanVariance"
+        return "MeanVarianceParticleSwarmOptimizer"
 
 
 class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
@@ -223,4 +223,4 @@ class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
         Returns:
             Optimizer name string
         """
-        return "PSOLMoments"
+        return "LMomentsParticleSwarmOptimizer"

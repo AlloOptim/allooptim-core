@@ -69,7 +69,7 @@ class TestOptimizerFactoryIntegration:
         optimizer_specs = [
             "HRPOptimizer",  # String spec
             {"name": "CMAMeanVariance", "config": {"budget": 1000, "risk_aversion": 3.0}},  # Dict spec
-            {"name": "PSOMeanVariance", "config": {"n_particles": 500, "n_iters": 100}},  # Dict spec
+            {"name": "MeanVarianceParticleSwarmOptimizer", "config": {"n_particles": 500, "n_iters": 100}},  # Dict spec
         ]
 
         # Validate each spec
@@ -114,7 +114,7 @@ class TestBacktestConfigIntegration:
         optimizer_configs = [
             "HRPOptimizer",  # String
             OptimizerConfig(name="CMAMeanVariance", config={"budget": 2000}),  # OptimizerConfig with config
-            OptimizerConfig(name="PSOMeanVariance", config={}),  # OptimizerConfig with empty config
+            OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer", config={}),  # OptimizerConfig with empty config
         ]
 
         backtest_config = BacktestConfig(
@@ -148,7 +148,7 @@ class TestBacktestConfigIntegration:
         optimizer_configs = [
             "HRPOptimizer",
             OptimizerConfig(name="CMAMeanVariance", config={}),
-            OptimizerConfig(name="PSOMeanVariance", config={}),
+            OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer", config={}),
         ]
 
         backtest_config = BacktestConfig(
@@ -160,7 +160,7 @@ class TestBacktestConfigIntegration:
         assert len(optimizer_names) == EXPECTED_OPTIMIZER_COUNT
         assert "HRPOptimizer" in optimizer_names
         assert "CMAMeanVariance" in optimizer_names
-        assert "PSOMeanVariance" in optimizer_names
+        assert "MeanVarianceParticleSwarmOptimizer" in optimizer_names
 
     def test_backtest_config_get_optimizer_configs_dict(self):
         """Test that get_optimizer_configs_dict returns correct mapping."""
@@ -169,7 +169,7 @@ class TestBacktestConfigIntegration:
         optimizer_configs = [
             "HRPOptimizer",
             OptimizerConfig(name="CMAMeanVariance", config={"budget": 1000}),
-            OptimizerConfig(name="PSOMeanVariance", config={}),
+            OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer", config={}),
         ]
 
         backtest_config = BacktestConfig(
@@ -181,9 +181,12 @@ class TestBacktestConfigIntegration:
         assert len(config_dict) == EXPECTED_CONFIG_COUNT
         assert "HRPOptimizer" in config_dict
         assert "CMAMeanVariance[budget=1000]" in config_dict
-        assert "PSOMeanVariance" in config_dict
+        assert "MeanVarianceParticleSwarmOptimizer" in config_dict
         assert config_dict["CMAMeanVariance[budget=1000]"] == {"budget": 1000}
-        assert config_dict["PSOMeanVariance"] is None or config_dict["PSOMeanVariance"] == {}
+        assert (
+            config_dict["MeanVarianceParticleSwarmOptimizer"] is None
+            or config_dict["MeanVarianceParticleSwarmOptimizer"] == {}
+        )
 
 
 class TestConfigurationIntegration:

@@ -188,12 +188,12 @@ class MaxSharpeOptimizer(BaseOptimizer):
 
     @property
     def name(self) -> str:
-        """Get the name of the maximum Sharpe ratio optimizer.
+        """Get the name of the Max Sharpe optimizer.
 
         Returns:
             Optimizer name string
         """
-        return "MaxSharpe"
+        return "MaxSharpeOptimizer"
 
 
 class EfficientRiskOptimizerConfig(BaseModel):
@@ -274,7 +274,7 @@ class EfficientRiskOptimizer(BaseOptimizer):
         Returns:
             Optimizer name string
         """
-        return "EfficientRisk"
+        return "EfficientRiskOptimizer"
 
 
 class EfficientReturnOptimizerConfig(BaseModel):
@@ -353,4 +353,4 @@ class EfficientReturnOptimizer(BaseOptimizer):
         Returns:
             Optimizer name string
         """
-        return "EfficientReturn"
+        return "EfficientReturnOptimizer"
