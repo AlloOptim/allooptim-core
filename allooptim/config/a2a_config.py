@@ -9,7 +9,7 @@ Design Principles:
 
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from allooptim.config.cash_config import CashConfig
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG

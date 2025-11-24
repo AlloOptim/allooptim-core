@@ -20,9 +20,9 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_simfin_priority(self):
         """Verify SimFin used when API key available."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), \
-             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), patch(
+            "allooptim.data.provider_factory.SimFinProvider"
+        ) as mock_simfin, patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
             mock_simfin.return_value = Mock(spec=SimFinProvider)
             mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
@@ -37,9 +37,9 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_yahoo_fallback(self):
         """Verify Yahoo used when no SimFin key."""
-        with patch.dict(os.environ, {}, clear=True), \
-             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {}, clear=True), patch(
+            "allooptim.data.provider_factory.SimFinProvider"
+        ) as mock_simfin, patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
             mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
             provider = FundamentalDataProviderFactory.create_provider()
@@ -52,8 +52,9 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_caching_enabled(self):
         """Verify caching initialization."""
-        with patch.dict(os.environ, {}, clear=True), \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {}, clear=True), patch(
+            "allooptim.data.provider_factory.YahooFinanceProvider"
+        ) as mock_yahoo:
             mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
             provider = FundamentalDataProviderFactory.create_provider(enable_caching=True)
@@ -64,8 +65,9 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_caching_disabled(self):
         """Verify no caching when disabled."""
-        with patch.dict(os.environ, {}, clear=True), \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {}, clear=True), patch(
+            "allooptim.data.provider_factory.YahooFinanceProvider"
+        ) as mock_yahoo:
             mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
             provider = FundamentalDataProviderFactory.create_provider(enable_caching=False)
@@ -75,9 +77,9 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_simfin_import_error_fallback(self):
         """Verify fallback to Yahoo when SimFin import fails."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), \
-             patch("allooptim.data.provider_factory.SimFinProvider", side_effect=ImportError("No simfin")), \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), patch(
+            "allooptim.data.provider_factory.SimFinProvider", side_effect=ImportError("No simfin")
+        ), patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
             mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
             provider = FundamentalDataProviderFactory.create_provider()
@@ -89,9 +91,9 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_explicit_api_key(self):
         """Verify explicit API key overrides environment."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "env_key"}), \
-             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "env_key"}), patch(
+            "allooptim.data.provider_factory.SimFinProvider"
+        ) as mock_simfin, patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
             mock_simfin.return_value = Mock(spec=SimFinProvider)
             mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
@@ -102,9 +104,9 @@ class TestFundamentalDataProviderFactory:
 
     def test_factory_prefer_simfin_false(self):
         """Verify Yahoo only when SimFin not preferred."""
-        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), \
-             patch("allooptim.data.provider_factory.SimFinProvider") as mock_simfin, \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {"SIMFIN_API_KEY": "test_key"}), patch(
+            "allooptim.data.provider_factory.SimFinProvider"
+        ) as mock_simfin, patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
             mock_yahoo.return_value = Mock(spec=YahooFinanceProvider)
 
             provider = FundamentalDataProviderFactory.create_provider(prefer_simfin=False)

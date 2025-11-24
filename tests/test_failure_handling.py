@@ -600,7 +600,7 @@ class TestEnhancedBaseOrchestratorFailureHandling:
         config = A2AConfig(
             failure_handling=FailureHandlingConfig(
                 option=FailureHandlingOption.EQUAL_WEIGHTS,  # Handle failures with equal weights
-                circuit_breaker_threshold=2  # Open after 2 failures
+                circuit_breaker_threshold=2,  # Open after 2 failures
             )
         )
         orchestrator = self.TestOrchestrator(self.optimizers, self.covariance_transformers, config)

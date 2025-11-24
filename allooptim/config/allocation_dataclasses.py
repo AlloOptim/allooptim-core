@@ -16,7 +16,7 @@ from enum import Enum
 from typing import Optional, Union
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, field_validator
 
 from .default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 

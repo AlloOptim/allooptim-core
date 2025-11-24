@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG

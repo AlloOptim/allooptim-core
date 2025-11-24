@@ -231,7 +231,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 alloc_df = pd.DataFrame(
                     {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
                 )
-                
+
                 # Handle single optimizer case
                 if len(optimizer_allocations_list) == 1:
                     asset_weights = alloc_df.iloc[:, 0].values

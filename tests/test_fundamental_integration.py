@@ -75,7 +75,6 @@ class TestFundamentalIntegration:
             FundamentalData(ticker="MSFT", market_cap=2e12, roe=0.25, pb_ratio=4.0),
         ]
 
-
         orchestrator = create_orchestrator(
             orchestrator_type=OrchestratorType.OPTIMIZED,
             optimizer_configs=[
@@ -95,8 +94,9 @@ class TestFundamentalIntegration:
     def test_provider_factory_integration(self):
         """Test full integration with factory-created provider."""
         # This test uses the actual factory (with mocking to avoid network calls)
-        with patch.dict(os.environ, {}, clear=True), \
-             patch("allooptim.data.provider_factory.YahooFinanceProvider") as mock_yahoo:
+        with patch.dict(os.environ, {}, clear=True), patch(
+            "allooptim.data.provider_factory.YahooFinanceProvider"
+        ) as mock_yahoo:
             mock_yahoo.return_value = Mock()
             mock_yahoo.return_value.get_fundamental_data.return_value = [
                 FundamentalData(ticker="AAPL", market_cap=3e12, roe=0.3, pb_ratio=5.0)

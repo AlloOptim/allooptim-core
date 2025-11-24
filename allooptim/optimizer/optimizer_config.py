@@ -7,7 +7,7 @@ including display name generation and validation.
 import logging
 from typing import Dict, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.optimizer_config_registry import (
