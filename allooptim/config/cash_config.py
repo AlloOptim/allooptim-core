@@ -7,6 +7,8 @@ from typing import Optional
 import numpy as np
 from pydantic import BaseModel, Field, field_validator
 
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+
 logger = logging.getLogger(__name__)
 
 
@@ -33,6 +35,8 @@ class CashConfig(BaseModel):
         allow_cash_option: Control who decides cash allowance
         max_leverage: Maximum leverage factor (sum(weights) <= max_leverage)
     """
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     allow_cash_option: AllowCashOption = Field(
         default=AllowCashOption.OPTIMIZER_DECIDES,

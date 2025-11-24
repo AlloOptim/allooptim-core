@@ -7,8 +7,9 @@ including display name generation and validation.
 import logging
 from typing import Dict, Optional
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.optimizer_config_registry import (
     get_all_optimizer_names,
     validate_optimizer_config,
@@ -19,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 class OptimizerConfig(BaseModel):
     """Configuration for a single optimizer with optional custom parameters."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     name: str = Field(..., description="Optimizer class name for instantiation")
     display_name: Optional[str] = Field(

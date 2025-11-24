@@ -12,6 +12,7 @@ from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 from allooptim.config.cash_config import CashConfig
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.config.failure_handling_config import FailureHandlingConfig
 
 
@@ -104,4 +105,4 @@ class A2AConfig(BaseModel):
         description="Minimum weight threshold to consider an asset 'active' for constraint calculations.",
     )
 
-    model_config = ConfigDict(frozen=True)
+    model_config = DEFAULT_PYDANTIC_CONFIG

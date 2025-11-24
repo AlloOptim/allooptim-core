@@ -24,6 +24,8 @@ from tinygrad import Tensor, nn
 from tinygrad.nn.optim import Adam
 from tinygrad.nn.state import get_parameters
 
+from ...config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+
 logger = logging.getLogger(__name__)
 
 # Constants for technical analysis and training parameters
@@ -882,6 +884,8 @@ class ModelType(str, Enum):
 
 class LSTMOptimizerConfig(BaseModel):
     """Configuration parameters for deep learning portfolio optimizers."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     hidden_dim: int = 64
     num_layers: int = 1

@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.config.cash_config import CashConfig
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.covariance_transformer.transformer_list import get_all_transformers
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
@@ -25,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 class BacktestConfig(BaseModel):
     """Pydantic configuration model for backtest parameters."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     benchmark: str = Field(default="SPY", description="Benchmark symbol for the backtest (e.g., SPY)")
 

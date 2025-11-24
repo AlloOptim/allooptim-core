@@ -6,7 +6,7 @@ from unittest.mock import patch
 
 import pytest
 
-from examples.comprehensive_backtest import main
+from examples.comprehensive_backtest import main_backtest
 
 
 class TestComprehensiveBacktest:
@@ -58,7 +58,7 @@ class TestComprehensiveBacktest:
                         ), patch("examples.comprehensive_backtest.create_quantstats_reports"), patch(
                             "examples.comprehensive_backtest.generate_report", return_value="# Test Report"
                         ), patch("builtins.open"), patch("pandas.DataFrame.to_csv"):
-                            main(quick_test=True)
+                            main_backtest(quick_test=True)
 
             except Exception as e:
                 pytest.fail(f"Comprehensive backtest failed to execute: {str(e)}")
