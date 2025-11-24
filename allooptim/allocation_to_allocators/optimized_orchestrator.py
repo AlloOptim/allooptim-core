@@ -209,9 +209,11 @@ class OptimizedOrchestrator(BaseOrchestrator):
             # Store optimizer weight (1.0 for single optimizer)
             optimizer_weights_list = [OptimizerWeight(instance_id=optimizer.display_name, weight=1.0)]
 
-        except Exception:
+        except Exception as error:
             tracemalloc.stop()
             optimizer.reset()
+            logger.error(f"Optimizer {optimizer.name} failed with error: {error}")
+
             # For standalone usage (single optimizer), always use EQUAL_WEIGHTS fallback
             n_assets = len(mu)
             equal_weight = 1.0 / n_assets

@@ -194,25 +194,14 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 )
                 optimizer_allocations_list.append(fallback_allocation)
 
-        # Second pass: determine A2A weights based on combination method
+        # Determine A2A weights and combine allocations based on combination method
         match self.combined_weight_type:
-            case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN | CombinedWeightType.VOLATILITY:
+            case CombinedWeightType.EQUAL:
                 # Equal weights for all optimizers
-                # For median and volatility, this is the best approximation
                 a2a_weights = {
                     opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
                     for opt_alloc in optimizer_allocations_list
                 }
-
-            case CombinedWeightType.CUSTOM:
-                a2a_weights = self.config.custom_a2a_weights.copy()
-
-            case _:
-                raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
-
-        # Third pass: combine allocations based on method
-        match self.combined_weight_type:
-            case CombinedWeightType.EQUAL | CombinedWeightType.CUSTOM:
                 # Weighted combination of optimizer allocations
                 asset_weights = np.zeros(len(mu))
                 for opt_alloc in optimizer_allocations_list:
@@ -220,6 +209,11 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     asset_weights += weight * opt_alloc.weights.values
 
             case CombinedWeightType.MEDIAN:
+                # Equal weights for all optimizers (best approximation for median)
+                a2a_weights = {
+                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
+                    for opt_alloc in optimizer_allocations_list
+                }
                 # Take median across optimizer allocations for each asset
                 alloc_df = pd.DataFrame(
                     {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
@@ -227,6 +221,11 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 asset_weights = alloc_df.median(axis=1).values
 
             case CombinedWeightType.VOLATILITY:
+                # Equal weights for all optimizers (best approximation for volatility)
+                a2a_weights = {
+                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
+                    for opt_alloc in optimizer_allocations_list
+                }
                 # Volatility-adjusted weighting
                 alloc_df = pd.DataFrame(
                     {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
@@ -242,10 +241,15 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     asset_weights = (
                         1.0 - self.config.volatility_adjustment
                     ) * mean_asset + self.config.volatility_adjustment * (variance_overall - variance_asset)
-                    # Clip negative weights and normalize
                     asset_weights = np.clip(asset_weights, a_min=0.0, a_max=1.0)
-                    if asset_weights.sum() > 0:
-                        asset_weights = asset_weights / asset_weights.sum()
+
+            case CombinedWeightType.CUSTOM:
+                a2a_weights = self.config.custom_a2a_weights.copy()
+                # Weighted combination of optimizer allocations
+                asset_weights = np.zeros(len(mu))
+                for opt_alloc in optimizer_allocations_list:
+                    weight = a2a_weights[opt_alloc.instance_id]
+                    asset_weights += weight * opt_alloc.weights.values
 
             case _:
                 raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
@@ -260,7 +264,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             )
 
         # Normalize final asset weights according to global cash settings
-
         final_allocation_values = normalize_weights_a2a(asset_weights, self.config.cash_config)
         final_allocation = pd.Series(final_allocation_values, index=mu.index)
 
