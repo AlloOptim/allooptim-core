@@ -27,14 +27,13 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
 )
-from allooptim.data.price_data_provider import PriceDataProvider
 from allooptim.backtest.data_loader import DataLoader
 from allooptim.backtest.performance_metrics import PerformanceMetrics
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
+from allooptim.data.price_data_provider import PriceDataProvider
 from allooptim.data.provider_factory import FundamentalDataProviderFactory
-from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
 from allooptim.optimizer.wikipedia.wiki_database import download_data
 
 logger = logging.getLogger(__name__)
@@ -96,7 +95,6 @@ class BacktestEngine:
             **orchestrator_kwargs,
         )
 
-            
         for optimizer in self.orchestrator.optimizers:
             if optimizer.is_fundamental_optimizer:
                 optimizer.data_provider = self.fundamental_provider
@@ -120,9 +118,7 @@ class BacktestEngine:
         # Get date range based on debug mode
         start_data_date, end_data_date = self.config_backtest.get_data_date_range()
 
-        has_wikipedia_optimizer = any(
-            optimizer.is_wiki_optimizer for optimizer in self.orchestrator.optimizers
-        )
+        has_wikipedia_optimizer = any(optimizer.is_wiki_optimizer for optimizer in self.orchestrator.optimizers)
 
         if has_wikipedia_optimizer:
             logger.info("Wikipedia optimizer detected, downloading Wikipedia data...")

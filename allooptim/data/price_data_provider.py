@@ -1,11 +1,9 @@
-"""Price data provider for backtesting and orchestrator compatibility.
-"""
+"""Price data provider for backtesting and orchestrator compatibility."""
 
 import logging
 
 import numpy as np
 import pandas as pd
-
 
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
@@ -15,7 +13,9 @@ from allooptim.optimizer.allocation_metric import (
     LMoments,
     estimate_linear_moments,
 )
+
 logger = logging.getLogger(__name__)
+
 
 class PriceDataProvider(AbstractObservationSimulator):
     """Simple data provider that wraps price DataFrame for orchestrator compatibility."""

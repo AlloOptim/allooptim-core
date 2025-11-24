@@ -58,9 +58,7 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
         super().__init__(display_name)
         self.config = config or BalancedFundamentalConfig()
 
-        self.data_provider = (
-                data_provider or FundamentalDataProviderFactory.create_provider()
-            )
+        self.data_provider = data_provider or FundamentalDataProviderFactory.create_provider()
 
         self._weights_today: Optional[np.ndarray] = None
         self._last_calculation_time: Optional[datetime] = None
