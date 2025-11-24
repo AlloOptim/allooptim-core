@@ -82,7 +82,7 @@ class TestFundamentalIntegration:
                 OptimizerConfig(name="MomentumOptimizer"),
             ],
             transformer_names=[],  # Empty list instead of None
-            a2a_config=A2AConfig(allocation_constraints={"max_active_assets": 2}),
+            a2a_config=A2AConfig(n_max_active_assets=2),
             fundamental_data_provider=mock_provider,
         )
 
