@@ -66,8 +66,8 @@ def main_backtest(quick_test: bool = True,
         symbols = extract_symbols_from_list(large_stock_universe())
 
         config_backtest = BacktestConfig(
-            start_date=datetime(2019, 12, 31),
-            end_date=datetime(2024, 12, 31),
+            start_date=datetime(2009, 1, 1),
+            end_date=datetime(2025, 1, 1),
             rebalance_frequency=10,
             lookback_days=90,
             quick_test=quick_test,
