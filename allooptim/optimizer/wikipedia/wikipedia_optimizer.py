@@ -68,6 +68,8 @@ class WikipediaOptimizer(BaseOptimizer):
         """
         super().__init__(display_name)
         self.config = config or WikipediaOptimizerConfig()
+        
+        self.is_wiki_optimizer = True
 
     def allocate(
         self,

@@ -58,15 +58,14 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
         super().__init__(display_name)
         self.config = config or BalancedFundamentalConfig()
 
-        # Handle data provider selection
-        if data_provider is not None:
-            self.data_provider = data_provider
-        else:
-            # Default: create from factory
-            self.data_provider = FundamentalDataProviderFactory.create_provider()
+        self.data_provider = (
+                data_provider or FundamentalDataProviderFactory.create_provider()
+            )
 
         self._weights_today: Optional[np.ndarray] = None
         self._last_calculation_time: Optional[datetime] = None
+
+        self.is_fundamental_optimizer = True
 
     def allocate(
         self,

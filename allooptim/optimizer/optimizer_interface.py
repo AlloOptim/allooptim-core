@@ -71,6 +71,9 @@ class AbstractOptimizer(ABC):
         - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities
     """
 
+    is_wiki_optimizer: bool
+    is_fundamental_optimizer: bool
+
     @abstractmethod
     def fit(
         self,

@@ -56,6 +56,8 @@ class BaseOptimizer(AbstractOptimizer):
         self._display_name = display_name
         self.allow_cash = False  # Default to False for backward compatibility
         self.max_leverage = None  # Default to None (no leverage limit)
+        self.is_fundamental_optimizer = False
+        self.is_wiki_optimizer = False
 
     def fit(
         self,

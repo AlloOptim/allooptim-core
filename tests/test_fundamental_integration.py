@@ -36,23 +36,7 @@ class TestFundamentalIntegration:
         assert abs(weights.sum() - 1.0) < 0.01
         mock_provider.get_fundamental_data.assert_called_once()
 
-    def test_optimizer_factory_with_provider(self):
-        """Test optimizer factory passes provider correctly."""
-        mock_provider = Mock()
-        mock_provider.get_fundamental_data.return_value = [
-            FundamentalData(ticker="AAPL", market_cap=3e12, roe=0.3, pb_ratio=5.0)
-        ]
-
-        config = OptimizerConfig(name="BalancedFundamentalOptimizer", display_name="Test Fundamental")
-
-        optimizers = get_optimizer_by_config([config], fundamental_data_provider=mock_provider)
-
-        assert len(optimizers) == 1
-        optimizer = optimizers[0]
-        assert isinstance(optimizer, BalancedFundamentalOptimizer)
-        assert optimizer.data_provider is mock_provider
-
-    def test_optimizer_factory_without_provider(self):
+    def test_optimizer_factory(self):
         """Test optimizer factory creates default provider."""
         config = OptimizerConfig(name="BalancedFundamentalOptimizer", display_name="Test Fundamental")
 

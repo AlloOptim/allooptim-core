@@ -19,23 +19,13 @@ from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 logger = logging.getLogger(__name__)
 
 
-def _is_fundamental_optimizer(optimizer_class) -> bool:
-    """Check if an optimizer class accepts a data_provider parameter."""
-    import inspect
-
-    sig = inspect.signature(optimizer_class.__init__)
-    return "data_provider" in sig.parameters
-
-
 def get_optimizer_by_config(
     configs: List[OptimizerConfig],
-    fundamental_data_provider=None,
 ) -> List[AbstractOptimizer]:
     """Create optimizers from OptimizerConfig objects.
 
     Args:
         configs: List of OptimizerConfig objects with class names and display names
-        fundamental_data_provider: Optional fundamental data provider for fundamental optimizers
 
     Returns:
         List of configured optimizer instances
@@ -52,24 +42,12 @@ def get_optimizer_by_config(
         # Create with config
         if opt_config.config:
             config = validate_optimizer_config(opt_config.name, opt_config.config)
-            # Check if this is a fundamental optimizer and pass data provider
-            if fundamental_data_provider and _is_fundamental_optimizer(optimizer_class):
-                optimizer = optimizer_class(
-                    config=config, display_name=opt_config.display_name, data_provider=fundamental_data_provider
-                )
-            else:
-                optimizer = optimizer_class(config=config, display_name=opt_config.display_name)
+            optimizer = optimizer_class(config=config, display_name=opt_config.display_name)
             logger.info(
                 f"Created {opt_config.name} as '{opt_config.display_name}' " f"with config: {opt_config.config}"
             )
         else:
-            # Check if this is a fundamental optimizer and pass data provider
-            if fundamental_data_provider and _is_fundamental_optimizer(optimizer_class):
-                optimizer = optimizer_class(
-                    display_name=opt_config.display_name, data_provider=fundamental_data_provider
-                )
-            else:
-                optimizer = optimizer_class(display_name=opt_config.display_name)
+            optimizer = optimizer_class(display_name=opt_config.display_name)
             logger.debug(f"Created {opt_config.name} as '{opt_config.display_name}' " f"with default config")
 
         # Apply allow_cash override if specified
