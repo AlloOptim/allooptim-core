@@ -81,7 +81,7 @@ class SpectrumGenerator:
             lambda: SpectrumGenerator.power_law(n_assets, np.random.uniform(1.2, 2.5)),
             lambda: SpectrumGenerator.mixed_regime(n_assets, np.random.randint(min_factors, max_factors + 1)),
         ]
-        return random.choice(methods)()
+        return random.choice(methods)()  # nosec B311 - Pseudo-random for data generation, not cryptography
 
 
 class CovarianceMatrixGenerator:

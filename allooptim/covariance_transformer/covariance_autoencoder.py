@@ -126,7 +126,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
     def _count_parameters(self) -> int:
         """Count total trainable parameters."""
-        assert self.hidden_dims is not None, "hidden_dims must be set before calling _count_parameters"
+        assert self.hidden_dims is not None, "hidden_dims must be set before calling _count_parameters"  # nosec B101 - Assert for internal consistency checks
         total = 0
 
         # Encoder
@@ -164,7 +164,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         Returns:
             tuple of (noisy_data, clean_data) tensors
         """
-        assert self.n_assets is not None, "n_assets must be set before generating training data"
+        assert self.n_assets is not None, "n_assets must be set before generating training data"  # nosec B101 - Assert for internal consistency checks
         # Check for cached data
         if use_cached and os.path.exists(cache_file):
             logger.debug(f"📁 Loading cached training data from {cache_file}")
@@ -588,9 +588,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         if not self.is_fitted:
             raise ValueError("Autoencoder must be fitted before transforming")
 
-        assert self.n_assets is not None, "Autoencoder must be fitted before transforming"
-
-        # Extract numpy array and asset names
+            assert self.n_assets is not None, "Autoencoder must be fitted before transforming"  # nosec B101 - Assert for internal consistency checks        # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
         # Prepare input

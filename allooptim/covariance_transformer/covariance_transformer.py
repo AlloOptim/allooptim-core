@@ -803,7 +803,7 @@ class DetoneCovarianceTransformer(AbstractCovarianceTransformer):
         if self.n_remove is not None:
             n_remove = self.n_remove
         else:
-            assert self.remove_fraction is not None
+            assert self.remove_fraction is not None  # nosec B101 - Assert for internal consistency checks
             n_remove = max(int(self.remove_fraction * len(w)), 1)
 
         # Handle special case: n_remove=0 means return original matrix

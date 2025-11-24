@@ -243,7 +243,7 @@ class RetryHandler:
         import random
 
         delay = base_delay * (2**retry_count)
-        jitter = random.uniform(0.5, 1.5)
+        jitter = random.uniform(0.5, 1.5)  # nosec B311 - Pseudo-random for retry jitter, not cryptography
         return delay * jitter
 
     @staticmethod

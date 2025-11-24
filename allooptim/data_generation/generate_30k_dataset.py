@@ -184,7 +184,7 @@ def load_training_dataset(save_path: Optional[str] = None):
     print(f"Loading training dataset from: {save_path}")
 
     with open(save_path, "rb") as f:
-        dataset = pickle.load(f)
+        dataset = pickle.load(f)  # nosec B301 - Loading trusted internal training data
 
     X_train = dataset["X_train"]
     metadata = dataset["metadata"]

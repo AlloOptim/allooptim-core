@@ -123,7 +123,7 @@ class BalancedFundamentalOptimizer(BaseOptimizer):
 
         else:
             # If we get here, _weights_today should not be None
-            assert self._weights_today is not None, "Cached weights should not be None"
+            assert self._weights_today is not None, "Cached weights should not be None"  # nosec B101 - Assert for internal consistency checks
             weights = self._weights_today
 
         return create_weights_series(weights, asset_names)
