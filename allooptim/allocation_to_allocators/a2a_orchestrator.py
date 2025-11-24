@@ -21,6 +21,7 @@ from allooptim.config.failure_diagnostics import (
     CircuitBreaker,
     FailureClassifier,
 )
+from allooptim.config.failure_handling_config import FailureHandlingOption
 from allooptim.config.stock_dataclasses import StockUniverse
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
@@ -195,27 +196,23 @@ class BaseOrchestrator(AbstractA2AOrchestrator):
             self.circuit_breaker.record_failure(optimizer.name)
 
         # Apply the determined handling strategy
-        if handling_option == "zero_weights":
-            # Return all-zero weights (no investment)
-            weights = pd.Series(0.0, index=asset_names or range(n_assets), name=optimizer.name)
-            return weights
+        match handling_option:
+            case FailureHandlingOption.ZERO_WEIGHTS:
+                # Return all-zero weights (no investment)
+                weights = pd.Series(0.0, index=asset_names or range(n_assets), name=optimizer.name)
+                return weights
+            case FailureHandlingOption.EQUAL_WEIGHTS:
+                # Return 1/N naive diversification
+                equal_weight = 1.0 / n_assets
+                weights = pd.Series(equal_weight, index=asset_names or range(n_assets), name=optimizer.name)
+                return weights
 
-        elif handling_option == "equal_weights":
-            # Return 1/N naive diversification
-            equal_weight = 1.0 / n_assets
-            weights = pd.Series(equal_weight, index=asset_names or range(n_assets), name=optimizer.name)
-            return weights
+            case FailureHandlingOption.IGNORE_OPTIMIZER:
+                # Skip optimizer entirely in ensemble combination
+                return None
 
-        elif handling_option == "ignore_optimizer":
-            # Skip optimizer entirely in ensemble combination
-            return None
-
-        else:
-            # Should not happen due to enum validation, but defensive programming
-            logging.error(f"Unknown failure handling option: {handling_option}, defaulting to equal_weights")
-            equal_weight = 1.0 / n_assets
-            weights = pd.Series(equal_weight, index=asset_names or range(n_assets), name=optimizer.name)
-            return weights
+            case _:
+                raise NotImplementedError(f"Unknown FailureHandlingOption: {handling_option}")
 
     @abstractmethod
     def allocate(

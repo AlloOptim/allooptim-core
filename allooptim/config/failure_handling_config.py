@@ -110,6 +110,12 @@ class FailureHandlingConfig(BaseModel):
         ),
     )
 
+    @field_validator("option", mode="before")
+    @classmethod
+    def validate_option(cls, v) -> FailureHandlingOption:
+        """Validate that the option is a valid enum value."""
+        return FailureHandlingOption(v)
+
     @field_validator("context_aware_fallbacks")
     @classmethod
     def validate_context_aware_fallbacks(cls, v):
