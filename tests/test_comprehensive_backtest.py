@@ -1,14 +1,14 @@
 """Test comprehensive backtest execution for errors and warnings."""
 
-from datetime import datetime
 import warnings
+from datetime import datetime
 
 import pytest
 
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universe
 from allooptim.optimizer.optimizer_config import OptimizerConfig
-from examples.comprehensive_backtest import main_backtest, DEFAULT_OPTIMIZER_CONFIG
+from examples.comprehensive_backtest import DEFAULT_OPTIMIZER_CONFIG, main_backtest
 
 
 class TestComprehensiveBacktest:
@@ -20,14 +20,15 @@ class TestComprehensiveBacktest:
 
     def test_default_optimizer_config_contains_is_valid(self):
         """Test that the default optimizer configuration list contains valid entries.
+
         If string, it should be a valid optimizer name.
         If OptimizerConfig, it should pass pydantic validation.
-        
+
         """
         for opt in DEFAULT_OPTIMIZER_CONFIG:
-            assert isinstance(opt, (str, OptimizerConfig)), (
-                "Each optimizer config should be either a string or an OptimizerConfig instance."
-            )
+            assert isinstance(
+                opt, (str, OptimizerConfig)
+            ), "Each optimizer config should be either a string or an OptimizerConfig instance."
 
             if isinstance(opt, str):
                 OptimizerConfig(name=opt)  # Should not raise errors
@@ -37,7 +38,6 @@ class TestComprehensiveBacktest:
 
     def test_comprehensive_backtest_executes_without_errors(self):
         """Test that the comprehensive backtest main function executes without raising exceptions."""
-
         optimizer_configs = [
             OptimizerConfig(name="NaiveOptimizer"),
             OptimizerConfig(name="MomentumOptimizer"),
@@ -63,6 +63,7 @@ class TestComprehensiveBacktest:
 
             except Exception as e:
                 pytest.fail(f"Comprehensive backtest failed to execute: {str(e)}")
+
 
 class BacktestWarningCatcher:
     """Context manager that catches warnings and converts them to test failures."""
