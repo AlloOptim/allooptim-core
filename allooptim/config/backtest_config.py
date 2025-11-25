@@ -47,8 +47,8 @@ class BacktestConfig(BaseModel):
     log_returns: bool = Field(default=True, description="Whether to use log returns for calculations")
 
     # Time periods
-    start_date: datetime = Field(..., description="Start date for the backtest period")
-    end_date: datetime = Field(..., description="End date for the backtest period")
+    start_date: datetime = Field(default=datetime(2020, 1, 1), description="Start date for the backtest period")
+    end_date: datetime = Field(default=datetime(2024, 12, 31), description="End date for the backtest period")
     quick_start_date: datetime = Field(default=datetime(2022, 12, 31), description="Start date for quick debug testing")
     quick_end_date: datetime = Field(default=datetime(2023, 2, 28), description="End date for quick debug testing")
 

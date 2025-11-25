@@ -211,8 +211,7 @@ class BaseOrchestrator(AbstractA2AOrchestrator):
                 # Skip optimizer entirely in ensemble combination
                 return None
 
-            case _:
-                raise NotImplementedError(f"Unknown FailureHandlingOption: {handling_option}")
+        raise NotImplementedError(f"Unknown FailureHandlingOption: {handling_option}")
 
     @abstractmethod
     def allocate(

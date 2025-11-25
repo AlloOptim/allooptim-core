@@ -52,32 +52,30 @@ DEFAULT_OPTIMIZER_CONFIG =[
                 OptimizerConfig(name="MaxSharpeOptimizer"),
             ]
 
-def main_backtest(quick_test: bool = True,
-         optimizer_configs: Optional[list[OptimizerConfig]] = None,
-         ) -> None:
+
+def main_backtest(
+    config_backtest: Optional[BacktestConfig] = None,
+) -> None:
     """Main execution function."""
     logger.info("Starting comprehensive allocation algorithm backtest")
 
     # Use default configs if none provided
-    if optimizer_configs is None:
-        optimizer_configs = DEFAULT_OPTIMIZER_CONFIG
-
-    try:
+    if config_backtest is None:
         symbols = extract_symbols_from_list(large_stock_universe())
 
         config_backtest = BacktestConfig(
-            start_date=datetime(2009, 1, 1),
+            start_date=datetime(2015, 1, 1),
             end_date=datetime(2025, 1, 1),
             rebalance_frequency=10,
             lookback_days=90,
-            quick_test=quick_test,
-            log_returns=True,
-            benchmark="SPY",
+            quick_test=True,
             symbols=symbols,
-            optimizer_configs=optimizer_configs,
+            optimizer_configs=DEFAULT_OPTIMIZER_CONFIG,
             transformer_names=["OracleCovarianceTransformer"],
             orchestration_type=OrchestratorType.VOLATILITY_ADJUSTED,
         )
+
+    try:
 
         config_a2a = A2AConfig()
 
