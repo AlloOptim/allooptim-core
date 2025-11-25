@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.5] - 2025-11-25
+
+### Refactored
+
+- Standardized all optimizer name properties to end with "Optimizer" and match class names for consistency
+- Simplified optimizer factory interfaces by removing unnecessary fundamental_data_provider parameters
+- Improved code discoverability and maintainability through naming standardization
+
+### Fixed
+
+- Corrected optimizer name properties across all optimizer classes (efficient_frontier, momentum, PSO, ensemble)
+- Updated test files and examples to use standardized optimizer names
+- Fixed docstring formatting issues in test files
+
 ## [0.3.1] - 2025-11-11
 
 ### Added
@@ -29,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.3.0] - 2025-11-06
 
 ### Added
+
 - Initial public release of AlloOptim
 - 35+ portfolio optimization strategies including:
   - Efficient Frontier optimizers (Mean-Variance, Black-Litterman)
@@ -61,13 +76,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Full test suite with pytest
 
 ### Documentation
+
 - Complete API documentation
 - Architecture overview
 - Optimizer comparison guide
 - Quickstart guide
-- Read the Docs integration at https://allooptim.readthedocs.io
+- Read the Docs integration at <https://allooptim.readthedocs.io>
 
 ### Infrastructure
+
 - GitHub Actions CI/CD pipeline
 - Automated publishing to PyPI via Trusted Publishers
 - Sigstore attestations for supply chain security
