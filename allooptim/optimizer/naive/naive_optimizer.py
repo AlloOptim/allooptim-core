@@ -28,7 +28,7 @@ from allooptim.optimizer.asset_name_utils import (
     get_asset_names,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class NaiveOptimizerConfig(BaseModel):
     pass
 
 
-class NaiveOptimizer(AbstractOptimizer):
+class NaiveOptimizer(BaseOptimizer):
     """Equal-weight portfolio optimizer with pandas interface.
 
     Implements the simplest possible allocation strategy by assigning equal weights

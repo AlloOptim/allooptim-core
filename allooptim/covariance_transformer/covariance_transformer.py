@@ -57,12 +57,12 @@ def _create_cov_dataframe(cov_array: np.ndarray, asset_names: list) -> pd.DataFr
     return pd.DataFrame(cov_array, index=asset_names, columns=asset_names)
 
 
-def _ensure_symmetric(matrix: np.array) -> np.array:
+def _ensure_symmetric(matrix: np.ndarray) -> np.ndarray:
     """Ensure a matrix is symmetric by averaging with its transpose."""
     return (matrix + matrix.T) / 2
 
 
-def cov_to_corr(cov: np.array) -> np.array:
+def cov_to_corr(cov: np.ndarray) -> np.ndarray:
     """Derive the correlation matrix from a covariance matrix.
 
     :param cov: covariance matrix
@@ -91,7 +91,7 @@ def cov_to_corr(cov: np.array) -> np.array:
     return corr
 
 
-def _corr_to_cov(corr: np.array, std: np.array) -> np.array:
+def _corr_to_cov(corr: np.ndarray, std: np.ndarray) -> np.ndarray:
     """Recovers the covariance matrix from the de-noise correlation matrix.
 
     :param corr: de-noised correlation matrix
@@ -102,7 +102,7 @@ def _corr_to_cov(corr: np.array, std: np.array) -> np.array:
     return cov
 
 
-def _reorder_matrix(m: np.array, sort_index: np.array) -> np.array:
+def _reorder_matrix(m: np.ndarray, sort_index: np.ndarray) -> np.ndarray:
     m = m[sort_index, :]
     m = m[:, sort_index]
     return m
@@ -481,7 +481,7 @@ class PCACovarianceTransformer(AbstractCovarianceTransformer):
     important signal components.
     """
 
-    def __init__(self, n_components: int = None, variance_threshold: float = 0.95):
+    def __init__(self, n_components: Optional[int] = None, variance_threshold: float = 0.95):
         """Initialize PCA covariance transformer.
 
         Args:
@@ -565,7 +565,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
             n_observations: Number of observations used to estimate covariance
         """
         self.bandwidth = bandwidth
-        self.n_observations = n_observations
+        self.n_observations: Optional[int] = n_observations
 
     def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
         """Computes the correlation matrix and shrinks eigenvalues associated with noise.
@@ -588,7 +588,10 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         # Extract numpy array and asset names
         cov_array, asset_names = _extract_cov_info(df_cov)
 
-        self.n_observations = n_observations
+        self.n_observations = n_observations if n_observations is not None else self.n_observations
+
+        if self.n_observations is None:
+            raise ValueError("n_observations must be provided")
 
         #  q=T/N where T=sample length and N=number of variables
         q = self.n_observations / cov_array.shape[1]
@@ -615,7 +618,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         # Return as pandas DataFrame with preserved asset names
         return _create_cov_dataframe(transformed_cov, asset_names)
 
-    def _get_PCA(self, matrix: np.array) -> tuple[np.array, np.array]:
+    def _get_PCA(self, matrix: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         """Gets eigenvalues and eigenvectors from a Hermitian matrix.
 
         :param matrix: a Hermitian matrix
@@ -627,7 +630,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         eigenvalues = np.diagflat(eigenvalues)
         return eigenvalues, eigenvectors
 
-    def _find_max_eigenvalue(self, eigenvalues: np.array, q: float) -> float:
+    def _find_max_eigenvalue(self, eigenvalues: np.ndarray, q: float) -> float:
         """Uses KDE to fit Marcenko-Pastur distribution and separate noise from signal.
 
         Uses a Kernel Density Estimate (KDE) algorithm to fit the
@@ -693,7 +696,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         pdf = pd.Series(pdf, index=eigenvalues)
         return pdf
 
-    def _fit_KDE(self, obs: np.array, kernel: str = "gaussian", x: np.array = None) -> pd.Series:
+    def _fit_KDE(self, obs: np.ndarray, kernel: str = "gaussian", x: Optional[np.ndarray] = None) -> pd.Series:
         """Fit kernel to observations and derive probability density.
 
         Fit kernel to a series of observations, and derive the prob of observations.
@@ -715,7 +718,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         pdf = pd.Series(np.exp(log_prob), index=x.flatten())
         return pdf
 
-    def _de_noised_corr(self, eigenvalues: np.array, eigenvectors: np.array, n_facts: int) -> np.array:
+    def _de_noised_corr(self, eigenvalues: np.ndarray, eigenvectors: np.ndarray, n_facts: int) -> np.ndarray:
         """Shrinks eigenvalues associated with noise and returns de-noised correlation matrix.
 
         :param eigenvalues: array of eigenvalues
@@ -724,7 +727,7 @@ class DeNoiserCovarianceTransformer(AbstractCovarianceTransformer):
         :return: de-noised correlation matrix.
         """
         # Remove noise from corr by fixing random eigenvalues
-        eigenvalues_ = np.diag(eigenvalues).copy()
+        eigenvalues_: np.ndarray = np.diag(eigenvalues).copy()
         eigenvalues_[n_facts:] = eigenvalues_[n_facts:].sum() / float(eigenvalues_.shape[0] - n_facts)
         eigenvalues_ = np.diag(eigenvalues_)
         corr = np.dot(eigenvectors, eigenvalues_).dot(eigenvectors.T)
@@ -742,13 +745,16 @@ class DetoneCovarianceTransformer(AbstractCovarianceTransformer):
     Learning for Asset Managers".
     """
 
-    def __init__(self, remove_fraction: float = None, n_remove: int = None) -> None:
+    def __init__(self, remove_fraction: Optional[float] = None, n_remove: Optional[int] = None) -> None:
         """Initialize Detone covariance transformer.
 
         Args:
             remove_fraction: Fraction of eigenvalues to remove (0 < remove_fraction < 1)
             n_remove: Number of eigenvalues to remove (backward compatibility)
         """
+        self.remove_fraction: Optional[float]
+        self.n_remove: Optional[int]
+
         if n_remove is not None and remove_fraction is not None:
             raise ValueError("Cannot specify both n_remove and remove_fraction")
         elif n_remove is not None:
@@ -794,7 +800,11 @@ class DetoneCovarianceTransformer(AbstractCovarianceTransformer):
         v = v[:, sort_index]
 
         # remove largest eigenvalue component
-        n_remove = self.n_remove if self.n_remove is not None else max(int(self.remove_fraction * len(w)), 1)
+        if self.n_remove is not None:
+            n_remove = self.n_remove
+        else:
+            assert self.remove_fraction is not None  # nosec B101 - Assert for internal consistency checks
+            n_remove = max(int(self.remove_fraction * len(w)), 1)
 
         # Handle special case: n_remove=0 means return original matrix
         if n_remove == 0:

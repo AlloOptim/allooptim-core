@@ -55,7 +55,7 @@ from allooptim.optimizer.asset_name_utils import (
     get_asset_names,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.minimize_multistart import (
     minimize_given_initial,
 )
@@ -227,7 +227,7 @@ class MonteCarloRobustOptimizerConfig(BaseModel):
         return self.allow_cash_by_optimizer or self.allow_cash_by_variance
 
 
-class MonteCarloMinVarianceOptimizer(AbstractOptimizer):
+class MonteCarloMinVarianceOptimizer(BaseOptimizer):
     """Monte Carlo Min Variance Portfolio Optimizer.
 
     This optimizer uses Monte Carlo sampling to handle uncertainty in covariance

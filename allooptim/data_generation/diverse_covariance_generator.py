@@ -6,6 +6,7 @@ Generates 30,000 artificial covariance matrices using multiple methods for autoe
 import random
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Optional
 
 import numpy as np
 import pandas as pd
@@ -53,7 +54,7 @@ class SpectrumGenerator:
         return eigenvals * n_assets / np.sum(eigenvals)
 
     @staticmethod
-    def mixed_regime(n_assets: int, n_factors: int = None) -> np.ndarray:
+    def mixed_regime(n_assets: int, n_factors: Optional[int] = None) -> np.ndarray:
         """Generate mixed regime eigenvalues (few large, many small)."""
         if n_factors is None:
             n_factors = max(3, n_assets // 20)
@@ -80,7 +81,7 @@ class SpectrumGenerator:
             lambda: SpectrumGenerator.power_law(n_assets, np.random.uniform(1.2, 2.5)),
             lambda: SpectrumGenerator.mixed_regime(n_assets, np.random.randint(min_factors, max_factors + 1)),
         ]
-        return random.choice(methods)()
+        return random.choice(methods)()  # nosec B311 - Pseudo-random for data generation, not cryptography
 
 
 class CovarianceMatrixGenerator:
@@ -224,7 +225,7 @@ class CovarianceMatrixGenerator:
 
     def _generate_sector_volatilities(self, block_sizes: list[int]) -> np.ndarray:
         """Generate realistic sector-based volatilities."""
-        volatilities = []
+        volatilities: list[float] = []
 
         for block_size in block_sizes:
             # Each sector has base volatility + individual variations

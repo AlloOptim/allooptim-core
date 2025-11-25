@@ -27,7 +27,7 @@ from pypfopt.efficient_frontier import EfficientFrontier
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.allocation_metric import LMoments
 from allooptim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +41,7 @@ class BLOptimizerConfig(BaseModel):
     use_implied_market: bool = False
 
 
-class BlackLittermanOptimizer(AbstractOptimizer):
+class BlackLittermanOptimizer(BaseOptimizer):
     """Black-Litterman portfolio optimizer combining prior beliefs with market views."""
 
     def __init__(

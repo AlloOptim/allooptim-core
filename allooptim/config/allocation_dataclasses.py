@@ -16,7 +16,9 @@ from enum import Enum
 from typing import Optional, Union
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, field_validator
+
+from .default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 
 
 class StatisticsType(str, Enum):
@@ -30,11 +32,15 @@ class StatisticsType(str, Enum):
 class NoStatistics(BaseModel):
     """Represents absence of allocation statistics."""
 
+    model_config = DEFAULT_PYDANTIC_CONFIG
+
     type: StatisticsType = StatisticsType.NONE
 
 
 class A2AStatistics(BaseModel):
     """Statistics from Allocation-to-Allocators (A2A) optimization."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     asset_returns: dict[str, float]
     asset_volatilities: dict[str, float]
@@ -47,6 +53,8 @@ class A2AStatistics(BaseModel):
 
 class WikipediaStatistics(BaseModel):
     """Statistics from Wikipedia-based stock allocation."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     end_date: str
     r_squared: float
@@ -64,7 +72,7 @@ class WikipediaStatistics(BaseModel):
 class AllocationResult(BaseModel):
     """Result of an allocation operation with comprehensive metadata."""
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     asset_weights: dict[str, float]
     success: bool
@@ -91,6 +99,8 @@ class AllocationResult(BaseModel):
 
 class AllocationStatisticsResult(BaseModel):
     """Statistics from allocation operations."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     returns: dict[str, float]
     volatilities: dict[str, float]

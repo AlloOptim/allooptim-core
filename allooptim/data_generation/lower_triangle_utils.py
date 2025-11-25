@@ -6,7 +6,7 @@ Optimizes autoencoder input/output by using only lower triangle elements.
 import numpy as np
 
 
-def pack_lower_triangle(matrix: np.array) -> np.array:
+def pack_lower_triangle(matrix: np.ndarray) -> np.ndarray:
     """Pack a symmetric matrix into a 1D array containing only lower triangle elements.
 
     For an n×n symmetric matrix, this reduces storage from n² to n(n+1)/2 elements.
@@ -35,12 +35,12 @@ def pack_lower_triangle(matrix: np.array) -> np.array:
     row_indices, col_indices = np.tril_indices(n)
 
     # Pack lower triangle elements
-    packed = matrix[row_indices, col_indices]
+    packed: np.ndarray = matrix[row_indices, col_indices]
 
     return packed
 
 
-def unpack_lower_triangle(packed: np.array, n: int) -> np.array:
+def unpack_lower_triangle(packed: np.ndarray, n: int) -> np.ndarray:
     """Unpack a 1D array of lower triangle elements back to symmetric n×n matrix.
 
     Reconstructs the full symmetric matrix and applies (A + A.T)/2 to ensure symmetry.
@@ -83,7 +83,7 @@ def get_packed_size(n: int) -> int:
     return n * (n + 1) // 2
 
 
-def validate_symmetric(matrix: np.array, tolerance: float = 1e-10) -> bool:
+def validate_symmetric(matrix: np.ndarray, tolerance: float = 1e-10) -> bool:
     """Check if a matrix is symmetric within tolerance.
 
     Args:

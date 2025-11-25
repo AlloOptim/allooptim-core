@@ -24,11 +24,11 @@ from allooptim.optimizer.allocation_metric import LMoments
 
 
 class AbstractOptimizer(ABC):
-    """Abstract base class for all portfolio optimization algorithms.
+    """Abstract interface for all portfolio optimization algorithms.
 
-    All optimizers in AlloOptim inherit from this class and implement the
-    `allocate()` method to compute portfolio weights. This ensures a consistent
-    interface across different optimization strategies.
+    All optimizers in AlloOptim implement this interface to ensure a consistent
+    API across different optimization strategies. This is a pure interface with
+    no implementation details.
 
     The optimizer interface is designed for flexibility and composability:
     - Supports various risk metrics (variance, CVaR, max drawdown, L-moments)
@@ -37,7 +37,7 @@ class AbstractOptimizer(ABC):
     - Enables warm-start optimization for performance
 
     Subclassing Guide:
-        1. Inherit from AbstractOptimizer
+        1. Inherit from BaseOptimizer (not AbstractOptimizer directly)
         2. Implement allocate() method
         3. Implement name property
         4. Add configuration via Pydantic BaseModel
@@ -46,7 +46,7 @@ class AbstractOptimizer(ABC):
     Examples:
         Creating a simple optimizer:
 
-        >>> class MyOptimizer(AbstractOptimizer):
+        >>> class MyOptimizer(BaseOptimizer):
         ...     def allocate(self, ds_mu, df_cov, **kwargs):
         ...         # Equal-weight allocation
         ...         n = len(ds_mu)
@@ -65,41 +65,49 @@ class AbstractOptimizer(ABC):
         1.0
 
     See Also:
-        - :class:`AbstractEnsembleOptimizer`: Base class for ensemble methods
+        - :class:`BaseOptimizer`: Base implementation with common functionality
+        - :class:`AbstractEnsembleOptimizer`: Interface for ensemble methods
         - :mod:`allooptim.optimizer.optimizer_list`: Available optimizer catalog
         - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities
     """
 
-    def __init__(self, display_name: Optional[str] = None):
-        """Initialize the optimizer.
+    is_wiki_optimizer: bool
+    is_fundamental_optimizer: bool
 
-        Args:
-            display_name: Optional display name for this optimizer instance.
-                         If None, defaults to the optimizer's name property.
-        """
-        self._display_name = display_name
-        self.allow_cash = False  # Default to False for backward compatibility
-        self.max_leverage = None  # Default to None (no leverage limit)
-
+    @abstractmethod
     def fit(
         self,
         df_prices: Optional[pd.DataFrame] = None,
     ) -> None:
-        """Optional setup method to prepare the optimizer with historical data."""
+        """Optional setup method to prepare the optimizer with historical data.
+
+        This method can be overridden by optimizers that need to learn from
+        historical data (e.g., machine learning models, momentum-based strategies).
+
+        Args:
+            df_prices: Historical price data for fitting the optimizer.
+        """
         pass
 
+    @abstractmethod
     def reset(self) -> None:
-        """Optional method to reset any internal state of the optimizer."""
-        self.__init__(self._display_name)
+        """Reset any internal state of the optimizer.
 
+        This method should restore the optimizer to its initial state,
+        clearing any learned parameters or cached computations.
+        """
+        pass
+
+    @abstractmethod
     def set_allow_cash(self, allow_cash: bool) -> None:
         """Set whether this optimizer is allowed to use cash (partial investment).
 
         Args:
             allow_cash: Whether to allow cash positions (sum of weights < 1.0)
         """
-        self.allow_cash = allow_cash
+        pass
 
+    @abstractmethod
     def set_max_leverage(self, max_leverage: Optional[float]) -> None:
         """Set the maximum leverage allowed for this optimizer.
 
@@ -107,7 +115,7 @@ class AbstractOptimizer(ABC):
             max_leverage: Maximum leverage factor (sum of weights <= max_leverage).
                          None means no leverage limit.
         """
-        self.max_leverage = max_leverage
+        pass
 
     @abstractmethod
     def allocate(
@@ -118,7 +126,7 @@ class AbstractOptimizer(ABC):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
+        """Create an optimal portfolio allocation.
 
         Args:
             ds_mu: Expected return vector as pandas Series with asset names as index
@@ -134,7 +142,6 @@ class AbstractOptimizer(ABC):
             - Asset names in mu.index must match cov.index and cov.columns
             - Returned weights should sum to 1.0 for long-only portfolios
             - Optimizer implementations can access asset names via cov.columns or mu.index
-            - Individual optimizers typically ignore df_allocations; ensemble optimizers use it for efficiency
         """
         pass
 
@@ -146,51 +153,12 @@ class AbstractOptimizer(ABC):
 
     @property
     def display_name(self) -> str:
-        """Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist."""
-        return self._display_name if self._display_name is not None else self.name
+        """Display name of this optimizer instance. Can depend on the optimizer configuration, if multiple instances exist."""
+        pass
 
 
 class AbstractEnsembleOptimizer(ABC):
-    """Abstract base class for ensemble portfolio optimization algorithms with pandas interface."""
-
-    def __init__(self, display_name: Optional[str] = None):
-        """Initialize the ensemble optimizer.
-
-        Args:
-            display_name: Optional display name for this optimizer instance.
-                         If None, defaults to the optimizer's name property.
-        """
-        self._display_name = display_name
-        self.allow_cash = False  # Default to False for backward compatibility
-        self.max_leverage = None  # Default to None (no leverage limit)
-
-    def fit(
-        self,
-        df_prices: Optional[pd.DataFrame] = None,
-    ) -> None:
-        """Optional setup method to prepare the optimizer with historical data."""
-        pass
-
-    def reset(self) -> None:
-        """Optional method to reset any internal state of the optimizer."""
-        self.__init__(self._display_name)
-
-    def set_allow_cash(self, allow_cash: bool) -> None:
-        """Set whether this optimizer is allowed to use cash (partial investment).
-
-        Args:
-            allow_cash: Whether to allow cash positions (sum of weights < 1.0)
-        """
-        self.allow_cash = allow_cash
-
-    def set_max_leverage(self, max_leverage: Optional[float]) -> None:
-        """Set the maximum leverage allowed for this optimizer.
-
-        Args:
-            max_leverage: Maximum leverage factor (sum of weights <= max_leverage).
-                         None means no leverage limit.
-        """
-        self.max_leverage = max_leverage
+    """Abstract interface for ensemble portfolio optimization algorithms."""
 
     @abstractmethod
     def allocate(  # noqa: PLR0913
@@ -202,7 +170,7 @@ class AbstractEnsembleOptimizer(ABC):
         time: Optional[datetime] = None,
         l_moments: Optional[LMoments] = None,
     ) -> pd.Series:
-        """Create an optimal portfolio allocation given the expected returns vector and covariance matrix.
+        """Create an optimal ensemble portfolio allocation.
 
         Args:
             ds_mu: Expected return vector as pandas Series with asset names as index
@@ -232,6 +200,7 @@ class AbstractEnsembleOptimizer(ABC):
         pass
 
     @property
+    @abstractmethod
     def display_name(self) -> str:
-        """Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist."""
-        return self._display_name if self._display_name is not None else self.name
+        """Display name of this optimizer instance. Can depend on the optimizer configuration, if multiple instances exist."""
+        pass

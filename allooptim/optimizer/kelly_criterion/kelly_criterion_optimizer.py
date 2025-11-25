@@ -48,7 +48,7 @@ from allooptim.optimizer.asset_name_utils import (
     get_asset_names,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -101,7 +101,7 @@ class KellyCriterionOptimizerConfig(BaseModel):
     )
 
 
-class KellyCriterionOptimizer(AbstractOptimizer):
+class KellyCriterionOptimizer(BaseOptimizer):
     """Kelly Criterion Portfolio Optimizer.
 
     Implements the Kelly Criterion for optimal portfolio sizing, maximizing the expected

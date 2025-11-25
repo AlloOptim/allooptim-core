@@ -32,7 +32,7 @@ from allooptim.optimizer.asset_name_utils import (
     get_asset_names,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.wikipedia.allocate_wikipedia import allocate_wikipedia
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ class WikipediaOptimizerConfig(BaseModel):
     # Wikipedia optimizer doesn't need specific parameters currently
 
 
-class WikipediaOptimizer(AbstractOptimizer):
+class WikipediaOptimizer(BaseOptimizer):
     """Wikipedia-based portfolio optimizer.
 
     This optimizer uses Wikipedia page view data and other web-based signals
@@ -68,6 +68,8 @@ class WikipediaOptimizer(AbstractOptimizer):
         """
         super().__init__(display_name)
         self.config = config or WikipediaOptimizerConfig()
+
+        self.is_wiki_optimizer = True
 
     def allocate(
         self,

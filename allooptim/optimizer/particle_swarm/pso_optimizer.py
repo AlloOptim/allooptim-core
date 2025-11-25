@@ -27,7 +27,7 @@ from allooptim.optimizer.allocation_metric import (
     LMoments,
 )
 from allooptim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.particle_swarm.early_stopping import EarlyStopObjective
 from allooptim.optimizer.particle_swarm.pso_objective import risk_adjusted_returns_objective
 
@@ -58,7 +58,7 @@ class PSOOptimizerConfig(BaseModel):
     ftol_iter: int = 20
 
 
-class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
+class MeanVarianceParticleSwarmOptimizer(BaseOptimizer):
     """Optimizer based on the naive momentum."""
 
     enable_l_moments: bool = False
@@ -208,7 +208,7 @@ class MeanVarianceParticleSwarmOptimizer(AbstractOptimizer):
         Returns:
             Optimizer name string
         """
-        return "PSOMeanVariance"
+        return "MeanVarianceParticleSwarmOptimizer"
 
 
 class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
@@ -223,4 +223,4 @@ class LMomentsParticleSwarmOptimizer(MeanVarianceParticleSwarmOptimizer):
         Returns:
             Optimizer name string
         """
-        return "PSOLMoments"
+        return "LMomentsParticleSwarmOptimizer"

@@ -41,7 +41,7 @@ class TestMarkowitzOptimizer:
 
     def test_name(self):
         """Test optimizer name property."""
-        assert MaxSharpeOptimizer().name == "MaxSharpe"
+        assert MaxSharpeOptimizer().name == "MaxSharpeOptimizer"
 
 
 class TestNCOOptimizer:
@@ -192,9 +192,13 @@ def test_optimizers(optimizer_class, wikipedia_test_db_path):
             l_moments=l_moments,
         )
 
-    # Filter out expected warnings (SLSQP doesn't use Hessian)
+    # Filter out expected warnings (SLSQP doesn't use Hessian, pandas/yfinance deprecations)
     filtered_warnings = [
-        w for w in warning_list if "Method SLSQP does not use Hessian information" not in str(w.message)
+        w
+        for w in warning_list
+        if "Method SLSQP does not use Hessian information" not in str(w.message)
+        and "The argument 'date_parser' is deprecated" not in str(w.message)
+        and "'A' is deprecated and will be removed" not in str(w.message)
     ]
 
     # Fail the test if any unexpected warnings were raised

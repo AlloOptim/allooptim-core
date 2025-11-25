@@ -6,13 +6,17 @@ Educational implementation using synthetic training data generation.
 
 import logging
 import os
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import pandas as pd
 from tinygrad import Tensor, dtypes, nn
 from tinygrad.nn import optim
 
+from allooptim.covariance_transformer.covariance_transformer import (
+    _create_cov_dataframe,
+    _extract_cov_info,
+)
 from allooptim.covariance_transformer.transformer_interface import (
     AbstractCovarianceTransformer,
 )
@@ -48,6 +52,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         use_lower_triangle: bool = True,  # Enable symmetric optimization
         use_synthetic: bool = True,
         n_synthetic_samples: int = 50000,
+        n_assets: Optional[int] = None,  # Number of assets (inferred from data if None)
     ):
         """Initialize improved autoencoder with aggressive regularization.
 
@@ -67,6 +72,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
             use_lower_triangle: Use symmetric matrix optimization (recommended)
             use_synthetic: Whether to use synthetic training data
             n_synthetic_samples: Number of synthetic samples to generate
+            n_assets: Number of assets (inferred from data if None)
         """
         self.use_lower_triangle = use_lower_triangle
         self.hidden_dims = hidden_dims
@@ -83,11 +89,18 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         self.training_data_overlapping = training_data_overlapping
         self.use_synthetic = use_synthetic
         self.n_synthetic_samples = n_synthetic_samples
+        self.n_assets = n_assets
+
+        # Will be set during fit
+        self.input_size: int
+        self.total_params: int
+        self.model: list
+        self.optimizer: Any
 
         # Training state
         self.is_fitted = False
-        self.reconstruction_metrics = {}
-        self.training_history = {}
+        self.reconstruction_metrics: dict = {}
+        self.training_history: dict = {}
 
     def _build_autoencoder(self):
         """Build ultra-minimal autoencoder with aggressive regularization."""
@@ -113,6 +126,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
 
     def _count_parameters(self) -> int:
         """Count total trainable parameters."""
+        assert self.hidden_dims is not None, "hidden_dims must be set before calling _count_parameters"  # nosec B101 - Assert for internal consistency checks
         total = 0
 
         # Encoder
@@ -150,6 +164,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         Returns:
             tuple of (noisy_data, clean_data) tensors
         """
+        assert self.n_assets is not None, "n_assets must be set before generating training data"  # nosec B101 - Assert for internal consistency checks
         # Check for cached data
         if use_cached and os.path.exists(cache_file):
             logger.debug(f"📁 Loading cached training data from {cache_file}")
@@ -522,7 +537,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         logger.debug(f"   Final val loss: {val_losses[-1]:.6f}")
         logger.debug(f"   Epochs trained: {len(train_losses)}")
 
-    def _calculate_reconstruction_metrics(self, original: np.array, reconstructed: np.array) -> dict:
+    def _calculate_reconstruction_metrics(self, original: np.ndarray, reconstructed: np.ndarray) -> dict:
         """Calculate comprehensive reconstruction error metrics."""
         # Ensure same shape
         if original.shape != reconstructed.shape:
@@ -568,13 +583,16 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
             "condition_number_error": condition_error,
         }
 
-    def transform(self, cov: np.array, n_observations: int) -> np.array:
+    def transform(self, df_cov: pd.DataFrame, n_observations: Optional[int] = None) -> pd.DataFrame:
         """Transform covariance matrix with reconstruction metrics."""
         if not self.is_fitted:
             raise ValueError("Autoencoder must be fitted before transforming")
 
+        assert self.n_assets is not None, "Autoencoder must be fitted before transforming"  # nosec B101 - Assert for internal consistency checks
+        cov_array, asset_names = _extract_cov_info(df_cov)
+
         # Prepare input
-        cov_input = pack_lower_triangle(cov) if self.use_lower_triangle else cov.flatten()
+        cov_input = pack_lower_triangle(cov_array) if self.use_lower_triangle else cov_array.flatten()
 
         cov_tensor = Tensor(cov_input.astype(np.float32)).unsqueeze(0)
 
@@ -595,9 +613,10 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
             denoised_cov += np.eye(self.n_assets) * (-min_eigenval + 1e-8)
 
         # Calculate reconstruction metrics
-        self.reconstruction_metrics = self._calculate_reconstruction_metrics(cov, denoised_cov)
+        self.reconstruction_metrics = self._calculate_reconstruction_metrics(cov_array, denoised_cov)
 
-        return denoised_cov
+        # Return as pandas DataFrame with preserved asset names
+        return _create_cov_dataframe(denoised_cov, asset_names)
 
     def get_reconstruction_metrics(self) -> dict:
         """Get the latest reconstruction error metrics."""

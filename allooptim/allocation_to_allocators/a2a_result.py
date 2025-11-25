@@ -8,9 +8,10 @@ from datetime import datetime
 from typing import List, Optional
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 
 
 class OptimizerAllocation(BaseModel):
@@ -29,11 +30,13 @@ class OptimizerAllocation(BaseModel):
         """Deprecated: Use instance_id instead."""
         return self.instance_id
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
 
 class OptimizerWeight(BaseModel):
     """Weight assigned to an optimizer in ensemble."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     instance_id: str = Field(description="Unique identifier of the optimizer instance")
     weight: float = Field(description="Contribution weight (all weights sum to 1)")
@@ -55,11 +58,13 @@ class PerformanceMetrics(BaseModel):
     max_drawdown: Optional[float] = Field(default=None, description="Maximum drawdown")
     turnover: Optional[float] = Field(default=None, description="Portfolio turnover")
 
-    model_config = ConfigDict(frozen=True)
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
 
 class OptimizerError(BaseModel):
     """Error metric for an optimizer."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     instance_id: str = Field(description="Unique identifier of the optimizer instance")
     error: float = Field(description="Error metric value")
@@ -102,7 +107,7 @@ class A2AResult(BaseModel):
     timestamp: datetime = Field(description="Time step for this allocation")
     config: A2AConfig = Field(description="Configuration used (Pydantic model, not dict snapshot)")
 
-    model_config = ConfigDict(arbitrary_types_allowed=True, frozen=True)  # Allow pandas Series, datetime
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     def to_dataframe(self) -> pd.DataFrame:
         """Convert optimizer allocations to DataFrame.

@@ -33,7 +33,7 @@ from allooptim.optimizer.asset_name_utils import (
     create_weights_series,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.estimate_robust_ema_moments import (
     calculate_robust_ema_moments,
 )
@@ -61,7 +61,7 @@ class MeanVarianceAdjustedReturnsOptimizerConfig(BaseModel):
     optimizer_name: str = "SLSQP"
 
 
-class MeanVarianceAdjustedReturnsOptimizer(AbstractOptimizer):
+class MeanVarianceAdjustedReturnsOptimizer(BaseOptimizer):
     """Adjusted Returns Optimizer."""
 
     enable_l_moments: bool = False

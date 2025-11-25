@@ -6,7 +6,7 @@ Generates synthetic correlation matrices for training denoising autoencoders.
 import multiprocessing as mp
 import os
 from dataclasses import dataclass
-from typing import Optional
+from typing import Any, Optional
 
 import h5py
 import numpy as np
@@ -25,7 +25,7 @@ class TrainingConfig:
     n_samples: int = 50000
     min_observations: int = 100
     max_observations: int = 2000
-    n_processes: int = None  # None = use all available cores
+    n_processes: Optional[int] = None  # None = use all available cores
     output_file: str = "training_data.h5"
     random_seed: int = 42
 
@@ -34,7 +34,7 @@ class SpectrumGenerator:
     """Generates various types of eigenvalue spectra."""
 
     @staticmethod
-    def exponential_decay(n: int, decay_rate: float = None) -> np.ndarray:
+    def exponential_decay(n: int, decay_rate: Optional[float] = None) -> np.ndarray:
         """Exponentially decaying spectrum (most common in equity markets).
 
         Args:
@@ -51,7 +51,7 @@ class SpectrumGenerator:
         return eigenvalues / np.sum(eigenvalues) * n
 
     @staticmethod
-    def power_law(n: int, exponent: float = None) -> np.ndarray:
+    def power_law(n: int, exponent: Optional[float] = None) -> np.ndarray:
         """Power-law spectrum (Zipf-like distribution).
 
         Args:
@@ -68,7 +68,9 @@ class SpectrumGenerator:
         return eigenvalues / np.sum(eigenvalues) * n
 
     @staticmethod
-    def spiked_model(n: int, n_factors: int = None, factor_strength: tuple[float, float] = (5.0, 20.0)) -> np.ndarray:
+    def spiked_model(
+        n: int, n_factors: Optional[int] = None, factor_strength: tuple[float, float] = (5.0, 20.0)
+    ) -> np.ndarray:
         """Spiked model: few large factors + noise.
 
         Models market with strong factors (market, sector, etc.).
@@ -94,7 +96,7 @@ class SpectrumGenerator:
         return eigenvalues / np.sum(eigenvalues) * n
 
     @staticmethod
-    def hierarchical(n: int, n_levels: int = None) -> np.ndarray:
+    def hierarchical(n: int, n_levels: Optional[int] = None) -> np.ndarray:
         """Hierarchical spectrum: multiple scales of correlation.
 
         Models markets with sector structure.
@@ -109,7 +111,7 @@ class SpectrumGenerator:
         if n_levels is None:
             n_levels = np.random.randint(2, 5)
 
-        eigenvalues = []
+        eigenvalues: list[float] = []
         remaining = n
 
         for level in range(n_levels):
@@ -123,11 +125,11 @@ class SpectrumGenerator:
             eigenvalues.extend(level_eigs)
             remaining -= n_level
 
-        eigenvalues = np.array(eigenvalues)
-        return eigenvalues / np.sum(eigenvalues) * n
+        eigenvalues_array = np.array(eigenvalues)
+        return eigenvalues_array / np.sum(eigenvalues_array) * n
 
     @staticmethod
-    def flat_with_noise(n: int, base_level: float = None) -> np.ndarray:
+    def flat_with_noise(n: int, base_level: Optional[float] = None) -> np.ndarray:
         """Nearly flat spectrum with small perturbations.
 
         Args:
@@ -145,7 +147,7 @@ class SpectrumGenerator:
         return eigenvalues / np.sum(eigenvalues) * n
 
     @staticmethod
-    def market_model(n: int, market_variance_explained: float = None) -> np.ndarray:
+    def market_model(n: int, market_variance_explained: Optional[float] = None) -> np.ndarray:
         """Single factor (market) model with idiosyncratic risk.
 
         Args:
@@ -281,7 +283,7 @@ class CovarianceMatrixGenerator:
 
     @staticmethod
     def block_structure(
-        n: int, n_blocks: int, intra_block_corr: float = None, inter_block_corr: float = None
+        n: int, n_blocks: int, intra_block_corr: Optional[float] = None, inter_block_corr: Optional[float] = None
     ) -> np.ndarray:
         """Generate correlation matrix with block structure (sectors).
 
@@ -571,7 +573,7 @@ class TrainingDataGenerator:
         print(f"File size: {os.path.getsize(filename) / 1024 / 1024:.2f} MB")
 
 
-def load_training_data(filename: str) -> dict[str, np.ndarray]:
+def load_training_data(filename: str) -> tuple[dict[str, np.ndarray], dict[str, Any]]:
     """Load training data from HDF5 file.
 
     Args:

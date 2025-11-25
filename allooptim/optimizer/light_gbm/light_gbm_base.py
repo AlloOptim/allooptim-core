@@ -24,6 +24,8 @@ from scipy.optimize import minimize
 from sklearn.covariance import LedoitWolf
 from sklearn.preprocessing import StandardScaler
 
+from ...config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+
 logger = logging.getLogger(__name__)
 
 # Constants for model training thresholds
@@ -37,6 +39,8 @@ class LightGBMOptimizerConfig(BaseModel):
     decay rates for exponential weighting, risk aversion levels, and
     transaction cost assumptions.
     """
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     decay: float = 0.94
     risk_aversion: float = 2.0

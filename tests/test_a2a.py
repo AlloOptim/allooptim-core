@@ -6,8 +6,8 @@ import pytest
 
 from allooptim.allocation_to_allocators.a2a_orchestrator import AbstractA2AOrchestrator
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
-from allooptim.allocation_to_allocators.data_provider_factory import (
-    get_data_provider_factory,
+from allooptim.allocation_to_allocators.observation_simulator import (
+    MuCovPartialObservationSimulator,
 )
 from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
@@ -68,8 +68,7 @@ def test_a2a(orchestrator_type, optimizer_names):
     )
 
     # Create data provider for backtest context
-    data_provider_factory = get_data_provider_factory("backtest")
-    data_provider = data_provider_factory.create_data_provider(prices)
+    data_provider = MuCovPartialObservationSimulator(prices, n_observations=fast_a2a_config.n_simulations)
 
     result = orchestrator.allocate(
         data_provider=data_provider,

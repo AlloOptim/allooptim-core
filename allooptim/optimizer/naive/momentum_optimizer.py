@@ -30,7 +30,7 @@ from allooptim.optimizer.asset_name_utils import (
     get_asset_names,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +48,7 @@ class MomentumOptimizerConfig(BaseModel):
     min_positive_percentage: float = 0.05
 
 
-class MomentumOptimizer(AbstractOptimizer):
+class MomentumOptimizer(BaseOptimizer):
     """Optimizer based on the naive momentum."""
 
     def __init__(self, config: Optional[MomentumOptimizerConfig] = None, display_name: Optional[str] = None) -> None:
@@ -141,4 +141,4 @@ class EMAMomentumOptimizer(MomentumOptimizer):
         Returns:
             Optimizer name string
         """
-        return "MomentumEMAOptimizer"
+        return "EMAMomentumOptimizer"

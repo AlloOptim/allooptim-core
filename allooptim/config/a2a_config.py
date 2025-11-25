@@ -9,9 +9,11 @@ Design Principles:
 
 from typing import List, Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, Field
 
 from allooptim.config.cash_config import CashConfig
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
+from allooptim.config.failure_handling_config import FailureHandlingConfig
 
 
 class A2AConfig(BaseModel):
@@ -19,6 +21,12 @@ class A2AConfig(BaseModel):
 
     # Cash and leverage settings
     cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")
+
+    # Failure handling settings
+    failure_handling: FailureHandlingConfig = Field(
+        default_factory=FailureHandlingConfig,
+        description="Configuration for handling optimizer failures in A2A orchestration",
+    )
 
     # Error estimation
     error_estimator_names: List[str] = Field(
@@ -40,6 +48,14 @@ class A2AConfig(BaseModel):
     n_pso_iterations: int = Field(default=50, description="Number of PSO iterations")
     meta_model_type: str = Field(
         default="lightgbm", description="Meta-model type for stacking: 'lightgbm', 'xgboost', etc."
+    )
+
+    # volatility adjustment
+    volatility_adjustment: float = Field(
+        default=0.1,
+        ge=0.0,
+        le=1.0,
+        description="Parameter for volatility adjustment in A2A weights",
     )
 
     # General settings
@@ -89,4 +105,4 @@ class A2AConfig(BaseModel):
         description="Minimum weight threshold to consider an asset 'active' for constraint calculations.",
     )
 
-    model_config = ConfigDict(frozen=True)
+    model_config = DEFAULT_PYDANTIC_CONFIG

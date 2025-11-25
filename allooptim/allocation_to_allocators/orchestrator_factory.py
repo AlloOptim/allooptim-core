@@ -12,6 +12,7 @@ from allooptim.allocation_to_allocators.equal_weight_orchestrator import (
     CustomWeightOrchestrator,
     EqualWeightOrchestrator,
     MedianWeightOrchestrator,
+    VolatilityOrchestrator,
 )
 from allooptim.allocation_to_allocators.optimized_orchestrator import (
     OptimizedOrchestrator,
@@ -34,6 +35,7 @@ class OrchestratorType(str, Enum):
     EQUAL_WEIGHT = "equal_weight"
     MEDIAN_WEIGHT = "median_weight"
     CUSTOM_WEIGHT = "custom_weight"
+    VOLATILITY_ADJUSTED = "volatility_adjusted"
     OPTIMIZED = "optimized"
     WIKIPEDIA_PIPELINE = "wikipedia_pipeline"
 
@@ -41,7 +43,7 @@ class OrchestratorType(str, Enum):
 def create_orchestrator(
     orchestrator_type: OrchestratorType,
     optimizer_configs: List[OptimizerConfig],
-    transformer_names: List[str] = None,
+    transformer_names: Optional[List[str]] = None,
     a2a_config: Optional[A2AConfig] = None,
     **kwargs,
 ) -> BaseOrchestrator:
@@ -86,6 +88,13 @@ def create_orchestrator(
             )
         case OrchestratorType.CUSTOM_WEIGHT:
             return CustomWeightOrchestrator(
+                optimizers=optimizers,
+                covariance_transformers=transformers,
+                a2a_config=a2a_config,
+            )
+
+        case OrchestratorType.VOLATILITY_ADJUSTED:
+            return VolatilityOrchestrator(
                 optimizers=optimizers,
                 covariance_transformers=transformers,
                 a2a_config=a2a_config,
@@ -139,4 +148,4 @@ def get_default_orchestrator_type() -> OrchestratorType:
     Returns:
         Default orchestrator
     """
-    return OrchestratorType.EQUAL_WEIGHT
+    return OrchestratorType.VOLATILITY_ADJUSTED

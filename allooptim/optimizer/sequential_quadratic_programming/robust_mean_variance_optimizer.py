@@ -52,7 +52,7 @@ from allooptim.optimizer.asset_name_utils import (
     get_asset_names,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.minimize_multistart import minimize_with_multistart
 
 logger = logging.getLogger(__name__)
@@ -125,7 +125,7 @@ class RobustMeanVarianceOptimizerConfig(BaseModel):
     )
 
 
-class RobustMeanVarianceOptimizer(AbstractOptimizer):
+class RobustMeanVarianceOptimizer(BaseOptimizer):
     """Robust Mean-Variance Portfolio Optimizer with Ellipsoidal Uncertainty.
 
     This optimizer solves a worst-case optimization problem that protects against

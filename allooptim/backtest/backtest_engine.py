@@ -27,15 +27,13 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
     OrchestratorType,
     create_orchestrator,
 )
-from allooptim.allocation_to_allocators.simulator_interface import (
-    AbstractObservationSimulator,
-)
 from allooptim.backtest.data_loader import DataLoader
 from allooptim.backtest.performance_metrics import PerformanceMetrics
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
-from allooptim.optimizer.allocation_metric import MIN_OBSERVATIONS, LMoments, estimate_linear_moments
+from allooptim.data.price_data_provider import PriceDataProvider
+from allooptim.data.provider_factory import FundamentalDataProviderFactory
 from allooptim.optimizer.wikipedia.wiki_database import download_data
 
 logger = logging.getLogger(__name__)
@@ -79,6 +77,9 @@ class BacktestEngine:
             interval=self.config_backtest.data_interval,
         )
 
+        # Create shared fundamental data provider with caching for backtests
+        self.fundamental_provider = FundamentalDataProviderFactory.create_provider(enable_caching=True)
+
         # Create orchestrator using factory
         if a2a_config is None:
             a2a_config = A2AConfig()
@@ -93,6 +94,10 @@ class BacktestEngine:
             a2a_config=a2a_config,
             **orchestrator_kwargs,
         )
+
+        for optimizer in self.orchestrator.optimizers:
+            if optimizer.is_fundamental_optimizer:
+                optimizer.data_provider = self.fundamental_provider
 
         self.results = {}
 
@@ -113,11 +118,7 @@ class BacktestEngine:
         # Get date range based on debug mode
         start_data_date, end_data_date = self.config_backtest.get_data_date_range()
 
-        # Check if Wikipedia optimizer is being used and download data if needed
-        wikipedia_optimizer_names = ["WikipediaOptimizer"]
-        has_wikipedia_optimizer = any(
-            opt_name in wikipedia_optimizer_names for opt_name in self.config_backtest.optimizer_names
-        )
+        has_wikipedia_optimizer = any(optimizer.is_wiki_optimizer for optimizer in self.orchestrator.optimizers)
 
         if has_wikipedia_optimizer:
             logger.info("Wikipedia optimizer detected, downloading Wikipedia data...")
@@ -126,6 +127,22 @@ class BacktestEngine:
                 logger.info("Wikipedia data download completed")
             except Exception as e:
                 logger.warning(f"Failed to download Wikipedia data: {e}")
+
+        has_fundamental_optimizer = any(
+            optimizer.is_fundamental_optimizer for optimizer in self.orchestrator.optimizers
+        )
+
+        if has_fundamental_optimizer:
+            logger.info("Fundamental optimizers detected, preloading fundamental data...")
+            try:
+                self.fundamental_provider.preload_data(
+                    tickers=self.config_backtest.symbols,
+                    start_date=start_data_date,
+                    end_date=end_data_date,
+                )
+                logger.info("Fundamental data preload completed")
+            except Exception as e:
+                logger.warning(f"Failed to preload fundamental data: {e}")
 
         # Load price data
         price_data = self.data_loader.load_price_data(start_data_date, end_data_date)
@@ -168,7 +185,7 @@ class BacktestEngine:
             clean_data = lookback_data[valid_assets]
 
             # Single orchestrator call
-            data_provider = _PriceDataProvider(clean_data)
+            data_provider = PriceDataProvider(clean_data)
             allocation_result = self.orchestrator.allocate(
                 data_provider=data_provider,
                 time_today=rebalance_date,
@@ -707,66 +724,3 @@ class BacktestEngine:
                 portfolio_values.append(portfolio_value)
 
         return pd.Series(portfolio_values, index=price_data.index)
-
-
-class _PriceDataProvider(AbstractObservationSimulator):
-    """Simple data provider that wraps price DataFrame for orchestrator compatibility."""
-
-    def __init__(self, price_data: pd.DataFrame):
-        """Initialize the price data provider.
-
-        Args:
-            price_data: Historical price data with datetime index and asset columns.
-        """
-        self.price_data = price_data
-        # Calculate basic statistics (simplified) - return as pandas objects
-        returns = price_data.pct_change().dropna()
-        self._mu = returns.mean()
-        self._cov = returns.cov()
-
-        # Compute L-moments from returns data
-        if len(returns) >= MIN_OBSERVATIONS:
-            self._l_moments = estimate_linear_moments(returns.values)
-        else:
-            # Fallback: create zero L-moments with correct structure
-            n_assets = len(price_data.columns)
-            self._l_moments = LMoments(
-                lt_comoment_1=np.zeros((n_assets, n_assets)),
-                lt_comoment_2=np.zeros((n_assets, n_assets)),
-                lt_comoment_3=np.zeros((n_assets, n_assets)),
-                lt_comoment_4=np.zeros((n_assets, n_assets)),
-            )
-
-    @property
-    def mu(self):
-        """Get expected returns as pandas Series."""
-        return self._mu
-
-    @property
-    def cov(self):
-        """Get covariance matrix as pandas DataFrame."""
-        return self._cov
-
-    @property
-    def historical_prices(self):
-        """Get historical price data as pandas DataFrame."""
-        return self.price_data
-
-    @property
-    def n_observations(self):
-        """Get number of observations in the price data."""
-        return len(self.price_data)
-
-    def get_sample(self):
-        """Get sample market parameters (same as ground truth for backtest)."""
-        return self.get_ground_truth()
-
-    def get_ground_truth(self):
-        """Get ground truth market parameters from historical data."""
-        time_end = self.price_data.index[-1]  # Last timestamp in the data
-        return self._mu, self._cov, self.price_data, time_end, self._l_moments
-
-    @property
-    def name(self) -> str:
-        """Get the data provider name identifier."""
-        return "BacktestDataProvider"

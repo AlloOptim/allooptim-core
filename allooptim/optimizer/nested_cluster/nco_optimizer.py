@@ -28,7 +28,7 @@ from sklearn.metrics import silhouette_samples
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.allocation_metric import LMoments
 from allooptim.optimizer.asset_name_utils import create_weights_series, validate_asset_names
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -123,7 +123,7 @@ class NCOOptimizerConfig(BaseModel):
     top_n: int = 10
 
 
-class NCOSharpeOptimizer(AbstractOptimizer):
+class NCOSharpeOptimizer(BaseOptimizer):
     """Optimal portfolio allocation using Nested Clustered Optimization algorithm.
 
     (https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3469961).

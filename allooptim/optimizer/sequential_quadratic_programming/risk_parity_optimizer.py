@@ -31,7 +31,7 @@ from allooptim.optimizer.asset_name_utils import (
     create_weights_series,
     validate_asset_names,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.sequential_quadratic_programming.minimize_multistart import minimize_with_multistart
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class RiskParityOptimizerConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
 
-class RiskParityOptimizer(AbstractOptimizer):
+class RiskParityOptimizer(BaseOptimizer):
     """Risk Parity Optimizer."""
 
     def __init__(self, config: Optional[RiskParityOptimizerConfig] = None, display_name: Optional[str] = None) -> None:

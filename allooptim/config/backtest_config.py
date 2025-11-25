@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field, field_validator
 
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.config.cash_config import CashConfig
+from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.covariance_transformer.transformer_list import get_all_transformers
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
@@ -25,6 +26,8 @@ logger = logging.getLogger(__name__)
 
 class BacktestConfig(BaseModel):
     """Pydantic configuration model for backtest parameters."""
+
+    model_config = DEFAULT_PYDANTIC_CONFIG
 
     benchmark: str = Field(default="SPY", description="Benchmark symbol for the backtest (e.g., SPY)")
 
@@ -44,8 +47,8 @@ class BacktestConfig(BaseModel):
     log_returns: bool = Field(default=True, description="Whether to use log returns for calculations")
 
     # Time periods
-    start_date: datetime = Field(..., description="Start date for the backtest period")
-    end_date: datetime = Field(..., description="End date for the backtest period")
+    start_date: datetime = Field(default=datetime(2020, 1, 1), description="Start date for the backtest period")
+    end_date: datetime = Field(default=datetime(2024, 12, 31), description="End date for the backtest period")
     quick_start_date: datetime = Field(default=datetime(2022, 12, 31), description="Start date for quick debug testing")
     quick_end_date: datetime = Field(default=datetime(2023, 2, 28), description="End date for quick debug testing")
 
@@ -69,8 +72,14 @@ class BacktestConfig(BaseModel):
     )
 
     # Optimizer and transformer names
-    optimizer_configs: List[Union[str, OptimizerConfig]] = Field(
-        default=["RiskParityOptimizer", "NaiveOptimizer", "MomentumOptimizer", "HRPOptimizer", "NCOSharpeOptimizer"],
+    optimizer_configs: List[OptimizerConfig] = Field(
+        default_factory=lambda: [
+            OptimizerConfig(name="RiskParityOptimizer"),
+            OptimizerConfig(name="NaiveOptimizer"),
+            OptimizerConfig(name="MomentumOptimizer"),
+            OptimizerConfig(name="HRPOptimizer"),
+            OptimizerConfig(name="NCOSharpeOptimizer"),
+        ],
         min_length=1,
         description="List of optimizer configurations. Can be optimizer names (strings) or OptimizerConfig objects",
     )
@@ -82,7 +91,7 @@ class BacktestConfig(BaseModel):
 
     # AllocationOrchestrator options
     orchestration_type: OrchestratorType = Field(
-        default=OrchestratorType.AUTO,
+        default=OrchestratorType.VOLATILITY_ADJUSTED,
         description="Type of orchestration: 'equal_weight', 'optimized', 'wikipedia_pipeline', or "
         "'auto' for automatic selection",
     )
@@ -181,7 +190,7 @@ class BacktestConfig(BaseModel):
 
     def get_optimizer_configs_dict(self) -> Dict[str, Optional[Dict]]:
         """Get optimizer configs as a dict mapping display_names to config dicts."""
-        return {config.display_name: config.config for config in self.optimizer_configs}
+        return {str(config.display_name): config.config for config in self.optimizer_configs}
 
     def get_optimizer_config_schemas(self) -> Dict[str, Dict]:
         """Get JSON schemas for all configured optimizers."""

@@ -156,7 +156,7 @@ class DiverseCorrelationGenerator:
         n = self.config.n_assets
         spectrum_type = random.choice(
             ["exponential_decay", "power_law", "factor_model", "uniform_decay", "steep_decay", "flat_spectrum"]
-        )
+        )  # nosec B311 - Pseudo-random for data generation, not cryptography
 
         if spectrum_type == "exponential_decay":
             eigenvals = SpectrumGenerator.exponential_decay(
@@ -217,7 +217,7 @@ class DiverseCorrelationGenerator:
             Correlation matrix
         """
         # Choose generation style
-        style = random.choice(["hierarchical", "random_blocks", "smooth_interpolation", "noisy_factor"])
+        style = random.choice(["hierarchical", "random_blocks", "smooth_interpolation", "noisy_factor"])  # nosec B311 - Pseudo-random for data generation, not cryptography
 
         if style == "hierarchical":
             # Generate hierarchical correlation structure
@@ -243,7 +243,7 @@ class DiverseCorrelationGenerator:
         base_corr = np.exp(-decay_rate * distances)
 
         # Add hierarchical clustering
-        n_clusters = random.randint(HIERARCHICAL_CLUSTERS_MIN, HIERARCHICAL_CLUSTERS_MAX)
+        n_clusters = random.randint(HIERARCHICAL_CLUSTERS_MIN, HIERARCHICAL_CLUSTERS_MAX)  # nosec B311 - Pseudo-random for data generation, not cryptography
         cluster_assignments = np.random.randint(0, n_clusters, N)
 
         for i in range(N):
@@ -272,7 +272,7 @@ class DiverseCorrelationGenerator:
 
     def _generate_random_blocks(self, N: int) -> np.ndarray:
         """Generate random block structure."""
-        n_blocks = random.randint(BLOCKS_MIN, BLOCKS_MAX)
+        n_blocks = random.randint(BLOCKS_MIN, BLOCKS_MAX)  # nosec B311 - Pseudo-random for data generation, not cryptography
         block_sizes = np.random.multinomial(N, np.ones(n_blocks) / n_blocks)
         block_sizes = block_sizes[block_sizes > 0]  # Remove zero-size blocks
 
@@ -329,7 +329,7 @@ class DiverseCorrelationGenerator:
 
     def _generate_noisy_factor_model(self, N: int) -> np.ndarray:
         """Generate noisy factor model with additional complexity."""
-        n_factors = random.randint(N_FACTORS_MIN, min(N_FACTORS_MAX_RATIO, N // N_FACTORS_MAX_RATIO))
+        n_factors = random.randint(N_FACTORS_MIN, min(N_FACTORS_MAX_RATIO, N // N_FACTORS_MAX_RATIO))  # nosec B311 - Pseudo-random for data generation, not cryptography
 
         # Random factor loadings
         loadings = np.random.normal(0, 1, (N, n_factors))
@@ -375,7 +375,7 @@ class DiverseCorrelationGenerator:
             Correlation matrix
         """
         # Simulate different market regimes
-        regime = random.choice(["normal", "crisis", "low_vol", "sector_rotation"])
+        regime = random.choice(["normal", "crisis", "low_vol", "sector_rotation"])  # nosec B311 - Pseudo-random for data generation, not cryptography
 
         if regime == "normal":
             # Normal market: moderate correlations, factor structure
@@ -388,7 +388,7 @@ class DiverseCorrelationGenerator:
             crisis_factor = np.random.uniform(CRISIS_FACTOR_MIN, CRISIS_FACTOR_MAX, N)
             base_corr = np.outer(crisis_factor, crisis_factor)
             # Add some negative correlations (safe havens)
-            n_safe_havens = random.randint(1, max(1, N // CRISIS_SAFE_HAVEN_RATIO))
+            n_safe_havens = random.randint(1, max(1, N // CRISIS_SAFE_HAVEN_RATIO))  # nosec B311 - Pseudo-random for data generation, not cryptography
             safe_haven_indices = np.random.choice(N, n_safe_havens, replace=False)
             for idx in safe_haven_indices:
                 base_corr[idx, :] *= CRISIS_SAFE_HAVEN_CORR
@@ -416,7 +416,7 @@ class DiverseCorrelationGenerator:
 
     def _generate_sector_effects(self, N: int) -> np.ndarray:
         """Generate sector-based correlation effects."""
-        n_sectors = random.randint(SECTORS_MIN, SECTORS_MAX)
+        n_sectors = random.randint(SECTORS_MIN, SECTORS_MAX)  # nosec B311 - Pseudo-random for data generation, not cryptography
         sector_assignments = np.random.randint(0, n_sectors, N)
 
         sector_corr = np.zeros((N, N))
@@ -431,7 +431,7 @@ class DiverseCorrelationGenerator:
 
     def _generate_sector_rotation_pattern(self, N: int) -> np.ndarray:
         """Generate sector rotation correlation pattern."""
-        n_sectors = random.randint(SECTOR_ROTATION_SECTORS_MIN, SECTOR_ROTATION_SECTORS_MAX)
+        n_sectors = random.randint(SECTOR_ROTATION_SECTORS_MIN, SECTOR_ROTATION_SECTORS_MAX)  # nosec B311 - Pseudo-random for data generation, not cryptography
         sector_size = N // n_sectors
 
         corr_matrix = np.zeros((N, N))
@@ -468,7 +468,7 @@ class DiverseCorrelationGenerator:
             Block-structured correlation matrix
         """
         if n_blocks is None:
-            n_blocks = random.randint(BLOCK_GENERATION_BLOCKS_MIN, BLOCK_GENERATION_BLOCKS_MAX)
+            n_blocks = random.randint(BLOCK_GENERATION_BLOCKS_MIN, BLOCK_GENERATION_BLOCKS_MAX)  # nosec B311 - Pseudo-random for data generation, not cryptography
 
         # Generate block sizes
         block_sizes = np.random.multinomial(N, np.ones(n_blocks) / n_blocks)
@@ -548,7 +548,7 @@ class DiverseCorrelationGenerator:
         N = C.shape[0]
 
         # Simulate finite sample effects
-        sample_size = random.randint(SAMPLE_SIZE_MIN, SAMPLE_SIZE_MAX)
+        sample_size = random.randint(SAMPLE_SIZE_MIN, SAMPLE_SIZE_MAX)  # nosec B311 - Pseudo-random for data generation, not cryptography
 
         # Generate noise proportional to estimation error
         # Standard error of correlation ~ 1/sqrt(T-3) for T observations
@@ -640,7 +640,7 @@ class DiverseCorrelationGenerator:
             if i % 1000 == 0:
                 print(f"  Block-structured: {i}/{n_block}")
 
-            n_blocks = random.randint(5, 15)
+            n_blocks = random.randint(5, 15)  # nosec B311 - Pseudo-random for data generation, not cryptography
             C = self.generate_block_structure(N, n_blocks)
             C_noisy = self.add_sampling_noise(C)
             training_data.append(C_noisy)

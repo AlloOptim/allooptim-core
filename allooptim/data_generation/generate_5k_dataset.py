@@ -3,7 +3,7 @@
 Creates 5,000 diverse covariance matrices as a starting point.
 """
 
-import pickle
+import pickle  # nosec B403 - Pickle used for internal data serialization, not untrusted input
 import time
 from pathlib import Path
 

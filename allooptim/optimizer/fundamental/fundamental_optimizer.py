@@ -13,12 +13,13 @@ Key features:
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
 
 import numpy as np
 import pandas as pd
 
+from allooptim.data.provider_factory import FundamentalDataProviderFactory, UnifiedFundamentalProvider
 from allooptim.optimizer.allocation_metric import (
     LMoments,
 )
@@ -26,6 +27,7 @@ from allooptim.optimizer.asset_name_utils import (
     create_weights_series,
     validate_asset_names,
 )
+from allooptim.optimizer.base_optimizer import BaseOptimizer
 from allooptim.optimizer.fundamental.fundamental_methods import (
     BalancedFundamentalConfig,
     OnlyMarketCapFundamentalConfig,
@@ -33,25 +35,35 @@ from allooptim.optimizer.fundamental.fundamental_methods import (
     ValueInvestingFundamentalConfig,
     allocate,
 )
-from allooptim.optimizer.optimizer_interface import AbstractOptimizer
 
 logger = logging.getLogger(__name__)
 
 
-class BalancedFundamentalOptimizer(AbstractOptimizer):
+class BalancedFundamentalOptimizer(BaseOptimizer):
     """Balanced fundamental optimizer using fundamental analysis for portfolio allocation."""
 
-    def __init__(self, config: Optional[BalancedFundamentalConfig] = None, display_name: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        config: Optional[BalancedFundamentalConfig] = None,
+        display_name: Optional[str] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
+    ) -> None:
         """Initialize balanced fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
+            data_provider: Fundamental data provider for data access. If None, creates from factory.
         """
         super().__init__(display_name)
         self.config = config or BalancedFundamentalConfig()
 
+        self.data_provider = data_provider or FundamentalDataProviderFactory.create_provider()
+
         self._weights_today: Optional[np.ndarray] = None
+        self._last_calculation_time: Optional[datetime] = None
+
+        self.is_fundamental_optimizer = True
 
     def allocate(
         self,
@@ -76,26 +88,30 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
         validate_asset_names(ds_mu, df_cov)
         asset_names = ds_mu.index.tolist()
 
-        if self._weights_today is None:
+        # For backtesting, always recalculate weights for each date
+        # The data_manager handles caching of fundamental data appropriately
+        logger.info(f"FundamentalOptimizer.allocate called for {self.name} at time {time}")
+        if self._weights_today is None or time != self._last_calculation_time:
             estimate_new = True
-
-        elif time - datetime.now() < timedelta(days=1):
-            logger.debug("Data fetching is only supported for the current day.")
-            estimate_new = False
-
+            logger.info(f"  -> Estimating NEW weights (time changed from {self._last_calculation_time} to {time})")
         else:
-            estimate_new = True
+            estimate_new = False
+            logger.info(f"  -> Using CACHED weights (time {time} same as last {self._last_calculation_time})")
 
         if estimate_new:
             try:
                 logger.info("Estimating new weights using FundamentalOptimizer.")
+                # Handle case where time might be None
+                today = time or datetime.now()
                 weights = allocate(
                     asset_names=asset_names,
-                    today=time,
+                    today=today,
                     config=self.config,
+                    data_provider=self.data_provider,
                 )
 
                 self._weights_today = weights
+                self._last_calculation_time = time
 
             except Exception as error:
                 logger.error(f"Exception in FundamentalOptimizer.allocate: {error}")
@@ -103,6 +119,8 @@ class BalancedFundamentalOptimizer(AbstractOptimizer):
                 weights = np.ones(n_assets) / n_assets
 
         else:
+            # If we get here, _weights_today should not be None
+            assert self._weights_today is not None, "Cached weights should not be None"  # nosec B101 - Assert for internal consistency checks
             weights = self._weights_today
 
         return create_weights_series(weights, asset_names)
@@ -121,15 +139,19 @@ class QualityGrowthFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Quality and growth focused fundamental optimizer."""
 
     def __init__(
-        self, config: Optional[QualityGrowthFundamentalConfig] = None, display_name: Optional[str] = None
+        self,
+        config: Optional[QualityGrowthFundamentalConfig] = None,
+        display_name: Optional[str] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
     ) -> None:
         """Initialize quality growth fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
+            data_provider: Fundamental data provider for data access.
         """
-        super().__init__(config, display_name)
+        super().__init__(config, display_name, data_provider)
         self.config = config or QualityGrowthFundamentalConfig()
 
     @property
@@ -146,15 +168,19 @@ class ValueInvestingFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Value investing focused fundamental optimizer."""
 
     def __init__(
-        self, config: Optional[ValueInvestingFundamentalConfig] = None, display_name: Optional[str] = None
+        self,
+        config: Optional[ValueInvestingFundamentalConfig] = None,
+        display_name: Optional[str] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
     ) -> None:
         """Initialize value investing fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
+            data_provider: Fundamental data provider for data access.
         """
-        super().__init__(config, display_name)
+        super().__init__(config, display_name, data_provider)
         self.config = config or ValueInvestingFundamentalConfig()
 
     @property
@@ -171,15 +197,19 @@ class MarketCapFundamentalOptimizer(BalancedFundamentalOptimizer):
     """Market capitalization based fundamental optimizer."""
 
     def __init__(
-        self, config: Optional[OnlyMarketCapFundamentalConfig] = None, display_name: Optional[str] = None
+        self,
+        config: Optional[OnlyMarketCapFundamentalConfig] = None,
+        display_name: Optional[str] = None,
+        data_provider: Optional[UnifiedFundamentalProvider] = None,
     ) -> None:
         """Initialize market cap fundamental optimizer.
 
         Args:
             config: Configuration parameters for the optimizer. If None, uses default config.
             display_name: Optional display name for this optimizer instance.
+            data_provider: Fundamental data provider for data access.
         """
-        super().__init__(config, display_name)
+        super().__init__(config, display_name, data_provider)
         self.config = config or OnlyMarketCapFundamentalConfig()
 
     @property

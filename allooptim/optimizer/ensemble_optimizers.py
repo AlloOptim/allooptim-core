@@ -18,7 +18,7 @@ from pydantic import BaseModel
 
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 from allooptim.optimizer.allocation_metric import LMoments
-from allooptim.optimizer.optimizer_interface import AbstractEnsembleOptimizer
+from allooptim.optimizer.ensemble_base_optimizer import EnsembleBaseOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class EnsembleOptimizerConfig(BaseModel):
     # Ensemble optimizers don't need specific parameters currently
 
 
-class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
+class A2AEnsembleOptimizer(EnsembleBaseOptimizer):
     """Efficient Allocation-to-Allocators (A2A) ensemble optimizer.
 
     Instead of re-running all individual optimizers, this optimizer uses the df_allocations
@@ -85,7 +85,7 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
         Returns:
             Optimizer name string
         """
-        return "A2AEnsemble"
+        return "A2AEnsembleOptimizer"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """No fitting needed for ensemble optimizer."""
@@ -153,7 +153,7 @@ class A2AEnsembleOptimizer(AbstractEnsembleOptimizer):
             return pd.Series(np.ones(n_assets) / n_assets, index=asset_names)
 
 
-class SPY500Benchmark(AbstractEnsembleOptimizer):
+class SPY500Benchmark(EnsembleBaseOptimizer):
     """S&P 500 benchmark optimizer that allocates 100% to SPY.
 
     Provides a simple benchmark allocation strategy for comparison with active
@@ -189,7 +189,7 @@ class SPY500Benchmark(AbstractEnsembleOptimizer):
         Returns:
             Optimizer name string
         """
-        return "SPY"
+        return "SPY500BenchmarkOptimizer"
 
     def fit(self, df_prices: Optional[pd.DataFrame] = None) -> None:
         """No fitting needed for benchmark."""

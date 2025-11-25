@@ -12,7 +12,7 @@ import logging
 import traceback
 import warnings
 from datetime import datetime
-
+from typing import Optional
 import pandas as pd
 
 from allooptim.config.a2a_config import A2AConfig
@@ -23,6 +23,7 @@ from allooptim.backtest.backtest_quantstats import create_quantstats_reports
 from allooptim.backtest.backtest_report import generate_report
 from allooptim.backtest.backtest_visualizer import create_visualizations
 from allooptim.backtest.cluster_analyzer import ClusterAnalyzer
+from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universe
 
 # Suppress warnings for cleaner output
@@ -32,48 +33,49 @@ warnings.filterwarnings("ignore")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-
-def main(quick_test: bool =True,) -> None:
-    """Main execution function."""
-    logger.info("Starting comprehensive allocation algorithm backtest")
-
-    try:
-        symbols = extract_symbols_from_list(large_stock_universe())
-
-        config_backtest = BacktestConfig(
-            start_date=datetime(2019, 12, 31),
-            end_date=datetime(2024, 12, 31),
-            rebalance_frequency=10,
-            lookback_days=90,
-            quick_test=quick_test,
-            log_returns=True,
-            benchmark="SPY",
-            symbols=symbols,
-            optimizer_configs=[
+DEFAULT_OPTIMIZER_CONFIG =[
                 # Example with default config
                 "CMAMeanVariance",
                 # Example with custom config
                 OptimizerConfig(name="CMALMoments", config={"budget": 2000}),
                 # More optimizers with defaults
-                OptimizerConfig(name="CMASortino"),
-                OptimizerConfig(name="CMAMaxDrawdown"),
-                OptimizerConfig(name="CMARobustSharpe"),
-                OptimizerConfig(name="CMACvar"),
-                OptimizerConfig(name="PSOMeanVariance"),
-                OptimizerConfig(name="PSOLMoments"),
+                OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer"),
+                OptimizerConfig(name="LMomentsParticleSwarmOptimizer"),
                 OptimizerConfig(name="NCOSharpeOptimizer"),
                 OptimizerConfig(name="NaiveOptimizer"),
                 OptimizerConfig(name="MomentumOptimizer"),
                 OptimizerConfig(name="MeanVarianceAdjustedReturnsOptimizer"),
                 OptimizerConfig(name="SemiVarianceAdjustedReturnsOptimizer"),
                 OptimizerConfig(name="HigherMomentOptimizer"),
-                OptimizerConfig(name="EfficientReturn"),
-                OptimizerConfig(name="EfficientRisk"),
-                OptimizerConfig(name="MaxSharpe"),
-            ],
+                OptimizerConfig(name="EfficientReturnOptimizer"),
+                OptimizerConfig(name="EfficientRiskOptimizer"),
+                OptimizerConfig(name="MaxSharpeOptimizer"),
+            ]
+
+
+def main_backtest(
+    config_backtest: Optional[BacktestConfig] = None,
+) -> None:
+    """Main execution function."""
+    logger.info("Starting comprehensive allocation algorithm backtest")
+
+    # Use default configs if none provided
+    if config_backtest is None:
+        symbols = extract_symbols_from_list(large_stock_universe())
+
+        config_backtest = BacktestConfig(
+            start_date=datetime(2015, 1, 1),
+            end_date=datetime(2025, 1, 1),
+            rebalance_frequency=10,
+            lookback_days=90,
+            quick_test=True,
+            symbols=symbols,
+            optimizer_configs=DEFAULT_OPTIMIZER_CONFIG,
             transformer_names=["OracleCovarianceTransformer"],
-            orchestration_type="equal_weight",
+            orchestration_type=OrchestratorType.VOLATILITY_ADJUSTED,
         )
+
+    try:
 
         config_a2a = A2AConfig()
 
@@ -156,4 +158,4 @@ def main(quick_test: bool =True,) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    main_backtest()

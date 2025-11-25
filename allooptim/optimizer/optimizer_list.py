@@ -34,6 +34,18 @@ from allooptim.optimizer.fundamental.fundamental_optimizer import (
     ValueInvestingFundamentalOptimizer,
 )
 from allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer import HRPOptimizer
+from allooptim.optimizer.hvass_diversification.diversify_optimizer import (
+    DiversificationOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.filter_and_diversify_optimizer import (
+    FilterAndDiversifyOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.group_constraint_optimizer import (
+    GroupConstraintsOptimizer,
+)
+from allooptim.optimizer.hvass_diversification.signal_based_optimizer import (
+    SignalBasedOptimizer,
+)
 from allooptim.optimizer.kelly_criterion.kelly_criterion_optimizer import (
     KellyCriterionOptimizer,
 )
@@ -119,6 +131,10 @@ OPTIMIZER_LIST: list[type[AbstractOptimizer]] = [
     MonteCarloMaxDiversificationOptimizer,
     MonteCarloMaxSortinoOptimizer,
     MonteCarloMinCVAROptimizer,
+    DiversificationOptimizer,
+    FilterAndDiversifyOptimizer,
+    GroupConstraintsOptimizer,
+    SignalBasedOptimizer,
 ]
 
 

@@ -42,6 +42,7 @@ class CombinedWeightType(str, Enum):
     EQUAL = "equal"
     CUSTOM = "custom"
     MEDIAN = "median"
+    VOLATILITY = "volatility"
 
 
 class EqualWeightOrchestrator(BaseOrchestrator):
@@ -101,10 +102,13 @@ class EqualWeightOrchestrator(BaseOrchestrator):
         Returns:
             A2AResult with combined optimizer allocations
         """
+        if time_today is None:
+            time_today = datetime.now()
+
         runtime_start = time.time()
 
         # Get ground truth parameters (no sampling for equal weight)
-        mu, cov, prices, current_time, l_moments = data_provider.get_ground_truth()
+        mu, cov, prices, _, l_moments = data_provider.get_ground_truth()
 
         # Apply covariance transformations
         cov_transformed = self._apply_covariance_transformers(cov, data_provider.n_observations)
@@ -123,7 +127,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
                 optimizer.fit(prices)
 
-                weights = optimizer.allocate(mu, cov_transformed, prices, current_time, l_moments)
+                weights = optimizer.allocate(mu, cov_transformed, prices, time_today, l_moments)
                 if isinstance(weights, np.ndarray):
                     weights = weights.flatten()
 
@@ -151,38 +155,53 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             except Exception as error:
                 tracemalloc.stop()
                 logger.warning(f"Allocation failed for {optimizer.name}: {str(error)}")
-                # Use equal weights fallback
-                equal_weights = np.ones(len(mu)) / len(mu)
-                weights_series = pd.Series(equal_weights, index=mu.index)
-
-                optimizer_allocations_list.append(
-                    OptimizerAllocation(
-                        instance_id=optimizer.display_name,
-                        weights=weights_series,
-                        runtime_seconds=None,
-                        memory_usage_mb=None,
-                    )
+                # Use configured failure handling strategy
+                fallback_weights = self._handle_optimizer_failure(
+                    optimizer=optimizer,
+                    exception=error,
+                    n_assets=len(mu),
+                    asset_names=mu.index.tolist(),
                 )
 
-        # Second pass: determine A2A weights based on combination method
+                if fallback_weights is not None:
+                    # Store fallback allocation
+                    optimizer_allocations_list.append(
+                        OptimizerAllocation(
+                            instance_id=optimizer.display_name,
+                            weights=fallback_weights,
+                            runtime_seconds=None,
+                            memory_usage_mb=None,
+                        )
+                    )
+                # If fallback_weights is None (IGNORE_OPTIMIZER), skip this optimizer entirely
+
+        # Check if all optimizers failed
+        if len(optimizer_allocations_list) == 0:
+            if self.config.failure_handling.raise_on_all_failed:
+                raise RuntimeError(
+                    "All optimizers failed. No valid allocations available. "
+                    "Check optimizer configurations and input data quality."
+                )
+            else:
+                # Graceful degradation: add equal-weight fallback allocation
+                logger.error("All optimizers failed, returning equal-weight fallback allocation")
+                equal_weight = 1.0 / len(mu)
+                fallback_allocation = OptimizerAllocation(
+                    instance_id="EMERGENCY_FALLBACK",
+                    weights=pd.Series(equal_weight, index=mu.index),
+                    runtime_seconds=None,
+                    memory_usage_mb=None,
+                )
+                optimizer_allocations_list.append(fallback_allocation)
+
+        # Determine A2A weights and combine allocations based on combination method
         match self.combined_weight_type:
-            case CombinedWeightType.EQUAL | CombinedWeightType.MEDIAN:
+            case CombinedWeightType.EQUAL:
                 # Equal weights for all optimizers
-                # For median, this is the best approximation
                 a2a_weights = {
                     opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
                     for opt_alloc in optimizer_allocations_list
                 }
-
-            case CombinedWeightType.CUSTOM:
-                a2a_weights = self.config.custom_a2a_weights.copy()
-
-            case _:
-                raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
-
-        # Third pass: combine allocations based on method
-        match self.combined_weight_type:
-            case CombinedWeightType.EQUAL | CombinedWeightType.CUSTOM:
                 # Weighted combination of optimizer allocations
                 asset_weights = np.zeros(len(mu))
                 for opt_alloc in optimizer_allocations_list:
@@ -190,11 +209,47 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     asset_weights += weight * opt_alloc.weights.values
 
             case CombinedWeightType.MEDIAN:
+                # Equal weights for all optimizers (best approximation for median)
+                a2a_weights = {
+                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
+                    for opt_alloc in optimizer_allocations_list
+                }
                 # Take median across optimizer allocations for each asset
                 alloc_df = pd.DataFrame(
                     {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
                 )
                 asset_weights = alloc_df.median(axis=1).values
+
+            case CombinedWeightType.VOLATILITY:
+                # Equal weights for all optimizers (best approximation for volatility)
+                a2a_weights = {
+                    opt_alloc.instance_id: 1.0 / len(optimizer_allocations_list)
+                    for opt_alloc in optimizer_allocations_list
+                }
+                # Volatility-adjusted weighting
+                alloc_df = pd.DataFrame(
+                    {opt_alloc.instance_id: opt_alloc.weights for opt_alloc in optimizer_allocations_list}
+                )
+
+                # Handle single optimizer case
+                if len(optimizer_allocations_list) == 1:
+                    asset_weights = alloc_df.iloc[:, 0].values
+                else:
+                    mean_asset = alloc_df.mean(axis=1)
+                    variance_asset = np.clip(alloc_df.std(axis=1) ** 2, a_min=0.0, a_max=1.0)
+                    variance_overall = variance_asset.mean()
+                    asset_weights = (
+                        1.0 - self.config.volatility_adjustment
+                    ) * mean_asset + self.config.volatility_adjustment * (variance_overall - variance_asset)
+                    asset_weights = np.clip(asset_weights, a_min=0.0, a_max=1.0)
+
+            case CombinedWeightType.CUSTOM:
+                a2a_weights = self.config.custom_a2a_weights.copy()
+                # Weighted combination of optimizer allocations
+                asset_weights = np.zeros(len(mu))
+                for opt_alloc in optimizer_allocations_list:
+                    weight = a2a_weights[opt_alloc.instance_id]
+                    asset_weights += weight * opt_alloc.weights.values
 
             case _:
                 raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
@@ -209,7 +264,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             )
 
         # Normalize final asset weights according to global cash settings
-
         final_allocation_values = normalize_weights_a2a(asset_weights, self.config.cash_config)
         final_allocation = pd.Series(final_allocation_values, index=mu.index)
 
@@ -267,7 +321,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             n_simulations=1,  # Equal weight uses ground truth only
             optimizer_errors=optimizer_errors,
             orchestrator_name=self.name,
-            timestamp=current_time or datetime.now(),
+            timestamp=time_today,
             config=self.config,
         )
 
@@ -317,3 +371,25 @@ class CustomWeightOrchestrator(EqualWeightOrchestrator):
             String identifier for this orchestrator type.
         """
         return "CustomWeight_A2A"
+
+
+class VolatilityOrchestrator(EqualWeightOrchestrator):
+    """Volatility-based Allocation-to-Allocators orchestrator.
+
+    Combines optimizer allocations using a volatility-adjusted weighting scheme:
+    - Computes mean (mu_asset) and std (std_asset) of weights across optimizers for each asset
+    - Calculates overall std as mean of asset stds
+    - Weights assets as: mu_asset + alpha * (std_overall - std_asset)
+    - Clips negative weights to zero and normalizes
+    """
+
+    combined_weight_type = CombinedWeightType.VOLATILITY
+
+    @property
+    def name(self) -> str:
+        """Get the orchestrator name identifier.
+
+        Returns:
+            String identifier for this orchestrator type.
+        """
+        return f"Volatility_A2A_alpha_{self.config.volatility_adjustment}"
