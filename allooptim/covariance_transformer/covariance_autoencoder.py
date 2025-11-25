@@ -588,7 +588,7 @@ class AutoencoderCovarianceTransformer(AbstractCovarianceTransformer):
         if not self.is_fitted:
             raise ValueError("Autoencoder must be fitted before transforming")
 
-            assert self.n_assets is not None, "Autoencoder must be fitted before transforming"  # nosec B101 - Assert for internal consistency checks        # Extract numpy array and asset names
+        assert self.n_assets is not None, "Autoencoder must be fitted before transforming"  # nosec B101 - Assert for internal consistency checks
         cov_array, asset_names = _extract_cov_info(df_cov)
 
         # Prepare input
