@@ -133,7 +133,8 @@
 <li class="toctree-l1"><a class="reference internal" href="api/optimizers.html">Optimizers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="api/optimizers.html#module-allooptim.optimizer.optimizer_interface">Core Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.is_wiki_optimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.is_wiki_optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.is_fundamental_optimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.is_fundamental_optimizer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_allow_cash()</span></code></a></li>
@@ -144,11 +145,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_allow_cash()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.display_name</span></code></a></li>
@@ -164,11 +160,14 @@
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate_safe"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate_safe()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.display_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_allow_cash()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_max_leverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.is_wiki_optimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.is_wiki_optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.is_fundamental_optimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.is_fundamental_optimizer</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -346,6 +345,7 @@
  | <a href="#E"><strong>E</strong></a>
  | <a href="#F"><strong>F</strong></a>
  | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
@@ -366,10 +366,6 @@
         <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer.__init__">(allooptim.optimizer.light_gbm.light_gbm_optimizer.AugmentedLightGBMOptimizer method)</a>
 </li>
         <li><a href="api/optimizers.html#allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer.__init__">(allooptim.optimizer.light_gbm.light_gbm_optimizer.LightGBMOptimizer method)</a>
-</li>
-        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__">(allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
-</li>
-        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
 </li>
         <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
 </li>
@@ -396,6 +392,8 @@
         <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
 </li>
       </ul></li>
+      <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate_safe">allocate_safe() (allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
+</li>
       <li>
     allooptim.backtest.backtest_quantstats
 
@@ -507,11 +505,9 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit">fit() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit">fit() (allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
 
       <ul>
-        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
-</li>
         <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
 </li>
       </ul></li>
@@ -523,6 +519,26 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/optimizers.html#allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer.HRPOptimizer">HRPOptimizer (class in allooptim.optimizer.hierarchical_risk_parity.hrp_optimizer)</a>
 </li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.is_fundamental_optimizer">is_fundamental_optimizer (allooptim.optimizer.optimizer_interface.AbstractOptimizer attribute)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.is_fundamental_optimizer">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.is_wiki_optimizer">is_wiki_optimizer (allooptim.optimizer.optimizer_interface.AbstractOptimizer attribute)</a>
+
+      <ul>
+        <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.is_wiki_optimizer">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer attribute)</a>
+</li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -636,11 +652,9 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset">reset() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset">reset() (allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
 
       <ul>
-        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
-</li>
         <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
 </li>
       </ul></li>
@@ -676,19 +690,15 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash">set_allow_cash() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash">set_allow_cash() (allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
 
       <ul>
-        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
-</li>
         <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_allow_cash">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
 </li>
       </ul></li>
-      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage">set_max_leverage() (allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer method)</a>
+      <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_max_leverage">set_max_leverage() (allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
 
       <ul>
-        <li><a href="api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_max_leverage">(allooptim.optimizer.optimizer_interface.AbstractOptimizer method)</a>
-</li>
         <li><a href="api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_max_leverage">(allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer method)</a>
 </li>
       </ul></li>

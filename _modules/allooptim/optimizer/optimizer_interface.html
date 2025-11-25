@@ -133,7 +133,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../api/optimizers.html">Optimizers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../../../api/optimizers.html#module-allooptim.optimizer.optimizer_interface">Core Interface</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.__init__()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.is_wiki_optimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.is_wiki_optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.is_fundamental_optimizer"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.is_fundamental_optimizer</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractOptimizer.set_allow_cash()</span></code></a></li>
@@ -144,11 +145,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.__init__()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.fit()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.reset()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_allow_cash()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.set_max_leverage()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">AbstractEnsembleOptimizer.display_name</span></code></a></li>
@@ -164,11 +160,14 @@
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.__init__"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.__init__()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.allocate_safe"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.allocate_safe()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.display_name"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.display_name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.fit"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.fit()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.reset"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.reset()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_allow_cash"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_allow_cash()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.set_max_leverage"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.set_max_leverage()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.is_wiki_optimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.is_wiki_optimizer</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../api/optimizers.html#allooptim.optimizer.sequential_quadratic_programming.adjusted_return_optimizer.MeanVarianceAdjustedReturnsOptimizer.is_fundamental_optimizer"><code class="docutils literal notranslate"><span class="pre">MeanVarianceAdjustedReturnsOptimizer.is_fundamental_optimizer</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -363,11 +362,11 @@
 <div class="viewcode-block" id="AbstractOptimizer">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractOptimizer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for all portfolio optimization algorithms.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract interface for all portfolio optimization algorithms.</span>
 
-<span class="sd">    All optimizers in AlloOptim inherit from this class and implement the</span>
-<span class="sd">    `allocate()` method to compute portfolio weights. This ensures a consistent</span>
-<span class="sd">    interface across different optimization strategies.</span>
+<span class="sd">    All optimizers in AlloOptim implement this interface to ensure a consistent</span>
+<span class="sd">    API across different optimization strategies. This is a pure interface with</span>
+<span class="sd">    no implementation details.</span>
 
 <span class="sd">    The optimizer interface is designed for flexibility and composability:</span>
 <span class="sd">    - Supports various risk metrics (variance, CVaR, max drawdown, L-moments)</span>
@@ -376,7 +375,7 @@
 <span class="sd">    - Enables warm-start optimization for performance</span>
 
 <span class="sd">    Subclassing Guide:</span>
-<span class="sd">        1. Inherit from AbstractOptimizer</span>
+<span class="sd">        1. Inherit from BaseOptimizer (not AbstractOptimizer directly)</span>
 <span class="sd">        2. Implement allocate() method</span>
 <span class="sd">        3. Implement name property</span>
 <span class="sd">        4. Add configuration via Pydantic BaseModel</span>
@@ -385,7 +384,7 @@
 <span class="sd">    Examples:</span>
 <span class="sd">        Creating a simple optimizer:</span>
 
-<span class="sd">        &gt;&gt;&gt; class MyOptimizer(AbstractOptimizer):</span>
+<span class="sd">        &gt;&gt;&gt; class MyOptimizer(BaseOptimizer):</span>
 <span class="sd">        ...     def allocate(self, ds_mu, df_cov, **kwargs):</span>
 <span class="sd">        ...         # Equal-weight allocation</span>
 <span class="sd">        ...         n = len(ds_mu)</span>
@@ -404,55 +403,60 @@
 <span class="sd">        1.0</span>
 
 <span class="sd">    See Also:</span>
-<span class="sd">        - :class:`AbstractEnsembleOptimizer`: Base class for ensemble methods</span>
+<span class="sd">        - :class:`BaseOptimizer`: Base implementation with common functionality</span>
+<span class="sd">        - :class:`AbstractEnsembleOptimizer`: Interface for ensemble methods</span>
 <span class="sd">        - :mod:`allooptim.optimizer.optimizer_list`: Available optimizer catalog</span>
 <span class="sd">        - :mod:`allooptim.optimizer.optimizer_factory`: Optimizer creation utilities</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="AbstractOptimizer.__init__">
-<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the optimizer.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            display_name: Optional display name for this optimizer instance.</span>
-<span class="sd">                         If None, defaults to the optimizer&#39;s name property.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="n">display_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">allow_cash</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Default to False for backward compatibility</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_leverage</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Default to None (no leverage limit)</span></div>
-
+    <span class="n">is_wiki_optimizer</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">is_fundamental_optimizer</span><span class="p">:</span> <span class="nb">bool</span>
 
 <div class="viewcode-block" id="AbstractOptimizer.fit">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.fit">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">df_prices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional setup method to prepare the optimizer with historical data.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional setup method to prepare the optimizer with historical data.</span>
+
+<span class="sd">        This method can be overridden by optimizers that need to learn from</span>
+<span class="sd">        historical data (e.g., machine learning models, momentum-based strategies).</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            df_prices: Historical price data for fitting the optimizer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AbstractOptimizer.reset">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.reset">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional method to reset any internal state of the optimizer.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span><span class="p">)</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reset any internal state of the optimizer.</span>
+
+<span class="sd">        This method should restore the optimizer to its initial state,</span>
+<span class="sd">        clearing any learned parameters or cached computations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AbstractOptimizer.set_allow_cash">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_allow_cash">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_allow_cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_cash</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set whether this optimizer is allowed to use cash (partial investment).</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            allow_cash: Whether to allow cash positions (sum of weights &lt; 1.0)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">allow_cash</span> <span class="o">=</span> <span class="n">allow_cash</span></div>
+        <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AbstractOptimizer.set_max_leverage">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractOptimizer.set_max_leverage">[docs]</a>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">set_max_leverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_leverage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the maximum leverage allowed for this optimizer.</span>
 
@@ -460,7 +464,7 @@
 <span class="sd">            max_leverage: Maximum leverage factor (sum of weights &lt;= max_leverage).</span>
 <span class="sd">                         None means no leverage limit.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_leverage</span> <span class="o">=</span> <span class="n">max_leverage</span></div>
+        <span class="k">pass</span></div>
 
 
 <div class="viewcode-block" id="AbstractOptimizer.allocate">
@@ -474,7 +478,7 @@
         <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">l_moments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LMoments</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an optimal portfolio allocation given the expected returns vector and covariance matrix.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an optimal portfolio allocation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ds_mu: Expected return vector as pandas Series with asset names as index</span>
@@ -490,7 +494,6 @@
 <span class="sd">            - Asset names in mu.index must match cov.index and cov.columns</span>
 <span class="sd">            - Returned weights should sum to 1.0 for long-only portfolios</span>
 <span class="sd">            - Optimizer implementations can access asset names via cov.columns or mu.index</span>
-<span class="sd">            - Individual optimizers typically ignore df_allocations; ensemble optimizers use it for efficiency</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
 
@@ -503,69 +506,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">display_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display name of this optimizer instance. Can depend on the optimizer configuration, if multiple instances exist.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 
 
 
 <div class="viewcode-block" id="AbstractEnsembleOptimizer">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">AbstractEnsembleOptimizer</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for ensemble portfolio optimization algorithms with pandas interface.&quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="AbstractEnsembleOptimizer.__init__">
-<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the ensemble optimizer.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            display_name: Optional display name for this optimizer instance.</span>
-<span class="sd">                         If None, defaults to the optimizer&#39;s name property.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="o">=</span> <span class="n">display_name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">allow_cash</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Default to False for backward compatibility</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_leverage</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Default to None (no leverage limit)</span></div>
-
-
-<div class="viewcode-block" id="AbstractEnsembleOptimizer.fit">
-<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.fit">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">df_prices</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional setup method to prepare the optimizer with historical data.&quot;&quot;&quot;</span>
-        <span class="k">pass</span></div>
-
-
-<div class="viewcode-block" id="AbstractEnsembleOptimizer.reset">
-<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.reset">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Optional method to reset any internal state of the optimizer.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="AbstractEnsembleOptimizer.set_allow_cash">
-<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_allow_cash">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_allow_cash</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">allow_cash</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set whether this optimizer is allowed to use cash (partial investment).</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            allow_cash: Whether to allow cash positions (sum of weights &lt; 1.0)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">allow_cash</span> <span class="o">=</span> <span class="n">allow_cash</span></div>
-
-
-<div class="viewcode-block" id="AbstractEnsembleOptimizer.set_max_leverage">
-<a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.set_max_leverage">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">set_max_leverage</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_leverage</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the maximum leverage allowed for this optimizer.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            max_leverage: Maximum leverage factor (sum of weights &lt;= max_leverage).</span>
-<span class="sd">                         None means no leverage limit.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">max_leverage</span> <span class="o">=</span> <span class="n">max_leverage</span></div>
-
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract interface for ensemble portfolio optimization algorithms.&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AbstractEnsembleOptimizer.allocate">
 <a class="viewcode-back" href="../../../api/optimizers.html#allooptim.optimizer.optimizer_interface.AbstractEnsembleOptimizer.allocate">[docs]</a>
@@ -579,7 +528,7 @@
         <span class="n">time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">datetime</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">l_moments</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">LMoments</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an optimal portfolio allocation given the expected returns vector and covariance matrix.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an optimal ensemble portfolio allocation.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            ds_mu: Expected return vector as pandas Series with asset names as index</span>
@@ -610,9 +559,10 @@
         <span class="k">pass</span>
 
     <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">display_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Name of this optimizer. This can depend on the optimizer configuration, if multiple instances exist.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_display_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Display name of this optimizer instance. Can depend on the optimizer configuration, if multiple instances exist.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 
 </pre></div>
 
