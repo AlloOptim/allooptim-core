@@ -103,6 +103,8 @@ class BacktestEngine:
 
         self.transformers = get_transformer_by_names(self.config_backtest.transformer_names)
 
+        self._previous_allocation = None  # Track previous allocation for significant signal checks
+
         # Create results directory (optional for notebook environments)
         if self.config_backtest.store_results:
             self.config_backtest.results_dir.mkdir(exist_ok=True, parents=True)
@@ -191,6 +193,32 @@ class BacktestEngine:
                 time_today=rebalance_date,
                 all_stocks=self.data_loader.stock_universe,
             )
+
+            if self.config_backtest.only_trade_on_significant_signals and self._previous_allocation is not None:
+                # Update all weights above significant_signal_threshold, else keep previous allocation
+
+                weight_changes = np.where(
+                         self._previous_allocation != 0,
+                        (allocation_result.final_allocation -  self._previous_allocation) /  self._previous_allocation,  # Normal percentage change
+                        np.where(allocation_result.final_allocation != 0, 1.0, 0.0),  # 0→x = 100% increase, 0→0 = no change
+                    )
+
+                significant_changes = pd.Series(
+                    np.abs(weight_changes) >= self.config_backtest.significant_signal_threshold,
+                    index=allocation_result.final_allocation.index,
+                )
+
+                for asset in allocation_result.final_allocation.index:
+                    if not significant_changes.get(asset, False):
+                        allocation_result.final_allocation[asset] = self._previous_allocation.get(asset, 0.0)
+                    else:
+                        self._previous_allocation[asset] = (
+                            allocation_result.final_allocation[asset]
+                        )
+
+            else:
+                self._previous_allocation = allocation_result.final_allocation.copy()
+
             allocation_results.append(allocation_result)
 
             # SPY benchmark

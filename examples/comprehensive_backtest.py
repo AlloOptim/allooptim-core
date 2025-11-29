@@ -79,9 +79,6 @@ def main_backtest(
 
         config_a2a = A2AConfig()
 
-        # Store results directory to ensure consistency
-        results_dir = config_backtest.results_dir
-
         # Initialize backtest engine with config
         backtest_engine = BacktestEngine(config_backtest, config_a2a)
 
@@ -97,12 +94,12 @@ def main_backtest(
         clustering_results = cluster_analyzer.analyze_clusters()
 
         # Create visualizations
-        create_visualizations(results, clustering_results, results_dir)
+        create_visualizations(results, clustering_results, config_backtest.results_dir)
 
         # Generate QuantStats reports
         create_quantstats_reports(
             results=results,
-            output_dir=results_dir,
+            output_dir=config_backtest.results_dir,
             generate_individual=config_backtest.quantstats_individual,
             generate_top_n=config_backtest.quantstats_top_n,
             benchmark=config_backtest.benchmark,
@@ -112,7 +109,7 @@ def main_backtest(
         report = generate_report(results, clustering_results, config_backtest)
 
         # Save report
-        report_path = results_dir / "comprehensive_backtest_report.md"
+        report_path = config_backtest.results_dir / "comprehensive_backtest_report.md"
         with open(report_path, "w") as f:
             f.write(report)
 
@@ -124,21 +121,25 @@ def main_backtest(
             csv_data.append(row)
 
         results_df = pd.DataFrame(csv_data)
-        results_df.to_csv(results_dir / "backtest_results.csv", index=False)
+        results_df.to_csv(
+            config_backtest.results_dir / "backtest_results.csv", index=False
+        )
 
         # Save Euclidean distance analysis to CSV
         if "euclidean_distance" in clustering_results and "closest_pairs" in clustering_results["euclidean_distance"]:
             distance_data = clustering_results["euclidean_distance"]["closest_pairs"]
             if distance_data:
                 distance_df = pd.DataFrame(distance_data)
-                distance_df.to_csv(results_dir / "optimizer_distances.csv", index=False)
+                distance_df.to_csv(
+                    config_backtest.results_dir / "optimizer_distances.csv", index=False
+                )
                 logger.info("Optimizer distance analysis saved to optimizer_distances.csv")
 
-        logger.info(f"Backtest completed successfully. Results saved to {results_dir}")
+        logger.info(f"Backtest completed successfully. Results saved to {config_backtest.results_dir}")
         logger.info(f"Report available at: {report_path}")
 
         # Check QuantStats reports
-        logger.info(f"QuantStats reports generated in {results_dir}")
+        logger.info(f"QuantStats reports generated in {config_backtest.results_dir}")
         logger.info("Open HTML files in a web browser for interactive analysis")
 
         logger.info(f"\n{'='*80}")
@@ -148,7 +149,7 @@ def main_backtest(
             f"Period: {config_backtest.get_report_date_range()[0]} to {config_backtest.get_report_date_range()[1]}"
         )
         logger.info(f"Optimizers tested: {len(results)}")
-        logger.info(f"Results directory: {results_dir}")
+        logger.info(f"Results directory: {config_backtest.results_dir}")
         logger.info(f"{'='*80}\n")
 
     except Exception as e:

@@ -57,12 +57,12 @@ class BacktestConfig(BaseModel):
 
     # Rebalancing parameters
     rebalance_frequency: int = Field(
-        default=10,
+        default=20,
         ge=1,
         le=252,  # Max trading days per year
         description="Number of trading days between rebalancing",
     )
-    lookback_days: int = Field(default=60, ge=1, description="Number of days to look back for historical data")
+    lookback_days: int = Field(default=90, ge=1, description="Number of days to look back for historical data")
 
     data_interval: str = Field(default="1d", description="Data interval for price data (e.g., '1d', '1wk', '1mo')")
 
@@ -113,6 +113,14 @@ class BacktestConfig(BaseModel):
     )
     quantstats_dir: str = Field(
         default="quantstats_reports", description="Directory name for QuantStats reports within results directory"
+    )
+    
+    only_trade_on_significant_signals: bool = Field(
+        default=True, description="Whether to only execute trades when significant signals are detected"
+    )
+    
+    significant_signal_threshold: float = Field(
+        default=1.0, ge=0.0, description="Threshold for significant signals to trigger trades"
     )
 
     @field_validator("quantstats_mode", mode="before")

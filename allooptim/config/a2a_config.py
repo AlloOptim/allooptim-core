@@ -84,12 +84,12 @@ class A2AConfig(BaseModel):
 
     # Asset allocation constraints
     n_max_active_assets: Optional[int] = Field(
-        default=None,
+        default=200,
         ge=1,
         description="Maximum number of assets with weights > 0. If more assets are active, reduce by setting the smallest ones to 0. Disabled if None.",
     )
     max_asset_concentration_pct: Optional[float] = Field(
-        default=None,
+        default=0.2,
         ge=0.0,
         le=1.0,
         description="Maximum concentration for any single asset (e.g., 0.3 means weights above 30% get clipped to 30%). Disabled if None.",

@@ -16,7 +16,7 @@ class AllocationConstraints:
     """Utility class for applying allocation constraints to portfolio weights."""
 
     @staticmethod
-    def apply_max_active_assets(
+    def _apply_max_active_assets(
         weights: pd.Series,
         n_max_active_assets: Optional[int],
         min_weight_threshold: float = 1e-6,
@@ -49,17 +49,12 @@ class AllocationConstraints:
         new_weights = pd.Series(0.0, index=weights.index)
         new_weights[top_assets.index] = top_assets.values
 
-        # Renormalize to maintain total weight
-        total_weight = new_weights.sum()
-        if total_weight > 0:
-            new_weights = new_weights / total_weight
-
         logger.debug(f"Applied max_active_assets constraint: {len(active_assets)} -> {len(top_assets)} assets")
 
         return new_weights
 
     @staticmethod
-    def apply_max_concentration(
+    def _apply_max_concentration(
         weights: pd.Series,
         max_asset_concentration_pct: Optional[float],
     ) -> pd.Series:
@@ -88,15 +83,10 @@ class AllocationConstraints:
                 f"{clipped_count} assets clipped"
             )
 
-            # Renormalize to maintain total weight
-            total_weight = clipped_weights.sum()
-            if total_weight > 0:
-                clipped_weights = clipped_weights / total_weight
-
         return clipped_weights
 
     @staticmethod
-    def apply_min_active_assets(
+    def _apply_min_active_assets(
         weights: pd.Series,
         n_min_active_assets: Optional[int],
         min_weight_threshold: float = 1e-6,
@@ -189,24 +179,25 @@ class AllocationConstraints:
         # Start with a copy to avoid modifying the original
         constrained_weights = weights.copy()
 
-        # 1. Apply max concentration first (clipping individual weights)
-        constrained_weights = AllocationConstraints.apply_max_concentration(
-            constrained_weights, max_asset_concentration_pct
-        )
-
-        # 2. Apply max active assets (reduce number of active assets)
-        constrained_weights = AllocationConstraints.apply_max_active_assets(
-            constrained_weights, n_max_active_assets, min_weight_threshold
-        )
-
-        # 3. Apply min active assets (ensure minimum number of active assets)
-        constrained_weights = AllocationConstraints.apply_min_active_assets(
+        # Apply min active assets (ensure minimum number of active assets)
+        constrained_weights = AllocationConstraints._apply_min_active_assets(
             constrained_weights, n_min_active_assets, min_weight_threshold
         )
 
+        # Apply max active assets (reduce number of active assets)
+        constrained_weights = AllocationConstraints._apply_max_active_assets(
+            constrained_weights, n_max_active_assets, min_weight_threshold
+        )
+
+        # Apply max concentration first (clipping individual weights)
+        constrained_weights = AllocationConstraints._apply_max_concentration(
+            constrained_weights, max_asset_concentration_pct
+        )
+
         # Final normalization to ensure weights sum to 1 (or less if partial investment allowed)
+        previous_total_weight = weights.sum()
         total_weight = constrained_weights.sum()
-        if total_weight > 0:
-            constrained_weights = constrained_weights / total_weight
+        if total_weight > 0.0:
+            constrained_weights = constrained_weights * (previous_total_weight / total_weight)
 
         return constrained_weights

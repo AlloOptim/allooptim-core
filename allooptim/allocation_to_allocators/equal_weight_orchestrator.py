@@ -263,22 +263,33 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                 )
             )
 
-        # Normalize final asset weights according to global cash settings
-        final_allocation_values = normalize_weights_a2a(asset_weights, self.config.cash_config)
-        final_allocation = pd.Series(final_allocation_values, index=mu.index)
-
         # Apply allocation constraints
-        final_allocation = AllocationConstraints.apply_all_constraints(
-            weights=final_allocation,
+        asset_weights = AllocationConstraints.apply_all_constraints(
+            weights=asset_weights,
             n_max_active_assets=self.config.n_max_active_assets,
             max_asset_concentration_pct=self.config.max_asset_concentration_pct,
             n_min_active_assets=self.config.n_min_active_assets,
             min_weight_threshold=self.config.min_weight_threshold,
         )
 
+        # Apply allocation constraints
+        asset_weights = AllocationConstraints.apply_all_constraints(
+            weights=asset_weights,
+            n_max_active_assets=self.config.n_max_active_assets,
+            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
+            n_min_active_assets=self.config.n_min_active_assets,
+            min_weight_threshold=self.config.min_weight_threshold,
+        )
+
+        # Normalize final asset weights according to global cash settings
+        asset_weights_values = normalize_weights_a2a(
+            asset_weights, self.config.cash_config
+        )
+        asset_weights = pd.Series(asset_weights_values, index=mu.index)
+
         # Compute performance metrics
-        portfolio_return = (final_allocation * mu).sum()
-        portfolio_variance = final_allocation.values @ cov_transformed.values @ final_allocation.values
+        portfolio_return = (asset_weights * mu).sum()
+        portfolio_variance = asset_weights.values @ cov_transformed.values @ asset_weights.values
         portfolio_volatility = np.sqrt(portfolio_variance)
         sharpe_ratio = portfolio_return / portfolio_volatility if portfolio_volatility > 0 else 0
 
@@ -313,7 +324,7 @@ class EqualWeightOrchestrator(BaseOrchestrator):
 
         # Create A2AResult
         result = A2AResult(
-            final_allocation=final_allocation,
+            final_allocation=asset_weights,
             optimizer_allocations=optimizer_allocations_list,
             optimizer_weights=optimizer_weights_list,
             metrics=metrics,

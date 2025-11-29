@@ -39,7 +39,7 @@ class CashConfig(BaseModel):
     model_config = DEFAULT_PYDANTIC_CONFIG
 
     allow_cash_option: AllowCashOption = Field(
-        default=AllowCashOption.OPTIMIZER_DECIDES,
+        default=AllowCashOption.GLOBAL_ALLOW_CASH,
         description=(
             "Control flow for cash allowance. "
             "GLOBAL_ALLOW_CASH: force all optimizers to allow cash. "
