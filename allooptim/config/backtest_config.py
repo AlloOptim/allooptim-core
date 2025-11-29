@@ -14,6 +14,7 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field, field_validator
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.config.cash_config import CashConfig
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
@@ -37,6 +38,10 @@ class BacktestConfig(BaseModel):
     )
 
     cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")
+
+    a2a_manager_config: A2AManagerConfig = Field(
+        default_factory=A2AManagerConfig, description="Configuration for A2A Manager parameters"
+    )
 
     # Exception handling
     rerun_allocator_exceptions: bool = Field(

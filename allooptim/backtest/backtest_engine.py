@@ -22,21 +22,13 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
+from allooptim.allocation_to_allocators.a2a_manager import A2AManager
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
-from allooptim.allocation_to_allocators.orchestrator_factory import (
-    OrchestratorType,
-    create_orchestrator,
-)
-from allooptim.allocation_to_allocators.rebalancer import PortfolioRebalancer
-from allooptim.backtest.data_loader import DataLoader
+from allooptim.allocation_to_allocators.rebalancer 
 from allooptim.backtest.performance_metrics import PerformanceMetrics
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
-from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
-from allooptim.data.price_data_provider import PriceDataProvider
-from allooptim.data.provider_factory import FundamentalDataProviderFactory
-from allooptim.optimizer.wikipedia.wiki_database import download_data
-
 logger = logging.getLogger(__name__)
 
 
@@ -57,7 +49,7 @@ class BacktestEngine:
         self,
         config_backtest: Optional[BacktestConfig] = None,
         a2a_config: Optional[A2AConfig] = None,
-        orchestrator_type: Optional[OrchestratorType] = None,
+        a2a_manager_config: Optional[A2AManagerConfig] = None,
         **orchestrator_kwargs,
     ) -> None:
         """Initialize the backtest engine.
@@ -71,40 +63,16 @@ class BacktestEngine:
             **orchestrator_kwargs: Additional keyword arguments passed to orchestrator creation.
         """
         self.config_backtest = config_backtest or BacktestConfig()
-
-        self.data_loader = DataLoader(
-            benchmark=self.config_backtest.benchmark,
-            symbols=self.config_backtest.symbols,
-            interval=self.config_backtest.data_interval,
-        )
-
-        # Create shared fundamental data provider with caching for backtests
-        self.fundamental_provider = FundamentalDataProviderFactory.create_provider(enable_caching=True)
-
-        # Create orchestrator using factory
-        if a2a_config is None:
-            a2a_config = A2AConfig()
-
-        # Use orchestrator_type parameter if provided, otherwise use config
-        final_orchestrator_type = orchestrator_type or self.config_backtest.orchestration_type
-
-        self.orchestrator = create_orchestrator(
-            orchestrator_type=final_orchestrator_type,
-            optimizer_configs=self.config_backtest.optimizer_configs,
-            transformer_names=self.config_backtest.transformer_names,
-            a2a_config=a2a_config,
+        self.a2a_config = a2a_config or A2AConfig()
+        self.a2a_manager_config = a2a_manager_config or A2AManagerConfig()
+            
+        self.a2a_manager = A2AManager(
+            a2a_manager_config=self.a2a_manager_config,
+            a2a_config=self.a2a_config,
             **orchestrator_kwargs,
         )
 
-        for optimizer in self.orchestrator.optimizers:
-            if optimizer.is_fundamental_optimizer:
-                optimizer.data_provider = self.fundamental_provider
-
         self.results = {}
-
-        self.transformers = get_transformer_by_names(self.config_backtest.transformer_names)
-
-        self.rebalancer = PortfolioRebalancer()  # Rebalancer for cost reduction and smoothing
 
         # Create results directory (optional for notebook environments)
         if self.config_backtest.store_results:
@@ -121,34 +89,8 @@ class BacktestEngine:
         # Get date range based on debug mode
         start_data_date, end_data_date = self.config_backtest.get_data_date_range()
 
-        has_wikipedia_optimizer = any(optimizer.is_wiki_optimizer for optimizer in self.orchestrator.optimizers)
-
-        if has_wikipedia_optimizer:
-            logger.info("Wikipedia optimizer detected, downloading Wikipedia data...")
-            try:
-                download_data(start_data_date, end_data_date, self.data_loader.stock_universe)
-                logger.info("Wikipedia data download completed")
-            except Exception as e:
-                logger.warning(f"Failed to download Wikipedia data: {e}")
-
-        has_fundamental_optimizer = any(
-            optimizer.is_fundamental_optimizer for optimizer in self.orchestrator.optimizers
-        )
-
-        if has_fundamental_optimizer:
-            logger.info("Fundamental optimizers detected, preloading fundamental data...")
-            try:
-                self.fundamental_provider.preload_data(
-                    tickers=self.config_backtest.symbols,
-                    start_date=start_data_date,
-                    end_date=end_data_date,
-                )
-                logger.info("Fundamental data preload completed")
-            except Exception as e:
-                logger.warning(f"Failed to preload fundamental data: {e}")
-
-        # Load price data
-        price_data = self.data_loader.load_price_data(start_data_date, end_data_date)
+        # Load data using A2A Manager
+        price_data = self.a2a_manager.load_data(start_data_date, end_data_date)
 
         # Generate rebalancing dates
         rebalance_dates = self._get_rebalance_dates(price_data.index)
@@ -187,16 +129,8 @@ class BacktestEngine:
             # Use only valid assets for estimation - ensure consistency across all data
             clean_data = lookback_data[valid_assets]
 
-            # Single orchestrator call
-            data_provider = PriceDataProvider(clean_data)
-            allocation_result = self.orchestrator.allocate(
-                data_provider=data_provider,
-                time_today=rebalance_date,
-                all_stocks=self.data_loader.stock_universe,
-            )
-
-            # Apply rebalancing with cost reduction strategies
-            allocation_result.final_allocation = self.rebalancer.rebalance(allocation_result.final_allocation)
+            # Run allocation using A2A Manager
+            allocation_result = self.a2a_manager.run_allocation(rebalance_date, clean_data)
 
             allocation_results.append(allocation_result)
 

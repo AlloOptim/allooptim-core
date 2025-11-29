@@ -1,6 +1,5 @@
-from typing import Optional, Dict, Any
+from typing import Optional
 import pandas as pd
-import numpy as np
 
 
 class PortfolioRebalancer:
@@ -21,7 +20,7 @@ class PortfolioRebalancer:
         Lower values provide more smoothing and fewer trades.
         Set to 1.0 to disable smoothing.
 
-    absolute_threshold : float
+    absolute_threshold_per_asset : float
         Absolute deviation threshold for rebalancing (e.g., 0.03 = 3%).
         Only trade if |current - target| > threshold.
 
@@ -29,9 +28,9 @@ class PortfolioRebalancer:
         Relative deviation threshold as fraction of target weight (e.g., 0.20 = 20%).
         Provides adaptive thresholds for different position sizes.
 
-    min_trade_dollars : float
-        Minimum dollar amount for a trade to be executed.
-        Trades smaller than this are filtered out.
+    min_trade_pct : Optional[float]
+        Minimum trade size as a fraction of portfolio value for a trade to be executed.
+        Trades smaller than this fraction are filtered out.
 
     max_trades_per_day : Optional[int]
         Maximum number of trades to execute per rebalancing period.
@@ -55,14 +54,14 @@ class PortfolioRebalancer:
     def __init__(
         self,
         ema_alpha: float = 0.3,
-        absolute_threshold: float = 0.03,
+        absolute_threshold_per_asset: float = 0.5,
         relative_threshold: float = 1.0,
         min_trade_pct: Optional[float] = None,
         max_trades_per_day: Optional[int] = 15,
         trade_to_band_edge: bool = True,
     ) -> None:
         self.ema_alpha = ema_alpha
-        self.absolute_threshold = absolute_threshold
+        self.absolute_threshold_per_asset = absolute_threshold_per_asset
         self.relative_threshold = relative_threshold
         self.min_trade_pct = min_trade_pct
         self.max_trades_per_day = max_trades_per_day
@@ -136,8 +135,11 @@ class PortfolioRebalancer:
         Calculate effective threshold for each asset as maximum of absolute and relative thresholds.
         Provides adaptive thresholds that scale with position size.
         """
+
+        absolute_threshold = self.absolute_threshold_per_asset / len(target_weights)
+
         relative_band = target_weights * self.relative_threshold
-        absolute_band = pd.Series(self.absolute_threshold, index=target_weights.index)
+        absolute_band = pd.Series(absolute_threshold, index=target_weights.index)
 
         return pd.concat([relative_band, absolute_band], axis=1).max(axis=1)
 
@@ -152,7 +154,7 @@ class PortfolioRebalancer:
         actual_aligned = self._actual_weights.reindex(all_assets, fill_value=0.0)
         target_aligned = target_weights.reindex(all_assets, fill_value=0.0)
         threshold_aligned = thresholds.reindex(
-            all_assets, fill_value=self.absolute_threshold
+            all_assets, fill_value=self.absolute_threshold_per_asset
         )
 
         deviation = (actual_aligned - target_aligned).abs()
@@ -185,7 +187,7 @@ class PortfolioRebalancer:
         """
         if len(trades) == 0:
             return trades
-        
+
         if self.min_trade_pct is None:
             return trades
 

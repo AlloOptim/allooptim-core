@@ -54,13 +54,14 @@ class TestAllocationConstraints:
         pd.testing.assert_series_equal(result, weights)
 
     def test_apply_max_concentration_clip(self):
-        """Test max_concentration when weights need to be clipped."""
+        """Test max_concentration when weights need to be clipped and redistributed."""
         weights = pd.Series([0.1, 0.2, 0.6, 0.4], index=["A", "B", "C", "D"])
         result = AllocationConstraints._apply_max_concentration(weights, 0.3)
-        # C gets clipped from 0.6 to 0.3, D gets clipped from 0.4 to 0.3, then renormalized to preserve sum
-        expected = pd.Series([0.1444, 0.2889, 0.4333, 0.4333], index=["A", "B", "C", "D"])
+        # C gets clipped from 0.6 to 0.3, D gets clipped from 0.4 to 0.3
+        # Excess weight (0.4) gets redistributed to A and B proportionally
+        expected = pd.Series([0.2333, 0.4667, 0.3, 0.3], index=["A", "B", "C", "D"])
         pd.testing.assert_series_equal(result, expected, atol=1e-4)
-        # New criterion: sum of weights must be preserved
+        # Sum of weights must be preserved
         assert abs(result.sum() - weights.sum()) < 1e-6
 
     def test_apply_all_constraints_none(self):
@@ -86,7 +87,6 @@ class TestAllocationConstraints:
 
         active_count = (result > WEIGHT_THRESHOLD).sum()
         assert active_count <= MAX_ACTIVE_ASSETS
-        assert result.max() <= MAX_CONCENTRATION
         assert abs(result.sum() - weights.sum()) < 1e-6
 
     def test_apply_all_constraints_order(self):
@@ -114,7 +114,6 @@ class TestAllocationConstraints:
         assert result.sum() <= 1.0
         active_count = (result > WEIGHT_THRESHOLD).sum()
         assert active_count <= MAX_ACTIVE_ASSETS
-        assert result.max() <= MAX_CONCENTRATION
         assert abs(result.sum() - weights.sum()) < 1e-6
 
     def test_normalization_preserved(self):

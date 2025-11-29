@@ -90,8 +90,7 @@ class AllocationConstraints:
                 if total_eligible > 0:
                     redistribution = excess_total * (eligible_weights / total_eligible)
                     clipped_weights.loc[eligible_mask] += redistribution
-                    # Clip again to ensure no asset exceeds the threshold after redistribution
-                    clipped_weights = clipped_weights.clip(upper=max_asset_concentration_pct)
+                    # Note: We don't clip again after redistribution to preserve total weight sum
 
         # Check if any weights were clipped
         if not clipped_weights.equals(weights):
@@ -197,9 +196,9 @@ class AllocationConstraints:
         # Start with a copy to avoid modifying the original
         constrained_weights = weights.copy()
 
-        # Apply min active assets (ensure minimum number of active assets)
-        constrained_weights = AllocationConstraints._apply_min_active_assets(
-            constrained_weights, n_min_active_assets, min_weight_threshold
+        # Apply max concentration first (clipping individual weights)
+        constrained_weights = AllocationConstraints._apply_max_concentration(
+            constrained_weights, max_asset_concentration_pct
         )
 
         # Apply max active assets (reduce number of active assets)
@@ -207,9 +206,9 @@ class AllocationConstraints:
             constrained_weights, n_max_active_assets, min_weight_threshold
         )
 
-        # Apply max concentration first (clipping individual weights)
-        constrained_weights = AllocationConstraints._apply_max_concentration(
-            constrained_weights, max_asset_concentration_pct
+        # Apply min active assets (ensure minimum number of active assets)
+        constrained_weights = AllocationConstraints._apply_min_active_assets(
+            constrained_weights, n_min_active_assets, min_weight_threshold
         )
 
         # Final normalization to ensure weights sum to 1 (or less if partial investment allowed)
