@@ -145,8 +145,8 @@ class PortfolioRebalancer:
         Provides adaptive thresholds that scale with position size.
         """
 
-        relative_band = target_weights * self.relative_threshold
-        absolute_band = pd.Series(self.absolute_threshold, index=target_weights.index)
+        relative_band = target_weights * self.config.relative_threshold
+        absolute_band = pd.Series(self.config.absolute_threshold, index=target_weights.index)
 
         return pd.concat([relative_band, absolute_band], axis=1).max(axis=1)
 

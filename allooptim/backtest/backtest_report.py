@@ -49,6 +49,8 @@ def generate_report(results: dict, clustering_results: dict, config_backtest: Op
 **Lookback Window:** {a2a_manager_config.lookback_days} days  
 **Number of Individual Optimizers Tested:** {n_individual}
 **Fallback Strategy:** {'Equal Weights' if a2a_manager_config.use_equal_weights_fallback else 'Zero Weights'}  
+**Number of Symbols:** {len(a2a_manager_config.symbols)}
+**Symbols:** {', '.join(a2a_manager_config.symbols)}
 
 ## Executive Summary
 
@@ -280,7 +282,6 @@ For detailed per-run analysis, see the Detailed Computational Analysis section b
         report += "- Distance-based clusters reveal functional similarity beyond theoretical groupings\n"
         report += "- The closest pairs often represent variations of the same underlying approach\n"
         report += "- Large distances indicate fundamentally different allocation strategies\n\n"
-
 
     report += "## Key Insights and Recommendations\n\n"
     report += "### Performance Insights\n"

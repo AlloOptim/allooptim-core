@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 
 from allooptim.allocation_to_allocators.rebalancer import PortfolioRebalancer
-
+from allooptim.config.rebalancer_config import RebalancerConfig
 
 class TestPortfolioRebalancer:
     """Test suite for PortfolioRebalancer."""
@@ -45,7 +45,10 @@ class TestPortfolioRebalancer:
 
     def test_first_rebalance_no_previous_weights(self):
         """Test first rebalance when no previous weights exist."""
-        rebalancer = PortfolioRebalancer(rebalancing_days=20)
+
+
+        config = RebalancerConfig(trade_to_band_edge=False)
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         # Create target weights
         assets = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
@@ -63,7 +66,8 @@ class TestPortfolioRebalancer:
 
     def test_rebalance_with_previous_weights(self):
         """Test rebalance with existing previous weights."""
-        rebalancer = PortfolioRebalancer(rebalancing_days=20)
+        config = RebalancerConfig(trade_to_band_edge=False)
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
 
@@ -92,6 +96,7 @@ class TestPortfolioRebalancer:
         config = RebalancerConfig(
             absolute_threshold=0.5,  # 50% threshold
             relative_threshold=1.0,  # 100% of weight
+            trade_to_band_edge=False,
         )
         rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
@@ -103,9 +108,9 @@ class TestPortfolioRebalancer:
         target2 = pd.Series([0.51, 0.49], index=assets)
         result2 = rebalancer.rebalance(target2)
 
-        # Should maintain previous weights due to high thresholds
-        # (actual=0.5, target=0.51, deviation=0.01, threshold=0.5/2=0.25)
-        assert result2.sum() == pytest.approx(1.0)
+        # Should not trigger trades due to high thresholds
+        assert len(result2) == 0
+        assert result2.sum() == 0.0
 
     def test_rebalance_large_changes_trigger_trades(self):
         """Test that large changes trigger trades."""
@@ -115,6 +120,7 @@ class TestPortfolioRebalancer:
         config = RebalancerConfig(
             absolute_threshold=0.01,  # 1% threshold
             relative_threshold=0.1,  # 10% of weight
+            trade_to_band_edge=False,
         )
         rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
@@ -137,6 +143,7 @@ class TestPortfolioRebalancer:
         config = RebalancerConfig(
             absolute_threshold=0.01,
             min_trade_pct=0.05,  # 5% minimum trade
+            trade_to_band_edge=False,
         )
         rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
@@ -158,6 +165,7 @@ class TestPortfolioRebalancer:
         config = RebalancerConfig(
             absolute_threshold=0.01,
             max_trades_per_day=2,  # Only allow 2 trades
+            trade_to_band_edge=False,
         )
         rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
@@ -205,23 +213,27 @@ class TestPortfolioRebalancer:
         config = RebalancerConfig(
             filter_lifetime_days=10000,  # No smoothing
             absolute_threshold=0.1,
+            relative_threshold=0.0,
         )
         rebalancer_edge = PortfolioRebalancer(rebalancing_days=20, config=config)
 
-        assets = ["AAPL"]
-        target1 = pd.Series([0.5], index=assets)
+        assets = ["AAPL", "MSFT"]
+        target1 = pd.Series([0.5, 0.5], index=assets)
         result1 = rebalancer_edge.rebalance(target1)
 
-        # Current = 0.5, Target = 0.8, Threshold = 0.1/1 = 0.1
-        target2 = pd.Series([0.8], index=assets)
+        # Current = 0.5, Target = 0.8, Threshold = 0.1
+        target2 = pd.Series([0.8, 0.2], index=assets)
         result2 = rebalancer_edge.rebalance(target2)
 
-        # Should trade to band edge: target - threshold = 0.8 - 0.1 = 0.7
+        # Should trade to band edge: AAPL target - threshold = 0.8 - 0.1 = 0.7, MSFT target + threshold = 0.2 + 0.1 = 0.3
         assert result2["AAPL"] == pytest.approx(0.7)
+        assert result2["MSFT"] == pytest.approx(0.3)
 
     def test_rebalance_normalization(self):
         """Test that weights are properly normalized."""
-        rebalancer = PortfolioRebalancer(rebalancing_days=20)
+
+        config = RebalancerConfig(trade_to_band_edge=False)
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL", "MSFT", "GOOGL"]
         # Weights that don't sum to 1
@@ -233,7 +245,9 @@ class TestPortfolioRebalancer:
 
     def test_rebalance_empty_target_weights(self):
         """Test handling of empty target weights."""
-        rebalancer = PortfolioRebalancer(rebalancing_days=20)
+
+        config = RebalancerConfig(trade_to_band_edge=False)
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         empty_weights = pd.Series(dtype=float)
         result = rebalancer.rebalance(empty_weights)
@@ -242,25 +256,30 @@ class TestPortfolioRebalancer:
 
     def test_reset_smoothing(self):
         """Test resetting EMA smoothing state."""
-        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
-        assets = ["AAPL"]
-        target1 = pd.Series([0.5], index=assets)
+        config = RebalancerConfig(trade_to_band_edge=False)
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
+
+        assets = ["AAPL", "MSFT"]
+        target1 = pd.Series([0.5, 0.5], index=assets)
         result1 = rebalancer.rebalance(target1)
 
         # Reset smoothing
         rebalancer.reset_smoothing()
 
         # Next rebalance should start fresh
-        target2 = pd.Series([0.7], index=assets)
+        target2 = pd.Series([0.7, 0.3], index=assets)
         result2 = rebalancer.rebalance(target2)
 
         # Should return target weights directly (no smoothing history)
         assert result2["AAPL"] == pytest.approx(0.7)
+        assert result2["MSFT"] == pytest.approx(0.3)
 
     def test_get_actual_weights(self):
         """Test getting current actual weights."""
-        rebalancer = PortfolioRebalancer(rebalancing_days=20)
+
+        config = RebalancerConfig(trade_to_band_edge=False)
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL", "MSFT"]
         target = pd.Series([0.6, 0.4], index=assets)
