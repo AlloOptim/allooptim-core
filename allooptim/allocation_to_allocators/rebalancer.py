@@ -20,7 +20,7 @@ class PortfolioRebalancer:
         Lower values provide more smoothing and fewer trades.
         Set to 1.0 to disable smoothing.
 
-    absolute_threshold_per_asset : float
+    absolute_threshold : float
         Absolute deviation threshold for rebalancing (e.g., 0.03 = 3%).
         Only trade if |current - target| > threshold.
 
@@ -53,15 +53,15 @@ class PortfolioRebalancer:
 
     def __init__(
         self,
-        ema_alpha: float = 0.3,
-        absolute_threshold_per_asset: float = 0.5,
-        relative_threshold: float = 1.0,
-        min_trade_pct: Optional[float] = None,
-        max_trades_per_day: Optional[int] = 15,
-        trade_to_band_edge: bool = True,
+        ema_alpha: float,
+        absolute_threshold: float,
+        relative_threshold: float ,
+        min_trade_pct: Optional[float],
+        max_trades_per_day: Optional[int],
+        trade_to_band_edge: bool ,
     ) -> None:
         self.ema_alpha = ema_alpha
-        self.absolute_threshold_per_asset = absolute_threshold_per_asset
+        self.absolute_threshold = absolute_threshold
         self.relative_threshold = relative_threshold
         self.min_trade_pct = min_trade_pct
         self.max_trades_per_day = max_trades_per_day
@@ -136,10 +136,8 @@ class PortfolioRebalancer:
         Provides adaptive thresholds that scale with position size.
         """
 
-        absolute_threshold = self.absolute_threshold_per_asset / len(target_weights)
-
         relative_band = target_weights * self.relative_threshold
-        absolute_band = pd.Series(absolute_threshold, index=target_weights.index)
+        absolute_band = pd.Series(self.absolute_threshold, index=target_weights.index)
 
         return pd.concat([relative_band, absolute_band], axis=1).max(axis=1)
 
@@ -154,7 +152,7 @@ class PortfolioRebalancer:
         actual_aligned = self._actual_weights.reindex(all_assets, fill_value=0.0)
         target_aligned = target_weights.reindex(all_assets, fill_value=0.0)
         threshold_aligned = thresholds.reindex(
-            all_assets, fill_value=self.absolute_threshold_per_asset
+            all_assets, fill_value=self.absolute_threshold
         )
 
         deviation = (actual_aligned - target_aligned).abs()

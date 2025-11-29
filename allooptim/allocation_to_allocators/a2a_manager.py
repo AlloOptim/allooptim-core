@@ -61,7 +61,15 @@ class A2AManager:
                 optimizer.data_provider = self.fundamental_provider
 
         self.transformers = get_transformer_by_names(self.a2a_manager_config.transformer_names)
-        self.rebalancer = PortfolioRebalancer()
+        # Use rebalancer parameters suitable for backtesting
+        self.rebalancer = PortfolioRebalancer(
+            ema_alpha=0.3,  # Maintain smoothing across periods
+            absolute_threshold=0.001,  # Lower threshold for backtesting
+            relative_threshold=0.01,   # Lower threshold for backtesting
+            min_trade_pct=None,        # No minimum trade size for backtesting
+            max_trades_per_day=None,   # No trade limit for backtesting
+            trade_to_band_edge=False,  # Trade to target, not band edge for backtesting
+        )
 
     def load_data(self, start_date: datetime, end_date: datetime) -> pd.DataFrame:
         logger.debug("Loading data")

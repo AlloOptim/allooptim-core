@@ -16,7 +16,6 @@ from typing import Optional
 import pandas as pd
 
 from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
-from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
@@ -67,8 +66,9 @@ def main_backtest(
             start_date=datetime(2015, 1, 1),
             end_date=datetime(2025, 1, 1),
             rebalance_frequency=10,
-            lookback_days=90,
             quick_test=True,
+            quick_start_date=datetime(2022, 1, 1),  # Extended period for A2A to work
+            quick_end_date=datetime(2023, 12, 31),   # Extended period for A2A to work
         )
 
     if a2a_manager_config is None:
@@ -79,6 +79,7 @@ def main_backtest(
             optimizer_configs=DEFAULT_OPTIMIZER_CONFIG,
             transformer_names=["OracleCovarianceTransformer"],
             orchestration_type=OrchestratorType.VOLATILITY_ADJUSTED,
+            lookback_days=90,
         )
 
     try:
