@@ -44,14 +44,10 @@ def generate_report(results: dict, clustering_results: dict, config: Optional[Ba
 **Period:** {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}  
 **Rebalancing Frequency:** Every {config.rebalance_frequency} trading days  
 **Lookback Window:** {config.lookback_days} days  
+**Number of Individual Optimizers Tested:** {n_individual}
 **Fallback Strategy:** {'Equal Weights' if config.use_equal_weights_fallback else 'Zero Weights'}  
 
 ## Executive Summary
-
-This report presents a comprehensive backtest of {len(results)} allocation algorithms including:
-- {n_individual} individual optimizers from the enhanced allocation framework
-- A2A ensemble optimizer (simple average of all individual optimizers)  
-- S&P 500 benchmark (100% SPY allocation)
 
 ### Key Findings
 
@@ -282,29 +278,7 @@ For detailed per-run analysis, see the Detailed Computational Analysis section b
         report += "- The closest pairs often represent variations of the same underlying approach\n"
         report += "- Large distances indicate fundamentally different allocation strategies\n\n"
 
-    report += "## Theoretical Optimizer Groupings\n\n"
-    report += "Based on the underlying optimization approaches, we can group the algorithms theoretically:\n\n"
-    report += "### Mean Reversion & Risk Parity Group\n"
-    report += "- **RiskParityOptimizer:** Equal risk contribution\n"
-    report += "- **NaiveOptimizer:** Equal weight allocation\n"
-    report += "- **EfficientRiskOptimizer:** Risk-based allocation\n\n"
-    report += "### Modern Portfolio Theory Group\n"
-    report += "- **MeanVarianceParticalSwarmOptimizer:** PSO with mean-variance optimization\n"
-    report += "- **MeanVarianceAdjustedReturnsOptimizer:** Classical mean-variance with adjusted returns\n"
-    report += "- **MaxSharpeOptimizer:** Maximum Sharpe ratio optimization\n\n"
-    report += "### Alternative Risk Models Group\n"
-    report += "- **LMomentsParticleSwarmOptimizer:** PSO with L-moments\n"
-    report += "- **LMomentsAdjustedReturnsOptimizer:** L-moments based allocation\n"
-    report += "- **HRPOptimizer:** Hierarchical risk parity\n\n"
-    report += "### Advanced Optimization Group\n"
-    report += "- **NCOOptimizer:** Nested clustered optimization\n"
-    report += "- **MomentumOptimizer:** Momentum-based allocation\n"
-    report += "- **CongressSenateOptimizer:** Congress trading patterns\n\n"
-    report += "### Market-Based Group\n"
-    report += "- **MarketCapOptimizer:** Market capitalization weighted\n"
-    report += "- **SPYBenchmark:** S&P 500 benchmark\n\n"
-    report += "### Ensemble Group\n"
-    report += "- **A2AEnsemble:** Average of all individual optimizers\n\n"
+
     report += "## Key Insights and Recommendations\n\n"
     report += "### Performance Insights\n"
 
@@ -355,46 +329,5 @@ For detailed per-run analysis, see the Detailed Computational Analysis section b
         report += f"(avg cluster size: {cluster_analysis.get('avg_cluster_size', 0):.1f} assets)\n"
         report += f"6. **Risk-Return Profile**: {best_sharpe[0]} leads with Sharpe ratio\n"
         report += f"{sharpe_ratio:.2f} (avg return: {best_sharpe[1]['metrics'].get('avg_return', 0)*100:.2f}%)\n"
-
-    # Add technical details and appendix
-    start_date_str = start_date.strftime("%Y-%m-%d")
-    end_date_str = end_date.strftime("%Y-%m-%d")
-    rebalance_freq = config.rebalance_frequency
-    lookback = config.lookback_days
-    fallback = "Equal Weights" if config.use_equal_weights_fallback else "Zero Weights"
-    results_dir = config.results_dir
-
-    report += "## Technical Details\n\n"
-    report += "### Data Quality\n"
-    report += "- **Universe Size**: Approximately 400 assets from Alpaca-available universe\n"
-    report += "- **Data Source**: Yahoo Finance via yfinance library\n"
-    report += "- **Missing Data Handling**: Forward fill with 80% completeness threshold\n\n"
-    report += "### Methodology\n"
-    report += "- **Rebalancing**: Portfolio weights updated every 5 trading days\n"
-    report += "- **Lookback Window**: 90 days of historical data for each optimization\n"
-    report += "- **Execution**: Perfect execution assumed (no slippage, transaction costs, or liquidity constraints)\n"
-    report += "- **Fallback Strategy**: Equal weights used when optimizers fail\n\n"
-    report += "### Risk Considerations\n"
-    report += "- **Survivorship Bias**: Only includes currently available assets\n"
-    report += "- **Look-Ahead Bias**: Avoided by using only historical data at each rebalancing point\n"
-    report += "- **Transaction Costs**: Not included in performance calculations\n"
-    report += "- **Market Impact**: Not considered due to perfect execution assumption\n\n"
-    report += "## Appendix\n\n"
-    report += "### Configuration Parameters\n"
-    report += f"- **Start Date**: {start_date_str}\n"
-    report += f"- **End Date**: {end_date_str}\n"
-    report += f"- **Rebalancing Frequency**: {rebalance_freq} trading days\n"
-    report += f"- **Lookback Period**: {lookback} days\n"
-    report += f"- **Fallback Strategy**: {fallback}\n"
-    report += f"- **Results Directory**: {results_dir}\n\n"
-    report += "### Generated Files\n"
-    report += "- performance_comparison.png: Performance metrics bar charts\n"
-    report += "- portfolio_evolution.png: Portfolio value time series\n"
-    report += "- risk_return_scatter.png: Risk-return scatter plot\n"
-    report += "- clustering_dendrogram.png: Hierarchical clustering visualization\n"
-    report += "- backtest_results.csv: Detailed results in CSV format\n"
-    report += "- optimizer_distances.csv: Pairwise Euclidean distances between optimizers\n\n"
-    report += "---\n"
-    report += "*This report was generated automatically by the comprehensive backtest framework.*"
 
     return report
