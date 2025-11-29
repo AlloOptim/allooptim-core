@@ -78,7 +78,7 @@ class AllocationConstraints:
             return weights
 
         # Clip weights above the threshold
-        clipped_weights = weights.clip(None, max_asset_concentration_pct)
+        clipped_weights = weights.clip(upper=max_asset_concentration_pct)
 
         # Redistribute excess weight to eligible assets (those below the threshold)
         excess_total = (weights - clipped_weights).sum()
@@ -90,7 +90,6 @@ class AllocationConstraints:
                 if total_eligible > 0:
                     redistribution = excess_total * (eligible_weights / total_eligible)
                     clipped_weights.loc[eligible_mask] += redistribution
-                    # Note: We don't clip again after redistribution to preserve total weight sum
 
         # Check if any weights were clipped
         if not clipped_weights.equals(weights):

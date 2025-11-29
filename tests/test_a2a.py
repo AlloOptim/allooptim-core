@@ -14,6 +14,7 @@ from allooptim.allocation_to_allocators.orchestrator_factory import (
     create_orchestrator,
 )
 from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.cash_config import AllowCashOption, CashConfig
 from allooptim.config.stock_universe import list_of_dax_stocks
 from allooptim.covariance_transformer.transformer_list import TRANSFORMER_LIST
 from allooptim.optimizer.optimizer_config import OptimizerConfig
@@ -49,6 +50,7 @@ def test_a2a(orchestrator_type, optimizer_names):
         n_particles=FAST_TEST_PARTICLES,
         n_pso_iterations=FAST_TEST_ITERATIONS,
         custom_a2a_weights=custom_a2a_weights,
+        cash_config=CashConfig(allow_cash_option=AllowCashOption.GLOBAL_FORBID_CASH),
     )
 
     # For Wikipedia pipeline, add specific kwargs

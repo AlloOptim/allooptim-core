@@ -254,6 +254,9 @@ class EqualWeightOrchestrator(BaseOrchestrator):
             case _:
                 raise ValueError(f"Unknown combined weight type: {self.combined_weight_type}")
 
+        # Convert asset_weights to pandas Series for constraint application
+        asset_weights = pd.Series(asset_weights, index=mu.index)
+
         # Store optimizer weights
         for opt_alloc in optimizer_allocations_list:
             optimizer_weights_list.append(
@@ -262,15 +265,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     weight=a2a_weights[opt_alloc.instance_id],
                 )
             )
-
-        # Apply allocation constraints
-        asset_weights = AllocationConstraints.apply_all_constraints(
-            weights=asset_weights,
-            n_max_active_assets=self.config.n_max_active_assets,
-            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
-            n_min_active_assets=self.config.n_min_active_assets,
-            min_weight_threshold=self.config.min_weight_threshold,
-        )
 
         # Apply allocation constraints
         asset_weights = AllocationConstraints.apply_all_constraints(
