@@ -29,7 +29,6 @@ class A2AManager:
     def __init__(
         self,
         a2a_manager_config: Optional[A2AManagerConfig] = None,
-        a2a_config: Optional[A2AConfig] = None,
         **orchestrator_kwargs,
     ) -> None:
         """Initialize the backtest engine.
@@ -37,12 +36,9 @@ class A2AManager:
         Args:
             a2a_manager_config: Configuration for backtest parameters including date ranges,
                 optimizers, and result storage settings.
-            a2a_config: Configuration for allocation-to-allocators orchestration parameters.
             **orchestrator_kwargs: Additional keyword arguments passed to orchestrator creation.
         """
         self.a2a_manager_config = a2a_manager_config or A2AManagerConfig()
-        self.a2a_config = a2a_config or A2AConfig()
-
         self.data_loader = DataLoader(
             benchmark=self.a2a_manager_config.benchmark,
             symbols=self.a2a_manager_config.symbols,
@@ -56,7 +52,7 @@ class A2AManager:
             orchestrator_type=self.a2a_manager_config.orchestration_type,
             optimizer_configs=self.a2a_manager_config.optimizer_configs,
             transformer_names=self.a2a_manager_config.transformer_names,
-            a2a_config=self.a2a_config,
+            a2a_config=self.a2a_manager_config.a2a_config,
             **orchestrator_kwargs,
         )
 

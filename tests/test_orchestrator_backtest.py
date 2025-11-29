@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.backtest.backtest_engine import BacktestEngine
 from allooptim.config.a2a_config import A2AConfig
@@ -34,16 +35,19 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
         warnings.filterwarnings("ignore", message="divide by zero encountered", category=RuntimeWarning)
 
         # Create a minimal backtest configuration using orchestrator
-    config = BacktestConfig(
-        start_date=datetime(2023, 1, 1),
-        end_date=datetime(2023, 1, 10),
-        rebalance_frequency=5,
-        lookback_days=5,  # Minimal lookback
-        optimizer_configs=["NaiveOptimizer", "MomentumOptimizer"],
-        transformer_names=["OracleCovarianceTransformer"],
-        orchestration_type=OrchestratorType.AUTO,
-        benchmark="SPY",
-    )
+        backtest_config = BacktestConfig(
+            start_date=datetime(2023, 1, 1),
+            end_date=datetime(2023, 1, 10),
+            rebalance_frequency=5,
+        )
+
+        a2a_manager_config = A2AManagerConfig(
+            lookback_days=5,  # Minimal lookback
+            optimizer_configs=["NaiveOptimizer", "MomentumOptimizer"],
+            transformer_names=["OracleCovarianceTransformer"],
+            orchestration_type=orchestrator_type,
+            benchmark="SPY",
+        )
 
     # Create A2A config with fast test parameters
     if orchestrator_type == OrchestratorType.CUSTOM_WEIGHT:
@@ -62,14 +66,13 @@ def test_orchestrator_in_backtest(orchestrator_type, fast_a2a_config):
 
     # Create and run backtest with specified orchestrator type
     engine = BacktestEngine(
-        config_backtest=config,
-        a2a_config=a2a_config,
-        orchestrator_type=orchestrator_type,
+        config_backtest=backtest_config,
+        a2a_manager_config=a2a_manager_config,
     )
 
     # Verify orchestrator was set up correctly
-    assert engine.orchestrator is not None
-    assert engine.orchestrator.name is not None
+    assert engine.a2a_manager.orchestrator is not None
+    assert engine.a2a_manager.orchestrator.name is not None
 
     # Create synthetic price data
     dates = pd.date_range("2022-12-20", "2023-01-15", freq="D")  # Cover the backtest period

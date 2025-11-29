@@ -15,6 +15,7 @@ from datetime import datetime
 from typing import Optional
 import pandas as pd
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config import OptimizerConfig
@@ -55,20 +56,25 @@ DEFAULT_OPTIMIZER_CONFIG =[
 
 def main_backtest(
     config_backtest: Optional[BacktestConfig] = None,
+    a2a_manager_config: Optional[A2AManagerConfig] = None,
 ) -> None:
     """Main execution function."""
     logger.info("Starting comprehensive allocation algorithm backtest")
 
     # Use default configs if none provided
     if config_backtest is None:
-        symbols = extract_symbols_from_list(large_stock_universe())
-
         config_backtest = BacktestConfig(
             start_date=datetime(2015, 1, 1),
             end_date=datetime(2025, 1, 1),
             rebalance_frequency=10,
             lookback_days=90,
             quick_test=True,
+        )
+
+    if a2a_manager_config is None:
+        symbols = extract_symbols_from_list(large_stock_universe())
+
+        a2a_manager_config = A2AManagerConfig(
             symbols=symbols,
             optimizer_configs=DEFAULT_OPTIMIZER_CONFIG,
             transformer_names=["OracleCovarianceTransformer"],
@@ -77,10 +83,8 @@ def main_backtest(
 
     try:
 
-        config_a2a = A2AConfig()
-
         # Initialize backtest engine with config
-        backtest_engine = BacktestEngine(config_backtest, config_a2a)
+        backtest_engine = BacktestEngine(config_backtest, a2a_manager_config)
 
         # Run backtest
         results = backtest_engine.run_backtest()
@@ -102,11 +106,11 @@ def main_backtest(
             output_dir=config_backtest.results_dir,
             generate_individual=config_backtest.quantstats_individual,
             generate_top_n=config_backtest.quantstats_top_n,
-            benchmark=config_backtest.benchmark,
+            benchmark=a2a_manager_config.benchmark,
         )
 
         # Generate report
-        report = generate_report(results, clustering_results, config_backtest)
+        report = generate_report(results, clustering_results, config_backtest, a2a_manager_config)
 
         # Save report
         report_path = config_backtest.results_dir / "comprehensive_backtest_report.md"

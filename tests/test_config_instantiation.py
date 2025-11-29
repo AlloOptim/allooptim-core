@@ -8,6 +8,7 @@ correctly defined.
 
 from datetime import datetime
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config import OptimizerConfig
@@ -34,10 +35,21 @@ class TestConfigInstantiation:
         config = BacktestConfig(start_date=start_date, end_date=end_date)
         assert isinstance(config, BacktestConfig)
         # Validate that key fields exist and are properly typed
-        assert hasattr(config, "optimizer_configs")
-        assert isinstance(config.optimizer_configs, list)
+        assert hasattr(config, "rebalance_frequency")
+        assert isinstance(config.rebalance_frequency, int)
         assert config.start_date == start_date
         assert config.end_date == end_date
+
+    def test_a2a_manager_config_instantiation(self):
+        """Test that A2AManagerConfig can be instantiated with defaults."""
+        config = A2AManagerConfig()
+        assert isinstance(config, A2AManagerConfig)
+        # Validate that key fields exist and are properly typed
+        assert hasattr(config, "optimizer_configs")
+        assert isinstance(config.optimizer_configs, list)
+        assert len(config.optimizer_configs) > 0
+        assert hasattr(config, "symbols")
+        assert isinstance(config.symbols, list)
 
     def test_optimizer_config_instantiation(self):
         """Test that OptimizerConfig can be instantiated with defaults."""

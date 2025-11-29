@@ -5,6 +5,7 @@ from datetime import datetime
 
 import pytest
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.config.stock_universe import extract_symbols_from_list, large_stock_universe
 from allooptim.optimizer.optimizer_config import OptimizerConfig
@@ -51,15 +52,17 @@ class TestComprehensiveBacktest:
             quick_start_date=datetime(2022, 12, 31),
             quick_end_date=datetime(2023, 2, 28),
             rebalance_frequency=10,
-            lookback_days=90,
             quick_test=True,
+        )
+
+        a2a_manager_config = A2AManagerConfig(
             symbols=symbols,
             optimizer_configs=optimizer_configs,
         )
 
         with BacktestWarningCatcher():
             try:
-                main_backtest(config_backtest=config_backtest)
+                main_backtest(config_backtest=config_backtest, a2a_manager_config=a2a_manager_config)
 
             except Exception as e:
                 pytest.fail(f"Comprehensive backtest failed to execute: {str(e)}")

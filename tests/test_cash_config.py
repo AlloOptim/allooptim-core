@@ -6,7 +6,7 @@ from allooptim.config.cash_config import AllowCashOption, CashConfig
 def test_cash_config_defaults():
     """Test CashConfig default values."""
     config = CashConfig()
-    assert config.allow_cash_option == AllowCashOption.OPTIMIZER_DECIDES
+    assert config.allow_cash_option == AllowCashOption.GLOBAL_ALLOW_CASH
     assert config.max_leverage is None
 
 

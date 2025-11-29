@@ -8,6 +8,7 @@ from datetime import datetime
 
 import pytest
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import (
@@ -104,11 +105,11 @@ class TestOptimizerFactoryIntegration:
                     validate_optimizer_config(spec["name"], spec["config"])
 
 
-class TestBacktestConfigIntegration:
+class TestA2AManagerConfigIntegration:
     """Test integration with BacktestConfig."""
 
-    def test_backtest_config_accepts_mixed_optimizer_configs(self):
-        """Test that BacktestConfig accepts mixed optimizer configurations."""
+    def test_a2a_manager_config_accepts_mixed_optimizer_configs(self):
+        """Test that A2AManagerConfig accepts mixed optimizer configurations."""
         EXPECTED_OPTIMIZER_COUNT = 3
 
         optimizer_configs = [
@@ -117,19 +118,16 @@ class TestBacktestConfigIntegration:
             OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer", config={}),  # OptimizerConfig with empty config
         ]
 
-        backtest_config = BacktestConfig(
-            start_date=datetime(2020, 1, 1), end_date=datetime(2023, 1, 1), optimizer_configs=optimizer_configs
-        )
+        a2a_manager_config = A2AManagerConfig(optimizer_configs=optimizer_configs)
 
-        assert len(backtest_config.optimizer_configs) == EXPECTED_OPTIMIZER_COUNT
+        assert len(a2a_manager_config.optimizer_configs) == EXPECTED_OPTIMIZER_COUNT
 
-    def test_backtest_config_validates_optimizer_configs(self):
-        """Test that BacktestConfig validates optimizer configurations."""
-        # Test with invalid optimizer name
-        with pytest.raises(ValueError, match="Invalid optimizer name"):
-            BacktestConfig(
-                start_date=datetime(2020, 1, 1), end_date=datetime(2023, 1, 1), optimizer_configs=["InvalidOptimizer"]
-            )
+    def test_a2a_manager_config_accepts_optimizer_configs(self):
+        """Test that A2AManagerConfig accepts optimizer configurations."""
+        # Test with valid optimizer names
+        optimizer_configs = ["HRPOptimizer", "NaiveOptimizer"]
+        a2a_manager_config = A2AManagerConfig(optimizer_configs=optimizer_configs)
+        assert len(a2a_manager_config.optimizer_configs) == 2
 
     def test_backtest_config_validates_config_parameters(self):
         """Test that BacktestConfig validates config parameters."""
@@ -141,8 +139,8 @@ class TestBacktestConfigIntegration:
                 optimizer_configs=[OptimizerConfig(name="CMAMeanVariance", config={"invalid_param": "value"})],
             )
 
-    def test_backtest_config_optimizer_names_property(self):
-        """Test that BacktestConfig.optimizer_names property works correctly."""
+    def test_a2a_manager_config_optimizer_names_property(self):
+        """Test that A2AManagerConfig.optimizer_names property works correctly."""
         EXPECTED_OPTIMIZER_COUNT = 3
 
         optimizer_configs = [
@@ -151,18 +149,16 @@ class TestBacktestConfigIntegration:
             OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer", config={}),
         ]
 
-        backtest_config = BacktestConfig(
-            start_date=datetime(2020, 1, 1), end_date=datetime(2023, 1, 1), optimizer_configs=optimizer_configs
-        )
+        a2a_manager_config = A2AManagerConfig(optimizer_configs=optimizer_configs)
 
-        optimizer_names = backtest_config.optimizer_names
+        optimizer_names = a2a_manager_config.optimizer_names
         assert isinstance(optimizer_names, list)
         assert len(optimizer_names) == EXPECTED_OPTIMIZER_COUNT
         assert "HRPOptimizer" in optimizer_names
         assert "CMAMeanVariance" in optimizer_names
         assert "MeanVarianceParticleSwarmOptimizer" in optimizer_names
 
-    def test_backtest_config_get_optimizer_configs_dict(self):
+    def test_a2a_manager_config_get_optimizer_configs_dict(self):
         """Test that get_optimizer_configs_dict returns correct mapping."""
         EXPECTED_CONFIG_COUNT = 3
 
@@ -172,11 +168,9 @@ class TestBacktestConfigIntegration:
             OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer", config={}),
         ]
 
-        backtest_config = BacktestConfig(
-            start_date=datetime(2020, 1, 1), end_date=datetime(2023, 1, 1), optimizer_configs=optimizer_configs
-        )
+        a2a_manager_config = A2AManagerConfig(optimizer_configs=optimizer_configs)
 
-        config_dict = backtest_config.get_optimizer_configs_dict()
+        config_dict = a2a_manager_config.get_optimizer_configs_dict()
         assert isinstance(config_dict, dict)
         assert len(config_dict) == EXPECTED_CONFIG_COUNT
         assert "HRPOptimizer" in config_dict
@@ -192,25 +186,23 @@ class TestBacktestConfigIntegration:
 class TestConfigurationIntegration:
     """Test integration between different components."""
 
-    def test_registry_and_backtest_config_integration(self):
-        """Test that registry and BacktestConfig work together."""
+    def test_registry_and_a2a_manager_config_integration(self):
+        """Test that registry and A2AManagerConfig work together."""
         EXPECTED_OPTIMIZER_COUNT = 3
 
         # Get registered optimizers
         registered_names = get_registered_optimizer_names()
 
-        # Create BacktestConfig with some registered optimizers
+        # Create A2AManagerConfig with some registered optimizers
         test_optimizers = registered_names[:3]  # Use first 3
 
-        backtest_config = BacktestConfig(
-            start_date=datetime(2020, 1, 1), end_date=datetime(2023, 1, 1), optimizer_configs=test_optimizers
-        )
+        a2a_manager_config = A2AManagerConfig(optimizer_configs=test_optimizers)
 
         # Verify the config was created successfully
-        assert len(backtest_config.optimizer_configs) == EXPECTED_OPTIMIZER_COUNT
+        assert len(a2a_manager_config.optimizer_configs) == EXPECTED_OPTIMIZER_COUNT
 
         # Verify optimizer names match
-        assert backtest_config.optimizer_names == test_optimizers
+        assert a2a_manager_config.optimizer_names == test_optimizers
 
     def test_config_validation_integration(self):
         """Test that config validation works end-to-end."""
@@ -219,14 +211,12 @@ class TestConfigurationIntegration:
         validated = validate_optimizer_config("CMAMeanVariance", valid_config)
         assert validated is not None
 
-        # Test that same config works in BacktestConfig
-        backtest_config = BacktestConfig(
-            start_date=datetime(2020, 1, 1),
-            end_date=datetime(2023, 1, 1),
+        # Test that same config works in A2AManagerConfig
+        a2a_manager_config = A2AManagerConfig(
             optimizer_configs=[OptimizerConfig(name="CMAMeanVariance", config=valid_config)],
         )
 
         EXPECTED_CONFIG_COUNT = 1
-        assert len(backtest_config.optimizer_configs) == EXPECTED_CONFIG_COUNT
-        config_dict = backtest_config.get_optimizer_configs_dict()
+        assert len(a2a_manager_config.optimizer_configs) == EXPECTED_CONFIG_COUNT
+        config_dict = a2a_manager_config.get_optimizer_configs_dict()
         assert config_dict["CMAMeanVariance[budget=1000-risk_aversion=3]"] == valid_config

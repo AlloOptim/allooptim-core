@@ -25,7 +25,7 @@ import pandas as pd
 from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.allocation_to_allocators.a2a_manager import A2AManager
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
-from allooptim.allocation_to_allocators.rebalancer 
+from allooptim.allocation_to_allocators.rebalancer import PortfolioRebalancer
 from allooptim.backtest.performance_metrics import PerformanceMetrics
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
@@ -48,7 +48,6 @@ class BacktestEngine:
     def __init__(
         self,
         config_backtest: Optional[BacktestConfig] = None,
-        a2a_config: Optional[A2AConfig] = None,
         a2a_manager_config: Optional[A2AManagerConfig] = None,
         **orchestrator_kwargs,
     ) -> None:
@@ -57,18 +56,14 @@ class BacktestEngine:
         Args:
             config_backtest: Configuration for backtest parameters including date ranges,
                 optimizers, and result storage settings.
-            a2a_config: Configuration for allocation-to-allocators orchestration parameters.
-            orchestrator_type: Type of orchestrator to use (equal_weight, optimized, etc.).
-                If None, uses the type specified in config_backtest.
+            a2a_manager_config: Configuration for A2A Manager parameters.
             **orchestrator_kwargs: Additional keyword arguments passed to orchestrator creation.
         """
         self.config_backtest = config_backtest or BacktestConfig()
-        self.a2a_config = a2a_config or A2AConfig()
         self.a2a_manager_config = a2a_manager_config or A2AManagerConfig()
             
         self.a2a_manager = A2AManager(
             a2a_manager_config=self.a2a_manager_config,
-            a2a_config=self.a2a_config,
             **orchestrator_kwargs,
         )
 
@@ -87,7 +82,7 @@ class BacktestEngine:
         logger.info("Starting comprehensive backtest")
 
         # Get date range based on debug mode
-        start_data_date, end_data_date = self.config_backtest.get_data_date_range()
+        start_data_date, end_data_date = self._get_data_date_range()
 
         # Load data using A2A Manager
         price_data = self.a2a_manager.load_data(start_data_date, end_data_date)
@@ -106,7 +101,7 @@ class BacktestEngine:
             logger.info(f"Processing rebalance {i+1}/{len(rebalance_dates)}: {rebalance_date}")
 
             # Get lookback window for estimation
-            lookback_start = rebalance_date - timedelta(days=self.config_backtest.lookback_days)
+            lookback_start = rebalance_date - timedelta(days=self.a2a_manager_config.lookback_days)
             lookback_data = price_data[(price_data.index >= lookback_start) & (price_data.index <= rebalance_date)]
 
             if len(lookback_data) < MIN_LOOKBACK_OBSERVATIONS:  # Need minimum data (very reduced for 3-month backtest)
@@ -136,8 +131,8 @@ class BacktestEngine:
 
             # SPY benchmark
             benchmark_weights = pd.Series(0.0, index=clean_data.columns)
-            if self.config_backtest.benchmark in benchmark_weights.index:
-                benchmark_weights[self.config_backtest.benchmark] = 1.0
+            if self.a2a_manager_config.benchmark in benchmark_weights.index:
+                benchmark_weights[self.a2a_manager_config.benchmark] = 1.0
             benchmark_weights_history.append(benchmark_weights)
 
         # Calculate portfolio performance
@@ -154,10 +149,18 @@ class BacktestEngine:
     def _get_rebalance_dates(self, date_index: pd.DatetimeIndex) -> list[datetime]:
         """Get rebalancing dates every N trading days."""
         rebalance_dates = []
-        for i in range(self.config_backtest.lookback_days, len(date_index), self.config_backtest.rebalance_frequency):
+        for i in range(self.a2a_manager_config.lookback_days, len(date_index), self.config_backtest.rebalance_frequency):
             rebalance_dates.append(date_index[i])
 
         return rebalance_dates
+
+    def _get_data_date_range(self) -> tuple[datetime, datetime]:
+        """Get start and end dates for data loading with lookback period."""
+        previous_days = timedelta(days=self.a2a_manager_config.lookback_days)
+
+        if self.config_backtest.quick_test:
+            return self.config_backtest.quick_start_date - previous_days, self.config_backtest.quick_end_date
+        return self.config_backtest.start_date - previous_days, self.config_backtest.end_date
 
     def _save_a2a_allocations(self, allocation_results: list[A2AResult], rebalance_dates: list[datetime]):
         """Save A2A final allocations to CSV file.
@@ -477,7 +480,7 @@ class BacktestEngine:
                     **spy_change_rate_stats,
                 }
 
-                results[self.config_backtest.benchmark] = {
+                results[self.a2a_manager_config.benchmark] = {
                     "metrics": spy_all_metrics,
                     "portfolio_values": spy_portfolio_values,
                     "returns": spy_returns,

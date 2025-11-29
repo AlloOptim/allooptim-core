@@ -19,20 +19,23 @@ import logging
 from datetime import datetime
 from typing import Optional
 
+from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
 from allooptim.config.backtest_config import BacktestConfig
 
 logger = logging.getLogger(__name__)
 
 
-def generate_report(results: dict, clustering_results: dict, config: Optional[BacktestConfig] = None) -> str:
+def generate_report(results: dict, clustering_results: dict, config_backtest: Optional[BacktestConfig] = None, a2a_manager_config: Optional[A2AManagerConfig] = None) -> str:
     """Generate comprehensive markdown report."""
-    if config is None:
-        config = BacktestConfig()
+    if config_backtest is None:
+        config_backtest = BacktestConfig()
+    if a2a_manager_config is None:
+        a2a_manager_config = A2AManagerConfig()
 
     logger.info("Generating comprehensive report")
 
     # Get date range for report
-    start_date, end_date = config.get_report_date_range()
+    start_date, end_date = config_backtest.get_report_date_range()
 
     # Calculate number of individual optimizers (excluding ensemble and benchmark)
     individual_optimizers = [name for name in results if name not in ["A2AEnsemble", "SPY"]]
@@ -42,10 +45,10 @@ def generate_report(results: dict, clustering_results: dict, config: Optional[Ba
 
 **Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}  
 **Period:** {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}  
-**Rebalancing Frequency:** Every {config.rebalance_frequency} trading days  
-**Lookback Window:** {config.lookback_days} days  
+**Rebalancing Frequency:** Every {config_backtest.rebalance_frequency} trading days  
+**Lookback Window:** {a2a_manager_config.lookback_days} days  
 **Number of Individual Optimizers Tested:** {n_individual}
-**Fallback Strategy:** {'Equal Weights' if config.use_equal_weights_fallback else 'Zero Weights'}  
+**Fallback Strategy:** {'Equal Weights' if a2a_manager_config.use_equal_weights_fallback else 'Zero Weights'}  
 
 ## Executive Summary
 
