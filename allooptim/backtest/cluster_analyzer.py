@@ -138,6 +138,12 @@ class ClusterAnalyzer:
 
         # Create correlation matrix
         optimizer_names = list(weights_series.keys())
+
+        # Check that all weight series have the same length
+        lengths = [len(weights_series[name]) for name in optimizer_names]
+        if len(set(lengths)) > 1:
+            return {"message": "Inconsistent weight series lengths for portfolio correlation clustering"}
+
         correlation_matrix = np.corrcoef([weights_series[name] for name in optimizer_names])
 
         # Handle NaN values and ensure symmetry
