@@ -115,13 +115,7 @@ class BacktestConfig(BaseModel):
         default="quantstats_reports", description="Directory name for QuantStats reports within results directory"
     )
     
-    only_trade_on_significant_signals: bool = Field(
-        default=True, description="Whether to only execute trades when significant signals are detected"
-    )
-    
-    significant_signal_threshold: float = Field(
-        default=1.0, ge=0.0, description="Threshold for significant signals to trigger trades"
-    )
+
 
     @field_validator("quantstats_mode", mode="before")
     @classmethod

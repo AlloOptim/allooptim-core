@@ -49,6 +49,11 @@ class AllocationConstraints:
         new_weights = pd.Series(0.0, index=weights.index)
         new_weights[top_assets.index] = top_assets.values
 
+        # Renormalize to maintain original total weight
+        original_sum = weights.sum()
+        if new_weights.sum() > 0:
+            new_weights = new_weights * (original_sum / new_weights.sum())
+
         logger.debug(f"Applied max_active_assets constraint: {len(active_assets)} -> {len(top_assets)} assets")
 
         return new_weights
@@ -75,12 +80,25 @@ class AllocationConstraints:
         # Clip weights above the threshold
         clipped_weights = weights.clip(upper=max_asset_concentration_pct)
 
+        # Redistribute excess weight to eligible assets (those below the threshold)
+        excess_total = (weights - clipped_weights).sum()
+        if excess_total > 0:
+            eligible_mask = clipped_weights < max_asset_concentration_pct
+            if eligible_mask.any():
+                eligible_weights = clipped_weights[eligible_mask]
+                total_eligible = eligible_weights.sum()
+                if total_eligible > 0:
+                    redistribution = excess_total * (eligible_weights / total_eligible)
+                    clipped_weights.loc[eligible_mask] += redistribution
+                    # Clip again to ensure no asset exceeds the threshold after redistribution
+                    clipped_weights = clipped_weights.clip(upper=max_asset_concentration_pct)
+
         # Check if any weights were clipped
         if not clipped_weights.equals(weights):
             clipped_count = (weights > max_asset_concentration_pct).sum()
             logger.debug(
                 f"Applied max_concentration constraint ({max_asset_concentration_pct:.1%}): "
-                f"{clipped_count} assets clipped"
+                f"{clipped_count} assets clipped, excess redistributed"
             )
 
         return clipped_weights

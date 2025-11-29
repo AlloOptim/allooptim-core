@@ -34,22 +34,22 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 DEFAULT_OPTIMIZER_CONFIG =[
-                # Example with default config
-                "CMAMeanVariance",
-                # Example with custom config
-                OptimizerConfig(name="CMALMoments", config={"budget": 2000}),
-                # More optimizers with defaults
-                OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer"),
-                OptimizerConfig(name="LMomentsParticleSwarmOptimizer"),
-                OptimizerConfig(name="NCOSharpeOptimizer"),
+                # # Example with default config
+                # "CMAMeanVariance",
+                # # Example with custom config
+                # OptimizerConfig(name="CMALMoments", config={"budget": 2000}),
+                # # More optimizers with defaults
+                # OptimizerConfig(name="MeanVarianceParticleSwarmOptimizer"),
+                # OptimizerConfig(name="LMomentsParticleSwarmOptimizer"),
+                # OptimizerConfig(name="NCOSharpeOptimizer"),
                 OptimizerConfig(name="NaiveOptimizer"),
                 OptimizerConfig(name="MomentumOptimizer"),
-                OptimizerConfig(name="MeanVarianceAdjustedReturnsOptimizer"),
-                OptimizerConfig(name="SemiVarianceAdjustedReturnsOptimizer"),
-                OptimizerConfig(name="HigherMomentOptimizer"),
-                OptimizerConfig(name="EfficientReturnOptimizer"),
-                OptimizerConfig(name="EfficientRiskOptimizer"),
-                OptimizerConfig(name="MaxSharpeOptimizer"),
+                # OptimizerConfig(name="MeanVarianceAdjustedReturnsOptimizer"),
+                # OptimizerConfig(name="SemiVarianceAdjustedReturnsOptimizer"),
+                # OptimizerConfig(name="HigherMomentOptimizer"),
+                # OptimizerConfig(name="EfficientReturnOptimizer"),
+                # OptimizerConfig(name="EfficientRiskOptimizer"),
+                # OptimizerConfig(name="MaxSharpeOptimizer"),
             ]
 
 
