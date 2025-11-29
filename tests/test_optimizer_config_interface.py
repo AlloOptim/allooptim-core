@@ -8,7 +8,7 @@ from datetime import datetime
 
 import pytest
 
-from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
+from allooptim.config.a2a_manager_config import A2AManagerConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import (

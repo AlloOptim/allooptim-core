@@ -1,5 +1,7 @@
+import math
 from typing import Optional
 import pandas as pd
+from allooptim.config.rebalancer_config import RebalancerConfig
 
 
 class PortfolioRebalancer:
@@ -15,10 +17,12 @@ class PortfolioRebalancer:
 
     Parameters
     ----------
-    ema_alpha : float
-        Smoothing factor for exponential moving average (0 < alpha <= 1).
-        Lower values provide more smoothing and fewer trades.
-        Set to 1.0 to disable smoothing.
+    half_lifetime_days : int
+        Half-life of the smoothing filter in days. The time for the filter response
+        to decay to half its initial value. Used to calculate the filter constant.
+
+    rebalancing_days : int
+        Number of days between rebalancing periods. Used to calculate the filter constant.
 
     absolute_threshold : float
         Absolute deviation threshold for rebalancing (e.g., 0.03 = 3%).
@@ -53,19 +57,22 @@ class PortfolioRebalancer:
 
     def __init__(
         self,
-        ema_alpha: float,
-        absolute_threshold: float,
-        relative_threshold: float ,
-        min_trade_pct: Optional[float],
-        max_trades_per_day: Optional[int],
-        trade_to_band_edge: bool ,
+        rebalancing_days: int,
+        config: Optional[RebalancerConfig] = None,
     ) -> None:
-        self.ema_alpha = ema_alpha
-        self.absolute_threshold = absolute_threshold
-        self.relative_threshold = relative_threshold
-        self.min_trade_pct = min_trade_pct
-        self.max_trades_per_day = max_trades_per_day
-        self.trade_to_band_edge = trade_to_band_edge
+
+        self.config = config or RebalancerConfig()
+        self.rebalancing_days = rebalancing_days
+        
+        # Calculate filter constant for first-order low-pass filter
+        # α = exp(-Δt/τ) where τ = lifetime_days
+        # This gives the correct smoothing constant for the desired life
+        if self.config.filter_lifetime_days > 1000:
+            self.filter_constant = 0.0  # No smoothing
+        else:
+            self.filter_constant = math.exp(
+                -rebalancing_days / self.config.filter_lifetime_days
+            )
 
         self._smoothed_weights: Optional[pd.Series] = None
         self._actual_weights: pd.Series = pd.Series(dtype=float)
@@ -98,7 +105,7 @@ class PortfolioRebalancer:
 
         filtered_trades = self._apply_minimum_trade_filter(trades)
 
-        if self.max_trades_per_day is not None:
+        if self.config.max_trades_per_day is not None:
             final_trades = self._apply_priority_ranking(filtered_trades)
         else:
             final_trades = filtered_trades
@@ -109,7 +116,7 @@ class PortfolioRebalancer:
 
     def _apply_ema_smoothing(self, target_weights: pd.Series) -> pd.Series:
         """
-        Apply exponential moving average smoothing to reduce weight oscillations.
+        Apply first-order low-pass filter smoothing to reduce weight oscillations.
         Maintains state across rebalancing periods.
         """
         if self._smoothed_weights is None:
@@ -120,8 +127,10 @@ class PortfolioRebalancer:
         target_aligned = target_weights.reindex(all_assets, fill_value=0.0)
         smoothed_aligned = self._smoothed_weights.reindex(all_assets, fill_value=0.0)
 
+        # First-order low-pass filter: y[n] = α * y[n-1] + (1-α) * x[n]
+        # where α = filter_constant = exp(-Δt/τ)
         self._smoothed_weights = (
-            self.ema_alpha * target_aligned + (1 - self.ema_alpha) * smoothed_aligned
+            self.filter_constant * smoothed_aligned + (1 - self.filter_constant) * target_aligned
         )
 
         total = self._smoothed_weights.sum()
@@ -152,7 +161,7 @@ class PortfolioRebalancer:
         actual_aligned = self._actual_weights.reindex(all_assets, fill_value=0.0)
         target_aligned = target_weights.reindex(all_assets, fill_value=0.0)
         threshold_aligned = thresholds.reindex(
-            all_assets, fill_value=self.absolute_threshold
+            all_assets, fill_value=self.config.absolute_threshold
         )
 
         deviation = (actual_aligned - target_aligned).abs()
@@ -165,7 +174,7 @@ class PortfolioRebalancer:
             target = target_aligned[asset]
             threshold = threshold_aligned[asset]
 
-            if self.trade_to_band_edge:
+            if self.config.trade_to_band_edge:
                 if actual > target:
                     new_weight = target + threshold
                 else:
@@ -186,11 +195,11 @@ class PortfolioRebalancer:
         if len(trades) == 0:
             return trades
 
-        if self.min_trade_pct is None:
+        if self.config.min_trade_pct is None:
             return trades
 
         trade_sizes = trades.abs()
-        significant_trades = trade_sizes >= self.min_trade_pct
+        significant_trades = trade_sizes >= self.config.min_trade_pct
 
         return trades[significant_trades]
 
@@ -199,7 +208,7 @@ class PortfolioRebalancer:
         Rank trades by priority and execute only the top N most important ones.
         Priority is calculated as deviation weighted by position importance.
         """
-        if len(trades) == 0 or self.max_trades_per_day is None:
+        if len(trades) == 0 or self.config.max_trades_per_day is None:
             return trades
 
         actual_aligned = self._actual_weights.reindex(trades.index, fill_value=0.0)
@@ -208,7 +217,7 @@ class PortfolioRebalancer:
         importance = pd.concat([trades, actual_aligned], axis=1).max(axis=1)
         priority = deviations * importance
 
-        top_trades = priority.nlargest(self.max_trades_per_day)
+        top_trades = priority.nlargest(self.config.max_trades_per_day)
 
         return trades[top_trades.index]
 

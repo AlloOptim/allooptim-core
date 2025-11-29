@@ -22,6 +22,7 @@ from allooptim.covariance_transformer.transformer_list import get_all_transforme
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
 from allooptim.config.a2a_config import A2AConfig
+from allooptim.config.rebalancer_config import RebalancerConfig
 
 logger = logging.getLogger(__name__)
 
@@ -37,9 +38,13 @@ class A2AManagerConfig(BaseModel):
         default_factory=lambda: ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"],
         description="List of asset symbols to include in the backtest",
     )
-    
+
     a2a_config: A2AConfig = Field(
         default_factory=A2AConfig, description="Configuration for A2A orchestration"
+    )
+
+    rebalancer_config: RebalancerConfig = Field(
+        default_factory=RebalancerConfig, description="Configuration for portfolio rebalancing"
     )
 
     cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")

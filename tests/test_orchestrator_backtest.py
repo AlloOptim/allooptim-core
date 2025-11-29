@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
+from allooptim.config.a2a_manager_config import A2AManagerConfig
 from allooptim.allocation_to_allocators.orchestrator_factory import OrchestratorType
 from allooptim.backtest.backtest_engine import BacktestEngine
 from allooptim.config.a2a_config import A2AConfig

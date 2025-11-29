@@ -7,14 +7,14 @@ strategies over historical periods.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 from functools import cached_property
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+
 
 from pydantic import BaseModel, Field, field_validator
 
-from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
+
 from allooptim.config.cash_config import CashConfig
 from allooptim.config.default_pydantic_config import DEFAULT_PYDANTIC_CONFIG
 

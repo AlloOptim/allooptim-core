@@ -22,7 +22,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
+from allooptim.config.a2a_manager_config import A2AManagerConfig
 from allooptim.allocation_to_allocators.a2a_manager import A2AManager
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.rebalancer import PortfolioRebalancer
@@ -64,6 +64,7 @@ class BacktestEngine:
             
         self.a2a_manager = A2AManager(
             a2a_manager_config=self.a2a_manager_config,
+            rebalancing_days=self.config_backtest.rebalance_frequency,
             **orchestrator_kwargs,
         )
 

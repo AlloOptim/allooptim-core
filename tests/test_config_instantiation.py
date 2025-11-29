@@ -8,7 +8,7 @@ correctly defined.
 
 from datetime import datetime
 
-from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
+from allooptim.config.a2a_manager_config import A2AManagerConfig
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config import OptimizerConfig

@@ -12,36 +12,40 @@ class TestPortfolioRebalancer:
 
     def test_rebalancer_initialization(self):
         """Test that rebalancer initializes with correct default parameters."""
-        rebalancer = PortfolioRebalancer()
+        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
-        assert rebalancer.ema_alpha == 0.3
-        assert rebalancer.absolute_threshold == 0.05
-        assert rebalancer.relative_threshold == 0.15
-        assert rebalancer.min_trade_pct is None
-        assert rebalancer.max_trades_per_day == 15
-        assert rebalancer.trade_to_band_edge is True
+        assert rebalancer.rebalancing_days == 20
+        assert rebalancer.config.absolute_threshold == 0.05
+        assert rebalancer.config.relative_threshold == 0.15
+        assert rebalancer.config.min_trade_pct is None
+        assert rebalancer.config.max_trades_per_day == 15
+        assert rebalancer.config.trade_to_band_edge is True
 
     def test_rebalancer_custom_parameters(self):
         """Test rebalancer with custom parameters."""
-        rebalancer = PortfolioRebalancer(
-            ema_alpha=0.5,
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
+            filter_lifetime_days=20,
             absolute_threshold=0.1,
             relative_threshold=0.5,
             min_trade_pct=0.001,
             max_trades_per_day=10,
             trade_to_band_edge=False,
         )
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
-        assert rebalancer.ema_alpha == 0.5
-        assert rebalancer.absolute_threshold == 0.1
-        assert rebalancer.relative_threshold == 0.5
-        assert rebalancer.min_trade_pct == 0.001
-        assert rebalancer.max_trades_per_day == 10
-        assert rebalancer.trade_to_band_edge is False
+        assert rebalancer.rebalancing_days == 20
+        assert rebalancer.config.filter_lifetime_days == 20
+        assert rebalancer.config.absolute_threshold == 0.1
+        assert rebalancer.config.relative_threshold == 0.5
+        assert rebalancer.config.min_trade_pct == 0.001
+        assert rebalancer.config.max_trades_per_day == 10
+        assert rebalancer.config.trade_to_band_edge is False
 
     def test_first_rebalance_no_previous_weights(self):
         """Test first rebalance when no previous weights exist."""
-        rebalancer = PortfolioRebalancer()
+        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
         # Create target weights
         assets = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
@@ -59,7 +63,7 @@ class TestPortfolioRebalancer:
 
     def test_rebalance_with_previous_weights(self):
         """Test rebalance with existing previous weights."""
-        rebalancer = PortfolioRebalancer()
+        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
         assets = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA"]
 
@@ -83,10 +87,13 @@ class TestPortfolioRebalancer:
     def test_rebalance_small_changes_no_trades(self):
         """Test that small changes don't trigger trades when above threshold."""
         # Set high thresholds so small changes don't trigger rebalancing
-        rebalancer = PortfolioRebalancer(
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
             absolute_threshold=0.5,  # 50% threshold
             relative_threshold=1.0,  # 100% of weight
         )
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL", "MSFT"]
         target1 = pd.Series([0.5, 0.5], index=assets)
@@ -103,10 +110,13 @@ class TestPortfolioRebalancer:
     def test_rebalance_large_changes_trigger_trades(self):
         """Test that large changes trigger trades."""
         # Set low thresholds so changes trigger rebalancing
-        rebalancer = PortfolioRebalancer(
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
             absolute_threshold=0.01,  # 1% threshold
             relative_threshold=0.1,  # 10% of weight
         )
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL", "MSFT"]
         target1 = pd.Series([0.5, 0.5], index=assets)
@@ -122,10 +132,13 @@ class TestPortfolioRebalancer:
 
     def test_rebalance_minimum_trade_filter(self):
         """Test minimum trade size filtering."""
-        rebalancer = PortfolioRebalancer(
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
             absolute_threshold=0.01,
             min_trade_pct=0.05,  # 5% minimum trade
         )
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL", "MSFT", "GOOGL"]
         target1 = pd.Series([0.4, 0.4, 0.2], index=assets)
@@ -140,10 +153,13 @@ class TestPortfolioRebalancer:
 
     def test_rebalance_max_trades_limit(self):
         """Test maximum trades per day limit."""
-        rebalancer = PortfolioRebalancer(
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
             absolute_threshold=0.01,
             max_trades_per_day=2,  # Only allow 2 trades
         )
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = [f"ASSET_{i}" for i in range(10)]  # 10 assets
         target1 = pd.Series([0.1] * 10, index=assets)
@@ -157,8 +173,16 @@ class TestPortfolioRebalancer:
         assert result2.sum() == pytest.approx(1.0)
 
     def test_rebalance_ema_smoothing(self):
-        """Test exponential moving average smoothing."""
-        rebalancer = PortfolioRebalancer(ema_alpha=0.5)  # Less smoothing
+        """Test first-order low-pass filter smoothing."""
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
+            filter_lifetime_days=20,  # Approximately equivalent to ema_alpha=0.5 for 20-day rebalancing
+            absolute_threshold=0.05,
+            max_trades_per_day=None,
+            trade_to_band_edge=False,
+        )
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL", "MSFT"]
         target1 = pd.Series([0.5, 0.5], index=assets)
@@ -176,10 +200,13 @@ class TestPortfolioRebalancer:
     def test_rebalance_trade_to_band_edge(self):
         """Test trading to band edge vs target."""
         # Test with trade_to_band_edge=True (default)
-        rebalancer_edge = PortfolioRebalancer(
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
+            filter_lifetime_days=10000,  # No smoothing
             absolute_threshold=0.1,
-            trade_to_band_edge=True,
         )
+        rebalancer_edge = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = ["AAPL"]
         target1 = pd.Series([0.5], index=assets)
@@ -194,7 +221,7 @@ class TestPortfolioRebalancer:
 
     def test_rebalance_normalization(self):
         """Test that weights are properly normalized."""
-        rebalancer = PortfolioRebalancer()
+        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
         assets = ["AAPL", "MSFT", "GOOGL"]
         # Weights that don't sum to 1
@@ -206,7 +233,7 @@ class TestPortfolioRebalancer:
 
     def test_rebalance_empty_target_weights(self):
         """Test handling of empty target weights."""
-        rebalancer = PortfolioRebalancer()
+        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
         empty_weights = pd.Series(dtype=float)
         result = rebalancer.rebalance(empty_weights)
@@ -215,7 +242,7 @@ class TestPortfolioRebalancer:
 
     def test_reset_smoothing(self):
         """Test resetting EMA smoothing state."""
-        rebalancer = PortfolioRebalancer()
+        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
         assets = ["AAPL"]
         target1 = pd.Series([0.5], index=assets)
@@ -233,7 +260,7 @@ class TestPortfolioRebalancer:
 
     def test_get_actual_weights(self):
         """Test getting current actual weights."""
-        rebalancer = PortfolioRebalancer()
+        rebalancer = PortfolioRebalancer(rebalancing_days=20)
 
         assets = ["AAPL", "MSFT"]
         target = pd.Series([0.6, 0.4], index=assets)
@@ -248,12 +275,15 @@ class TestPortfolioRebalancer:
         """Test that rebalancer doesn't break when reducing to constant weights."""
         # This simulates the scenario where rebalancer might reduce allocations to constant
         # but backtest should still work
-        rebalancer = PortfolioRebalancer(
-            ema_alpha=1.0,  # No smoothing
+        from allooptim.config.rebalancer_config import RebalancerConfig
+        
+        config = RebalancerConfig(
+            filter_lifetime_days=1,  # Very short half-life = almost no smoothing
             absolute_threshold=0.0,  # No threshold
             relative_threshold=0.0,  # No threshold
             max_trades_per_day=None,  # No trade limit
         )
+        rebalancer = PortfolioRebalancer(rebalancing_days=20, config=config)
 
         assets = [f"ASSET_{i}" for i in range(100)]
         target = pd.Series([1.0/100] * 100, index=assets)  # Equal weights

@@ -15,7 +15,7 @@ from datetime import datetime
 from typing import Optional
 import pandas as pd
 
-from allooptim.allocation_to_allocators.a2a_manager_config import A2AManagerConfig
+from allooptim.config.a2a_manager_config import A2AManagerConfig
 from allooptim.config.backtest_config import BacktestConfig
 from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.backtest.backtest_engine import BacktestEngine
