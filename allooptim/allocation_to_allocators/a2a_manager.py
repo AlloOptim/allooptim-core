@@ -11,9 +11,9 @@ from allooptim.allocation_to_allocators.a2a_result import A2AResult
 from allooptim.allocation_to_allocators.orchestrator_factory import (
     create_orchestrator,
 )
+from allooptim.allocation_to_allocators.post_processing_constraints import apply_postprocessing_constraints
 from allooptim.allocation_to_allocators.rebalancer import PortfolioRebalancer
 from allooptim.backtest.data_loader import DataLoader
-from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.a2a_manager_config import A2AManagerConfig
 from allooptim.covariance_transformer.transformer_list import get_transformer_by_names
 from allooptim.data.price_data_provider import PriceDataProvider
@@ -120,5 +120,12 @@ class A2AManager:
         )
 
         allocation_result.final_allocation = self.rebalancer.rebalance(allocation_result.final_allocation)
+
+        allocation_result.apply_postprocessing_constraints = (
+            apply_postprocessing_constraints(
+                weights=allocation_result.final_allocation,
+                postprocessing_config=self.a2a_manager_config.postprocessing_config,
+            )
+        )
 
         return allocation_result

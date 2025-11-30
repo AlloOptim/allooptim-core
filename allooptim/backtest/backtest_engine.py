@@ -25,10 +25,9 @@ import pandas as pd
 from allooptim.config.a2a_manager_config import A2AManagerConfig
 from allooptim.allocation_to_allocators.a2a_manager import A2AManager
 from allooptim.allocation_to_allocators.a2a_result import A2AResult
-from allooptim.allocation_to_allocators.rebalancer import PortfolioRebalancer
 from allooptim.backtest.performance_metrics import PerformanceMetrics
-from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.backtest_config import BacktestConfig
+
 logger = logging.getLogger(__name__)
 
 

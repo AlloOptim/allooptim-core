@@ -20,7 +20,6 @@ from allooptim.allocation_to_allocators.a2a_result import (
     OptimizerWeight,
     PerformanceMetrics,
 )
-from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
 from allooptim.allocation_to_allocators.allocation_optimizer import optimize_allocator_weights
 from allooptim.allocation_to_allocators.optimizer_simulator import (
     simulate_optimizers_with_allocation_statistics,
@@ -129,15 +128,6 @@ class OptimizedOrchestrator(BaseOrchestrator):
             )
         )
 
-        # Apply allocation constraints
-        final_allocation = AllocationConstraints.apply_all_constraints(
-            weights=final_allocation,
-            n_max_active_assets=self.config.n_max_active_assets,
-            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
-            n_min_active_assets=self.config.n_min_active_assets,
-            min_weight_threshold=self.config.min_weight_threshold,
-        )
-
         runtime_seconds = time.time() - start_time
 
         # Create A2AResult
@@ -196,11 +186,11 @@ class OptimizedOrchestrator(BaseOrchestrator):
             memory_usage_mb = peak / (1024 * 1024)  # Convert bytes to MB
 
             # Store optimizer allocation
-            weights_series = pd.Series(weights, index=mu.index)
+            final_allocation = pd.Series(weights, index=mu.index)
             optimizer_allocations_list = [
                 OptimizerAllocation(
                     instance_id=optimizer.display_name,
-                    weights=weights_series,
+                    weights=final_allocation,
                     runtime_seconds=runtime_seconds,
                     memory_usage_mb=memory_usage_mb,
                 )
@@ -220,11 +210,11 @@ class OptimizedOrchestrator(BaseOrchestrator):
             fallback_weights = pd.Series(equal_weight, index=mu.index, name=optimizer.name)
 
             # Store fallback allocation
-            weights_series = fallback_weights
+            final_allocation = fallback_weights
             optimizer_allocations_list = [
                 OptimizerAllocation(
                     instance_id=optimizer.display_name,
-                    weights=weights_series,
+                    weights=final_allocation,
                     runtime_seconds=None,
                     memory_usage_mb=None,
                 )
@@ -241,18 +231,6 @@ class OptimizedOrchestrator(BaseOrchestrator):
                 error_components=[],
             )
         ]
-
-        # Final allocation is just the optimizer's weights
-        final_allocation = weights_series
-
-        # Apply allocation constraints
-        final_allocation = AllocationConstraints.apply_all_constraints(
-            weights=final_allocation,
-            n_max_active_assets=self.config.n_max_active_assets,
-            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
-            n_min_active_assets=self.config.n_min_active_assets,
-            min_weight_threshold=self.config.min_weight_threshold,
-        )
 
         # Compute performance metrics
         portfolio_return = (final_allocation * mu).sum()

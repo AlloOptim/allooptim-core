@@ -21,7 +21,6 @@ from allooptim.allocation_to_allocators.a2a_result import (
     OptimizerWeight,
     PerformanceMetrics,
 )
-from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
 from allooptim.allocation_to_allocators.simulator_interface import (
     AbstractObservationSimulator,
 )
@@ -265,15 +264,6 @@ class EqualWeightOrchestrator(BaseOrchestrator):
                     weight=a2a_weights[opt_alloc.instance_id],
                 )
             )
-
-        # Apply allocation constraints
-        asset_weights = AllocationConstraints.apply_all_constraints(
-            weights=asset_weights,
-            n_max_active_assets=self.config.n_max_active_assets,
-            max_asset_concentration_pct=self.config.max_asset_concentration_pct,
-            n_min_active_assets=self.config.n_min_active_assets,
-            min_weight_threshold=self.config.min_weight_threshold,
-        )
 
         # Normalize final asset weights according to global cash settings
         asset_weights_values = normalize_weights_a2a(

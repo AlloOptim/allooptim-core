@@ -23,6 +23,7 @@ from allooptim.optimizer.optimizer_config import OptimizerConfig
 from allooptim.optimizer.optimizer_config_registry import get_optimizer_config_schema
 from allooptim.config.a2a_config import A2AConfig
 from allooptim.config.rebalancer_config import RebalancerConfig
+from allooptim.config.postprocessing_config import PostProcessingConfig
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,10 @@ class A2AManagerConfig(BaseModel):
 
     rebalancer_config: RebalancerConfig = Field(
         default_factory=RebalancerConfig, description="Configuration for portfolio rebalancing"
+    )
+    
+    postprocessing_config: PostProcessingConfig = Field(
+        default_factory=PostProcessingConfig, description="Configuration for post-processing constraints"
     )
 
     cash_config: CashConfig = Field(default_factory=CashConfig, description="Cash and leverage settings")

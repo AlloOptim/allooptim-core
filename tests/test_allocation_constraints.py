@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from allooptim.allocation_to_allocators.allocation_constraints import AllocationConstraints
+from allooptim.allocation_to_allocators.post_processing_constraints import AllocationConstraints
 
 
 class TestAllocationConstraints:
